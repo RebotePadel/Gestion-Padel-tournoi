@@ -1,0 +1,1835 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Moteur Tournois & M/D – Padel Parc</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --blue-strong: #004b9b;
+      --blue-mid: #4d81b9;
+      --blue-soft: #99b7d7;
+      --blue-bg: #e6edf5;
+      --accent: #e5e339;
+      --bg-dark: #020617;
+      --card: #0b1220;
+      --border: #1e293b;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 0 0, rgba(229,227,57,0.25), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(0,75,155,0.55), transparent 60%),
+                  linear-gradient(135deg, #020617, #020617 40%, #001428);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.25), transparent 55%),
+                  #020617;
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+      padding: 16px;
+    }
+
+    /* HEADER GLOBAL */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    #app-logo {
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+      padding: 4px;
+      display: none;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .mode-toggle {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .mode-toggle button { font-size: 0.75rem; }
+
+    /* ROOT SECTIONS */
+    #home-root { display: block; }
+    #admin-root, #tv-root, #tournaments-root { display: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #fffdea, var(--accent));
+      color: #111827;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+    }
+
+    .btn-secondary {
+      background: #020617;
+      color: var(--blue-soft);
+      border: 1px solid #1e293b;
+      box-shadow: none;
+    }
+
+    .btn-small { padding: 4px 9px; font-size: 0.75rem; }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: var(--blue-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.75rem;
+    }
+
+    .small-muted {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .empty {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 6px 4px;
+    }
+
+    /* HOME */
+    .home-hero {
+      text-align: center;
+      margin-bottom: 14px;
+      margin-top: 8px;
+    }
+
+    .home-hero h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+      color: var(--blue-soft);
+    }
+
+    .home-hero p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 800px) {
+      .home-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .home-card {
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid rgba(15,23,42,0.8);
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.2), transparent 55%),
+                  linear-gradient(135deg,#020617,#020c1f);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .home-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .home-card-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .home-card-icon {
+      font-size: 1.3rem;
+    }
+
+    .home-card-body {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .home-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--blue-soft);
+    }
+
+    .home-badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+    }
+
+    /* GENERIC CARD / GRID (ADMIN + TOURNAMENTS) */
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .card {
+      background: linear-gradient(145deg, #020617, #020617 40%, #020c1f);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 12px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field { margin-bottom: 8px; }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--blue-soft);
+      margin-bottom: 3px;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #1e293b;
+      background: #020617;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    input[type="text"]::placeholder { color: #4b5563; }
+
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(229,227,57,0.5);
+    }
+
+    /* ADMIN M/D */
+    .layout-matches {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: minmax(0,1.6fr) minmax(0,1.4fr);
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .layout-matches { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .teams-edit {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 4px 2px;
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid #111827;
+    }
+
+    .team-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #1f2937;
+    }
+
+    .team-chip span { font-size: 0.8rem; }
+
+    .team-chip input {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.8rem;
+      outline: none;
+      min-width: 40px;
+    }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+    }
+    @media (max-width: 700px) {
+      .match-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .match-card {
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      padding: 8px;
+    }
+
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: var(--blue-soft);
+    }
+
+    .teams-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .team-row {
+      display: flex;
+      align-items: center;
+      justify-content:space-between;
+      gap: 4px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      font-size: 0.85rem;
+    }
+
+    .team-row.winner {
+      border-color: var(--success);
+      box-shadow: 0 0 10px rgba(34,197,94,0.5);
+    }
+
+    .team-name { flex: 1; }
+
+    .status-line {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .rest-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 22px;
+      margin-top: 4px;
+    }
+
+    .rest-pill {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      font-size: 0.8rem;
+    }
+
+    .ranking-list {
+      margin-top: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid #111827;
+      background: #020617;
+      padding: 4px 2px;
+    }
+
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-bottom: 1px solid #0b1120;
+      font-size: 0.8rem;
+    }
+
+    .ranking-pos {
+      width: 1.6em;
+      text-align: right;
+      color: var(--blue-soft);
+    }
+
+    .ranking-name { flex: 1; margin: 0 4px; }
+
+    .ranking-points {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ranking-record {
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-left: 4px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
+    /* VUE TV */
+    .tv-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: linear-gradient(90deg,
+                rgba(0,75,155,0.95) 0%,
+                rgba(0,75,155,0.80) 55%,
+                rgba(229,227,57,0.85) 100%);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.9);
+    }
+
+    .tv-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #tv-logo {
+      height: 46px;
+      width: 46px;
+      border-radius: 999px;
+      border: 2px solid rgba(15,23,42,0.7);
+      background: #020617;
+      padding: 4px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .tv-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #tv-tournoi-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #0b1120;
+    }
+
+    #tv-roulement-info {
+      font-size: 0.85rem;
+      color: #111827;
+    }
+
+    .tv-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tv-tag-live {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      background: #b91c1c;
+      color: #fee2e2;
+      box-shadow: 0 0 12px rgba(248,113,113,0.7);
+    }
+
+    .tv-main {
+      display: grid;
+      grid-template-columns: minmax(0,1.4fr) minmax(0,1.3fr);
+      gap: 12px;
+      min-height: 420px;
+    }
+    @media (max-width: 900px) {
+      .tv-main { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .tv-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tv-block {
+      border-radius: 16px;
+      padding: 10px;
+      border: 1px solid rgba(15,23,42,0.8);
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.2), transparent 55%),
+                  #020617;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.9);
+    }
+
+    .tv-block-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--blue-soft);
+    }
+
+    .tv-block-title span:last-child {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .tv-current-list,.tv-next-list {
+      display: grid;
+      grid-template-columns: minmax(0,1fr);
+      gap: 6px;
+    }
+
+    .tv-match-card {
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: linear-gradient(120deg,
+              rgba(0,75,155,0.95) 0%,
+              rgba(46,118,196,0.9) 55%,
+              rgba(229,227,57,0.8) 100%);
+      color: #020617;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tv-match-card-next {
+      background: linear-gradient(135deg,
+              rgba(15,23,42,0.95) 0%,
+              rgba(30,64,175,0.95) 45%,
+              rgba(56,189,248,0.85) 100%);
+      color: #e5f2ff;
+    }
+
+    .tv-match-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      opacity: 0.95;
+    }
+
+    .tv-match-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .tv-match-team-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tv-match-team-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tv-match-tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.6);
+      color: #e5e7eb;
+    }
+
+    .tv-ranking-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 4px;
+      margin-top: 6px;
+    }
+    @media (max-width: 700px) {
+      .tv-ranking-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .tv-ranking-item {
+      border-radius: 10px;
+      padding: 4px 8px;
+      background: linear-gradient(120deg,
+                rgba(15,23,42,0.9),
+                rgba(15,23,42,0.95));
+      border: 1px solid rgba(51,65,85,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .tv-ranking-pos {
+      font-weight: 600;
+      color: var(--blue-soft);
+      width: 1.8em;
+    }
+
+    .tv-ranking-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tv-ranking-points {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .tv-ranking-record {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .tv-podium {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tv-podium-item {
+      flex: 1;
+      border-radius: 12px;
+      padding: 6px 8px;
+      background: linear-gradient(135deg,
+              rgba(229,227,57,0.95),
+              rgba(129,140,248,0.9));
+      color: #111827;
+      text-align: center;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.9);
+      font-size: 0.8rem;
+    }
+
+    .tv-podium-item:nth-child(2) { transform: translateY(-4px); }
+
+    .tv-podium-rank {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.9;
+    }
+
+    .tv-podium-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tv-podium-points {
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .tv-empty {
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 6px 2px;
+    }
+
+    .tv-small-note {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* PAGE TOURNOIS CLASSIQUES */
+    .tournaments-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      gap:8px;
+    }
+
+    .tournaments-grid {
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    @media(max-width:800px){
+      .tournaments-grid{ grid-template-columns:minmax(0,1fr); }
+    }
+
+    .tournament-type-card{
+      border-radius:14px;
+      padding:10px;
+      border:1px solid rgba(15,23,42,0.8);
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.18), transparent 55%),
+                  linear-gradient(135deg,#020617,#020c1f);
+      box-shadow:0 16px 40px rgba(0,0,0,0.85);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:0.85rem;
+    }
+
+    .tournament-type-title{
+      font-size:0.9rem;
+      text-transform:uppercase;
+      letter-spacing:0.14em;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+    }
+
+    .tournament-type-pill{
+      font-size:0.7rem;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid #1f2937;
+      background:#020617;
+      color:var(--blue-soft);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="app-header">
+      <img id="app-logo" alt="Logo club" />
+      <h1 id="app-title">Padel Parc</h1>
+    </div>
+    <div class="subtitle" id="app-subtitle">
+      Gestionnaire de tournois & montante/descendante – Padel Parc
+    </div>
+
+    <!-- PAGE D'ACCUEIL -->
+    <section id="home-root">
+      <div class="home-hero">
+        <h2>Choisis ton mode</h2>
+        <p>Lance un tournoi classique ou une montante / descendante en quelques secondes.</p>
+      </div>
+
+      <div class="home-grid">
+        <!-- Bloc TOURNOIS -->
+        <article class="home-card">
+          <div class="home-card-header">
+            <div>
+              <div class="home-card-title">Tournois classiques</div>
+              <div class="small-muted">Poules, élimination directe, round-robin...</div>
+            </div>
+            <div class="home-card-icon">🏆</div>
+          </div>
+          <div class="home-card-body">
+            Organise des tournois complets avec poules, phases finales ou tableaux
+            d’élimination directe. Idéal pour les gros évènements.
+          </div>
+          <div class="home-card-footer">
+            <span class="home-badge">Bientôt plusieurs formats</span>
+            <button class="btn btn-small" id="btn-home-tournaments">▶ Ouvrir</button>
+          </div>
+        </article>
+
+        <!-- Bloc MONTANTE / DESCENDANTE -->
+        <article class="home-card">
+          <div class="home-card-header">
+            <div>
+              <div class="home-card-title">Montante / descendante</div>
+              <div class="small-muted">Format rapide, fun et flexible</div>
+            </div>
+            <div class="home-card-icon">🔁</div>
+          </div>
+          <div class="home-card-body">
+            Gère une montante / descendante de 6 à 16 équipes, avec vue TV en direct,
+            classement automatique et rotation des terrains.
+          </div>
+          <div class="home-card-footer">
+            <span class="home-badge">Moteur avancé actif</span>
+            <button class="btn btn-small" id="btn-home-md">▶ Ouvrir</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- PAGE ADMIN M/D -->
+    <section id="admin-root">
+      <div class="mode-toggle">
+        <button class="btn btn-secondary btn-small" id="btn-back-home-from-md">🏠 Accueil</button>
+        <button id="btn-go-tv" class="btn btn-secondary btn-small">🎥 Vue TV</button>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Configuration du tournoi M/D</h2>
+          <p>Choisis ton nombre d’équipes (entre 6 et 16) et le nombre de roulements.</p>
+
+          <div class="field">
+            <label for="tournament-name">Nom du tournoi</label>
+            <input id="tournament-name" type="text" placeholder="Tournoi du vendredi soir" />
+          </div>
+
+          <div class="field">
+            <label for="team-count">Nombre d’équipes</label>
+            <select id="team-count"></select>
+          </div>
+
+          <div class="field">
+            <label for="max-roulements">Nombre de roulements</label>
+            <select id="max-roulements">
+              <option value="6">6</option>
+              <option value="8" selected>8</option>
+              <option value="10">10</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+
+          <button class="btn" id="btn-init-teams">Configurer les équipes</button>
+        </div>
+
+        <div class="card">
+          <h2>Équipes</h2>
+          <p>Tu peux renommer les équipes avant de lancer le tournoi.</p>
+          <div id="teams-edit" class="teams-edit">
+            <div class="empty">Configure d’abord le nombre d’équipes.</div>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; gap:6px;">
+            <div class="small-muted" id="teams-info"></div>
+            <button class="btn btn-secondary btn-small" id="btn-random-names">Noms aléatoires</button>
+          </div>
+          <div style="margin-top:8px; text-align:right;">
+            <button class="btn" id="btn-start" disabled>🚀 Lancer la M/D</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tournament-section" class="card" style="margin-top:12px; display:none;">
+        <h2 id="title-tournament">Tournoi</h2>
+        <p id="subtitle-tournament" style="margin-bottom:6px;"></p>
+
+        <div class="top-bar">
+          <div class="chip" id="chip-roulement">Roulement 1 / 8</div>
+          <div class="chip" id="chip-teams">0 équipe</div>
+        </div>
+
+        <div class="layout-matches">
+          <div>
+            <h3 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.14em; margin-top:8px; margin-bottom:4px;">
+              Matchs du roulement <span id="label-roulement">1</span>
+            </h3>
+            <div id="matches-grid" class="match-grid">
+              <div class="empty">Aucun match pour l’instant.</div>
+            </div>
+
+            <div style="margin-top:8px;">
+              <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--blue-soft); margin-bottom:3px;">
+                Équipes au repos
+              </div>
+              <div id="rest-list" class="rest-list"></div>
+            </div>
+
+            <div style="margin-top:8px; display:flex; gap:6px; justify-content:space-between; align-items:center;">
+              <button class="btn btn-secondary btn-small" id="btn-prev-round">◀ Roulement précédent</button>
+              <button class="btn btn-small" id="btn-next-round">Roulement suivant ▶</button>
+            </div>
+
+            <div class="small-muted">
+              Astuce : clique sur “Vainqueur” pour attribuer 3 points. Les affiches sont fixées par roulement,
+              les points servent à organiser les roulements suivants.
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.14em; margin-top:8px; margin-bottom:4px;">
+              Classement général
+            </h3>
+            <div id="ranking" class="ranking-list">
+              <div class="empty">Le classement apparaîtra dès les premiers résultats.</div>
+            </div>
+            <div class="small-muted">
+              3 pts par victoire. Le moteur équilibre le nombre de matchs joués et les repos.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE TOURNOIS CLASSIQUES (mise en page seule) -->
+    <section id="tournaments-root">
+      <div class="tournaments-header">
+        <div>
+          <div style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.14em;">
+            Tournois classiques
+          </div>
+          <div class="small-muted">
+            Choisis un format de tournoi. Les moteurs arriveront progressivement.
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-small" id="btn-back-home-from-tournaments">🏠 Accueil</button>
+      </div>
+
+      <div class="tournaments-grid">
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Poules + phases finales</span>
+            <span class="tournament-type-pill">Idéal 8–32 équipes</span>
+          </div>
+          <p>
+            Les équipes sont réparties en poules, tout le monde se rencontre, puis
+            les meilleures équipes accèdent à un tableau de phases finales.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Disponible bientôt</span>
+            <button class="btn btn-small" disabled>🚧 En cours</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Élimination directe</span>
+            <span class="tournament-type-pill">Tableau KO</span>
+          </div>
+          <p>
+            Un tableau type “Coupe du Monde” : 1/8 de finale, 1/4, 1/2,
+            finale. Possibilité de petits tableaux pour les perdants.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Disponible bientôt</span>
+            <button class="btn btn-small" disabled>🚧 En cours</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Round Robin complet</span>
+            <span class="tournament-type-pill">Tous vs tous</span>
+          </div>
+          <p>
+            Chaque équipe rencontre toutes les autres. Classement final au
+            nombre de victoires et au goal-average.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Disponible bientôt</span>
+            <button class="btn btn-small" disabled>🚧 En cours</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Mode “Fun Night”</span>
+            <span class="tournament-type-pill">Mix & rotation</span>
+          </div>
+          <p>
+            Format plus léger pour les soirées découverte : matchs courts,
+            équipes remixées, rotations automatiques sur les terrains.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Disponible bientôt</span>
+            <button class="btn btn-small" disabled>🚧 En cours</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- VUE TV M/D -->
+    <section id="tv-root">
+      <header class="tv-header">
+        <div class="tv-header-left">
+          <img id="tv-logo" alt="Logo club TV" />
+          <div class="tv-title-block">
+            <div id="tv-tournoi-name">Tournoi</div>
+            <div id="tv-roulement-info">Roulement 1 / 8 • 0 équipes</div>
+          </div>
+        </div>
+        <div class="tv-header-right">
+          <div class="tv-tag-live">🔴 LIVE</div>
+          <button id="btn-back-admin" class="btn btn-secondary btn-small">↩ Mode admin</button>
+        </div>
+      </header>
+
+      <main class="tv-main">
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs en cours</span>
+              <span>Roulement <span id="tv-label-roulement">1</span></span>
+            </div>
+            <div id="tv-current-list" class="tv-current-list">
+              <div class="tv-empty">Lance un tournoi en mode admin pour voir les matchs ici.</div>
+            </div>
+            <div class="tv-small-note">⚡ Terrain 1 = plus fort • Terrain 4 = terrain fun</div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs à venir</span>
+              <span>Prochain roulement</span>
+            </div>
+            <div id="tv-next-list" class="tv-next-list">
+              <div class="tv-empty">Les matchs du prochain roulement apparaîtront ici.</div>
+            </div>
+          </div>
+
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Classement</span>
+              <span>Points cumulés</span>
+            </div>
+            <div id="tv-podium" class="tv-podium"></div>
+            <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
+            <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+
+  <script>
+    /* SKINS */
+    var SKINS = {
+      padelParc: {
+        name: "Padel Parc",
+        subtitle: "Gestionnaire de tournois & M/D – moteur officiel Padel Parc",
+        placeholderTournamentName: "Soirée Padel Parc - Vendredi",
+        logoUrl: "https://lh3.googleusercontent.com/p/AF1QipNpQrOfpCxdRelQ7dF2r-elyslV__xZz5mOazHu=s1360-w1360-h1020-rw",
+        colors: {
+          blueStrong: "#004b9b",
+          blueMid: "#4d81b9",
+          blueSoft: "#99b7d7",
+          blueBg: "#e6edf5",
+          accent: "#e5e339",
+          bgDark: "#020617",
+          card: "#0b1220",
+          border: "#1e293b",
+          text: "#f9fafb",
+          muted: "#9ca3af",
+          success: "#22c55e",
+          danger: "#ef4444"
+        }
+      }
+    };
+
+    var ACTIVE_SKIN_KEY = "padelParc";
+
+    function applySkin() {
+      var skin = SKINS[ACTIVE_SKIN_KEY];
+      if (!skin) return;
+      var root = document.documentElement;
+      var c = skin.colors || {};
+      if (c.blueStrong) root.style.setProperty('--blue-strong', c.blueStrong);
+      if (c.blueMid)    root.style.setProperty('--blue-mid', c.blueMid);
+      if (c.blueSoft)   root.style.setProperty('--blue-soft', c.blueSoft);
+      if (c.blueBg)     root.style.setProperty('--blue-bg', c.blueBg);
+      if (c.accent)     root.style.setProperty('--accent', c.accent);
+      if (c.bgDark)     root.style.setProperty('--bg-dark', c.bgDark);
+      if (c.card)       root.style.setProperty('--card', c.card);
+      if (c.border)     root.style.setProperty('--border', c.border);
+      if (c.text)       root.style.setProperty('--text', c.text);
+      if (c.muted)      root.style.setProperty('--muted', c.muted);
+      if (c.success)    root.style.setProperty('--success', c.success);
+      if (c.danger)     root.style.setProperty('--danger', c.danger);
+
+      var titleEl = document.getElementById("app-title");
+      var subtitleEl = document.getElementById("app-subtitle");
+      var logoEl = document.getElementById("app-logo");
+      var inputName = document.getElementById("tournament-name");
+      if (titleEl && skin.name) titleEl.textContent = skin.name;
+      if (subtitleEl && skin.subtitle) subtitleEl.textContent = skin.subtitle;
+      if (inputName && skin.placeholderTournamentName) {
+        inputName.placeholder = skin.placeholderTournamentName;
+      }
+      if (logoEl) {
+        if (skin.logoUrl) {
+          logoEl.src = skin.logoUrl;
+          logoEl.style.display = "block";
+        } else logoEl.style.display = "none";
+      }
+      var tvLogo = document.getElementById("tv-logo");
+      if (tvLogo) {
+        if (skin.logoUrl) {
+          tvLogo.src = skin.logoUrl;
+          tvLogo.style.display = "block";
+        } else tvLogo.style.display = "none";
+      }
+    }
+
+    /* STATE */
+    var state = {
+      name: "",
+      teamCount: 0,
+      maxRoulements: 8,
+      currentRoulement: 1,
+      teams: [],
+      stats: [],
+      results: {},
+      pairings: {}
+    };
+
+    /* DOM POUR NAVIGATION */
+    var homeRoot        = document.getElementById("home-root");
+    var adminRoot       = document.getElementById("admin-root");
+    var tvRoot          = document.getElementById("tv-root");
+    var tournamentsRoot = document.getElementById("tournaments-root");
+
+    var btnHomeTournaments     = document.getElementById("btn-home-tournaments");
+    var btnHomeMd             = document.getElementById("btn-home-md");
+    var btnBackHomeFromMd     = document.getElementById("btn-back-home-from-md");
+    var btnBackHomeFromT      = document.getElementById("btn-back-home-from-tournaments");
+    var btnGoTv               = document.getElementById("btn-go-tv");
+    var btnBackAdmin          = document.getElementById("btn-back-admin");
+
+    function showScreen(screen) {
+      homeRoot.style.display        = (screen === "home")        ? "block" : "none";
+      adminRoot.style.display       = (screen === "md-admin")    ? "block" : "none";
+      tvRoot.style.display          = (screen === "md-tv")       ? "block" : "none";
+      tournamentsRoot.style.display = (screen === "tournaments") ? "block" : "none";
+    }
+
+    btnHomeTournaments.addEventListener("click", function () {
+      showScreen("tournaments");
+      window.scrollTo(0, 0);
+    });
+
+    btnHomeMd.addEventListener("click", function () {
+      showScreen("md-admin");
+      window.scrollTo(0, 0);
+    });
+
+    btnBackHomeFromMd.addEventListener("click", function () {
+      showScreen("home");
+      window.scrollTo(0, 0);
+    });
+
+    btnBackHomeFromT.addEventListener("click", function () {
+      showScreen("home");
+      window.scrollTo(0, 0);
+    });
+
+    btnGoTv.addEventListener("click", function () {
+      showScreen("md-tv");
+      renderTvView();
+    });
+
+    btnBackAdmin.addEventListener("click", function () {
+      showScreen("md-admin");
+      window.scrollTo(0, 0);
+    });
+
+    /* DOM M/D EXISTANT */
+    var elName           = document.getElementById("tournament-name");
+    var elTeamCount      = document.getElementById("team-count");
+    var elMaxRoulements  = document.getElementById("max-roulements");
+    var elBtnInitTeams   = document.getElementById("btn-init-teams");
+    var elTeamsEdit      = document.getElementById("teams-edit");
+    var elTeamsInfo      = document.getElementById("teams-info");
+    var elBtnRandomNames = document.getElementById("btn-random-names");
+    var elBtnStart       = document.getElementById("btn-start");
+
+    var elTournamentSection = document.getElementById("tournament-section");
+    var elTitleTournament   = document.getElementById("title-tournament");
+    var elSubtitleTournament= document.getElementById("subtitle-tournament");
+    var elChipRoulement     = document.getElementById("chip-roulement");
+    var elChipTeams         = document.getElementById("chip-teams");
+    var elLabelRoulement    = document.getElementById("label-roulement");
+
+    var elMatchesGrid   = document.getElementById("matches-grid");
+    var elRestList      = document.getElementById("rest-list");
+    var elRanking       = document.getElementById("ranking");
+    var elBtnPrevRound  = document.getElementById("btn-prev-round");
+    var elBtnNextRound  = document.getElementById("btn-next-round");
+
+    var elTvTournoiName   = document.getElementById("tv-tournoi-name");
+    var elTvRoulementInfo = document.getElementById("tv-roulement-info");
+    var elTvLabelRoulement= document.getElementById("tv-label-roulement");
+    var elTvCurrentList   = document.getElementById("tv-current-list");
+    var elTvNextList      = document.getElementById("tv-next-list");
+    var elTvPodium        = document.getElementById("tv-podium");
+    var elTvRankingGrid   = document.getElementById("tv-ranking-grid");
+
+    applySkin();
+
+    (function initTeamSelect() {
+      for (var i = 6; i <= 16; i++) {
+        var opt = document.createElement("option");
+        opt.value = i;
+        opt.textContent = i + " équipes";
+        if (i === 8) opt.selected = true;
+        elTeamCount.appendChild(opt);
+      }
+    })();
+
+    /* EVENTS ADMIN M/D */
+    elBtnInitTeams.addEventListener("click", function () {
+      var name = (elName.value || "").trim();
+      var n = parseInt(elTeamCount.value, 10);
+      var maxR = parseInt(elMaxRoulements.value, 10);
+      if (!name) { alert("Merci de saisir un nom de tournoi."); return; }
+      if (isNaN(n) || n < 6 || n > 16) { alert("Le moteur gère entre 6 et 16 équipes."); return; }
+
+      state.name = name;
+      state.teamCount = n;
+      state.maxRoulements = maxR;
+      state.currentRoulement = 1;
+      state.results = {};
+      state.pairings = {};
+      state.teams = [];
+      for (var i = 1; i <= n; i++) state.teams.push({ id: i, name: "Équipe " + i });
+      state.stats = [];
+      for (var j = 0; j < state.teams.length; j++) {
+        state.stats.push({ id: state.teams[j].id, name: state.teams[j].name, wins:0, losses:0, points:0, matches:0 });
+      }
+      renderTeamsEditor();
+      elBtnStart.disabled = false;
+      renderTvView();
+    });
+
+    elBtnRandomNames.addEventListener("click", function () {
+      if (!state.teams.length) return;
+      var baseNames = [
+        "Smash & Co","Padel Kings","Rebote Squad","Ace Hunters","Blue Court","Los Lobos",
+        "Night Session","Padel Crew","Volley Time","Padel Legends","Smash Attack","Team Bandeja",
+        "Chiquita Gang","Padel Stars","Center Court","Last Minute"
+      ];
+      for (var i = 0; i < state.teams.length; i++) {
+        var name = baseNames[i % baseNames.length] + " #" + (i + 1);
+        state.teams[i].name = name;
+        var s = findStatById(state.teams[i].id);
+        if (s) s.name = name;
+      }
+      renderTeamsEditor();
+      if (elTournamentSection.style.display !== "none") {
+        renderRound();
+        renderRanking();
+      }
+      renderTvView();
+    });
+
+    elBtnStart.addEventListener("click", function () {
+      if (!state.teams.length) { alert("Configure d’abord les équipes."); return; }
+      state.currentRoulement = 1;
+      state.results = {};
+      state.pairings = {};
+      for (var i = 0; i < state.stats.length; i++) {
+        state.stats[i].wins = 0;
+        state.stats[i].losses = 0;
+        state.stats[i].points = 0;
+        state.stats[i].matches = 0;
+      }
+      elTournamentSection.style.display = "block";
+      elTitleTournament.textContent = state.name;
+      elSubtitleTournament.textContent =
+        state.teamCount + " équipes • " + state.maxRoulements + " roulements maximum • Montante / Descendante";
+      updateTopBar();
+      renderRound();
+      renderRanking();
+      renderTvView();
+      showScreen("md-admin");
+      window.scrollTo(0, elTournamentSection.offsetTop - 10);
+    });
+
+    elBtnPrevRound.addEventListener("click", function () {
+      if (state.currentRoulement > 1) {
+        state.currentRoulement--;
+        updateTopBar(); renderRound(); renderRanking(); renderTvView();
+      }
+    });
+
+    elBtnNextRound.addEventListener("click", function () {
+      if (state.currentRoulement < state.maxRoulements) {
+        state.currentRoulement++;
+        updateTopBar(); renderRound(); renderRanking(); renderTvView();
+      }
+    });
+
+    /* RENDER ADMIN */
+    function renderTeamsEditor() {
+      if (!state.teams.length) {
+        elTeamsEdit.innerHTML = '<div class="empty">Configure d’abord le nombre d’équipes.</div>';
+        elTeamsInfo.textContent = "";
+        return;
+      }
+      var html = "";
+      for (var i = 0; i < state.teams.length; i++) {
+        var t = state.teams[i];
+        html += '<div class="team-chip"><span>#' + t.id +
+          '</span><input type="text" data-team-id="' + t.id + '" value="' +
+          escapeHtml(t.name) + '" /></div>';
+      }
+      elTeamsEdit.innerHTML = html;
+      elTeamsInfo.textContent = state.teamCount + " équipes configurées.";
+      var inputs = elTeamsEdit.querySelectorAll("input[data-team-id]");
+      for (var j = 0; j < inputs.length; j++) {
+        inputs[j].addEventListener("input", function () {
+          var id = parseInt(this.getAttribute("data-team-id"), 10);
+          var team = findTeamById(id);
+          if (team) {
+            team.name = this.value.trim() || ("Équipe " + id);
+            var s = findStatById(id);
+            if (s) s.name = team.name;
+            if (elTournamentSection.style.display !== "none") {
+              renderRound(); renderRanking();
+            }
+            renderTvView();
+          }
+        });
+      }
+    }
+
+    function updateTopBar() {
+      elChipRoulement.textContent = "Roulement " + state.currentRoulement + " / " + state.maxRoulements;
+      elChipTeams.textContent = state.teamCount + " équipe" + (state.teamCount > 1 ? "s" : "");
+      elLabelRoulement.textContent = String(state.currentRoulement);
+    }
+
+    function renderRound() {
+      var n = state.teamCount;
+      if (!n) {
+        elMatchesGrid.innerHTML = '<div class="empty">Aucun tournoi configuré.</div>';
+        elRestList.innerHTML = "";
+        return;
+      }
+      var info = getMatchesAndRestForRound(state.currentRoulement);
+      var matches = info.matches;
+      var rest = info.restTeams;
+      if (!matches.length) {
+        elMatchesGrid.innerHTML = '<div class="empty">Pas assez d’équipes pour générer des matchs.</div>';
+      } else {
+        var html = "";
+        for (var i = 0; i < matches.length; i++) {
+          var m = matches[i];
+          var key = resultKey(state.currentRoulement, m.terrain);
+          var res = state.results[key] || null;
+          var isWinnerA = res && res.winnerId === m.teamA.id;
+          var isWinnerB = res && res.winnerId === m.teamB.id;
+          html += '<article class="match-card">' +
+              '<div class="match-header"><span>Terrain ' + m.terrain +
+              '</span><span>' + m.label + '</span></div>' +
+              '<div class="teams-row">' +
+                '<div class="team-row ' + (isWinnerA ? "winner" : "") + '">' +
+                  '<span class="team-name">' + escapeHtml(m.teamA.name) + '</span>' +
+                  '<button class="btn btn-small" data-role="win" data-roulement="' +
+                  state.currentRoulement + '" data-terrain="' + m.terrain +
+                  '" data-team-id="' + m.teamA.id + '">✅ Vainqueur</button>' +
+                '</div>' +
+                '<div class="team-row ' + (isWinnerB ? "winner" : "") + '">' +
+                  '<span class="team-name">' + escapeHtml(m.teamB.name) + '</span>' +
+                  '<button class="btn btn-small" data-role="win" data-roulement="' +
+                  state.currentRoulement + '" data-terrain="' + m.terrain +
+                  '" data-team-id="' + m.teamB.id + '">✅ Vainqueur</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="status-line">' +
+                (res ? "Résultat enregistré" : "En attente de résultat") +
+              '</div>' +
+            '</article>';
+        }
+        elMatchesGrid.innerHTML = html;
+      }
+      if (!rest.length) {
+        elRestList.innerHTML = '<span class="small-muted">Aucune équipe au repos sur ce roulement.</span>';
+      } else {
+        var htmlRest = "";
+        for (var j = 0; j < rest.length; j++) {
+          htmlRest += '<span class="rest-pill">' + escapeHtml(rest[j].name) + '</span>';
+        }
+        elRestList.innerHTML = htmlRest;
+      }
+      attachWinnerButtons();
+    }
+
+    function attachWinnerButtons() {
+      var buttons = elMatchesGrid.querySelectorAll("button[data-role='win']");
+      for (var i = 0; i < buttons.length; i++) {
+        buttons[i].addEventListener("click", function () {
+          var r = parseInt(this.getAttribute("data-roulement"), 10);
+          var terrain = parseInt(this.getAttribute("data-terrain"), 10);
+          var winnerId = parseInt(this.getAttribute("data-team-id"), 10);
+          setWinner(r, terrain, winnerId);
+        });
+      }
+    }
+
+    function setWinner(roulement, terrain, winnerId) {
+      var info = getMatchesAndRestForRound(roulement);
+      var matches = info.matches;
+      var match = null;
+      for (var i = 0; i < matches.length; i++) if (matches[i].terrain === terrain) { match = matches[i]; break; }
+      if (!match) return;
+      var teamAId = match.teamA.id;
+      var teamBId = match.teamB.id;
+      var loserId = (winnerId === teamAId) ? teamBId : teamAId;
+      var key = resultKey(roulement, terrain);
+      var prev = state.results[key] || null;
+      if (prev) {
+        var sWPrev = findStatById(prev.winnerId);
+        var sLPrev = findStatById(prev.loserId);
+        if (sWPrev && sLPrev) {
+          sWPrev.points -= 3; sWPrev.wins -= 1; sWPrev.matches -= 1;
+          sLPrev.losses -= 1; sLPrev.matches -= 1;
+        }
+      }
+      state.results[key] = { winnerId: winnerId, loserId: loserId };
+      var sW = findStatById(winnerId);
+      var sL = findStatById(loserId);
+      if (sW && sL) {
+        sW.points += 3; sW.wins += 1; sW.matches += 1;
+        sL.losses += 1; sL.matches += 1;
+      }
+      renderRound(); renderRanking(); renderTvView();
+    }
+
+    function getSortedStatsForRanking() {
+      var statsCopy = state.stats.slice();
+      statsCopy.sort(function (a, b) {
+        if (b.points !== a.points) return b.points - a.points;
+        if (a.matches !== b.matches) return a.matches - b.matches;
+        if (a.name < b.name) return -1;
+        if (a.name > b.name) return 1;
+        return 0;
+      });
+      return statsCopy;
+    }
+
+    function renderRanking() {
+      if (!state.teams.length) {
+        elRanking.innerHTML = '<div class="empty">Le classement apparaîtra ici.</div>';
+        return;
+      }
+      var statsCopy = getSortedStatsForRanking();
+      var anyMatch = statsCopy.some(function (s) { return s.matches > 0; });
+      if (!anyMatch) {
+        elRanking.innerHTML = '<div class="empty">Le classement apparaîtra dès les premiers résultats.</div>';
+        return;
+      }
+      var html = "";
+      for (var j = 0; j < statsCopy.length; j++) {
+        var s = statsCopy[j];
+        var pos = j + 1;
+        html += '<div class="ranking-item">' +
+          '<span class="ranking-pos">' + pos + '.</span>' +
+          '<span class="ranking-name">' + escapeHtml(s.name) + '</span>' +
+          '<span class="ranking-points">' + s.points + ' pts</span>' +
+          '<span class="ranking-record">' + s.wins + 'V - ' + s.losses + 'D (' + s.matches + ' m.)</span>' +
+          '</div>';
+      }
+      elRanking.innerHTML = html;
+    }
+
+    /* ENGINE 6–16 + CAS 16 PAIR/IMPAIR */
+    function planRoundFromStats(roulementNumber) {
+      var n = state.teamCount;
+      var stats = state.stats;
+      if (!n || !stats.length) return { matches: [], restTeams: [] };
+
+      var maxTerrains = Math.min(4, Math.floor(n / 2));
+      var playingCount = maxTerrains * 2;
+      if (playingCount < 2) return { matches: [], restTeams: [] };
+
+      var statsByMatches = stats.slice();
+      var playingStats, restStats;
+
+      if (n === 16 && roulementNumber) {
+        var isEven = roulementNumber % 2 === 0;
+        var playingIds = [];
+        if (isEven) {
+          for (var id = 1; id <= 8; id++) playingIds.push(id);
+        } else {
+          for (var id2 = 9; id2 <= 16; id2++) playingIds.push(id2);
+        }
+        playingStats = statsByMatches.filter(function (s) {
+          return playingIds.indexOf(s.id) !== -1;
+        });
+        restStats = statsByMatches.filter(function (s) {
+          return playingIds.indexOf(s.id) === -1;
+        });
+
+        if (playingStats.length < 2) {
+          statsByMatches.sort(function (a, b) {
+            if (a.matches !== b.matches) return a.matches - b.matches;
+            if (b.points !== a.points) return b.points - a.points;
+            return a.id - b.id;
+          });
+          playingStats = statsByMatches.slice(0, playingCount);
+          restStats = statsByMatches.slice(playingCount);
+        }
+      } else {
+        statsByMatches.sort(function (a, b) {
+          if (a.matches !== b.matches) return a.matches - b.matches;
+          if (b.points !== a.points) return b.points - a.points;
+          return a.id - b.id;
+        });
+        playingStats = statsByMatches.slice(0, playingCount);
+        restStats = statsByMatches.slice(playingCount);
+      }
+
+      var playingSorted = playingStats.slice();
+      playingSorted.sort(function (a, b) {
+        if (b.points !== a.points) return b.points - a.points;
+        if (a.matches !== b.matches) return a.matches - b.matches;
+        return a.id - b.id;
+      });
+
+      var matches = [];
+      for (var t = 1; t <= maxTerrains; t++) {
+        var idxA = (t - 1) * 2;
+        var idxB = idxA + 1;
+        if (idxB >= playingSorted.length) break;
+        var sA = playingSorted[idxA];
+        var sB = playingSorted[idxB];
+        var teamA = findTeamById(sA.id);
+        var teamB = findTeamById(sB.id);
+        if (!teamA || !teamB) continue;
+
+        var label = "";
+        if (t === 1) label = "Terrain fort";
+        else if (t === maxTerrains) label = "Terrain fun";
+        else label = "Terrain intermédiaire";
+
+        matches.push({
+          terrain: t,
+          teamA: teamA,
+          teamB: teamB,
+          label: label
+        });
+      }
+
+      var restTeams = [];
+      for (var r = 0; r < restStats.length; r++) {
+        var team = findTeamById(restStats[r].id);
+        if (team) restTeams.push(team);
+      }
+      return { matches: matches, restTeams: restTeams };
+    }
+
+    function getMatchesAndRestForRound(roulement) {
+      var rec = state.pairings[roulement];
+      if (!rec) {
+        var planned = planRoundFromStats(roulement);
+        var matchesRec = [];
+        var restIds = [];
+        for (var i = 0; i < planned.matches.length; i++) {
+          var m = planned.matches[i];
+          matchesRec.push({
+            terrain: m.terrain,
+            teamAId: m.teamA.id,
+            teamBId: m.teamB.id,
+            label: m.label
+          });
+        }
+        for (var j = 0; j < planned.restTeams.length; j++) {
+          restIds.push(planned.restTeams[j].id);
+        }
+        rec = { matches: matchesRec, restIds: restIds };
+        state.pairings[roulement] = rec;
+      }
+      var outMatches = [];
+      for (var k = 0; k < rec.matches.length; k++) {
+        var mr = rec.matches[k];
+        var teamA = findTeamById(mr.teamAId);
+        var teamB = findTeamById(mr.teamBId);
+        if (!teamA || !teamB) continue;
+        outMatches.push({
+          terrain: mr.terrain,
+          teamA: teamA,
+          teamB: teamB,
+          label: mr.label
+        });
+      }
+      var outRest = [];
+      for (var x = 0; x < rec.restIds.length; x++) {
+        var t = findTeamById(rec.restIds[x]);
+        if (t) outRest.push(t);
+      }
+      return { matches: outMatches, restTeams: outRest };
+    }
+
+    /* VUE TV */
+    function renderTvView() {
+      var nomTournoi = state.name || "Tournoi de padel";
+      elTvTournoiName.textContent = nomTournoi;
+      var infoText = "Roulement " + state.currentRoulement + " / " +
+                     (state.maxRoulements || "–") + " • " +
+                     (state.teamCount || 0) + " équipe" +
+                     (state.teamCount > 1 ? "s" : "");
+      elTvRoulementInfo.textContent = infoText;
+      elTvLabelRoulement.textContent = String(state.currentRoulement);
+
+      if (!state.teamCount || !state.teams.length) {
+        elTvCurrentList.innerHTML = '<div class="tv-empty">Configure et lance un tournoi en mode admin.</div>';
+        elTvNextList.innerHTML    = '<div class="tv-empty">Les matchs à venir apparaîtront ici.</div>';
+        elTvPodium.innerHTML      = "";
+        elTvRankingGrid.innerHTML = "";
+        return;
+      }
+
+      var currentInfo = getMatchesAndRestForRound(state.currentRoulement);
+      var matches = currentInfo.matches;
+      if (!matches.length) {
+        elTvCurrentList.innerHTML = '<div class="tv-empty">Pas assez d’équipes pour générer des matchs sur ce roulement.</div>';
+      } else {
+        var htmlCurrent = "";
+        for (var i = 0; i < matches.length; i++) {
+          var m = matches[i];
+          var key = resultKey(state.currentRoulement, m.terrain);
+          var res = state.results[key] || null;
+          var tagText = res ? "Score validé" : "À jouer";
+          var emoji = res ? "✅" : "🎾";
+          htmlCurrent += '<div class="tv-match-card">' +
+              '<div class="tv-match-top"><span>Terrain ' + m.terrain +
+              ' • ' + escapeHtml(m.label) + '</span><span>' + emoji +
+              ' ' + tagText + '</span></div>' +
+              '<div class="tv-match-teams">' +
+                '<div class="tv-match-team-line">' +
+                  '<span class="tv-match-team-name">' + escapeHtml(m.teamA.name) + '</span>' +
+                  '<span class="tv-match-tag">VS</span>' +
+                '</div>' +
+                '<div class="tv-match-team-line">' +
+                  '<span class="tv-match-team-name">' + escapeHtml(m.teamB.name) + '</span>' +
+                  '<span class="tv-match-tag">⭐</span>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        }
+        elTvCurrentList.innerHTML = htmlCurrent;
+      }
+
+      if (state.currentRoulement >= state.maxRoulements) {
+        elTvNextList.innerHTML = '<div class="tv-empty">Fin de la soirée 👋 Merci à tous les joueurs !</div>';
+      } else if (state.teamCount === 16) {
+        var nextRoundIndex16 = state.currentRoulement + 1;
+        var preview16 = getMatchesAndRestForRound(nextRoundIndex16);
+        var nextMatches16 = preview16.matches;
+        if (!nextMatches16.length) {
+          elTvNextList.innerHTML = '<div class="tv-empty">Les matchs du prochain roulement seront visibles dès que le moteur aura suffisamment d\'infos.</div>';
+        } else {
+          var htmlNext16 = "";
+          for (var j = 0; j < nextMatches16.length; j++) {
+            var nm = nextMatches16[j];
+            htmlNext16 += '<div class="tv-match-card tv-match-card-next">' +
+                '<div class="tv-match-top"><span>Terrain ' + nm.terrain +
+                '</span><span>⏭ À venir</span></div>' +
+                '<div class="tv-match-teams">' +
+                  '<div class="tv-match-team-line">' +
+                    '<span class="tv-match-team-name">' + escapeHtml(nm.teamA.name) + '</span>' +
+                    '<span class="tv-match-tag">VS</span>' +
+                  '</div>' +
+                  '<div class="tv-match-team-line">' +
+                    '<span class="tv-match-team-name">' + escapeHtml(nm.teamB.name) + '</span>' +
+                    '<span class="tv-match-tag">🎯</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+          }
+          elTvNextList.innerHTML = htmlNext16;
+        }
+      } else {
+        var allResultsKnown = true;
+        for (var r = 0; r < matches.length; r++) {
+          var keyCheck = resultKey(state.currentRoulement, matches[r].terrain);
+          if (!state.results[keyCheck]) {
+            allResultsKnown = false;
+            break;
+          }
+        }
+
+        if (!matches.length) {
+          elTvNextList.innerHTML = '<div class="tv-empty">Les prochains matchs seront visibles dès que des matchs seront planifiés.</div>';
+        } else if (!allResultsKnown) {
+          var htmlNextPlaceholder = "";
+          for (var t = 0; t < matches.length; t++) {
+            var mt = matches[t];
+            htmlNextPlaceholder += '' +
+              '<div class="tv-match-card tv-match-card-next">' +
+                '<div class="tv-match-top">' +
+                  '<span>Terrain ' + mt.terrain + '</span>' +
+                  '<span>🔄 En attente de résultats</span>' +
+                '</div>' +
+                '<div class="tv-match-teams">' +
+                  '<div class="tv-match-team-line">' +
+                    '<span class="tv-match-team-name">Vainqueur du T' + mt.terrain + '</span>' +
+                    '<span class="tv-match-tag">↑ monte</span>' +
+                  '</div>' +
+                  '<div class="tv-match-team-line">' +
+                    '<span class="tv-match-team-name">Perdant du T' + mt.terrain + '</span>' +
+                    '<span class="tv-match-tag">↓ descend</span>' +
+                  '</div>' +
+                '</div>' +
+              '</div>';
+          }
+          elTvNextList.innerHTML = htmlNextPlaceholder;
+        } else {
+          var nextRoundIndex = state.currentRoulement + 1;
+          var preview = getMatchesAndRestForRound(nextRoundIndex);
+          var nextMatches = preview.matches;
+          if (!nextMatches.length) {
+            elTvNextList.innerHTML = '<div class="tv-empty">Les matchs du prochain roulement seront calculés après les résultats.</div>';
+          } else {
+            var htmlNext = "";
+            for (var j2 = 0; j2 < nextMatches.length; j2++) {
+              var nm2 = nextMatches[j2];
+              htmlNext += '<div class="tv-match-card tv-match-card-next">' +
+                  '<div class="tv-match-top"><span>Terrain ' + nm2.terrain +
+                  '</span><span>⏭ À venir</span></div>' +
+                  '<div class="tv-match-teams">' +
+                    '<div class="tv-match-team-line">' +
+                      '<span class="tv-match-team-name">' + escapeHtml(nm2.teamA.name) + '</span>' +
+                      '<span class="tv-match-tag">VS</span>' +
+                    '</div>' +
+                    '<div class="tv-match-team-line">' +
+                      '<span class="tv-match-team-name">' + escapeHtml(nm2.teamB.name) + '</span>' +
+                      '<span class="tv-match-tag">🎯</span>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>';
+            }
+            elTvNextList.innerHTML = htmlNext;
+          }
+        }
+      }
+
+      var statsCopy = getSortedStatsForRanking();
+      var anyMatch = statsCopy.some(function (s) { return s.matches > 0; });
+      if (!anyMatch) {
+        elTvPodium.innerHTML = "";
+        elTvRankingGrid.innerHTML = '<div class="tv-empty">Le classement apparaîtra dès les premiers résultats.</div>';
+        return;
+      }
+
+      var podium = statsCopy.slice(0, 3);
+      var labels = ["🥇 1er", "🥈 2e", "🥉 3e"];
+      var podiumHtml = "";
+      for (var p = 0; p < podium.length; p++) {
+        var sP = podium[p];
+        podiumHtml += '<div class="tv-podium-item">' +
+            '<div class="tv-podium-rank">' + labels[p] + '</div>' +
+            '<div class="tv-podium-name">' + escapeHtml(sP.name) + '</div>' +
+            '<div class="tv-podium-points">' + sP.points + ' pts • ' +
+              sP.wins + 'V / ' + sP.losses + 'D</div>' +
+          '</div>';
+      }
+      elTvPodium.innerHTML = podiumHtml;
+
+      var restRank = statsCopy.slice(3);
+      if (!restRank.length) {
+        elTvRankingGrid.innerHTML = "";
+      } else {
+        var gridHtml = "";
+        for (var x = 0; x < restRank.length; x++) {
+          var sR = restRank[x];
+          var posR = x + 4;
+          gridHtml += '<div class="tv-ranking-item">' +
+              '<span class="tv-ranking-pos">' + posR + '.</span>' +
+              '<span class="tv-ranking-name">' + escapeHtml(sR.name) + '</span>' +
+              '<span class="tv-ranking-points">' + sR.points + ' pts</span>' +
+              '<span class="tv-ranking-record">' + sR.wins + 'V/' + sR.losses + 'D</span>' +
+            '</div>';
+        }
+        elTvRankingGrid.innerHTML = gridHtml;
+      }
+    }
+
+    /* UTILS */
+    function resultKey(r, t) { return "R" + r + "-T" + t; }
+
+    function findTeamById(id) {
+      for (var i = 0; i < state.teams.length; i++) if (state.teams[i].id === id) return state.teams[i];
+      return null;
+    }
+
+    function findStatById(id) {
+      for (var i = 0; i < state.stats.length; i++) if (state.stats[i].id === id) return state.stats[i];
+      return null;
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/[&<>"']/g, function (c) {
+        return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c] || c;
+      });
+    }
+  </script>
+</body>
+</html>
