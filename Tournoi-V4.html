@@ -976,6 +976,13 @@
       font-size:14px;
     }
 
+    .tv-match-card.upcoming {
+      background: linear-gradient(120deg, #0b0b0b 0%, #111111 55%, rgba(229,227,57,0.55) 100%);
+      color:#f9fafb;
+      border:1px solid rgba(234,179,8,0.35);
+      box-shadow:0 10px 28px rgba(0,0,0,0.7);
+    }
+
     .tv-match-top {
       display:flex;
       justify-content:space-between;
@@ -1011,6 +1018,17 @@
       background:rgba(15,23,42,0.7);
       color:#e5e7eb;
       font-weight:600;
+    }
+
+    .tv-match-card.upcoming .tv-match-top,
+    .tv-match-card.upcoming .tv-team-line,
+    .tv-match-card.upcoming .tv-team-name,
+    .tv-match-card.upcoming .tv-tag {
+      color:#f9fafb;
+    }
+
+    .tv-match-card.upcoming .tv-tag {
+      background:rgba(234,179,8,0.25);
     }
   </style>
 </head>
@@ -1655,19 +1673,62 @@
         const ids = state.pools[pool];
         if (!ids || ids.length < 2) continue;
 
-        let index = 1;
+        const rawMatches = [];
         for (let i = 0; i < ids.length; i++) {
           for (let j = i + 1; j < ids.length; j++) {
-            state.poolMatches.push({
-              id: "P" + matchIdCounter++,
+            rawMatches.push({
               pool,
               teamA: ids[i],
-              teamB: ids[j],
-              index: index++
+              teamB: ids[j]
             });
           }
         }
+
+        const ordered = orderMatchesWithStreakLimit(rawMatches);
+        ordered.forEach((m, idx) => {
+          state.poolMatches.push({
+            id: "P" + matchIdCounter++,
+            pool,
+            teamA: m.teamA,
+            teamB: m.teamB,
+            index: idx + 1
+          });
+        });
       }
+    }
+
+    function orderMatchesWithStreakLimit(matches) {
+      const remaining = [...matches];
+      const ordered = [];
+      let lastParticipants = new Set();
+      let streak = {};
+
+      while (remaining.length) {
+        let pickIndex = remaining.findIndex(m => {
+          const participants = [m.teamA, m.teamB];
+          return participants.every(t => (lastParticipants.has(t) ? (streak[t] || 1) + 1 : 1) <= 2);
+        });
+
+        if (pickIndex === -1) {
+          // Aucun match ne respecte la contrainte : on réinitialise la série pour débloquer la rotation
+          lastParticipants = new Set();
+          streak = {};
+          pickIndex = 0;
+        }
+
+        const [next] = remaining.splice(pickIndex, 1);
+        ordered.push(next);
+
+        const participants = [next.teamA, next.teamB];
+        const newStreak = {};
+        participants.forEach(t => {
+          newStreak[t] = lastParticipants.has(t) ? (streak[t] || 1) + 1 : 1;
+        });
+        lastParticipants = new Set(participants);
+        streak = newStreak;
+      }
+
+      return ordered;
     }
 
 
@@ -2919,8 +2980,8 @@
     }
 
     function updateTvPoules() {
-      const currentByTerrain = {};
-      const nextByTerrain = {};
+      const currentCards = [];
+      const nextCards = [];
 
       for (const pool of getActivePools()) {
         const terrain = getTerrainForPool(pool);
@@ -2928,61 +2989,36 @@
         const matches = getPoolMatches(pool);
         const pending = matches.filter(m => !state.poolResults[m.id]);
         if (!pending.length) continue;
-        const first = pending[0];
-        const rest = pending.slice(1);
 
-        if (!currentByTerrain[terrain]) currentByTerrain[terrain] = [];
-        if (!nextByTerrain[terrain]) nextByTerrain[terrain] = [];
+        const currentMatch = pending[0];
+        const nextMatch = pending[1] || null;
 
-        currentByTerrain[terrain].push(first);
-        rest.forEach(m => nextByTerrain[terrain].push(m));
+        const addCard = (match, list) => {
+          const teamA = findTeamById(match.teamA);
+          const teamB = findTeamById(match.teamB);
+          const plA = getTeamPoolPlace(match.teamA);
+          const plB = getTeamPoolPlace(match.teamB);
+          list.push({
+            title: "Terrain " + terrain + " • Poule " + match.pool,
+            subtitle: "Match " + match.index,
+            teamA: teamA ? teamA.name : ("Équipe " + match.teamA),
+            teamB: teamB ? teamB.name : ("Équipe " + match.teamB),
+            pool: match.pool,
+            teamAId: match.teamA,
+            teamBId: match.teamB,
+            placeA: plA,
+            placeB: plB
+          });
+        };
+
+        addCard(currentMatch, currentCards);
+        if (nextMatch) {
+          addCard(nextMatch, nextCards);
+        }
       }
 
-      const currentCards = [];
-      const nextCards = [];
-
-      Object.keys(currentByTerrain).sort().forEach(terr => {
-        currentByTerrain[terr].forEach(m => {
-          const teamA = findTeamById(m.teamA);
-          const teamB = findTeamById(m.teamB);
-          const plA = getTeamPoolPlace(m.teamA);
-          const plB = getTeamPoolPlace(m.teamB);
-          currentCards.push({
-            title: "Terrain " + terr + " • Poule " + m.pool,
-            subtitle: "Match " + m.index,
-            teamA: teamA ? teamA.name : ("Équipe " + m.teamA),
-            teamB: teamB ? teamB.name : ("Équipe " + m.teamB),
-            pool: m.pool,
-            teamAId: m.teamA,
-            teamBId: m.teamB,
-            placeA: plA,
-            placeB: plB
-          });
-        });
-      });
-
-      Object.keys(nextByTerrain).sort().forEach(terr => {
-        nextByTerrain[terr].forEach(m => {
-          const teamA = findTeamById(m.teamA);
-          const teamB = findTeamById(m.teamB);
-          const plA = getTeamPoolPlace(m.teamA);
-          const plB = getTeamPoolPlace(m.teamB);
-          nextCards.push({
-            title: "Terrain " + terr + " • Poule " + m.pool,
-            subtitle: "Match " + m.index,
-            teamA: teamA ? teamA.name : ("Équipe " + m.teamA),
-            teamB: teamB ? teamB.name : ("Équipe " + m.teamB),
-            pool: m.pool,
-            teamAId: m.teamA,
-            teamBId: m.teamB,
-            placeA: plA,
-            placeB: plB
-          });
-        });
-      });
-
       renderTvMatchCards(currentCards, elTvLeftList);
-      renderTvMatchCards(nextCards, elTvRightList);
+      renderTvMatchCards(nextCards, elTvRightList, "upcoming");
     }
 
     function updateTvBrackets() {
@@ -3042,7 +3078,7 @@
       renderTvMatchCards(consoCards, elTvRightList);
     }
 
-    function renderTvMatchCards(cards, container) {
+    function renderTvMatchCards(cards, container, variant = "current") {
       if (!cards.length) {
         container.innerHTML = '<div class="empty">Aucun match à afficher.</div>';
         return;
@@ -3050,7 +3086,7 @@
       const frag = document.createDocumentFragment();
       cards.forEach(c => {
         const card = document.createElement("div");
-        card.className = "tv-match-card";
+        card.className = "tv-match-card" + (variant === "upcoming" ? " upcoming" : "");
 
         const top = document.createElement("div");
         top.className = "tv-match-top";
