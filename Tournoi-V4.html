@@ -1422,7 +1422,7 @@
       const selected = parseInt(elTeamCount.value, 10);
       state.teamCount = Math.min(Math.max(selected, 8), 24);
       state.poolCount = computePoolCount(state.teamCount);
-      state.finalFormat = state.teamCount <= 12 ? "8-main" : "16-main-conso";
+      state.finalFormat = state.teamCount >= 12 ? "16-main-conso" : "8-main";
       initTeamsInputs();
       const inputs = elTeamsGrid.querySelectorAll("input[data-team-index]");
       inputs.forEach((inp, idx) => {
@@ -1436,6 +1436,51 @@
       if (teamCount <= 8) return 2;
       if (teamCount <= 12) return 3;
       return 4;
+    }
+
+    function getOverallSeeding() {
+      const entries = [];
+      const activePools = getActivePools();
+
+      activePools.forEach(pool => {
+        const stats = getPoolStats(pool);
+        if (stats.length) {
+          stats.forEach((s, idx) => {
+            entries.push({
+              teamId: s.teamId,
+              pool,
+              pos: idx + 1,
+              wins: s.wins,
+              gamesFor: s.gamesFor,
+              gamesAgainst: s.gamesAgainst
+            });
+          });
+        } else {
+          const ids = state.pools[pool] || [];
+          ids.forEach((id, idx) => {
+            entries.push({
+              teamId: id,
+              pool,
+              pos: idx + 1,
+              wins: 0,
+              gamesFor: 0,
+              gamesAgainst: 0
+            });
+          });
+        }
+      });
+
+      entries.sort((a, b) => {
+        if (a.pos !== b.pos) return a.pos - b.pos;
+        if (b.wins !== a.wins) return b.wins - a.wins;
+        const diffA = a.gamesFor - a.gamesAgainst;
+        const diffB = b.gamesFor - b.gamesAgainst;
+        if (diffB !== diffA) return diffB - diffA;
+        if (b.gamesFor !== a.gamesFor) return b.gamesFor - a.gamesFor;
+        return a.teamId - b.teamId;
+      });
+
+      return entries.map(e => e.teamId);
     }
 
     function getActivePools() {
@@ -1562,7 +1607,7 @@
       ensureTeamsFromInputs();
       state.teamCount = state.teams.length;
       state.poolCount = computePoolCount(state.teamCount);
-      state.finalFormat = state.teamCount <= 12 ? "8-main" : "16-main-conso";
+      state.finalFormat = state.teamCount >= 12 ? "16-main-conso" : "8-main";
       if (state.teamCount < 8 || state.teamCount > 24 || state.teamCount % 2 !== 0) {
         alert("Merci de choisir un nombre d’équipes pair entre 8 et 24.");
         return;
@@ -2149,35 +2194,45 @@
       elBracketsStatus.textContent = "Étape 2/3 : Tableaux en cours";
       state.bracketsReady = true;
       setTabEnabled("main", true);
-      setTabEnabled("conso", state.finalFormat !== "8-main");
+      setTabEnabled("conso", Object.keys(getBracketMatchDef("conso")).length > 0);
       updateTv();
     });
 
     function getBracketMatchDef(bracketType) {
       if (state.finalFormat === "8-main") {
-        if (bracketType !== "main") return {};
-        return {
-          QF1: { label: "Quart 1", from: ["1A","4B"] },
-          QF2: { label: "Quart 2", from: ["2B","3A"] },
-          QF3: { label: "Quart 3", from: ["1B","4A"] },
-          QF4: { label: "Quart 4", from: ["2A","3B"] },
+        if (bracketType === "main") {
+          return {
+            QF1: { label: "Quart 1", seeds: [1,8] },
+            QF2: { label: "Quart 2", seeds: [4,5] },
+            QF3: { label: "Quart 3", seeds: [2,7] },
+            QF4: { label: "Quart 4", seeds: [3,6] },
 
-          SF1: { label: "Demi 1", winnersOf: ["QF1","QF2"] },
-          SF2: { label: "Demi 2", winnersOf: ["QF3","QF4"] },
+            SF1: { label: "Demi 1", winnersOf: ["QF1","QF2"] },
+            SF2: { label: "Demi 2", winnersOf: ["QF3","QF4"] },
 
-          FINAL: { label: "Finale", winnersOf: ["SF1","SF2"] },
-          SMALL_FINAL: { label: "Match 3e place", losersOf: ["SF1","SF2"] },
+            FINAL: { label: "Finale", winnersOf: ["SF1","SF2"] },
+            SMALL_FINAL: { label: "Match 3e place", losersOf: ["SF1","SF2"] },
 
-          PLACE_5_6: { label: "Match 5/6", losersOf: ["QF1","QF2"] },
-          PLACE_7_8: { label: "Match 7/8", losersOf: ["QF3","QF4"] }
-        };
+            PLACE_5_6: { label: "Match 5/6", losersOf: ["QF1","QF2"] },
+            PLACE_7_8: { label: "Match 7/8", losersOf: ["QF3","QF4"] }
+          };
+        }
+
+        if (state.teamCount > 8) {
+          const extraMatches = {};
+          if (state.teamCount >= 10) {
+            extraMatches.PLACE_9_10 = { label: "Match 9/10", seeds: [9,10] };
+          }
+          return extraMatches;
+        }
+        return {};
       }
 
       const main = {
-        QF1: { label: "Quart 1", from: ["1A","2B"] },
-        QF2: { label: "Quart 2", from: ["1C","2D"] },
-        QF3: { label: "Quart 3", from: ["1B","2A"] },
-        QF4: { label: "Quart 4", from: ["1D","2C"] },
+        QF1: { label: "Quart 1", seeds: [1,8] },
+        QF2: { label: "Quart 2", seeds: [4,5] },
+        QF3: { label: "Quart 3", seeds: [2,7] },
+        QF4: { label: "Quart 4", seeds: [3,6] },
 
         SF1: { label: "Demi 1", winnersOf: ["QF1","QF2"] },
         SF2: { label: "Demi 2", winnersOf: ["QF3","QF4"] },
@@ -2189,21 +2244,32 @@
         PLACE_7_8: { label: "Match 7/8", losersOf: ["QF3","QF4"] }
       };
 
-      const conso = {
-        QF1: { label: "Quart 1", from: ["3A","4B"] },
-        QF2: { label: "Quart 2", from: ["3C","4D"] },
-        QF3: { label: "Quart 3", from: ["3B","4A"] },
-        QF4: { label: "Quart 4", from: ["3D","4C"] },
+      const conso = {};
 
-        SF1: { label: "Demi 1", winnersOf: ["QF1","QF2"] },
-        SF2: { label: "Demi 2", winnersOf: ["QF3","QF4"] },
+      if (state.teamCount >= 16) {
+        Object.assign(conso, {
+          QF1: { label: "Quart 1", seeds: [9,16] },
+          QF2: { label: "Quart 2", seeds: [12,13] },
+          QF3: { label: "Quart 3", seeds: [10,15] },
+          QF4: { label: "Quart 4", seeds: [11,14] },
 
-        FINAL: { label: "Finale consolante", winnersOf: ["SF1","SF2"] },
-        SMALL_FINAL: { label: "Match 11/12", losersOf: ["SF1","SF2"] },
+          SF1: { label: "Demi 1", winnersOf: ["QF1","QF2"] },
+          SF2: { label: "Demi 2", winnersOf: ["QF3","QF4"] },
 
-        PLACE_13_14: { label: "Match 13/14", losersOf: ["QF1","QF2"] },
-        PLACE_15_16: { label: "Match 15/16", losersOf: ["QF3","QF4"] }
-      };
+          FINAL: { label: "Finale consolante", winnersOf: ["SF1","SF2"] },
+          SMALL_FINAL: { label: "Match 11/12", losersOf: ["SF1","SF2"] },
+
+          PLACE_13_14: { label: "Match 13/14", losersOf: ["QF1","QF2"] },
+          PLACE_15_16: { label: "Match 15/16", losersOf: ["QF3","QF4"] }
+        });
+      } else if (state.teamCount >= 12) {
+        Object.assign(conso, {
+          SF1: { label: "Demi 1", seeds: [9,12] },
+          SF2: { label: "Demi 2", seeds: [10,11] },
+          FINAL: { label: "Finale consolante", winnersOf: ["SF1","SF2"] },
+          SMALL_FINAL: { label: "Match 11/12", losersOf: ["SF1","SF2"] }
+        });
+      }
 
       return bracketType === "main" ? main : conso;
     }
@@ -2294,6 +2360,13 @@
       if (def.from) {
         const t1 = resolvePoolPlace(def.from[0]);
         const t2 = resolvePoolPlace(def.from[1]);
+        return [t1, t2];
+      }
+
+      if (def.seeds) {
+        const seeding = getOverallSeeding();
+        const t1 = seeding[def.seeds[0] - 1] || null;
+        const t2 = seeding[def.seeds[1] - 1] || null;
         return [t1, t2];
       }
 
@@ -2394,74 +2467,95 @@
       elBracketMainContainer.appendChild(mainCard);
       elBracketMainContainer.appendChild(mainPlacementCard);
 
-      // ================= TABLEAU CONSOLANTE =================
-      if (!Object.keys(consoDef).length) {
+      // ================= TABLEAU CONSOLANTE / CLASSEMENT =================
+      const consoKeys = Object.keys(consoDef);
+      if (!consoKeys.length) {
         elBracketConsoContainer.innerHTML = '<div class="empty">Ce format utilise uniquement le tableau principal.</div>';
       } else {
+        const consoHasQF = ["QF1","QF2","QF3","QF4"].some(k => consoDef[k]);
+        const consoHasSF = ["SF1","SF2"].some(k => consoDef[k]);
         const consoCard = document.createElement("article");
         consoCard.className = "bracket-card";
         const consoTitle = document.createElement("div");
         consoTitle.className = "bracket-title";
-        consoTitle.innerHTML = '<span>Tableau consolante</span><span class="badge">9–16</span>';
+        const consoRange = state.teamCount >= 16 ? "9–16" : "9–12";
+        const consoLabel = state.teamCount >= 12 ? "Tableau consolante" : "Classement complémentaire";
+        consoTitle.innerHTML = `<span>${consoLabel}</span><span class="badge">${consoRange}</span>`;
         consoCard.appendChild(consoTitle);
 
-        const consoTree = document.createElement("div");
-        consoTree.className = "bracket-tree";
+        if (consoHasQF || consoHasSF) {
+          const consoTree = document.createElement("div");
+          consoTree.className = "bracket-tree";
 
-        const consoColQF = document.createElement("div");
-        consoColQF.className = "bracket-column";
-        const consoColQFTitle = document.createElement("div");
-        consoColQFTitle.className = "bracket-column-title";
-        consoColQFTitle.textContent = "Quarts de finale";
-        consoColQF.appendChild(consoColQFTitle);
+          if (consoHasQF) {
+            const consoColQF = document.createElement("div");
+            consoColQF.className = "bracket-column";
+            const consoColQFTitle = document.createElement("div");
+            consoColQFTitle.className = "bracket-column-title";
+            consoColQFTitle.textContent = "Quarts de finale";
+            consoColQF.appendChild(consoColQFTitle);
+            ["QF1","QF2","QF3","QF4"].forEach(key => {
+              if (consoDef[key]) consoColQF.appendChild(renderBracketMatch("conso", key, consoDef, "stage-qf"));
+            });
+            consoTree.appendChild(consoColQF);
+          }
 
-        const consoColSF = document.createElement("div");
-        consoColSF.className = "bracket-column";
-        const consoColSFTitle = document.createElement("div");
-        consoColSFTitle.className = "bracket-column-title";
-        consoColSFTitle.textContent = "Demi-finales";
-        consoColSF.appendChild(consoColSFTitle);
+          if (consoHasSF) {
+            const consoColSF = document.createElement("div");
+            consoColSF.className = "bracket-column";
+            const consoColSFTitle = document.createElement("div");
+            consoColSFTitle.className = "bracket-column-title";
+            consoColSFTitle.textContent = consoHasQF ? "Demi-finales" : "Demi-finales consolante";
+            consoColSF.appendChild(consoColSFTitle);
+            ["SF1","SF2"].forEach(key => {
+              if (consoDef[key]) consoColSF.appendChild(renderBracketMatch("conso", key, consoDef, "stage-sf"));
+            });
+            consoTree.appendChild(consoColSF);
+          }
 
-        const consoColFinal = document.createElement("div");
-        consoColFinal.className = "bracket-column";
-        const consoColFinalTitle = document.createElement("div");
-        consoColFinalTitle.className = "bracket-column-title";
-        consoColFinalTitle.textContent = "Finale";
-        consoColFinal.appendChild(consoColFinalTitle);
+          const consoColFinal = document.createElement("div");
+          consoColFinal.className = "bracket-column";
+          const consoColFinalTitle = document.createElement("div");
+          consoColFinalTitle.className = "bracket-column-title";
+          consoColFinalTitle.textContent = "Finale";
+          consoColFinal.appendChild(consoColFinalTitle);
+          if (consoDef.FINAL) consoColFinal.appendChild(renderBracketMatch("conso", "FINAL", consoDef, "stage-final"));
+          consoTree.appendChild(consoColFinal);
 
-        ["QF1","QF2","QF3","QF4"].forEach(key => {
-          consoColQF.appendChild(renderBracketMatch("conso", key, consoDef, "stage-qf"));
-        });
-        ["SF1","SF2"].forEach(key => {
-          consoColSF.appendChild(renderBracketMatch("conso", key, consoDef, "stage-sf"));
-        });
-        ["FINAL"].forEach(key => {
-          consoColFinal.appendChild(renderBracketMatch("conso", key, consoDef, "stage-final"));
-        });
+          consoCard.appendChild(consoTree);
 
-        consoTree.appendChild(consoColQF);
-        consoTree.appendChild(consoColSF);
-        consoTree.appendChild(consoColFinal);
+          const consoPlacementCard = document.createElement("article");
+          consoPlacementCard.className = "bracket-card";
+          const consoPlacementTitle = document.createElement("div");
+          consoPlacementTitle.className = "bracket-title";
+          consoPlacementTitle.innerHTML = `<span>Matchs de classement (${consoRange})</span>`;
+          consoPlacementCard.appendChild(consoPlacementTitle);
 
-        consoCard.appendChild(consoTree);
+          const consoPlacementBody = document.createElement("div");
+          ["SMALL_FINAL","PLACE_13_14","PLACE_15_16"].forEach(key => {
+            if (!consoDef[key]) return;
+            const stageClass = key === "SMALL_FINAL" ? "stage-small-final" : "stage-placement";
+            consoPlacementBody.appendChild(renderBracketMatch("conso", key, consoDef, stageClass));
+          });
+          consoPlacementCard.appendChild(consoPlacementBody);
 
-        const consoPlacementCard = document.createElement("article");
-        consoPlacementCard.className = "bracket-card";
-        const consoPlacementTitle = document.createElement("div");
-        consoPlacementTitle.className = "bracket-title";
-        consoPlacementTitle.innerHTML = '<span>Matchs de classement (9–16)</span>';
-        consoPlacementCard.appendChild(consoPlacementTitle);
-
-        const consoPlacementBody = document.createElement("div");
-        ["SMALL_FINAL","PLACE_13_14","PLACE_15_16"].forEach(key => {
-          const stageClass = key === "SMALL_FINAL" ? "stage-small-final" : "stage-placement";
-          consoPlacementBody.appendChild(renderBracketMatch("conso", key, consoDef, stageClass));
-        });
-        consoPlacementCard.appendChild(consoPlacementBody);
-
-        elBracketConsoContainer.innerHTML = "";
-        elBracketConsoContainer.appendChild(consoCard);
-        elBracketConsoContainer.appendChild(consoPlacementCard);
+          elBracketConsoContainer.innerHTML = "";
+          elBracketConsoContainer.appendChild(consoCard);
+          if (consoPlacementBody.childNodes.length) {
+            elBracketConsoContainer.appendChild(consoPlacementCard);
+          }
+        } else {
+          const consoPlacementBody = document.createElement("div");
+          consoPlacementBody.style.display = "flex";
+          consoPlacementBody.style.flexDirection = "column";
+          consoPlacementBody.style.gap = "12px";
+          consoKeys.forEach(key => {
+            consoPlacementBody.appendChild(renderBracketMatch("conso", key, consoDef, "stage-placement"));
+          });
+          consoCard.appendChild(consoPlacementBody);
+          elBracketConsoContainer.innerHTML = "";
+          elBracketConsoContainer.appendChild(consoCard);
+        }
       }
 
       attachCollapseHandlers();
@@ -2628,11 +2722,13 @@
       const defMain = getBracketMatchDef("main");
       const defConso = getBracketMatchDef("conso");
 
-      const allKeysMain = Object.keys(defMain);
-      const allKeysConso = Object.keys(defConso);
+      const playable = (type, defMap) => Object.keys(defMap).filter(k => {
+        const [t1, t2] = getBracketMatchTeams(type, k);
+        return t1 && t2;
+      });
 
-      const allDoneMain = allKeysMain.every(k => !!getBracketResult("main", k));
-      const allDoneConso = allKeysConso.every(k => !!getBracketResult("conso", k));
+      const allDoneMain = playable("main", defMain).every(k => !!getBracketResult("main", k));
+      const allDoneConso = playable("conso", defConso).every(k => !!getBracketResult("conso", k));
 
       if (!allDoneMain || !allDoneConso) return;
 
@@ -2660,19 +2756,22 @@
         ranking.push({ pos:8, teamId: p7_8.loserId });
       }
 
-      if (state.finalFormat !== "8-main") {
+      if (Object.keys(defConso).length) {
         const finalConso = getBracketResult("conso","FINAL");
         const smallConso = getBracketResult("conso","SMALL_FINAL");
         const p13_14 = getBracketResult("conso","PLACE_13_14");
         const p15_16 = getBracketResult("conso","PLACE_15_16");
+        const p9_10 = getBracketResult("conso","PLACE_9_10");
 
         if (finalConso) {
-          ranking.push({ pos:9, teamId: finalConso.winnerId });
-          ranking.push({ pos:10, teamId: finalConso.loserId });
+          const base = state.teamCount >= 16 ? 9 : 9;
+          ranking.push({ pos:base, teamId: finalConso.winnerId });
+          ranking.push({ pos:base+1, teamId: finalConso.loserId });
         }
         if (smallConso) {
-          ranking.push({ pos:11, teamId: smallConso.winnerId });
-          ranking.push({ pos:12, teamId: smallConso.loserId });
+          const baseSmall = state.teamCount >= 16 ? 11 : 11;
+          ranking.push({ pos:baseSmall, teamId: smallConso.winnerId });
+          ranking.push({ pos:baseSmall+1, teamId: smallConso.loserId });
         }
         if (p13_14) {
           ranking.push({ pos:13, teamId: p13_14.winnerId });
@@ -2681,6 +2780,10 @@
         if (p15_16) {
           ranking.push({ pos:15, teamId: p15_16.winnerId });
           ranking.push({ pos:16, teamId: p15_16.loserId });
+        }
+        if (p9_10) {
+          ranking.push({ pos:9, teamId: p9_10.winnerId });
+          ranking.push({ pos:10, teamId: p9_10.loserId });
         }
       }
 
@@ -2807,9 +2910,10 @@
         elTvLeftList.innerHTML = '<div class="empty">Les poules sont terminées. Génère les tableaux pour continuer.</div>';
         elTvRightList.innerHTML = '<div class="empty">En attente de génération des tableaux.</div>';
       } else {
+        const hasConso = Object.keys(getBracketMatchDef("conso")).length > 0;
         elTvPhaseTag.textContent = "TABLEAUX";
         elTvLeftTitle.textContent = "Tableau principal – matchs";
-        elTvRightTitle.textContent = state.finalFormat === "8-main" ? "Matchs de classement" : "Tableau consolante – matchs";
+        elTvRightTitle.textContent = hasConso ? "Tableau consolante – matchs" : "Matchs de classement";
         updateTvBrackets();
       }
     }
@@ -3087,7 +3191,7 @@
       elGamesPerSet.value = state.gamesPerSet;
       elTeamCount.value = state.teamCount;
       state.poolCount = computePoolCount(state.teamCount);
-      state.finalFormat = state.teamCount <= 12 ? "8-main" : "16-main-conso";
+      state.finalFormat = state.teamCount >= 12 ? "16-main-conso" : "8-main";
       initTeamsInputs();
       const inputs = elTeamsGrid.querySelectorAll("input[data-team-index]");
       inputs.forEach((inp, idx) => {
@@ -3112,7 +3216,7 @@
       elBracketsStatus.textContent = state.bracketsReady ? "Étape 2/3 : Tableaux en cours" : "Étape 2/3 : Tableaux à générer";
       setTabEnabled("poules", true);
       setTabEnabled("main", true);
-      setTabEnabled("conso", state.finalFormat !== "8-main");
+      setTabEnabled("conso", Object.keys(getBracketMatchDef("conso")).length > 0);
       if (state.finalRanking.length) setTabEnabled("classement", true);
       showTab("poules");
       updateTv();
