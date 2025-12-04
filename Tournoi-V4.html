@@ -666,23 +666,26 @@
     }
 
     .bracket-tree {
-      display:flex;
-      justify-content:center;
+      display:grid;
+      grid-template-columns:1.15fr 1fr 0.9fr;
+      justify-items:stretch;
       align-items:flex-start;
-      gap:14px;
-      margin-top:8px;
-      flex-wrap:wrap;
+      gap:24px;
+      margin-top:12px;
       width:100%;
     }
+    .bracket-tree .stage-qf-column {justify-self:start;}
+    .bracket-tree .stage-sf-column {justify-self:center;}
+    .bracket-tree .final-column {justify-self:end;}
     @media(max-width:1200px){
-      .bracket-tree{justify-content:flex-start;}
+      .bracket-tree{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:14px;}
     }
 
     .bracket-column {
       display:flex;
       flex-direction:column;
-      gap:8px;
-      min-width:200px;
+      gap:12px;
+      min-width:240px;
     }
 
     .bracket-column.final-column {
@@ -706,9 +709,9 @@
     .bracket-match-row {
       border-radius:10px;
       border:1px solid #111827;
-      padding:6px 8px;
+      padding:10px 12px;
       margin-bottom:4px;
-      font-size:13px;
+      font-size:14px;
       background:linear-gradient(145deg,#020617,#050b18);
     }
 
@@ -2549,14 +2552,14 @@
       mainTree.className = "bracket-tree";
 
       const mainColQF = document.createElement("div");
-      mainColQF.className = "bracket-column";
+      mainColQF.className = "bracket-column stage-qf-column";
       const mainColQFTitle = document.createElement("div");
       mainColQFTitle.className = "bracket-column-title";
       mainColQFTitle.textContent = "Quarts de finale";
       mainColQF.appendChild(mainColQFTitle);
 
       const mainColSF = document.createElement("div");
-      mainColSF.className = "bracket-column";
+      mainColSF.className = "bracket-column stage-sf-column";
       const mainColSFTitle = document.createElement("div");
       mainColSFTitle.className = "bracket-column-title";
       mainColSFTitle.textContent = "Demi-finales";
@@ -2625,7 +2628,7 @@
 
           if (consoHasQF) {
             const consoColQF = document.createElement("div");
-            consoColQF.className = "bracket-column";
+            consoColQF.className = "bracket-column stage-qf-column";
             const consoColQFTitle = document.createElement("div");
             consoColQFTitle.className = "bracket-column-title";
             consoColQFTitle.textContent = "Quarts de finale";
@@ -2638,7 +2641,7 @@
 
           if (consoHasSF) {
             const consoColSF = document.createElement("div");
-            consoColSF.className = "bracket-column";
+            consoColSF.className = "bracket-column stage-sf-column";
             const consoColSFTitle = document.createElement("div");
             consoColSFTitle.className = "bracket-column-title";
             consoColSFTitle.textContent = consoHasQF ? "Demi-finales" : "Demi-finales consolante";
