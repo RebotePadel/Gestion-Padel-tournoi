@@ -219,6 +219,10 @@
       margin-top:8px;
     }
 
+    .history-standalone {
+      margin-top:18px;
+    }
+
     .tab-btn {
       padding:8px 14px;
       border-radius:999px;
@@ -662,19 +666,32 @@
     }
 
     .bracket-tree {
-      display:grid;
-      grid-template-columns: repeat(4, minmax(0,1fr));
-      gap:10px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      gap:14px;
       margin-top:8px;
+      flex-wrap:wrap;
+      width:100%;
     }
     @media(max-width:1200px){
-      .bracket-tree{grid-template-columns:minmax(0,1fr);}
+      .bracket-tree{justify-content:flex-start;}
     }
 
     .bracket-column {
       display:flex;
       flex-direction:column;
       gap:8px;
+      min-width:200px;
+    }
+
+    .bracket-column.final-column {
+      align-items:center;
+    }
+
+    .bracket-column.final-column .bracket-match-row {
+      width:100%;
+      max-width:240px;
     }
 
     .bracket-column-title {
@@ -795,6 +812,8 @@
       display:flex;
       gap:10px;
       align-items:flex-end;
+      justify-content:center;
+      flex-wrap:wrap;
     }
 
     .podium-col {
@@ -820,6 +839,13 @@
     .podium-col--second,
     .podium-col--third {
       min-height:130px;
+    }
+
+    .podium-emoji {
+      font-size:46px;
+      line-height:1;
+      margin-bottom:6px;
+      text-align:center;
     }
 
     .podium-rank {
@@ -1055,7 +1081,7 @@
         </label>
         <div class="app-header-text">
           <h1>Tournoi classique</h1>
-          <div class="subtitle">4 poules de 4 • tableaux principal & consolante • classement 1 → 16</div>
+          <div class="subtitle" id="admin-subtitle">Poules + tableaux • … équipes</div>
           <div class="small-muted">Upload ton logo et configure ton tournoi dans l’onglet “Configuration”.</div>
         </div>
       </div>
@@ -1069,7 +1095,6 @@
 
     <nav class="tabs">
       <button class="tab-btn active" data-tab="config">Configuration</button>
-      <button class="tab-btn" data-tab="history">Historique</button>
       <button class="tab-btn disabled" data-tab="poules">Phases de poules</button>
       <button class="tab-btn disabled" data-tab="main">Tableau principal</button>
       <button class="tab-btn disabled" data-tab="conso">Tableau consolante</button>
@@ -1199,26 +1224,6 @@
       </article>
     </section>
 
-    <!-- HISTORIQUE TAB -->
-    <section id="tab-history" class="tab-panel">
-      <article class="card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <h2>Historique des tournois</h2>
-            <p>Sauvegarde locale, chargement et suppression des tournois.</p>
-          </div>
-          <button class="collapse-toggle" data-target="history-body">−</button>
-        </div>
-        <div id="history-body" class="card-body">
-          <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
-            <button id="btn-save-history" class="btn">💾 Sauvegarder le tournoi actuel</button>
-            <span class="small-muted">Les données sont stockées uniquement dans ton navigateur.</span>
-          </div>
-          <div id="history-list" class="card" style="background:transparent; border:1px dashed var(--border);"></div>
-        </div>
-      </article>
-    </section>
-
     <!-- POULES TAB -->
     <section id="tab-poules" class="tab-panel">
       <article class="card">
@@ -1288,7 +1293,7 @@
         <div class="card-header">
           <div class="card-header-title">
             <h2>Classement final</h2>
-            <p>Podium des 3 premiers et classement complet des 16 équipes.</p>
+            <p>Podium des 3 premiers et classement complet de toutes les équipes.</p>
           </div>
           <button class="collapse-toggle" data-target="classement-body">−</button>
         </div>
@@ -1305,10 +1310,30 @@
 
           <div style="margin-top:18px;">
             <h3 id="final-ranking-title" style="font-size:14px; text-transform:uppercase; letter-spacing:0.16em; margin-bottom:4px; font-weight:700; color:#ffffff;">
-              Classement complet (1 → 16)
+              Classement complet (1 → …)
             </h3>
             <div id="final-ranking-list"></div>
           </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- HISTORIQUE (indépendant) -->
+    <section class="history-standalone">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-header-title">
+            <h2>Historique des tournois</h2>
+            <p>Sauvegarde locale, chargement et suppression des tournois.</p>
+          </div>
+          <button class="collapse-toggle" data-target="history-body">−</button>
+        </div>
+        <div id="history-body" class="card-body">
+          <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+            <button id="btn-save-history" class="btn">💾 Sauvegarder le tournoi actuel</button>
+            <span class="small-muted">Les données sont stockées uniquement dans ton navigateur.</span>
+          </div>
+          <div id="history-list" class="card" style="background:transparent; border:1px dashed var(--border);"></div>
         </div>
       </article>
     </section>
@@ -1324,7 +1349,7 @@
       <header class="tv-header">
         <div class="tv-header-left">
           <div class="tv-title" id="tv-title">TOURNOI</div>
-          <div class="tv-subtitle" id="tv-subtitle">Poules + tableaux • 16 équipes</div>
+          <div class="tv-subtitle" id="tv-subtitle">Poules + tableaux • … équipes</div>
         </div>
         <div class="tv-header-right">
           <div class="tv-tag-live" id="tv-phase-tag">POULES</div>
@@ -1379,6 +1404,7 @@
     /* DOM */
     const elTournamentName    = document.getElementById("tournament-name");
     const elHeaderTournament  = document.getElementById("header-tournament-name");
+    const elAdminSubtitle     = document.getElementById("admin-subtitle");
     const elTeamsGrid         = document.getElementById("teams-grid");
     const elBtnRandomNames    = document.getElementById("btn-random-names");
     const elBtnGeneratePools  = document.getElementById("btn-generate-pools");
@@ -1451,6 +1477,7 @@
     initTeamsInputs();
 
     elTeamCount.value = String(state.teamCount);
+    refreshSubtitles();
 
     elTeamCount.addEventListener("change", () => {
       const previousValues = Array.from(elTeamsGrid.querySelectorAll("input[data-team-index]"), inp => inp.value);
@@ -1464,6 +1491,7 @@
         if (previousValues[idx]) inp.value = previousValues[idx];
       });
       elConfigInfo.textContent = `Prévu pour ${state.teamCount} équipes (${state.poolCount} poules).`;
+      refreshSubtitles();
     });
 
     /* HELPERS */
@@ -1571,6 +1599,20 @@
       return pos + "e";
     }
 
+    function getTournamentSubtitle() {
+      const total = state.teamCount || 16;
+      return `Poules + tableaux • ${total} équipes`;
+    }
+
+    function refreshSubtitles() {
+      const label = getTournamentSubtitle();
+      if (elTvSubtitle) elTvSubtitle.textContent = label;
+      if (elAdminSubtitle) {
+        const poolsLabel = state.poolCount ? `${state.poolCount} poules` : "";
+        elAdminSubtitle.textContent = poolsLabel ? `${label} • ${poolsLabel}` : label;
+      }
+    }
+
     function getTerrainForPool(pool) {
       if (!getActivePools().includes(pool)) return null;
       return state.poolTerrains[pool] || null;
@@ -1658,6 +1700,7 @@
       state.teamCount = state.teams.length;
       state.poolCount = computePoolCount(state.teamCount);
       state.finalFormat = state.teamCount >= 12 ? "16-main-conso" : "8-main";
+      refreshSubtitles();
       if (state.teamCount < 8 || state.teamCount > 24 || state.teamCount % 2 !== 0) {
         alert("Merci de choisir un nombre d’équipes pair entre 8 et 24.");
         return;
@@ -2520,7 +2563,7 @@
       mainColSF.appendChild(mainColSFTitle);
 
       const mainColFinal = document.createElement("div");
-      mainColFinal.className = "bracket-column";
+      mainColFinal.className = "bracket-column final-column";
       const mainColFinalTitle = document.createElement("div");
       mainColFinalTitle.className = "bracket-column-title";
       mainColFinalTitle.textContent = "Finale";
@@ -2607,7 +2650,7 @@
           }
 
           const consoColFinal = document.createElement("div");
-          consoColFinal.className = "bracket-column";
+          consoColFinal.className = "bracket-column final-column";
           const consoColFinalTitle = document.createElement("div");
           consoColFinalTitle.className = "bracket-column-title";
           consoColFinalTitle.textContent = "Finale";
@@ -2719,13 +2762,13 @@
       terrainLabel.textContent = "Terrain :";
 
       const terrainSelect = document.createElement("select");
-      terrainSelect.style.minWidth = "90px";
+      terrainSelect.style.minWidth = "50px";
       terrainSelect.style.borderRadius = "999px";
       terrainSelect.style.border = "1px solid #1e293b";
       terrainSelect.style.background = "#020617";
       terrainSelect.style.color = "#f9fafb";
-      terrainSelect.style.padding = "2px 8px";
-      terrainSelect.style.fontSize = "12px";
+      terrainSelect.style.padding = "2px 6px";
+      terrainSelect.style.fontSize = "11px";
 
       const terrainOptions = bracketType === "main" ? ["1","2"] : ["3","4"];
       let currentTerrain = state.bracketTerrains[matchId];
@@ -2936,36 +2979,48 @@
 
         const col2 = document.createElement("div");
         col2.className = "podium-col podium-col--second";
+        const emoji2 = document.createElement("div");
+        emoji2.className = "podium-emoji";
+        emoji2.textContent = "🥈";
         const rank2 = document.createElement("div");
         rank2.className = "podium-rank";
-        rank2.textContent = "2 🥈";
+        rank2.textContent = "2e";
         const name2 = document.createElement("div");
         name2.className = "podium-name";
         name2.textContent = second ? (findTeamById(second.teamId)?.name || ("Équipe " + second.teamId)) : "-";
+        col2.appendChild(emoji2);
         col2.appendChild(rank2);
         col2.appendChild(name2);
         cols.push(col2);
 
         const col1 = document.createElement("div");
         col1.className = "podium-col podium-col--first";
+        const emoji1 = document.createElement("div");
+        emoji1.className = "podium-emoji";
+        emoji1.textContent = "🏆";
         const rank1 = document.createElement("div");
         rank1.className = "podium-rank";
-        rank1.textContent = "1 🏆";
+        rank1.textContent = "1er";
         const name1 = document.createElement("div");
         name1.className = "podium-name";
         name1.textContent = first ? (findTeamById(first.teamId)?.name || ("Équipe " + first.teamId)) : "-";
+        col1.appendChild(emoji1);
         col1.appendChild(rank1);
         col1.appendChild(name1);
         cols.push(col1);
 
         const col3 = document.createElement("div");
         col3.className = "podium-col podium-col--third";
+        const emoji3 = document.createElement("div");
+        emoji3.className = "podium-emoji";
+        emoji3.textContent = "🥇";
         const rank3 = document.createElement("div");
         rank3.className = "podium-rank";
-        rank3.textContent = "3 🥇";
+        rank3.textContent = "3e";
         const name3 = document.createElement("div");
         name3.className = "podium-name";
         name3.textContent = third ? (findTeamById(third.teamId)?.name || ("Équipe " + third.teamId)) : "-";
+        col3.appendChild(emoji3);
         col3.appendChild(rank3);
         col3.appendChild(name3);
         cols.push(col3);
@@ -2989,7 +3044,7 @@
     function updateTv() {
       const name = state.name || "Tournoi de padel";
       elTvTitle.textContent = name.toUpperCase();
-      elTvSubtitle.textContent = `Poules + tableaux • ${state.teamCount || 16} équipes`;
+      refreshSubtitles();
 
       if (!areAllPoolMatchesDone()) {
         elTvPhaseTag.textContent = "POULES";
@@ -3261,6 +3316,8 @@
       elTeamCount.value = state.teamCount;
       state.poolCount = computePoolCount(state.teamCount);
       state.finalFormat = state.teamCount >= 12 ? "16-main-conso" : "8-main";
+      refreshSubtitles();
+      elConfigInfo.textContent = `Prévu pour ${state.teamCount} équipes (${state.poolCount} poules).`;
       initTeamsInputs();
       const inputs = elTeamsGrid.querySelectorAll("input[data-team-index]");
       inputs.forEach((inp, idx) => {
