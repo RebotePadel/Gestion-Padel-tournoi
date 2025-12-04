@@ -846,8 +846,8 @@
     .tv-overlay {
       position:fixed;
       inset:0;
-      background: radial-gradient(circle at 0 0, rgba(229,227,57,0.18), transparent 55%),
-                  radial-gradient(circle at 100% 100%, rgba(0,75,155,0.65), transparent 60%),
+      background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
                   #020617;
       z-index:50;
       display:none;
@@ -863,6 +863,19 @@
       gap:12px;
     }
 
+    .tv-logo-bar {
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }
+
+    .tv-logo-bar img {
+      max-height:76px;
+      object-fit:contain;
+      filter:drop-shadow(0 8px 14px rgba(0,0,0,0.55));
+      display:none;
+    }
+
     .tv-header {
       display:flex;
       justify-content:space-between;
@@ -871,10 +884,10 @@
       padding:12px 18px;
       border-radius:20px;
       border:1px solid rgba(148,163,184,0.4);
-      background:linear-gradient(90deg,
-        rgba(0,75,155,0.95) 0%,
-        rgba(0,75,155,0.80) 55%,
-        rgba(229,227,57,0.85) 100%);
+      background:linear-gradient(120deg,
+        rgba(0,48,112,0.95) 0%,
+        rgba(0,75,155,0.90) 45%,
+        rgba(13,98,190,0.85) 100%);
       box-shadow:0 24px 60px rgba(0,0,0,0.95);
     }
 
@@ -888,13 +901,13 @@
       font-size:22px;
       text-transform:uppercase;
       letter-spacing:0.3em;
-      color:#0b1120;
+      color:#e5e7eb;
       font-weight:800;
     }
 
     .tv-subtitle {
       font-size:14px;
-      color:#111827;
+      color:#e0f2fe;
       font-weight:600;
     }
 
@@ -938,7 +951,7 @@
       border-radius:18px;
       padding:10px;
       border:1px solid rgba(15,23,42,0.8);
-      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.2), transparent 55%),
+      background: radial-gradient(circle at 0 0, rgba(17,94,163,0.15), transparent 55%),
                   #020617;
       box-shadow:0 24px 60px rgba(0,0,0,0.95);
       display:flex;
@@ -968,18 +981,18 @@
       border-radius:12px;
       padding:8px 10px;
       background: linear-gradient(120deg,
-              rgba(0,75,155,0.95) 0%,
-              rgba(46,118,196,0.9) 55%,
-              rgba(229,227,57,0.8) 100%);
-      color:#020617;
+              rgba(0,48,112,0.98) 0%,
+              rgba(0,75,155,0.95) 55%,
+              rgba(13,98,190,0.92) 100%);
+      color:#f8fafc;
       margin-bottom:6px;
       font-size:14px;
     }
 
     .tv-match-card.upcoming {
-      background: linear-gradient(120deg, #0b0b0b 0%, #111111 55%, rgba(229,227,57,0.55) 100%);
-      color:#f9fafb;
-      border:1px solid rgba(234,179,8,0.35);
+      background: linear-gradient(120deg, #020617 0%, #0b2546 55%, #0d3a73 100%);
+      color:#f8fafc;
+      border:1px solid rgba(37,99,235,0.35);
       box-shadow:0 10px 28px rgba(0,0,0,0.7);
     }
 
@@ -1015,7 +1028,7 @@
       font-size:11px;
       padding:2px 8px;
       border-radius:999px;
-      background:rgba(15,23,42,0.7);
+      background:rgba(255,255,255,0.1);
       color:#e5e7eb;
       font-weight:600;
     }
@@ -1028,7 +1041,7 @@
     }
 
     .tv-match-card.upcoming .tv-tag {
-      background:rgba(234,179,8,0.25);
+      background:rgba(255,255,255,0.08);
     }
   </style>
 </head>
@@ -1305,6 +1318,9 @@
   <!-- VUE TV -->
   <div id="tv-overlay" class="tv-overlay">
     <div class="tv-inner">
+      <div class="tv-logo-bar">
+        <img id="tv-logo" alt="Logo TV" />
+      </div>
       <header class="tv-header">
         <div class="tv-header-left">
           <div class="tv-title" id="tv-title">TOURNOI</div>
@@ -1409,6 +1425,7 @@
     const elTvRightTitle  = document.getElementById("tv-right-title");
     const elTvLeftList    = document.getElementById("tv-left-list");
     const elTvRightList   = document.getElementById("tv-right-list");
+    const elTvLogo        = document.getElementById("tv-logo");
 
     /* INIT TEAMS INPUTS */
     function initTeamsInputs() {
@@ -1590,13 +1607,28 @@
       });
     });
 
+    function setLogoSource(src) {
+      if (elLogoPreview) {
+        elLogoPreview.src = src || "";
+      }
+      if (elTvLogo) {
+        if (src) {
+          elTvLogo.src = src;
+          elTvLogo.style.display = "block";
+        } else {
+          elTvLogo.style.display = "none";
+          elTvLogo.removeAttribute("src");
+        }
+      }
+    }
+
     /* LOGO UPLOAD */
     elLogoUpload.addEventListener("change", (e) => {
       const file = e.target.files && e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (ev) => {
-        elLogoPreview.src = ev.target.result;
+        setLogoSource(ev.target.result);
       };
       reader.readAsDataURL(file);
     });
@@ -2906,7 +2938,7 @@
         col2.className = "podium-col podium-col--second";
         const rank2 = document.createElement("div");
         rank2.className = "podium-rank";
-        rank2.textContent = "2";
+        rank2.textContent = "2 🥈";
         const name2 = document.createElement("div");
         name2.className = "podium-name";
         name2.textContent = second ? (findTeamById(second.teamId)?.name || ("Équipe " + second.teamId)) : "-";
@@ -2918,7 +2950,7 @@
         col1.className = "podium-col podium-col--first";
         const rank1 = document.createElement("div");
         rank1.className = "podium-rank";
-        rank1.textContent = "1";
+        rank1.textContent = "1 🏆";
         const name1 = document.createElement("div");
         name1.className = "podium-name";
         name1.textContent = first ? (findTeamById(first.teamId)?.name || ("Équipe " + first.teamId)) : "-";
@@ -2930,7 +2962,7 @@
         col3.className = "podium-col podium-col--third";
         const rank3 = document.createElement("div");
         rank3.className = "podium-rank";
-        rank3.textContent = "3";
+        rank3.textContent = "3 🥇";
         const name3 = document.createElement("div");
         name3.className = "podium-name";
         name3.textContent = third ? (findTeamById(third.teamId)?.name || ("Équipe " + third.teamId)) : "-";
@@ -3205,7 +3237,8 @@
           sets: elSetsPerMatch.value,
           games: elGamesPerSet.value,
           terrains: { ...state.poolTerrains },
-          message: elClassementMessage?.value || ""
+          message: elClassementMessage?.value || "",
+          logo: elLogoPreview?.src || ""
         }
       };
       const list = getHistoryList();
@@ -3243,6 +3276,9 @@
         elClassementMessage.value = entry.config.message || "";
         elClassementPhrase.textContent = entry.config.message || "";
       }
+      if (entry.config) {
+        setLogoSource(entry.config.logo || "");
+      }
 
       renderPools();
       renderBrackets();
@@ -3269,6 +3305,7 @@
     }
 
     renderHistory();
+    setLogoSource(elLogoPreview?.src || "");
 
     if (elClassementMessage && elClassementPhrase) {
       elClassementMessage.addEventListener("input", () => {
