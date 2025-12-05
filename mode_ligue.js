@@ -251,7 +251,6 @@
       if (refs.playerRoot) refs.playerRoot.style.display = 'block';
     }
     if (targetId) currentPlayerId = targetId;
-    currentPlayerId = null;
     renderPlayerList();
     scrollTop();
   }

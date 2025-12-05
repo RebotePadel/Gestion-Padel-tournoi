@@ -11,7 +11,8 @@
     ligueConfig: document.getElementById('ligue-config-root'),
     ligueActive: document.getElementById('ligue-active-root'),
     ligueManage: document.getElementById('ligue-manage-root'),
-    liguePlayer: document.getElementById('ligue-player-root')
+    liguePlayer: document.getElementById('ligue-player-root'),
+    liguePlayerManage: document.getElementById('ligue-player-manage-root')
   };
 
   var current = 'home';
