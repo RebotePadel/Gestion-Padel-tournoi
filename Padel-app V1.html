@@ -1,0 +1,2342 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Moteur Tournois & M/D – Padel Parc</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    :root {
+      --blue-strong: #004b9b;
+      --blue-mid: #4d81b9;
+      --blue-soft: #99b7d7;
+      --blue-bg: #e6edf5;
+      --accent: #e5e339;
+      --bg-dark: #020617;
+      --card: #0b1220;
+      --border: #1e293b;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 0 0, rgba(229,227,57,0.25), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(0,75,155,0.55), transparent 60%),
+                  linear-gradient(135deg, #020617, #020617 40%, #001428);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.25), transparent 55%),
+                  #020617;
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+      padding: 16px;
+    }
+
+    /* HEADER GLOBAL */
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 4px;
+    }
+
+    #app-logo {
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: #020617;
+      padding: 4px;
+      display: none;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      text-align: center;
+    }
+
+    .subtitle {
+      text-align: center;
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .mode-toggle {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .mode-toggle button { font-size: 0.75rem; }
+
+    /* ROOT SECTIONS */
+    #home-root { display: block; }
+    #admin-root, #tv-root, #tournaments-root, #classic-root, #league-root { display: none; }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #fffdea, var(--accent));
+      color: #111827;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.8);
+    }
+
+    .btn-secondary {
+      background: #020617;
+      color: var(--blue-soft);
+      border: 1px solid #1e293b;
+      box-shadow: none;
+    }
+
+    .btn-small { padding: 4px 9px; font-size: 0.75rem; }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }
+
+    .chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: var(--blue-soft);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 0.75rem;
+    }
+
+    .small-muted {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    .empty {
+      font-size: 0.8rem;
+      color: var(--muted);
+      padding: 6px 4px;
+    }
+
+    /* HOME */
+    .home-hero {
+      text-align: center;
+      margin-bottom: 14px;
+      margin-top: 8px;
+    }
+
+    .home-hero h2 {
+      font-size: 1.1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+      color: var(--blue-soft);
+    }
+
+    .home-hero p {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .home-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+    @media (max-width: 800px) {
+      .home-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .home-card {
+      border-radius: 16px;
+      padding: 14px;
+      border: 1px solid rgba(15,23,42,0.8);
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.2), transparent 55%),
+                  linear-gradient(135deg,#020617,#020c1f);
+      box-shadow: 0 20px 45px rgba(0,0,0,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .home-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .home-card-title {
+      font-size: 0.95rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .home-card-icon {
+      font-size: 1.3rem;
+    }
+
+    .home-card-body {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .home-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      gap: 8px;
+      font-size: 0.8rem;
+      color: var(--blue-soft);
+    }
+
+    .home-badge {
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+    }
+
+    /* GENERIC CARD / GRID (ADMIN + TOURNAMENTS) */
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .card {
+      background: linear-gradient(145deg, #020617, #020617 40%, #020c1f);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      padding: 12px;
+    }
+
+    .card h2 {
+      font-size: 1rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      margin-bottom: 6px;
+    }
+
+    .card p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .field { margin-bottom: 8px; }
+
+    .field label {
+      display: block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--blue-soft);
+      margin-bottom: 3px;
+    }
+
+    input[type="text"], select {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #1e293b;
+      background: #020617;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    input[type="text"]::placeholder { color: #4b5563; }
+
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(229,227,57,0.5);
+    }
+
+    /* ADMIN M/D */
+    .layout-matches {
+      margin-top: 10px;
+      display: grid;
+      grid-template-columns: minmax(0,1.6fr) minmax(0,1.4fr);
+      gap: 10px;
+    }
+    @media (max-width: 900px) {
+      .layout-matches { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .teams-edit {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding: 4px 2px;
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid #111827;
+    }
+
+    .team-chip {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 6px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #1f2937;
+    }
+
+    .team-chip span { font-size: 0.8rem; }
+
+    .team-chip input {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-size: 0.8rem;
+      outline: none;
+      min-width: 40px;
+    }
+
+    .match-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+    }
+    @media (max-width: 700px) {
+      .match-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .match-card {
+      background: #020617;
+      border-radius: 10px;
+      border: 1px solid #1f2937;
+      padding: 8px;
+    }
+
+    .match-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      font-size: 0.8rem;
+      color: var(--blue-soft);
+    }
+
+    .teams-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .team-row {
+      display: flex;
+      align-items: center;
+      justify-content:space-between;
+      gap: 4px;
+      padding: 4px 6px;
+      border-radius: 8px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      font-size: 0.85rem;
+    }
+
+    .team-row.winner {
+      border-color: var(--success);
+      box-shadow: 0 0 10px rgba(34,197,94,0.5);
+    }
+
+    .team-name { flex: 1; }
+
+    .status-line {
+      font-size: 0.75rem;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .rest-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      min-height: 22px;
+      margin-top: 4px;
+    }
+
+    .rest-pill {
+      padding: 3px 7px;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      font-size: 0.8rem;
+    }
+
+    .ranking-list {
+      margin-top: 6px;
+      max-height: 260px;
+      overflow-y: auto;
+      border-radius: 10px;
+      border: 1px solid #111827;
+      background: #020617;
+      padding: 4px 2px;
+    }
+
+    .ranking-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      border-bottom: 1px solid #0b1120;
+      font-size: 0.8rem;
+    }
+
+    .ranking-pos {
+      width: 1.6em;
+      text-align: right;
+      color: var(--blue-soft);
+    }
+
+    .ranking-name { flex: 1; margin: 0 4px; }
+
+    .ranking-points {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .ranking-record {
+      color: var(--muted);
+      font-size: 0.75rem;
+      margin-left: 4px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+
+    /* VUE TV */
+    .tv-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding: 8px 12px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.4);
+      background: linear-gradient(90deg,
+                rgba(0,75,155,0.95) 0%,
+                rgba(0,75,155,0.80) 55%,
+                rgba(229,227,57,0.85) 100%);
+      box-shadow: 0 18px 40px rgba(0,0,0,0.9);
+    }
+
+    .tv-header-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    #tv-logo {
+      height: 46px;
+      width: 46px;
+      border-radius: 999px;
+      border: 2px solid rgba(15,23,42,0.7);
+      background: #020617;
+      padding: 4px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .tv-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    #tv-tournoi-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #0b1120;
+    }
+
+    #tv-roulement-info {
+      font-size: 0.85rem;
+      color: #111827;
+    }
+
+    .tv-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tv-tag-live {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      background: #b91c1c;
+      color: #fee2e2;
+      box-shadow: 0 0 12px rgba(248,113,113,0.7);
+    }
+
+    .tv-main {
+      display: grid;
+      grid-template-columns: minmax(0,1.4fr) minmax(0,1.3fr);
+      gap: 12px;
+      min-height: 420px;
+    }
+    @media (max-width: 900px) {
+      .tv-main { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .tv-column {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .tv-block {
+      border-radius: 16px;
+      padding: 10px;
+      border: 1px solid rgba(15,23,42,0.8);
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.2), transparent 55%),
+                  #020617;
+      box-shadow: 0 20px 45px rgba(0,0,0,0.9);
+    }
+
+    .tv-block-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--blue-soft);
+    }
+
+    .tv-block-title span:last-child {
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .tv-current-list,.tv-next-list {
+      display: grid;
+      grid-template-columns: minmax(0,1fr);
+      gap: 6px;
+    }
+
+    .tv-match-card {
+      border-radius: 12px;
+      padding: 8px 10px;
+      background: linear-gradient(120deg,
+              rgba(0,75,155,0.95) 0%,
+              rgba(46,118,196,0.9) 55%,
+              rgba(229,227,57,0.8) 100%);
+      color: #020617;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .tv-match-card-next {
+      background: linear-gradient(135deg,
+              rgba(15,23,42,0.95) 0%,
+              rgba(30,64,175,0.95) 45%,
+              rgba(56,189,248,0.85) 100%);
+      color: #e5f2ff;
+    }
+
+    .tv-match-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      opacity: 0.95;
+    }
+
+    .tv-match-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    .tv-match-team-line {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .tv-match-team-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tv-match-tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.6);
+      color: #e5e7eb;
+    }
+
+    .tv-ranking-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 4px;
+      margin-top: 6px;
+    }
+    @media (max-width: 700px) {
+      .tv-ranking-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    .tv-ranking-item {
+      border-radius: 10px;
+      padding: 4px 8px;
+      background: linear-gradient(120deg,
+                rgba(15,23,42,0.9),
+                rgba(15,23,42,0.95));
+      border: 1px solid rgba(51,65,85,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+
+    .tv-ranking-pos {
+      font-weight: 600;
+      color: var(--blue-soft);
+      width: 1.8em;
+    }
+
+    .tv-ranking-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tv-ranking-points {
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    .tv-ranking-record {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-left: 4px;
+    }
+
+    .tv-podium {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tv-podium-item {
+      flex: 1;
+      border-radius: 12px;
+      padding: 6px 8px;
+      background: linear-gradient(135deg,
+              rgba(229,227,57,0.95),
+              rgba(129,140,248,0.9));
+      color: #111827;
+      text-align: center;
+      box-shadow: 0 14px 30px rgba(0,0,0,0.9);
+      font-size: 0.8rem;
+    }
+
+    .tv-podium-item:nth-child(2) { transform: translateY(-4px); }
+
+    .tv-podium-rank {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.9;
+    }
+
+    .tv-podium-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tv-podium-points {
+      font-size: 0.8rem;
+      margin-top: 2px;
+    }
+
+    .tv-empty {
+      font-size: 0.85rem;
+      color: var(--muted);
+      padding: 6px 2px;
+    }
+
+    .tv-small-note {
+      font-size: 0.7rem;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* PAGE TOURNOIS CLASSIQUES */
+    .tournaments-header {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:10px;
+      gap:8px;
+    }
+
+    .tournaments-grid {
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    @media(max-width:800px){
+      .tournaments-grid{ grid-template-columns:minmax(0,1fr); }
+    }
+
+    .tournament-type-card{
+      border-radius:14px;
+      padding:10px;
+      border:1px solid rgba(15,23,42,0.8);
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.18), transparent 55%),
+                  linear-gradient(135deg,#020617,#020c1f);
+      box-shadow:0 16px 40px rgba(0,0,0,0.85);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      font-size:0.85rem;
+    }
+
+    .tournament-type-title{
+      font-size:0.9rem;
+      text-transform:uppercase;
+      letter-spacing:0.14em;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+    }
+
+    .tournament-type-pill{
+      font-size:0.7rem;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid #1f2937;
+      background:#020617;
+      color:var(--blue-soft);
+    }
+  </style>
+
+  <!-- Styles du moteur tournoi classique -->
+<style>:root{
+      --blue-strong: #004b9b;
+      --blue-mid: #4d81b9;
+      --blue-soft: #99b7d7;
+      --blue-bg: #e6edf5;
+      --accent: #e5e339;
+      --bg-dark: #020617;
+      --card: #0b1220;
+      --border: #1e293b;
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --success: #22c55e;
+      --danger: #ef4444;
+      --hover-glow: rgba(229,227,57,0.18);
+    }#classic-root *{ box-sizing: border-box; margin: 0; padding: 0; }#classic-root{
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at 0 0, rgba(229,227,57,0.25), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(0,75,155,0.55), transparent 60%),
+                  linear-gradient(135deg, #020617, #020617 40%, #001428);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }#classic-root .app{
+      max-width: 1500px;
+      margin: 0 auto;
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.25), transparent 55%),
+                  #020617;
+      border-radius: 24px;
+      border: 2px solid #1f2937;
+      box-shadow: 0 32px 80px rgba(0,0,0,0.9);
+      padding: 24px;
+    }#classic-root .app-header{
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }#classic-root .app-header-main{
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }#classic-root .logo-wrapper{
+      width: 72px;
+      height: 72px;
+      border-radius: 16px;
+      border: 1px solid rgba(148,163,184,0.5);
+      background:#020617;
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow:0 8px 24px rgba(0,0,0,0.8);
+      position:relative;
+      cursor:pointer;
+    }#classic-root .logo-wrapper::after{
+      content:"Choisir un fichier";
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(0,0,0,0.6);
+      color:#ffffff;
+      font-size:11px;
+      letter-spacing:0.14em;
+      text-transform:uppercase;
+      opacity:0;
+      transition:opacity 0.15s ease-in-out;
+    }#classic-root .logo-wrapper:hover::after{
+      opacity:1;
+    }#classic-root .logo-wrapper input[type="file"]{
+      position:absolute;
+      inset:0;
+      opacity:0;
+      cursor:pointer;
+    }#classic-root .logo-wrapper img{
+      max-width:100%;
+      max-height:100%;
+      object-fit:contain;
+    }#classic-root .app-header-text{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }#classic-root h1{
+      font-size: 26px;
+      text-transform: uppercase;
+      letter-spacing: 0.3em;
+      font-weight:700;
+      color:#ffffff;
+    }#classic-root .subtitle{
+      font-size: 14px;
+      color: var(--muted);
+    }#classic-root .header-right{
+      display:flex;
+      flex-direction:column;
+      align-items:flex-end;
+      gap:6px;
+    }#classic-root .header-actions{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }#classic-root .header-tournament-name{
+      font-size:14px;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      color:var(--accent);
+    }#classic-root .btn{
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      border: none;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      cursor: pointer;
+      background: radial-gradient(circle at 0 0, #fffdea, var(--accent));
+      color: #111827;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.9);
+      font-weight:600;
+    }#classic-root .btn-secondary{
+      background: #020617;
+      color: var(--blue-soft);
+      border: 1px solid #1e293b;
+      box-shadow: none;
+    }#classic-root .btn-small{
+      padding: 6px 12px;
+      font-size: 12px;
+    }#classic-root .btn-ghost{
+      background: transparent;
+      border: 1px solid rgba(148,163,184,0.5);
+      color: var(--blue-soft);
+      box-shadow: none;
+    }#classic-root .btn:disabled{
+      opacity: 0.5;
+      cursor: default;
+      box-shadow: none;
+    }#classic-root .small-muted{
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }#classic-root .empty{
+      font-size: 13px;
+      color: var(--muted);
+      padding: 6px 4px;
+    }#classic-root input[type="file"]{
+      font-size:11px;
+      color:var(--muted);
+      max-width:230px;
+    }#classic-root /* Tabs */
+    .tabs{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-bottom:14px;
+      margin-top:8px;
+    }#classic-root .history-standalone{
+      margin-top:18px;
+    }#classic-root .history-standalone .card{
+      background: linear-gradient(135deg, #04060f, #0a1b2e);
+      border:1px solid #0b1220;
+      color:#f8fafc;
+    }#classic-root .history-standalone .card-header-title h2, #classic-root .history-standalone .card-header-title p, #classic-root .history-standalone .card-body, #classic-root .history-standalone .small-muted{
+      color:#f8fafc;
+    }#classic-root .history-standalone #btn-save-history{
+      background:#ffffff;
+      color:#0b1220;
+      padding:6px 12px;
+      font-size:12px;
+    }#classic-root .tab-btn{
+      padding:8px 14px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.4);
+      background:#020617;
+      color:var(--blue-soft);
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      cursor:pointer;
+      font-weight:600;
+      transition:all 0.2s ease;
+    }#classic-root .tab-btn.active{
+      background: linear-gradient(135deg, var(--blue-strong), var(--blue-mid));
+      color:#f9fafb;
+      border-color:transparent;
+      box-shadow:0 12px 30px rgba(0,0,0,0.8);
+    }#classic-root .tab-btn.disabled{
+      opacity:0.4;
+      cursor:not-allowed;
+    }#classic-root .tab-panel{ display:none; }#classic-root .tab-panel.active{ display:block; }#classic-root /* Cards + hover */
+    .card, #classic-root .pool-card, #classic-root .bracket-card, #classic-root .tv-block, #classic-root .final-ranking-row, #classic-root .tv-match-card{
+      transition: all 0.18s ease;
+    }#classic-root .card, #classic-root .pool-card, #classic-root .bracket-card{
+      background: linear-gradient(145deg, #020617, #020617 40%, #020c1f);
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      padding: 16px;
+      margin-bottom:14px;
+    }#classic-root .card:hover, #classic-root .pool-card:hover, #classic-root .bracket-card:hover, #classic-root .tv-block:hover, #classic-root .tv-match-card:hover, #classic-root .final-ranking-row:hover{
+      box-shadow:0 0 0 1px rgba(229,227,57,0.5), 0 18px 40px rgba(0,0,0,0.9);
+      background-image: radial-gradient(circle at 0 0, var(--hover-glow), transparent 55%),
+                        linear-gradient(145deg, #020617, #020617 40%, #020c1f);
+    }#classic-root .card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      margin-bottom:8px;
+    }#classic-root .card-header-title{
+      display:flex;
+      flex-direction:column;
+      gap:2px;
+    }#classic-root .card-header-title h2{
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-weight:700;
+      color:#ffffff;
+    }#classic-root .card-header-title p{
+      font-size: 13px;
+      color: var(--muted);
+      margin-top:2px;
+    }#classic-root .card-body{ margin-top:6px; }#classic-root .collapse-toggle{
+      padding:4px 9px;
+      border-radius:999px;
+      border:1px solid rgba(148,163,184,0.5);
+      background:#020617;
+      color:var(--blue-soft);
+      font-size:14px;
+      cursor:pointer;
+    }#classic-root .chip{
+      padding: 6px 12px;
+      border-radius: 999px;
+      background:#020617;
+      border: 1px solid #1f2937;
+      color: var(--blue-soft);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      font-weight:600;
+    }#classic-root /* Config layout */
+    .layout-config{
+      display:grid;
+      grid-template-columns:minmax(0,1.1fr) minmax(0,1.2fr);
+      gap:16px;
+    }
+    @media(max-width:1100px){#classic-root .layout-config{grid-template-columns:minmax(0,1fr);}
+    }#classic-root .field{ margin-bottom: 10px; }#classic-root .field label{
+      display:block;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--blue-soft);
+      margin-bottom: 4px;
+      font-weight:600;
+    }#classic-root input[type="text"], #classic-root select, #classic-root input[type="number"]{
+      width: 100%;
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid #1e293b;
+      background:#020617;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+    }#classic-root input[type="text"]::placeholder{ color:#4b5563; }#classic-root input[type="text"]:focus, #classic-root select:focus, #classic-root input[type="number"]:focus{
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(229,227,57,0.5);
+    }#classic-root .teams-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:8px;
+      max-height:300px;
+      overflow-y:auto;
+      padding-right:4px;
+    }
+    @media(max-width:800px){#classic-root .teams-grid{grid-template-columns:minmax(0,1fr);}
+    }#classic-root .team-input-row{
+      display:flex;
+      align-items:center;
+      gap:6px;
+    }#classic-root .team-label{
+      width:28px;
+      font-size:12px;
+      color:var(--blue-soft);
+      text-align:right;
+      font-weight:600;
+    }#classic-root /* Terrains */
+    .terrain-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:8px;
+    }
+    @media(max-width:800px){#classic-root .terrain-grid{grid-template-columns:minmax(0,1fr);}
+    }#classic-root /* Poules */
+    .pools-grid{
+      display:grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap:10px;
+    }
+    @media(max-width:1200px){#classic-root .pools-grid{grid-template-columns:minmax(0,1fr);}
+    }#classic-root .pool-card{
+      border-radius:14px;
+      border:1px solid #1f2937;
+      padding:10px;
+    }#classic-root .pool-card.theme-A{
+      background: radial-gradient(circle at 0 0, rgba(77,129,185,0.18), transparent 55%),
+                  linear-gradient(145deg,#020617,#02111f);
+    }#classic-root .pool-card.theme-B{
+      background: radial-gradient(circle at 100% 0, rgba(153,183,215,0.18), transparent 55%),
+                  linear-gradient(145deg,#020617,#071322);
+    }#classic-root .pool-card.theme-C{
+      background: radial-gradient(circle at 0 100%, rgba(0,75,155,0.25), transparent 60%),
+                  linear-gradient(145deg,#020617,#040f20);
+    }#classic-root .pool-card.theme-D{
+      background: radial-gradient(circle at 100% 100%, rgba(229,227,57,0.15), transparent 60%),
+                  linear-gradient(145deg,#020617,#050f1f);
+    }#classic-root .pool-card-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+      margin-bottom:6px;
+    }#classic-root .pool-title{
+      font-size:14px;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      color:#ffffff;
+      font-weight:700;
+    }#classic-root .pool-subtitle{
+      font-size:12px;
+      color:var(--blue-soft);
+    }#classic-root .pool-ranking{
+      margin-bottom:6px;
+    }#classic-root .pool-ranking-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+      padding:3px 0;
+    }#classic-root .pool-ranking-pos{
+      width:24px;
+      color:var(--blue-soft);
+      text-align:right;
+      font-weight:600;
+    }#classic-root .pool-ranking-name{
+      flex:1;
+      margin:0 6px;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:600;
+      color:#e5e7eb;
+    }#classic-root .pool-ranking-points{
+      min-width:40px;
+      text-align:right;
+      color:var(--accent);
+      font-weight:600;
+    }#classic-root .pool-next{
+      border-radius:10px;
+      border:1px dashed #1f2937;
+      padding:6px 8px;
+      margin-bottom:4px;
+      font-size:13px;
+    }#classic-root .pool-next-title{
+      font-weight:700;
+      margin-bottom:3px;
+      color:#f9fafb;
+    }#classic-root .pool-next-line{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+      margin-top:3px;
+    }#classic-root .pool-next-name{
+      flex:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:600;
+      color:#e5e7eb;
+    }#classic-root .pool-next-note{
+      font-size:11px;
+      color:var(--muted);
+      margin-top:4px;
+    }#classic-root .pool-matches-toggle{
+      margin-top:6px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+    }#classic-root .pool-matches-list{
+      margin-top:6px;
+    }#classic-root .pool-match-row{
+      border-radius:10px;
+      border:1px solid #111827;
+      padding:6px 8px;
+      font-size:13px;
+      margin-bottom:4px;
+      background:#020617;
+    }#classic-root .pool-match-row.played{
+      background:linear-gradient(135deg,
+                 rgba(34,197,94,0.12),
+                 rgba(21,128,61,0.35));
+      border-color:var(--success);
+      box-shadow:0 0 12px rgba(34,197,94,0.35);
+    }#classic-root .pool-match-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:3px;
+    }#classic-root .pool-match-title{
+      font-weight:700;
+      color:#f9fafb;
+    }#classic-root .pool-match-teams{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+      margin-bottom:4px;
+    }#classic-root .pool-match-team-name{
+      flex:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:600;
+      color:#e5e7eb;
+    }#classic-root .pool-match-score{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      margin-bottom:4px;
+    }#classic-root .pool-score-input{
+      width:52px;
+      text-align:center;
+      padding:4px 6px;
+      font-size:13px;
+    }#classic-root .pool-score-separator{
+      font-weight:700;
+      color:#f9fafb;
+    }#classic-root .pool-match-actions{
+      display:flex;
+      justify-content:flex-end;
+      gap:6px;
+      margin-bottom:2px;
+      flex-wrap:wrap;
+    }#classic-root .badge{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid #1f2937;
+      background:#020617;
+      color:var(--muted);
+      font-weight:600;
+    }#classic-root .status-line{
+      font-size:11px;
+      color:var(--muted);
+      text-align:right;
+    }#classic-root /* Brackets (tree style) */
+    .bracket-card{
+      background:#020617;
+      border-radius:16px;
+      border:1px solid #1f2937;
+      padding:10px;
+    }#classic-root .bracket-title{
+      font-size:14px;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      margin-bottom:4px;
+      color:#ffffff;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+      font-weight:700;
+    }#classic-root .bracket-tree{
+      --bracket-gap: 18px;
+      --bracket-line-color: #c2d3ff44;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:center;
+      margin-top:10px;
+      width:100%;
+    }#classic-root .bracket-stage-block{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:6px;
+    }#classic-root .stage-qf-row-block{ max-width:100%; }#classic-root .stage-sf-row-block{ max-width:72%; }#classic-root .stage-final-row-block{ max-width:54%; }#classic-root .bracket-column-title{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:0.12em;
+      color:var(--blue-soft);
+      font-weight:600;
+    }#classic-root .bracket-stage-row{
+      display:flex;
+      gap:14px;
+      width:100%;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }#classic-root .stage-qf-row .bracket-match-row{ flex:1; min-width:200px; }#classic-root .stage-sf-row{ justify-content:center; gap:28px; }#classic-root .stage-sf-row .bracket-match-row{ min-width:230px; }#classic-root .stage-final-row{ justify-content:center; }#classic-root .stage-final-row .bracket-match-row{ min-width:240px; }#classic-root .bracket-match-row{
+      position:relative;
+      border-radius:10px;
+      border:1px solid #111827;
+      padding:10px 12px;
+      margin-bottom:4px;
+      font-size:14px;
+      background:linear-gradient(145deg,#020617,#050b18);
+      min-height:104px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+    }#classic-root .bracket-match-row.stage-qf{
+      background:linear-gradient(145deg,rgba(0,75,155,0.45),#020617);
+    }#classic-root .bracket-match-row.stage-sf{
+      background:linear-gradient(145deg,rgba(77,129,185,0.45),#020617);
+    }#classic-root .bracket-match-row.stage-final{
+      background:linear-gradient(145deg,rgba(229,227,57,0.5),#020617);
+    }#classic-root .bracket-match-row.stage-placement{
+      background:linear-gradient(145deg,rgba(148,163,184,0.35),#020617);
+    }#classic-root .bracket-match-row.played{
+      border-color:var(--success);
+      box-shadow:0 0 12px rgba(34,197,94,0.35);
+    }#classic-root .bracket-match-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:4px;
+      color:#f9fafb;
+      font-weight:600;
+    }#classic-root .bracket-match-teams{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+      margin-bottom:4px;
+    }#classic-root .bracket-vs-line{
+      margin-top:2px;
+      margin-bottom:4px;
+      font-weight:700;
+      color:#e5e7eb;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      border-top:1px solid rgba(255,255,255,0.06);
+      padding-top:6px;
+    }#classic-root .bracket-team-line{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+    }#classic-root .bracket-team-name{
+      flex:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      color:#f9fafb;
+      font-weight:600;
+    }#classic-root .bracket-team-winner{
+      color:var(--success);
+      font-weight:700;
+    }#classic-root /* Classement final */
+    .final-ranking-row{
+      border-radius:10px;
+      padding:4px 8px;
+      background: linear-gradient(120deg,
+                rgba(15,23,42,0.9),
+                rgba(15,23,42,0.95));
+      border:1px solid rgba(51,65,85,0.9);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:6px;
+      font-size:13px;
+      margin-bottom:4px;
+    }#classic-root .final-ranking-pos{
+      width:28px;
+      color:var(--blue-soft);
+      font-weight:600;
+    }#classic-root .final-ranking-name{
+      flex:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:600;
+    }#classic-root .classement-phrase{
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:0.16em;
+      color:#e5e7eb;
+      opacity:0.9;
+    }#classic-root .classement-podium{
+      display:flex;
+      gap:10px;
+      align-items:flex-end;
+      justify-content:center;
+      flex-wrap:wrap;
+    }#classic-root .podium-col{
+      flex:1;
+      border-radius:16px;
+      padding:8px 10px;
+      background:linear-gradient(145deg,rgba(15,23,42,0.95),rgba(15,23,42,0.9));
+      border:1px solid rgba(51,65,85,0.9);
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      align-items:center;
+      min-height:120px;
+      box-shadow:0 18px 40px rgba(0,0,0,0.9);
+    }#classic-root .podium-col--first{
+      min-height:160px;
+      background:linear-gradient(145deg,rgba(229,227,57,0.25),rgba(15,23,42,0.95));
+      border-color:rgba(229,227,57,0.7);
+    }#classic-root .podium-col--second, #classic-root .podium-col--third{
+      min-height:130px;
+    }#classic-root .podium-emoji{
+      font-size:46px;
+      line-height:1;
+      margin-bottom:6px;
+      text-align:center;
+    }#classic-root .podium-rank{
+      font-size:20px;
+      font-weight:800;
+      margin-bottom:4px;
+    }#classic-root .podium-name{
+      font-size:13px;
+      font-weight:600;
+      text-align:center;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }#classic-root .bracket-match-row.stage-small-final{
+      background:linear-gradient(145deg,rgba(234,179,8,0.6),#020617);
+      border-color:#facc15;
+    }#classic-root /* Bracket connectors for tree-like shape */
+    .bracket-match-row.stage-qf::after, #classic-root .bracket-match-row.stage-sf::before, #classic-root .bracket-match-row.stage-sf::after, #classic-root .bracket-match-row.stage-sf.sf-top::before, #classic-root .bracket-match-row.stage-sf.sf-bottom::before, #classic-root .bracket-match-row.stage-final.final-node::before, #classic-root .bracket-match-row.stage-final.final-node::after{
+      display:none;
+      content:none;
+    }#classic-root /* TV */
+    .tv-overlay{
+      position:fixed;
+      inset:0;
+      background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
+                  #020617;
+      z-index:50;
+      display:none;
+      padding:24px;
+    }#classic-root .tv-inner{
+      max-width:1700px;
+      margin:0 auto;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }#classic-root .tv-logo-bar{
+      display:flex;
+      justify-content:center;
+      align-items:center;
+    }#classic-root .tv-logo-bar img{
+      max-height:76px;
+      object-fit:contain;
+      filter:drop-shadow(0 8px 14px rgba(0,0,0,0.55));
+      display:none;
+    }#classic-root .tv-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:16px;
+      padding:12px 18px;
+      border-radius:20px;
+      border:1px solid rgba(148,163,184,0.4);
+      background:linear-gradient(120deg,
+        rgba(0,48,112,0.95) 0%,
+        rgba(0,75,155,0.90) 45%,
+        rgba(13,98,190,0.85) 100%);
+      box-shadow:0 24px 60px rgba(0,0,0,0.95);
+    }#classic-root .tv-header-left{
+      display:flex;
+      flex-direction:column;
+      gap:4px;
+    }#classic-root .tv-title{
+      font-size:22px;
+      text-transform:uppercase;
+      letter-spacing:0.3em;
+      color:#e5e7eb;
+      font-weight:800;
+    }#classic-root .tv-subtitle{
+      font-size:14px;
+      color:#e0f2fe;
+      font-weight:600;
+    }#classic-root .tv-header-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }#classic-root .tv-tag-live{
+      padding:4px 12px;
+      border-radius:999px;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:0.14em;
+      background:#b91c1c;
+      color:#fee2e2;
+      box-shadow:0 0 14px rgba(248,113,113,0.7);
+      font-weight:700;
+    }#classic-root .tv-main{
+      flex:1;
+      display:grid;
+      grid-template-columns:minmax(0,1.5fr) minmax(0,1.1fr);
+      gap:12px;
+      min-height:0;
+    }
+    @media(max-width:1100px){#classic-root .tv-main{grid-template-columns:minmax(0,1fr);}
+    }#classic-root .tv-col{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      min-height:0;
+    }#classic-root .tv-block{
+      border-radius:18px;
+      padding:10px;
+      border:1px solid rgba(15,23,42,0.8);
+      background: radial-gradient(circle at 0 0, rgba(17,94,163,0.15), transparent 55%),
+                  #020617;
+      box-shadow:0 24px 60px rgba(0,0,0,0.95);
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+      min-height:0;
+    }#classic-root .tv-block-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:0.18em;
+      color:var(--blue-soft);
+      font-weight:700;
+    }#classic-root .tv-list{
+      flex:1;
+      overflow-y:auto;
+      padding-right:4px;
+    }#classic-root .tv-match-card{
+      border-radius:12px;
+      padding:8px 10px;
+      background: linear-gradient(120deg,
+              rgba(0,48,112,0.98) 0%,
+              rgba(0,75,155,0.95) 55%,
+              rgba(13,98,190,0.92) 100%);
+      color:#f8fafc;
+      margin-bottom:6px;
+      font-size:14px;
+    }#classic-root .tv-match-card.upcoming{
+      background: linear-gradient(120deg, #020617 0%, #0b2546 55%, #0d3a73 100%);
+      color:#f8fafc;
+      border:1px solid rgba(37,99,235,0.35);
+      box-shadow:0 10px 28px rgba(0,0,0,0.7);
+    }#classic-root .tv-bracket-row{
+      display:none;
+      grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
+      gap:12px;
+      margin-top:6px;
+    }#classic-root .tv-final-ranking{
+      background: linear-gradient(90deg, #0b2e6d 0%, #124c9c 100%);
+      border:1px solid rgba(255,255,255,0.08);
+      border-radius:10px;
+      padding:16px;
+      color:#f3f7ff;
+      box-shadow:0 8px 18px rgba(0,0,0,0.35);
+    }#classic-root .tv-final-ranking h3{
+      margin:0 0 8px;
+      font-size:20px;
+      text-align:center;
+      letter-spacing:0.5px;
+    }#classic-root .tv-ranking-podium{
+      display:flex;
+      justify-content:center;
+      gap:12px;
+      margin-bottom:12px;
+    }#classic-root .tv-podium-col{
+      background:rgba(255,255,255,0.05);
+      border:1px solid rgba(255,255,255,0.1);
+      border-radius:10px;
+      padding:10px 12px;
+      flex:1;
+      min-width:120px;
+      text-align:center;
+    }#classic-root .tv-podium-emoji{
+      font-size:34px;
+      display:block;
+      line-height:1.1;
+      margin-bottom:4px;
+    }#classic-root .tv-podium-rank{
+      font-weight:700;
+      font-size:16px;
+      margin-bottom:2px;
+    }#classic-root .tv-podium-name{
+      font-size:14px;
+      color:#e9eefc;
+    }#classic-root .tv-ranking-list{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+      gap:6px;
+    }#classic-root .tv-ranking-row{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.05);
+      border-radius:8px;
+      padding:6px 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      font-size:14px;
+    }#classic-root .tv-ranking-pos{
+      font-weight:700;
+      color:#ffdf6e;
+    }#classic-root .tv-bracket-block{
+      flex:1;
+    }#classic-root .tv-bracket-body{
+      min-height:140px;
+      max-height:190px;
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-start;
+      gap:6px;
+      padding:4px 6px;
+    }#classic-root .tv-bracket-block .bracket-card{
+      background:transparent;
+      border:none;
+      padding:0;
+      box-shadow:none;
+    }#classic-root .tv-bracket-block .bracket-title{
+      margin-bottom:2px;
+    }#classic-root .tv-stage-view{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }#classic-root .tv-stage-header{
+      font-size:12px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:var(--blue-soft);
+      font-weight:700;
+    }#classic-root .tv-stage-strip{
+      display:flex;
+      flex-direction:row-reverse;
+      justify-content:flex-start;
+      align-items:stretch;
+      gap:8px;
+      flex-wrap:wrap;
+    }#classic-root .tv-stage-card{
+      flex:1 1 150px;
+      max-width:210px;
+      background: linear-gradient(120deg, rgba(0,48,112,0.96) 0%, rgba(0,75,155,0.94) 55%, rgba(13,98,190,0.9) 100%);
+      color:#f8fafc;
+      border-radius:12px;
+      padding:8px 10px;
+      box-shadow:0 16px 34px rgba(0,0,0,0.75);
+      border:1px solid rgba(59,130,246,0.35);
+    }#classic-root .tv-stage-card.played{
+      opacity:0.9;
+      border-color:rgba(94,234,212,0.4);
+    }#classic-root .tv-stage-card .tv-match-top{
+      font-size:12px;
+    }#classic-root .tv-stage-card .tv-team-line{
+      font-size:13px;
+    }#classic-root .tv-match-top{
+      display:flex;
+      justify-content:space-between;
+      margin-bottom:4px;
+      font-size:13px;
+      font-weight:700;
+    }#classic-root .tv-match-teams{
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }#classic-root .tv-team-line{
+      display:flex;
+      justify-content:space-between;
+      gap:6px;
+    }#classic-root .tv-team-name{
+      flex:1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      font-weight:600;
+    }#classic-root .tv-tag{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,0.1);
+      color:#e5e7eb;
+      font-weight:600;
+    }#classic-root .tv-match-card.upcoming .tv-match-top, #classic-root .tv-match-card.upcoming .tv-team-line, #classic-root .tv-match-card.upcoming .tv-team-name, #classic-root .tv-match-card.upcoming .tv-tag{
+      color:#f9fafb;
+    }#classic-root .tv-match-card.upcoming .tv-tag{
+      background:rgba(255,255,255,0.08);
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="app-header">
+      <img id="app-logo" alt="Logo club" />
+      <h1 id="app-title">Padel Parc</h1>
+    </div>
+    <div class="subtitle" id="app-subtitle">
+      Gestionnaire de tournois & montante/descendante – Padel Parc
+    </div>
+
+    <!-- PAGE D'ACCUEIL -->
+    <section id="home-root">
+      <div class="home-hero">
+        <h2>Choisis ton mode</h2>
+        <p>Lance un tournoi classique ou une montante / descendante en quelques secondes.</p>
+      </div>
+
+      <div class="home-grid">
+        <!-- Bloc TOURNOIS -->
+        <article class="home-card">
+          <div class="home-card-header">
+            <div>
+              <div class="home-card-title">Tournois classiques</div>
+              <div class="small-muted">Poules, élimination directe, round-robin...</div>
+            </div>
+            <div class="home-card-icon">🏆</div>
+          </div>
+          <div class="home-card-body">
+            Organise des tournois complets avec poules, phases finales ou tableaux
+            d’élimination directe. Idéal pour les gros évènements.
+          </div>
+          <div class="home-card-footer">
+            <span class="home-badge">Bientôt plusieurs formats</span>
+            <button class="btn btn-small" id="btn-home-tournaments">▶ Ouvrir</button>
+          </div>
+        </article>
+
+        <!-- Bloc LIGUE INTERNE -->
+        <article class="home-card">
+          <div class="home-card-header">
+            <div>
+              <div class="home-card-title">Ligue interne</div>
+              <div class="small-muted">Gestion de votre ligue interne de padel</div>
+            </div>
+            <div class="home-card-icon">📅</div>
+          </div>
+          <div class="home-card-body">
+            Accède à un espace dédié pour gérer ta ligue interne. Création des poules,
+            suivi des résultats et classement général.
+          </div>
+          <div class="home-card-footer">
+            <span class="home-badge">Section dédiée</span>
+            <button class="btn btn-small" id="btn-home-league">▶ Ouvrir</button>
+          </div>
+        </article>
+
+        <!-- Bloc MONTANTE / DESCENDANTE -->
+        <article class="home-card">
+          <div class="home-card-header">
+            <div>
+              <div class="home-card-title">Montante / descendante</div>
+              <div class="small-muted">Format rapide, fun et flexible</div>
+            </div>
+            <div class="home-card-icon">🔁</div>
+          </div>
+          <div class="home-card-body">
+            Gère une montante / descendante de 6 à 16 équipes, avec vue TV en direct,
+            classement automatique et rotation des terrains.
+          </div>
+          <div class="home-card-footer">
+            <span class="home-badge">Moteur avancé actif</span>
+            <button class="btn btn-small" id="btn-home-md">▶ Ouvrir</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- PAGE ADMIN M/D -->
+    <section id="admin-root">
+      <div class="mode-toggle">
+        <button class="btn btn-secondary btn-small" id="btn-back-home-from-md">🏠 Accueil</button>
+        <button id="btn-go-tv" class="btn btn-secondary btn-small">🎥 Vue TV</button>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h2>Configuration du tournoi M/D</h2>
+          <p>Choisis ton nombre d’équipes (entre 6 et 16) et le nombre de roulements.</p>
+
+          <div class="field">
+            <label for="tournament-name">Nom du tournoi</label>
+            <input id="tournament-name" type="text" placeholder="Tournoi du vendredi soir" />
+          </div>
+
+          <div class="field">
+            <label for="team-count">Nombre d’équipes</label>
+            <select id="team-count"></select>
+          </div>
+
+          <div class="field">
+            <label for="max-roulements">Nombre de roulements</label>
+            <select id="max-roulements">
+              <option value="6">6</option>
+              <option value="8" selected>8</option>
+              <option value="10">10</option>
+              <option value="12">12</option>
+            </select>
+          </div>
+
+          <button class="btn" id="btn-init-teams">Configurer les équipes</button>
+        </div>
+
+        <div class="card">
+          <h2>Équipes</h2>
+          <p>Tu peux renommer les équipes avant de lancer le tournoi.</p>
+          <div id="teams-edit" class="teams-edit">
+            <div class="empty">Configure d’abord le nombre d’équipes.</div>
+          </div>
+          <div style="margin-top:8px; display:flex; justify-content:space-between; gap:6px;">
+            <div class="small-muted" id="teams-info"></div>
+            <button class="btn btn-secondary btn-small" id="btn-random-names">Noms aléatoires</button>
+          </div>
+          <div style="margin-top:8px; text-align:right;">
+            <button class="btn" id="btn-start" disabled>🚀 Lancer la M/D</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="tournament-section" class="card" style="margin-top:12px; display:none;">
+        <h2 id="title-tournament">Tournoi</h2>
+        <p id="subtitle-tournament" style="margin-bottom:6px;"></p>
+
+        <div class="top-bar">
+          <div class="chip" id="chip-roulement">Roulement 1 / 8</div>
+          <div class="chip" id="chip-teams">0 équipe</div>
+        </div>
+
+        <div class="layout-matches">
+          <div>
+            <h3 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.14em; margin-top:8px; margin-bottom:4px;">
+              Matchs du roulement <span id="label-roulement">1</span>
+            </h3>
+            <div id="matches-grid" class="match-grid">
+              <div class="empty">Aucun match pour l’instant.</div>
+            </div>
+
+            <div style="margin-top:8px;">
+              <div style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--blue-soft); margin-bottom:3px;">
+                Équipes au repos
+              </div>
+              <div id="rest-list" class="rest-list"></div>
+            </div>
+
+            <div style="margin-top:8px; display:flex; gap:6px; justify-content:space-between; align-items:center;">
+              <button class="btn btn-secondary btn-small" id="btn-prev-round">◀ Roulement précédent</button>
+              <button class="btn btn-small" id="btn-next-round">Roulement suivant ▶</button>
+            </div>
+
+            <div class="small-muted">
+              Astuce : clique sur “Vainqueur” pour attribuer 3 points. Les affiches sont fixées par roulement,
+              les points servent à organiser les roulements suivants.
+            </div>
+          </div>
+
+          <div>
+            <h3 style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.14em; margin-top:8px; margin-bottom:4px;">
+              Classement général
+            </h3>
+            <div id="ranking" class="ranking-list">
+              <div class="empty">Le classement apparaîtra dès les premiers résultats.</div>
+            </div>
+            <div class="small-muted">
+              3 pts par victoire. Le moteur équilibre le nombre de matchs joués et les repos.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE TOURNOIS CLASSIQUES (mise en page seule) -->
+    <section id="tournaments-root">
+      <div class="tournaments-header">
+        <div>
+          <div style="font-size:0.9rem; text-transform:uppercase; letter-spacing:0.14em;">
+            Tournois classiques
+          </div>
+          <div class="small-muted">
+            Choisis un format de tournoi. Les moteurs arriveront progressivement.
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-small" id="btn-back-home-from-tournaments">🏠 Accueil</button>
+      </div>
+
+      <div class="tournaments-grid">
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Poules + phases finales</span>
+            <span class="tournament-type-pill">Idéal 8–32 équipes</span>
+          </div>
+          <p>
+            Les équipes sont réparties en poules, tout le monde se rencontre, puis
+            les meilleures équipes accèdent à un tableau de phases finales.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Version actuelle intégrée</span>
+            <button class="btn btn-small" id="btn-open-classic">▶ Ouvrir</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Élimination directe</span>
+            <span class="tournament-type-pill">Tableau KO</span>
+          </div>
+          <p>
+            Un tableau type “Coupe du Monde” : 1/8 de finale, 1/4, 1/2,
+            finale. Possibilité de petits tableaux pour les perdants.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Disponible bientôt</span>
+            <button class="btn btn-small" disabled>🚧 En cours</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Round Robin complet</span>
+            <span class="tournament-type-pill">Tous vs tous</span>
+          </div>
+          <p>
+            Chaque équipe rencontre toutes les autres. Classement final au
+            nombre de victoires et au goal-average.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Disponible bientôt</span>
+            <button class="btn btn-small" disabled>🚧 En cours</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-title">
+            <span>Mode “Fun Night”</span>
+            <span class="tournament-type-pill">Mix & rotation</span>
+          </div>
+          <p>
+            Format plus léger pour les soirées découverte : matchs courts,
+            équipes remixées, rotations automatiques sur les terrains.
+          </p>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
+            <span class="small-muted">Disponible bientôt</span>
+            <button class="btn btn-small" disabled>🚧 En cours</button>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- TOURNOI CLASSIQUE COMPLET -->
+    <section id="classic-root">
+      <div class="mode-toggle" style="justify-content:flex-start; margin-bottom:8px;">
+        <button class="btn btn-secondary btn-small" id="btn-back-home-from-classic">🏠 Accueil</button>
+        <button class="btn btn-secondary btn-small" id="btn-back-formats-from-classic">🏆 Formats</button>
+      </div>
+        <div class="app">
+    <header class="app-header">
+      <div class="app-header-main">
+        <label class="logo-wrapper">
+          <img id="logo-preview" alt="Logo centre" />
+          <input id="logo-upload" type="file" accept="image/*" />
+        </label>
+        <div class="app-header-text">
+          <h1>Tournoi classique</h1>
+          <div class="subtitle" id="admin-subtitle">Poules + tableaux • … équipes</div>
+          <div class="small-muted" id="logo-helper">Upload ton logo et configure ton tournoi dans l’onglet “Configuration”.</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-actions">
+          <div id="header-tournament-name" class="header-tournament-name">TOURNOI DE PADEL</div>
+          <button id="btn-open-tv" class="btn btn-secondary">🎥 Vue TV</button>
+        </div>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-tab="config">Configuration</button>
+      <button class="tab-btn disabled" data-tab="poules">Phases de poules</button>
+      <button class="tab-btn disabled" data-tab="main">Tableau principal</button>
+      <button class="tab-btn disabled" data-tab="conso">Tableau consolante</button>
+      <button class="tab-btn disabled" data-tab="classement">Classement final</button>
+    </nav>
+
+    <!-- CONFIG TAB -->
+    <section id="tab-config" class="tab-panel active">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-header-title">
+            <h2>Configuration du tournoi</h2>
+            <p>Nom du tournoi, équipes, paramètres de sets/jeux et terrains par poule.</p>
+          </div>
+          <button class="collapse-toggle" data-target="config-body">−</button>
+        </div>
+        <div id="config-body" class="card-body">
+          <div class="layout-config">
+            <div>
+              <div class="field">
+                <label for="tournament-name">Nom du tournoi</label>
+                <input id="tournament-name" type="text" placeholder="Tournoi Padel Parc – Samedi" />
+              </div>
+
+              <div class="field">
+                <label for="team-count">Nombre d’équipes</label>
+                <select id="team-count">
+                  <option value="8">8 équipes</option>
+                  <option value="10">10 équipes</option>
+                  <option value="12">12 équipes</option>
+                  <option value="14">14 équipes</option>
+                  <option value="16" selected>16 équipes</option>
+                  <option value="18">18 équipes</option>
+                  <option value="20">20 équipes</option>
+                  <option value="22">22 équipes</option>
+                  <option value="24">24 équipes</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="sets-per-match">Nombre de sets par match</label>
+                <select id="sets-per-match">
+                  <option value="1">1 set (format rapide)</option>
+                  <option value="2">2 sets (format spécifique)</option>
+                  <option value="3" selected>3 sets (classique)</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="games-per-set">Nombre de jeux par set (max)</label>
+                <select id="games-per-set">
+                  <option value="4">4 jeux</option>
+                  <option value="5">5 jeux</option>
+                  <option value="6" selected>6 jeux (standard)</option>
+                  <option value="7">7 jeux</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label>Affectation des terrains (optionnel)</label>
+                <div class="terrain-grid">
+                  <div>
+                    <span class="small-muted">Poule A → Terrain</span>
+                    <select id="terrain-pool-A">
+                      <option value="">Aucun</option>
+                      <option value="1">Terrain 1</option>
+                      <option value="2">Terrain 2</option>
+                      <option value="3">Terrain 3</option>
+                      <option value="4">Terrain 4</option>
+                    </select>
+                  </div>
+                  <div>
+                    <span class="small-muted">Poule B → Terrain</span>
+                    <select id="terrain-pool-B">
+                      <option value="">Aucun</option>
+                      <option value="1">Terrain 1</option>
+                      <option value="2">Terrain 2</option>
+                      <option value="3">Terrain 3</option>
+                      <option value="4">Terrain 4</option>
+                    </select>
+                  </div>
+                  <div>
+                    <span class="small-muted">Poule C → Terrain</span>
+                    <select id="terrain-pool-C">
+                      <option value="">Aucun</option>
+                      <option value="1">Terrain 1</option>
+                      <option value="2">Terrain 2</option>
+                      <option value="3">Terrain 3</option>
+                      <option value="4">Terrain 4</option>
+                    </select>
+                  </div>
+                  <div>
+                    <span class="small-muted">Poule D → Terrain</span>
+                    <select id="terrain-pool-D">
+                      <option value="">Aucun</option>
+                      <option value="1">Terrain 1</option>
+                      <option value="2">Terrain 2</option>
+                      <option value="3">Terrain 3</option>
+                      <option value="4">Terrain 4</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="small-muted">
+                Le classement des poules utilise : <b>3 pts par victoire</b>, puis le total de <b>jeux gagnés</b> sur tous les matchs.
+              </div>
+            </div>
+
+            <div>
+              <div class="field">
+                <label>Équipes (16)</label>
+                <div id="teams-grid" class="teams-grid"></div>
+              </div>
+
+              <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:4px;">
+                <button id="btn-random-names" class="btn btn-secondary btn-small">Noms aléatoires</button>
+                <button id="btn-generate-pools" class="btn">🚀 Générer les poules</button>
+              </div>
+
+              <div id="config-info" class="small-muted" style="margin-top:8px;">
+                Les poules seront A, B, C, D avec 4 équipes chacune. L’ordre des matchs est optimisé pour éviter de jouer plus de 2 fois de suite.
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- HISTORIQUE (indépendant mais dans configuration) -->
+      <section class="history-standalone">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-header-title">
+              <h2>Historique des tournois</h2>
+              <p>Sauvegarde locale, chargement et suppression des tournois.</p>
+            </div>
+            <button class="collapse-toggle" data-target="history-body">−</button>
+          </div>
+          <div id="history-body" class="card-body">
+            <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+              <button id="btn-save-history" class="btn">💾 Sauvegarder le tournoi actuel</button>
+              <span class="small-muted">Les données sont stockées uniquement dans ton navigateur.</span>
+            </div>
+            <div id="history-list" class="card" style="background:transparent; border:1px dashed var(--border);"></div>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <!-- POULES TAB -->
+    <section id="tab-poules" class="tab-panel">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-header-title">
+            <h2>Phases de poules</h2>
+            <p>Classement, prochain match par poule, et liste complète des 6 matchs.</p>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span id="pools-status" class="chip">Étape 1/3 : Poules</span>
+            <button id="btn-random-pools" class="btn btn-secondary btn-small" style="opacity:0.7;">🎲 Scores aléatoires</button>
+            <button class="collapse-toggle" data-target="pools-body">−</button>
+          </div>
+        </div>
+        <div id="pools-body" class="card-body">
+          <div style="display:flex;justify-content:flex-end;align-items:center;gap:8px;margin-bottom:6px;">
+            <button id="btn-generate-brackets" class="btn btn-small" disabled>Créer les tableaux</button>
+          </div>
+          <div id="pools-grid" class="pools-grid">
+            <div class="empty">Commence par générer les poules dans l’onglet Configuration.</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- TABLEAU PRINCIPAL TAB -->
+    <section id="tab-main" class="tab-panel">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-header-title">
+            <h2>Tableau principal (1–8)</h2>
+            <p>Arbre horizontal : quarts → demis → finale & matchs de classement.</p>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span id="brackets-status" class="chip">Étape 2/3 : Tableaux à générer</span>
+            <button class="collapse-toggle" data-target="main-body">−</button>
+          </div>
+        </div>
+        <div id="main-body" class="card-body">
+          <div id="bracket-main-container">
+            <div class="empty">Les tableaux apparaîtront après la validation de tous les matchs de poules.</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- TABLEAU CONSOLANTE TAB -->
+    <section id="tab-conso" class="tab-panel">
+      <article class="card">
+        <div class="card-header">
+          <div class="card-header-title">
+            <h2>Tableau consolante (9–16)</h2>
+            <p>Arbre horizontal + matchs de classement.</p>
+          </div>
+          <button class="collapse-toggle" data-target="conso-body">−</button>
+        </div>
+        <div id="conso-body" class="card-body">
+          <div id="bracket-conso-container" class="bracket-card">
+            <div class="empty">Les tableaux apparaîtront après la validation de tous les matchs de poules.</div>
+          </div>
+        </div>
+      </article>
+    </section>
+    <!-- CLASSEMENT TAB -->
+    <section id="tab-classement" class="tab-panel">
+      <article class="card" id="final-ranking-container" style="display:none;">
+        <div class="card-header">
+          <div class="card-header-title">
+            <h2>Classement final</h2>
+            <p>Podium des 3 premiers et classement complet de toutes les équipes.</p>
+          </div>
+          <button class="collapse-toggle" data-target="classement-body">−</button>
+        </div>
+        <div id="classement-body" class="card-body">
+          <div id="classement-phrase" class="classement-phrase">
+            Merci à nos partenaires et à tous les joueurs !
+          </div>
+          <div class="field" style="margin-top:10px;">
+            <label for="classement-message">Texte au-dessus du podium</label>
+            <input id="classement-message" type="text" value="Merci à nos partenaires et à tous les joueurs !" />
+          </div>
+
+          <div id="classement-podium" class="classement-podium" style="margin-top:14px;"></div>
+
+          <div style="margin-top:18px;">
+            <h3 id="final-ranking-title" style="font-size:14px; text-transform:uppercase; letter-spacing:0.16em; margin-bottom:4px; font-weight:700; color:#ffffff;">
+              Classement complet (1 → …)
+            </h3>
+            <div id="final-ranking-list"></div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+  </div>
+
+  <!-- VUE TV -->
+  <div id="tv-overlay" class="tv-overlay">
+    <div class="tv-inner">
+      <div class="tv-logo-bar">
+        <img id="tv-logo" alt="Logo TV" />
+      </div>
+      <header class="tv-header">
+        <div class="tv-header-left">
+          <div class="tv-title" id="tv-title">TOURNOI</div>
+          <div class="tv-subtitle" id="tv-subtitle">Poules + tableaux • … équipes</div>
+        </div>
+        <div class="tv-header-right">
+          <div class="tv-tag-live" id="tv-phase-tag">POULES</div>
+          <button id="btn-close-tv" class="btn btn-secondary btn-small">Quitter la vue TV</button>
+        </div>
+      </header>
+
+      <main class="tv-main">
+        <section class="tv-col">
+          <article class="tv-block">
+            <div class="tv-block-title">
+              <span id="tv-left-title">Matchs en cours par terrain</span>
+            </div>
+            <div id="tv-left-list" class="tv-list"></div>
+          </article>
+        </section>
+
+        <section class="tv-col">
+          <article class="tv-block">
+            <div class="tv-block-title">
+              <span id="tv-right-title">Prochains matchs par terrain</span>
+            </div>
+            <div id="tv-right-list" class="tv-list"></div>
+          </article>
+        </section>
+      </main>
+
+      <section id="tv-final-ranking" class="tv-final-ranking" style="display:none;"></section>
+
+      <section id="tv-bracket-row" class="tv-bracket-row">
+        <article class="tv-block tv-bracket-block">
+          <div class="tv-block-title">
+            <span>Arbre tableau principal</span>
+          </div>
+          <div id="tv-main-bracket-tree" class="tv-bracket-body"></div>
+        </article>
+        <article class="tv-block tv-bracket-block">
+          <div class="tv-block-title">
+            <span>Arbre consolante / classement</span>
+          </div>
+          <div id="tv-conso-bracket-tree" class="tv-bracket-body"></div>
+        </article>
+      </section>
+    </div>
+  </div>
+</section>
+
+    <!-- PAGE LIGUE INTERNE (placeholder) -->
+    <section id="league-root">
+      <div class="mode-toggle" style="justify-content:flex-start;">
+        <button class="btn btn-secondary btn-small" id="btn-back-home-from-league">🏠 Accueil</button>
+        <button class="btn btn-secondary btn-small" id="btn-back-formats-from-league">🏆 Formats</button>
+      </div>
+      <div class="card">
+        <h2>Ligue interne</h2>
+        <p>Gestion de votre ligue interne de padel</p>
+        <div class="empty">Espace à compléter prochainement.</div>
+      </div>
+    </section>
+
+    <!-- VUE TV M/D -->
+    <section id="tv-root">
+      <header class="tv-header">
+        <div class="tv-header-left">
+          <img id="tv-logo" alt="Logo club TV" />
+          <div class="tv-title-block">
+            <div id="tv-tournoi-name">Tournoi</div>
+            <div id="tv-roulement-info">Roulement 1 / 8 • 0 équipes</div>
+          </div>
+        </div>
+        <div class="tv-header-right">
+          <div class="tv-tag-live">🔴 LIVE</div>
+          <button id="btn-back-admin" class="btn btn-secondary btn-small">↩ Mode admin</button>
+        </div>
+      </header>
+
+      <main class="tv-main">
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs en cours</span>
+              <span>Roulement <span id="tv-label-roulement">1</span></span>
+            </div>
+            <div id="tv-current-list" class="tv-current-list">
+              <div class="tv-empty">Lance un tournoi en mode admin pour voir les matchs ici.</div>
+            </div>
+            <div class="tv-small-note">⚡ Terrain 1 = plus fort • Terrain 4 = terrain fun</div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs à venir</span>
+              <span>Prochain roulement</span>
+            </div>
+            <div id="tv-next-list" class="tv-next-list">
+              <div class="tv-empty">Les matchs du prochain roulement apparaîtront ici.</div>
+            </div>
+          </div>
+
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Classement</span>
+              <span>Points cumulés</span>
+            </div>
+            <div id="tv-podium" class="tv-podium"></div>
+            <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
+            <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
+          </div>
+        </section>
+      </main>
+    </section>
+  </div>
+  <script src="core.js"></script>
+  <script src="mode_classic.js"></script>
+  <script src="mode_md.js"></script>
+  <script src="mode_ligue.js"></script>
+</body>
+</html>
