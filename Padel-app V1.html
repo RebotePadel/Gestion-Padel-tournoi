@@ -819,7 +819,8 @@
       display:flex;
       align-items:center;
       gap:12px;
-    }#classic-root .logo-wrapper{
+    }#home-root .logo-wrapper,
+    #classic-root .logo-wrapper{
       width: 72px;
       height: 72px;
       border-radius: 16px;
@@ -832,7 +833,8 @@
       box-shadow:0 8px 24px rgba(0,0,0,0.8);
       position:relative;
       cursor:pointer;
-    }#classic-root .logo-wrapper::after{
+    }#home-root .logo-wrapper::after,
+    #classic-root .logo-wrapper::after{
       content:"Choisir un fichier";
       position:absolute;
       inset:0;
@@ -846,14 +848,17 @@
       text-transform:uppercase;
       opacity:0;
       transition:opacity 0.15s ease-in-out;
-    }#classic-root .logo-wrapper:hover::after{
+    }#home-root .logo-wrapper:hover::after,
+    #classic-root .logo-wrapper:hover::after{
       opacity:1;
-    }#classic-root .logo-wrapper input[type="file"]{
+    }#home-root .logo-wrapper input[type="file"],
+    #classic-root .logo-wrapper input[type="file"]{
       position:absolute;
       inset:0;
       opacity:0;
       cursor:pointer;
-    }#classic-root .logo-wrapper img{
+    }#home-root .logo-wrapper img,
+    #classic-root .logo-wrapper img{
       max-width:100%;
       max-height:100%;
       object-fit:contain;
@@ -1686,15 +1691,18 @@
       <img id="app-logo" alt="Logo club" />
       <h1 id="app-title">Padel Parc</h1>
     </div>
-    <div class="subtitle" id="app-subtitle">
-      Gestionnaire de tournois & montante/descendante – Padel Parc
-    </div>
+    <div class="subtitle" id="app-subtitle"></div>
 
     <!-- PAGE D'ACCUEIL -->
     <section id="home-root">
-      <div class="home-hero">
-        <h2>Choisis ton mode</h2>
-        <p>Lance un tournoi classique ou une montante / descendante en quelques secondes.</p>
+      <div class="home-hero"></div>
+
+      <div class="home-logo" style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px;">
+        <label class="logo-wrapper">
+          <img id="home-logo-preview" alt="Logo centre" />
+          <input id="home-logo-upload" type="file" accept="image/*" />
+        </label>
+        <div class="small-muted" id="home-logo-helper">Upload ton logo pour l’ensemble de l’app.</div>
       </div>
 
       <div class="home-grid">

@@ -95,6 +95,9 @@
     const elLogoUpload   = document.getElementById("logo-upload");
     const elLogoPreview  = document.getElementById("logo-preview");
     const elLogoHelper   = document.getElementById("logo-helper");
+    const elHomeLogoUpload  = document.getElementById("home-logo-upload");
+    const elHomeLogoPreview = document.getElementById("home-logo-preview");
+    const elHomeLogoHelper  = document.getElementById("home-logo-helper");
 
     // TV
     const elTvOverlay     = document.getElementById("tv-overlay");
@@ -316,6 +319,12 @@
 
       if (elLogoPreview) {
         elLogoPreview.src = finalSrc;
+        elLogoPreview.style.display = finalSrc ? "block" : "none";
+      }
+
+      if (elHomeLogoPreview) {
+        elHomeLogoPreview.src = finalSrc;
+        elHomeLogoPreview.style.display = finalSrc ? "block" : "none";
       }
 
       const classicRoot = document.getElementById("classic-root");
@@ -335,22 +344,29 @@
 
       const appLogo = document.getElementById("app-logo");
       if (appLogo) {
-        if (finalSrc) appLogo.src = finalSrc; else appLogo.removeAttribute("src");
+        if (finalSrc) {
+          appLogo.src = finalSrc;
+          appLogo.style.display = "block";
+        } else {
+          appLogo.removeAttribute("src");
+          appLogo.style.display = "none";
+        }
       }
 
       updateLogoHelper();
     }
 
     function updateLogoHelper() {
-      if (!elLogoHelper) return;
-      const hasLogo = !!(elLogoPreview && elLogoPreview.src);
+      const hasLogo = !!state.logo;
       const poolsReady = state.poolMatches && state.poolMatches.length > 0;
-      elLogoHelper.style.display = hasLogo && poolsReady ? "none" : "block";
+      if (elLogoHelper) elLogoHelper.style.display = hasLogo && poolsReady ? "none" : "block";
+      if (elHomeLogoHelper) elHomeLogoHelper.style.display = hasLogo ? "none" : "block";
     }
 
     /* LOGO UPLOAD */
-    if (elLogoUpload) {
-      elLogoUpload.addEventListener("change", (e) => {
+    function bindLogoUpload(input) {
+      if (!input) return;
+      input.addEventListener("change", (e) => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
         const reader = new FileReader();
@@ -360,6 +376,9 @@
         reader.readAsDataURL(file);
       });
     }
+
+    bindLogoUpload(elHomeLogoUpload);
+    bindLogoUpload(elLogoUpload);
 
     /* RANDOM NAMES */
     elBtnRandomNames.addEventListener("click", () => {
