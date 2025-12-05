@@ -763,15 +763,14 @@
       vs.style.justifyContent = 'space-between';
       var home = teamName(league, m.home);
       var away = teamName(league, m.away);
+      var summary = formatSets(m);
       vs.innerHTML = '<span>' + home + '</span><span style="color:var(--muted);">vs</span><span>' + away + '</span>';
-      var helper = document.createElement('div');
-      helper.className = 'small-muted';
-      helper.textContent = 'Score équipe A - Score équipe B (2 sets gagnants)';
-      var scores = createSetInputs(league, m);
+      var status = document.createElement('div');
+      status.className = 'small-muted';
+      status.textContent = summary === 'À jouer' ? 'À jouer' : ('Score : ' + summary);
       row.appendChild(date);
       row.appendChild(vs);
-      row.appendChild(helper);
-      row.appendChild(scores);
+      row.appendChild(status);
       refs.detailMatches.appendChild(row);
     });
   }
@@ -823,10 +822,10 @@
 
   function ensureMatchSets(match) {
     if (!match.sets || !Array.isArray(match.sets)) {
-      match.sets = [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }];
+      match.sets = [{ home: null, away: null }, { home: null, away: null }];
     }
-    while (match.sets.length < 3) match.sets.push({ home: null, away: null });
-    match.sets = match.sets.map(function(set) {
+    while (match.sets.length < 2) match.sets.push({ home: null, away: null });
+    match.sets = match.sets.slice(0, 2).map(function(set) {
       if (!set || typeof set !== 'object') return { home: null, away: null };
       var h = set.home;
       var a = set.away;
@@ -834,10 +833,6 @@
       var aa = (a === null || a === undefined || a === '') ? null : parseInt(a, 10);
       return { home: isNaN(hh) ? null : hh, away: isNaN(aa) ? null : aa };
     });
-    var hasExisting = match.sets.some(function(s) { return s.home !== null || s.away !== null; });
-    if (!hasExisting && match.scores && match.scores[0] !== null && match.scores[1] !== null) {
-      match.sets[0] = { home: match.scores[0], away: match.scores[1] };
-    }
     if (!Array.isArray(match.scores) || match.scores.length < 2) match.scores = [null, null];
   }
 
@@ -852,7 +847,7 @@
       else if (set.away > set.home) setWins[1] += 1;
     });
     match.scores = setWins;
-    match.played = completed >= 2 && (setWins[0] === 2 || setWins[1] === 2);
+    match.played = completed === 2 && setWins[0] !== setWins[1];
     return { setWins: setWins, completed: completed };
   }
 
@@ -864,23 +859,6 @@
     return parts.length ? parts.join(', ') : 'À jouer';
   }
 
-  function updateSetScore(league, matchId, setIndex, side, value) {
-    if (!league || !league.matches) return;
-    var match = league.matches.find(function(m) { return m.id === matchId; });
-    if (!match) return;
-    ensureMatchSets(match);
-    var parsed = value === '' ? null : parseInt(value, 10);
-    if (isNaN(parsed)) parsed = null;
-    if (!match.sets[setIndex]) match.sets[setIndex] = { home: null, away: null };
-    if (side === '1') match.sets[setIndex].away = parsed; else match.sets[setIndex].home = parsed;
-    computeMatchOutcome(match);
-    recomputeStandings(league);
-    saveState();
-    if (refs.manageRoot && refs.manageRoot.style.display !== 'none') renderManageView(league);
-    if (refs.activeRoot && refs.activeRoot.style.display !== 'none') renderActiveDetail(league);
-    if (refs.playerManageRoot && refs.playerManageRoot.style.display !== 'none') renderPlayerManageView(league);
-  }
-
   function updateReglementDates(start, end) {
     var league = getActiveLeague(currentActiveId);
     if (!league) return;
@@ -889,56 +867,6 @@
     saveState();
     renderManageRules(league);
     if (refs.playerManageRoot && refs.playerManageRoot.style.display !== 'none') renderPlayerManageRules(league);
-  }
-
-  function createSetInputs(league, match) {
-    ensureMatchSets(match);
-    var wrap = document.createElement('div');
-    wrap.classList.add('ligue-score-area');
-    wrap.style.display = 'grid';
-    wrap.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
-    wrap.style.gap = '8px';
-    wrap.style.marginTop = '8px';
-    match.sets.forEach(function(set, idx) {
-      var card = document.createElement('div');
-      card.className = 'card';
-      card.style.border = '1px solid #111827';
-      card.style.padding = '8px';
-      var label = document.createElement('div');
-      label.className = 'tournaments-subtitle';
-      label.textContent = 'Set ' + (idx + 1);
-      var row = document.createElement('div');
-      row.className = 'ligue-inline';
-      row.style.justifyContent = 'space-between';
-      var homeInput = document.createElement('input');
-      homeInput.type = 'number';
-      homeInput.min = '0';
-      homeInput.placeholder = '6';
-      homeInput.value = set.home !== null ? set.home : '';
-      homeInput.dataset.matchId = match.id;
-      homeInput.dataset.side = '0';
-      homeInput.dataset.setIndex = String(idx);
-      var sep = document.createElement('span');
-      sep.textContent = '-';
-      sep.style.color = 'var(--muted)';
-      var awayInput = document.createElement('input');
-      awayInput.type = 'number';
-      awayInput.min = '0';
-      awayInput.placeholder = '4';
-      awayInput.value = set.away !== null ? set.away : '';
-      awayInput.dataset.matchId = match.id;
-      awayInput.dataset.side = '1';
-      awayInput.dataset.setIndex = String(idx);
-      homeInput.addEventListener('input', function(evt) { updateSetScore(league, match.id, idx, evt.target.dataset.side, evt.target.value); });
-      awayInput.addEventListener('input', function(evt) { updateSetScore(league, match.id, idx, evt.target.dataset.side, evt.target.value); });
-      row.appendChild(homeInput);
-      row.appendChild(sep);
-      row.appendChild(awayInput);
-      card.appendChild(label);
-      card.appendChild(row);
-      wrap.appendChild(card);
-    });
-    return wrap;
   }
 
   function handleCloseLeague() {
@@ -1012,22 +940,12 @@
       vs.className = 'ligue-inline';
       vs.style.justifyContent = 'space-between';
       vs.innerHTML = '<span>🎾 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
-      var helper = document.createElement('div');
-      helper.className = 'small-muted';
-      helper.textContent = 'Score équipe A - Score équipe B (2 sets gagnants)';
-      helper.classList.add('ligue-score-area');
-      var scores = createSetInputs(league, m);
-      var summary = document.createElement('div');
-      summary.className = 'ligue-inline';
-      summary.style.justifyContent = 'space-between';
-      summary.style.marginTop = '6px';
-      summary.innerHTML = '<span style="color:var(--muted);">Résultat</span><span>' + formatSets(m) + '</span>';
-      summary.classList.add('ligue-score-area');
+      var status = document.createElement('div');
+      status.className = 'small-muted';
+      status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
       card.appendChild(title);
       card.appendChild(vs);
-      card.appendChild(helper);
-      card.appendChild(scores);
-      card.appendChild(summary);
+      card.appendChild(status);
       refs.manageCalendar.appendChild(card);
     });
   }
@@ -1035,16 +953,19 @@
   function renderManageResults(league) {
     if (!refs.manageResults) return;
     refs.manageResults.innerHTML = '';
-    var played = league.matches.filter(function(m) { return m.played && m.scores[0] !== null && m.scores[1] !== null; });
-    if (!played.length) {
-      refs.manageResults.innerHTML = '<div class="empty">Aucun résultat saisi pour l’instant.</div>';
+    if (!league.matches.length) {
+      refs.manageResults.innerHTML = '<div class="empty">Aucun match programmé.</div>';
       return;
     }
-    played.forEach(function(m) {
+    league.matches.forEach(function(m) {
+      ensureMatchSets(m);
       var outcome = computeMatchOutcome(m);
       var home = { id: m.home, name: teamName(league, m.home), setWins: outcome.setWins[0] };
       var away = { id: m.away, name: teamName(league, m.away), setWins: outcome.setWins[1] };
-      var winner = home.setWins === away.setWins ? null : (home.setWins > away.setWins ? home : away);
+      var winner = null;
+      if (m.played && outcome.setWins[0] !== outcome.setWins[1]) {
+        winner = outcome.setWins[0] > outcome.setWins[1] ? 'home' : 'away';
+      }
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
       var head = document.createElement('div');
@@ -1056,25 +977,106 @@
       body.style.justifyContent = 'space-between';
       var homeEl = document.createElement('div');
       homeEl.className = 'ligue-result-team';
-      homeEl.textContent = '🎾 ' + home.name;
+      homeEl.textContent = home.name;
       var scoreEl = document.createElement('div');
       scoreEl.className = 'ligue-result-score';
       scoreEl.textContent = formatSets(m);
       var awayEl = document.createElement('div');
       awayEl.className = 'ligue-result-team';
       awayEl.textContent = away.name;
-      // Mise en avant du vainqueur avec la teinte de la ligue.
-      if (winner) {
-        if (winner.id === home.id) homeEl.classList.add('ligue-result-winner');
-        if (winner.id === away.id) awayEl.classList.add('ligue-result-winner');
-      }
+      if (winner === 'home') homeEl.classList.add('winner-tag');
+      if (winner === 'away') awayEl.classList.add('winner-tag');
       body.appendChild(homeEl);
       body.appendChild(scoreEl);
       body.appendChild(awayEl);
+
+      var inputWrap = document.createElement('div');
+      inputWrap.className = 'ligue-score-area';
+      inputWrap.style.display = 'grid';
+      inputWrap.style.gridTemplateColumns = 'repeat(1, minmax(0,1fr))';
+      inputWrap.style.gap = '8px';
+      var setInputs = [];
+      [0, 1].forEach(function(idx) {
+        var row = document.createElement('div');
+        row.style.display = 'grid';
+        row.style.gridTemplateColumns = '100px repeat(2, minmax(0,1fr))';
+        row.style.gap = '8px';
+        row.style.alignItems = 'center';
+        row.className = 'ligue-score-area';
+        var label = document.createElement('div');
+        label.className = 'small-muted';
+        label.textContent = 'Set ' + (idx + 1);
+        var homeInput = document.createElement('input');
+        homeInput.type = 'number';
+        homeInput.min = '0';
+        homeInput.max = '7';
+        homeInput.placeholder = '6';
+        homeInput.value = m.sets[idx] && m.sets[idx].home !== null ? m.sets[idx].home : '';
+        var awayInput = document.createElement('input');
+        awayInput.type = 'number';
+        awayInput.min = '0';
+        awayInput.max = '7';
+        awayInput.placeholder = '4';
+        awayInput.value = m.sets[idx] && m.sets[idx].away !== null ? m.sets[idx].away : '';
+        setInputs.push({ home: homeInput, away: awayInput, index: idx });
+        row.appendChild(label);
+        row.appendChild(homeInput);
+        row.appendChild(awayInput);
+        inputWrap.appendChild(row);
+      });
+
+      var actions = document.createElement('div');
+      actions.className = 'ligue-inline ligue-score-area';
+      actions.style.justifyContent = 'flex-end';
+      var submit = document.createElement('button');
+      submit.className = 'btn';
+      submit.textContent = 'Valider le résultat';
+      submit.addEventListener('click', function() { handleValidateResult(league, m, setInputs); });
+      actions.appendChild(submit);
+      inputWrap.appendChild(actions);
+
       card.appendChild(head);
       card.appendChild(body);
+      card.appendChild(inputWrap);
       refs.manageResults.appendChild(card);
     });
+  }
+
+  function handleValidateResult(league, match, setInputs) {
+    if (!league || !match) return;
+    var sets = [];
+    for (var i = 0; i < setInputs.length; i += 1) {
+      var entry = setInputs[i];
+      var homeVal = entry.home.value === '' ? null : parseInt(entry.home.value, 10);
+      var awayVal = entry.away.value === '' ? null : parseInt(entry.away.value, 10);
+      if (homeVal === null || awayVal === null || isNaN(homeVal) || isNaN(awayVal)) {
+        alert('Merci de saisir les scores complets sur 2 sets (0 à 7).');
+        return;
+      }
+      if (homeVal < 0 || homeVal > 7 || awayVal < 0 || awayVal > 7) {
+        alert('Les scores doivent être compris entre 0 et 7 jeux.');
+        return;
+      }
+      sets.push({ home: homeVal, away: awayVal });
+    }
+    var setWins = [0, 0];
+    sets.forEach(function(s) {
+      if (s.home > s.away) setWins[0] += 1; else if (s.away > s.home) setWins[1] += 1;
+    });
+    if (setWins[0] === setWins[1]) {
+      alert('Un vainqueur doit être déterminé en 2 sets.');
+      return;
+    }
+    match.sets = sets;
+    match.scores = setWins;
+    match.played = true;
+    recomputeStandings(league);
+    saveState();
+    renderManageView(league);
+    renderActiveDetail(league);
+    if (refs.playerManageRoot && refs.playerManageRoot.style.display !== 'none') {
+      renderPlayerManageView(league);
+    }
   }
 
   function renderManageStandings(league) {
@@ -1193,13 +1195,11 @@
       body.style.justifyContent = 'space-between';
       var vs = document.createElement('div');
       vs.textContent = '🎾 ' + teamName(league, m.home) + ' vs ' + teamName(league, m.away);
-      var score = document.createElement('div');
-      score.className = 'ligue-result-score';
-      var formatted = formatSets(m);
-      score.textContent = formatted;
-      if (formatted === 'À jouer') score.style.color = 'var(--muted)';
+      var status = document.createElement('div');
+      status.className = 'small-muted';
+      status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
       body.appendChild(vs);
-      body.appendChild(score);
+      body.appendChild(status);
       card.appendChild(head);
       card.appendChild(body);
       refs.playerManageCalendar.appendChild(card);
@@ -1261,8 +1261,8 @@
       awayEl.className = 'ligue-result-team';
       awayEl.textContent = away.name;
       if (winner) {
-        if (winner.id === home.id) homeEl.classList.add('ligue-result-winner');
-        if (winner.id === away.id) awayEl.classList.add('ligue-result-winner');
+        if (winner.id === home.id) homeEl.classList.add('winner-tag');
+        if (winner.id === away.id) awayEl.classList.add('winner-tag');
       }
       body.appendChild(homeEl);
       body.appendChild(scoreEl);
