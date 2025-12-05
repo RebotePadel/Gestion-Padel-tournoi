@@ -25,6 +25,7 @@ var SKINS = {
 };
 
 var ACTIVE_SKIN_KEY = "padelParc";
+var HISTORY_KEY = "mdHistoryEntriesV1";
 
 function applySkin() {
   var skin = SKINS[ACTIVE_SKIN_KEY];
@@ -112,6 +113,8 @@ var elTvPodium        = document.getElementById("tv-podium");
 var elTvRankingGrid   = document.getElementById("tv-ranking-grid");
 
 applySkin();
+ensureHistoryUI();
+enableCardCollapsing();
 
 (function initTeamSelect() {
   for (var i = 6; i <= 16; i++) {
@@ -712,6 +715,221 @@ function escapeHtml(str) {
   return String(str).replace(/[&<>"']/g, function (c) {
     return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c] || c;
   });
+}
+
+/* COLLAPSIBLE CARDS */
+function enableCardCollapsing() {
+  var cards = document.querySelectorAll('#admin-root .card');
+  cards.forEach(function(card){
+    if (card.dataset.collapseApplied) return;
+    card.dataset.collapseApplied = "1";
+    card.style.position = card.style.position || "relative";
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = '−';
+    btn.title = 'Réduire';
+    btn.className = 'collapse-toggle';
+    btn.style.position = 'absolute';
+    btn.style.top = '8px';
+    btn.style.right = '8px';
+    btn.style.background = 'transparent';
+    btn.style.border = 'none';
+    btn.style.color = 'var(--blue-soft)';
+    btn.style.fontSize = '1.1rem';
+    btn.style.cursor = 'pointer';
+    btn.addEventListener('click', function(){
+      toggleCardCollapse(card, btn);
+    });
+    card.insertBefore(btn, card.firstChild);
+  });
+}
+
+function toggleCardCollapse(card, btn) {
+  var collapsed = card.dataset.collapsed === '1';
+  setCardCollapsed(card, btn, !collapsed);
+}
+
+function setCardCollapsed(card, btn, collapsed) {
+  card.dataset.collapsed = collapsed ? '1' : '0';
+  btn.textContent = collapsed ? '+' : '−';
+  var children = Array.prototype.slice.call(card.children);
+  children.forEach(function(child){
+    if (child === btn) return;
+    if (child.tagName && child.tagName.toLowerCase() === 'h2') return;
+    if (collapsed) {
+      child.dataset.prevDisplay = child.style.display;
+      child.style.display = 'none';
+    } else {
+      child.style.display = child.dataset.prevDisplay || '';
+    }
+  });
+}
+
+/* HISTORY */
+function ensureHistoryUI() {
+  var adminRoot = document.getElementById('admin-root');
+  if (!adminRoot) return;
+  if (document.getElementById('md-history-card')) return;
+
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.id = 'md-history-card';
+  card.style.marginTop = '12px';
+
+  var title = document.createElement('h2');
+  title.textContent = 'Historique M/D';
+  card.appendChild(title);
+
+  var info = document.createElement('p');
+  info.className = 'small-muted';
+  info.textContent = 'Sauvegarde et rechargement rapides des configurations M/D.';
+  card.appendChild(info);
+
+  var actions = document.createElement('div');
+  actions.style.display = 'flex';
+  actions.style.gap = '6px';
+  actions.style.flexWrap = 'wrap';
+  actions.style.alignItems = 'center';
+
+  var saveBtn = document.createElement('button');
+  saveBtn.id = 'md-btn-save-history';
+  saveBtn.className = 'btn';
+  saveBtn.textContent = '💾 Sauvegarder la M/D';
+  saveBtn.addEventListener('click', handleSaveHistory);
+  actions.appendChild(saveBtn);
+
+  card.appendChild(actions);
+
+  var list = document.createElement('div');
+  list.id = 'md-history-list';
+  list.className = 'card';
+  list.style.marginTop = '8px';
+  list.style.background = 'transparent';
+  list.style.border = '1px dashed var(--border)';
+  card.appendChild(list);
+
+  adminRoot.appendChild(card);
+  renderHistoryList();
+}
+
+function getHistoryEntries() {
+  try {
+    var raw = localStorage.getItem(HISTORY_KEY);
+    if (!raw) return [];
+    var parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHistoryEntries(entries) {
+  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(entries)); } catch (e) { /* ignore */ }
+}
+
+function handleSaveHistory() {
+  if (!state.teamCount || !state.teams.length) { alert('Configure et lance une M/D avant de sauvegarder.'); return; }
+  var label = prompt('Nom de la sauvegarde ?', state.name || 'Montante/Descendante');
+  if (!label) return;
+  var entries = getHistoryEntries();
+  var snapshot = {
+    label: label,
+    savedAt: Date.now(),
+    state: JSON.parse(JSON.stringify(state))
+  };
+  entries.unshift(snapshot);
+  saveHistoryEntries(entries);
+  renderHistoryList();
+}
+
+function renderHistoryList() {
+  var list = document.getElementById('md-history-list');
+  if (!list) return;
+  var entries = getHistoryEntries();
+  if (!entries.length) {
+    list.innerHTML = '<div class="empty">Aucune sauvegarde pour l’instant.</div>';
+    return;
+  }
+
+  list.innerHTML = '';
+  entries.forEach(function(entry, idx){
+    var row = document.createElement('div');
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.alignItems = 'center';
+    row.style.gap = '6px';
+    row.style.padding = '6px 8px';
+    row.style.borderBottom = '1px solid var(--border)';
+
+    var left = document.createElement('div');
+    left.style.display = 'flex';
+    left.style.flexDirection = 'column';
+    var title = document.createElement('strong');
+    title.textContent = entry.label || 'Sauvegarde';
+    var meta = document.createElement('span');
+    meta.className = 'small-muted';
+    var date = new Date(entry.savedAt || Date.now());
+    meta.textContent = date.toLocaleString();
+    left.appendChild(title);
+    left.appendChild(meta);
+
+    var actions = document.createElement('div');
+    actions.style.display = 'flex';
+    actions.style.gap = '6px';
+
+    var loadBtn = document.createElement('button');
+    loadBtn.className = 'btn btn-secondary btn-small';
+    loadBtn.textContent = 'Charger';
+    loadBtn.addEventListener('click', function(){
+      loadHistoryEntry(entry);
+    });
+
+    var deleteBtn = document.createElement('button');
+    deleteBtn.className = 'btn btn-secondary btn-small';
+    deleteBtn.textContent = 'Supprimer';
+    deleteBtn.addEventListener('click', function(){
+      if (!confirm('Supprimer cette sauvegarde ?')) return;
+      var refreshed = getHistoryEntries();
+      refreshed.splice(idx,1);
+      saveHistoryEntries(refreshed);
+      renderHistoryList();
+    });
+
+    actions.appendChild(loadBtn);
+    actions.appendChild(deleteBtn);
+
+    row.appendChild(left);
+    row.appendChild(actions);
+    list.appendChild(row);
+  });
+}
+
+function loadHistoryEntry(entry) {
+  if (!entry || !entry.state) return;
+  var snap = entry.state;
+  state.name = snap.name || '';
+  state.teamCount = snap.teamCount || 0;
+  state.maxRoulements = snap.maxRoulements || 0;
+  state.currentRoulement = snap.currentRoulement || 1;
+  state.teams = Array.isArray(snap.teams) ? snap.teams : [];
+  state.stats = Array.isArray(snap.stats) ? snap.stats : [];
+  state.results = snap.results || {};
+  state.pairings = snap.pairings || {};
+
+  if (elName) elName.value = state.name;
+  if (elTeamCount) elTeamCount.value = String(state.teamCount);
+  if (elMaxRoulements) elMaxRoulements.value = String(state.maxRoulements);
+
+  renderTeamsEditor();
+  if (state.teams.length) {
+    elTournamentSection.style.display = 'block';
+    elBtnStart.disabled = false;
+  }
+  updateTopBar();
+  renderRound();
+  renderRanking();
+  renderTvView();
+  window.scrollTo(0, elTournamentSection.offsetTop - 10);
 }
 window.mdRenderTvView = renderTvView;
 })();

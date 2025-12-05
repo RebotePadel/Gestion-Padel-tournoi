@@ -324,6 +324,8 @@
       tvLogos.forEach(img => {
         if (finalSrc) {
           img.src = finalSrc;
+          img.style.height = "72px";
+          img.style.width = "72px";
           img.style.display = "block";
         } else {
           img.style.display = "none";
