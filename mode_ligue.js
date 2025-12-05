@@ -18,6 +18,7 @@
   var currentActiveId = null;
   var currentManageTab = 'calendar';
   var currentPlayerId = null;
+  var currentPlayerTab = 'calendar';
 
   var refs = {
     homeBtn: document.getElementById('btn-home-ligue'),
@@ -71,25 +72,42 @@
       calendar: document.getElementById('panel-ligue-calendar'),
       standings: document.getElementById('panel-ligue-standings'),
       results: document.getElementById('panel-ligue-results'),
-      teams: document.getElementById('panel-ligue-teams')
+      teams: document.getElementById('panel-ligue-teams'),
+      rules: document.getElementById('panel-ligue-rules')
     },
     manageTabButtons: {
       calendar: document.getElementById('tab-ligue-calendar'),
       standings: document.getElementById('tab-ligue-standings'),
       results: document.getElementById('tab-ligue-results'),
-      teams: document.getElementById('tab-ligue-teams')
+      teams: document.getElementById('tab-ligue-teams'),
+      rules: document.getElementById('tab-ligue-rules')
     },
     playerList: document.getElementById('ligue-player-list'),
-    playerTitle: document.getElementById('ligue-player-title'),
-    playerMeta: document.getElementById('ligue-player-meta'),
-    playerLevel: document.getElementById('ligue-player-level'),
-    playerCalendar: document.getElementById('ligue-player-calendar'),
-    playerUpcoming: document.getElementById('ligue-player-upcoming'),
-    playerStandings: document.getElementById('ligue-player-standings'),
-    playerPanels: document.getElementById('ligue-player-panels'),
-    playerCalendarShell: document.getElementById('ligue-player-calendar-shell'),
-    playerUpcomingShell: document.getElementById('ligue-player-upcoming-shell'),
-    playerStandingsShell: document.getElementById('ligue-player-standings-shell')
+    playerManageRoot: document.getElementById('ligue-player-manage-root'),
+    playerManageShell: document.getElementById('ligue-player-manage-shell'),
+    playerManageTitle: document.getElementById('ligue-player-manage-title'),
+    playerManageMeta: document.getElementById('ligue-player-manage-meta'),
+    playerManageLevel: document.getElementById('ligue-player-manage-level'),
+    playerManageBackBtn: document.getElementById('btn-ligue-player-manage-back'),
+    playerManageTabs: document.getElementById('ligue-player-manage-tabs'),
+    playerManagePanels: {
+      calendar: document.getElementById('panel-player-calendar'),
+      standings: document.getElementById('panel-player-standings'),
+      results: document.getElementById('panel-player-results'),
+      teams: document.getElementById('panel-player-teams'),
+      rules: document.getElementById('panel-player-rules')
+    },
+    playerManageTabButtons: {
+      calendar: document.getElementById('tab-player-calendar'),
+      standings: document.getElementById('tab-player-standings'),
+      results: document.getElementById('tab-player-results'),
+      teams: document.getElementById('tab-player-teams'),
+      rules: document.getElementById('tab-player-rules')
+    },
+    playerManageCalendar: document.getElementById('ligue-player-manage-calendar'),
+    playerManageStandings: document.getElementById('ligue-player-manage-standings'),
+    playerManageResults: document.getElementById('ligue-player-manage-results'),
+    playerManageTeams: document.getElementById('ligue-player-manage-teams')
   };
 
   function loadState() {
@@ -150,7 +168,7 @@
   }
 
   function hideLigueSections() {
-    ['ligue-root', 'ligue-config-root', 'ligue-active-root', 'ligue-manage-root', 'ligue-player-root'].forEach(function(id) {
+    ['ligue-root', 'ligue-config-root', 'ligue-active-root', 'ligue-manage-root', 'ligue-player-root', 'ligue-player-manage-root'].forEach(function(id) {
       var el = document.getElementById(id);
       if (el) el.style.display = 'none';
     });
@@ -233,10 +251,28 @@
       if (refs.playerRoot) refs.playerRoot.style.display = 'block';
     }
     if (targetId) currentPlayerId = targetId;
-    var defaultLeague = currentPlayerId ? getActiveLeague(currentPlayerId) : (ligueState.activeLeagues[0] || null);
-    currentPlayerId = defaultLeague ? defaultLeague.id : null;
+    currentPlayerId = null;
     renderPlayerList();
-    renderPlayerDetail(defaultLeague);
+    scrollTop();
+  }
+
+  function showLiguePlayerManage(targetId) {
+    if (typeof window.navigateToSection === 'function') {
+      window.navigateToSection('liguePlayerManage');
+    } else {
+      if (typeof window.hideAllSections === 'function') window.hideAllSections();
+      hideLigueSections();
+      if (refs.playerManageRoot) refs.playerManageRoot.style.display = 'block';
+    }
+    if (targetId) currentPlayerId = targetId;
+    var league = getActiveLeague(currentPlayerId);
+    if (!league) {
+      showLiguePlayerView();
+      return;
+    }
+    applyTheme(refs.playerManageShell, league.level);
+    renderPlayerManageView(league);
+    setActivePlayerTab(currentPlayerTab || 'calendar');
     scrollTop();
   }
 
@@ -250,6 +286,7 @@
   bind(refs.configBackBtn, showLigueRoot);
   bind(refs.activeBackBtn, showLigueRoot);
   bind(refs.playerBackBtn, showLigueRoot);
+  bind(refs.playerManageBackBtn, showLiguePlayerView);
   bind(refs.configGenerateBtn, handleGenerate);
   bind(refs.configAutoTeamsBtn, handleAutoTeams);
   bind(refs.closeBtn, handleCloseLeague);
@@ -269,6 +306,13 @@
     refs.manageTabs.addEventListener('click', function(evt) {
       var tab = evt.target && evt.target.dataset ? evt.target.dataset.tab : null;
       if (tab) setActiveManageTab(tab);
+    });
+  }
+
+  if (refs.playerManageTabs) {
+    refs.playerManageTabs.addEventListener('click', function(evt) {
+      var tab = evt.target && evt.target.dataset ? evt.target.dataset.tab : null;
+      if (tab) setActivePlayerTab(tab);
     });
   }
 
@@ -584,7 +628,7 @@
       btn.textContent = 'Voir';
       btn.addEventListener('click', function() {
         currentPlayerId = lg.id;
-        renderPlayerDetail(lg);
+        showLiguePlayerManage(lg.id);
       });
       card.appendChild(header);
       card.appendChild(meta);
@@ -627,35 +671,34 @@
     renderStandings(league);
   }
 
-  function renderPlayerDetail(league) {
-    if (!refs.playerTitle) return;
+  function renderPlayerManageView(league) {
+    if (!refs.playerManageTitle) return;
     if (!league) {
-      refs.playerTitle.textContent = 'Aucune ligue sélectionnée';
-      refs.playerMeta.textContent = 'Choisis une ligue active pour afficher les informations.';
-      if (refs.playerLevel) refs.playerLevel.style.display = 'none';
-      if (refs.playerCalendar) refs.playerCalendar.innerHTML = '';
-      if (refs.playerUpcoming) refs.playerUpcoming.innerHTML = '';
-      if (refs.playerStandings) refs.playerStandings.innerHTML = '';
-      applyTheme(refs.playerShell, null);
-      applyTheme(refs.playerCalendarShell, null);
-      applyTheme(refs.playerUpcomingShell, null);
-      applyTheme(refs.playerStandingsShell, null);
+      refs.playerManageTitle.textContent = 'Aucune ligue sélectionnée';
+      refs.playerManageMeta.textContent = 'Sélectionne une ligue active pour accéder aux onglets.';
+      if (refs.playerManageLevel) refs.playerManageLevel.style.display = 'none';
+      clearPlayerPanels();
       return;
     }
-    applyTheme(refs.playerShell, league.level);
-    applyTheme(refs.playerCalendarShell, league.level);
-    applyTheme(refs.playerUpcomingShell, league.level);
-    applyTheme(refs.playerStandingsShell, league.level);
-    refs.playerTitle.textContent = league.name;
-    refs.playerMeta.textContent = (league.config.startDate || '—') + ' • ' + league.config.nbTeams + ' équipes • ' + (league.config.format === 'aller_retour' ? 'Aller / Retour' : 'Aller simple');
-    if (refs.playerLevel) {
-      refs.playerLevel.textContent = league.level;
-      refs.playerLevel.style.display = 'inline-flex';
+    applyTheme(refs.playerManageShell, league.level);
+    refs.playerManageTitle.textContent = league.name;
+    refs.playerManageMeta.textContent = (league.config.startDate || '—') + ' • ' + league.config.nbTeams + ' équipes • ' + (league.config.format === 'aller_retour' ? 'Aller / Retour' : 'Aller simple');
+    if (refs.playerManageLevel) {
+      refs.playerManageLevel.textContent = league.level;
+      refs.playerManageLevel.style.display = 'inline-flex';
     }
     recomputeStandings(league);
-    renderPlayerCalendar(league);
-    renderPlayerUpcoming(league);
-    renderPlayerStandings(league);
+    renderPlayerManageCalendar(league);
+    renderPlayerManageStandings(league);
+    renderPlayerManageResults(league);
+    renderPlayerManageTeams(league);
+  }
+
+  function clearPlayerPanels() {
+    if (refs.playerManageCalendar) refs.playerManageCalendar.innerHTML = '';
+    if (refs.playerManageStandings) refs.playerManageStandings.innerHTML = '';
+    if (refs.playerManageResults) refs.playerManageResults.innerHTML = '';
+    if (refs.playerManageTeams) refs.playerManageTeams.innerHTML = '';
   }
 
   function renderDetailTeams(league) {
@@ -813,7 +856,7 @@
     saveState();
     if (refs.manageRoot && refs.manageRoot.style.display !== 'none') renderManageView(league);
     if (refs.activeRoot && refs.activeRoot.style.display !== 'none') renderActiveDetail(league);
-    if (refs.playerRoot && refs.playerRoot.style.display !== 'none') renderPlayerDetail(league);
+    if (refs.playerManageRoot && refs.playerManageRoot.style.display !== 'none') renderPlayerManageView(league);
   }
 
   function createSetInputs(league, match) {
@@ -1042,11 +1085,22 @@
     });
   }
 
-  function renderPlayerCalendar(league) {
-    if (!refs.playerCalendar) return;
-    refs.playerCalendar.innerHTML = '';
+  function setActivePlayerTab(tab) {
+    if (!refs.playerManagePanels[tab]) tab = 'calendar';
+    currentPlayerTab = tab;
+    Object.keys(refs.playerManagePanels).forEach(function(key) {
+      var panel = refs.playerManagePanels[key];
+      var btn = refs.playerManageTabButtons[key];
+      if (panel) panel.classList.toggle('hidden', key !== tab);
+      if (btn) btn.classList.toggle('active', key === tab);
+    });
+  }
+
+  function renderPlayerManageCalendar(league) {
+    if (!refs.playerManageCalendar) return;
+    refs.playerManageCalendar.innerHTML = '';
     if (!league || !league.matches.length) {
-      refs.playerCalendar.innerHTML = '<div class="empty">Aucun match programmé.</div>';
+      refs.playerManageCalendar.innerHTML = '<div class="empty">Aucun match programmé.</div>';
       return;
     }
     league.matches.forEach(function(m) {
@@ -1070,39 +1124,14 @@
       body.appendChild(score);
       card.appendChild(head);
       card.appendChild(body);
-      refs.playerCalendar.appendChild(card);
+      refs.playerManageCalendar.appendChild(card);
     });
   }
 
-  function renderPlayerUpcoming(league) {
-    if (!refs.playerUpcoming) return;
-    refs.playerUpcoming.innerHTML = '';
-    var upcoming = (league && league.matches) ? league.matches.filter(function(m) { return !m.played; }) : [];
-    if (!upcoming.length) {
-      refs.playerUpcoming.innerHTML = '<div class="empty">Aucun match à venir.</div>';
-      return;
-    }
-    upcoming.forEach(function(m) {
-      var card = document.createElement('div');
-      card.className = 'ligue-match-card';
-      var head = document.createElement('div');
-      head.className = 'ligue-inline';
-      head.style.justifyContent = 'space-between';
-      head.innerHTML = '<span>⏭️ Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
-      var vs = document.createElement('div');
-      vs.className = 'ligue-inline';
-      vs.style.justifyContent = 'space-between';
-      vs.innerHTML = '<span>👥 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
-      card.appendChild(head);
-      card.appendChild(vs);
-      refs.playerUpcoming.appendChild(card);
-    });
-  }
-
-  function renderPlayerStandings(league) {
-    if (!refs.playerStandings) return;
+  function renderPlayerManageStandings(league) {
+    if (!refs.playerManageStandings) return;
     if (!league || !league.standings || !league.standings.length) {
-      refs.playerStandings.innerHTML = '';
+      refs.playerManageStandings.innerHTML = '';
       return;
     }
     var html = '<tr><th>#</th><th>Équipe</th><th>J</th><th>V</th><th>D</th><th>Pts</th></tr>';
@@ -1113,8 +1142,83 @@
       else if (idx === 2) badge = ' 🥉';
       html += '<tr><td>' + (idx + 1) + '</td><td>' + s.name + badge + '</td><td>' + s.played + '</td><td>' + s.wins + '</td><td>' + s.losses + '</td><td>' + s.points + '</td></tr>';
     });
-    refs.playerStandings.innerHTML = html;
+    refs.playerManageStandings.innerHTML = html;
   }
+
+  function renderPlayerManageResults(league) {
+    if (!refs.playerManageResults) return;
+    refs.playerManageResults.innerHTML = '';
+    if (!league || !league.matches.length) {
+      refs.playerManageResults.innerHTML = '<div class="empty">Aucun résultat pour l’instant.</div>';
+      return;
+    }
+    var played = league.matches.filter(function(m) { return m.played; });
+    if (!played.length) {
+      refs.playerManageResults.innerHTML = '<div class="empty">Aucun match joué pour le moment.</div>';
+      return;
+    }
+    played.forEach(function(m) {
+      var home = teamById(league, m.home) || { id: m.home, name: m.home };
+      var away = teamById(league, m.away) || { id: m.away, name: m.away };
+      var sets = m.sets || [];
+      var homeWins = sets.filter(function(s) { return s && s.home !== null && s.away !== null && s.home > s.away; }).length;
+      var awayWins = sets.filter(function(s) { return s && s.home !== null && s.away !== null && s.away > s.home; }).length;
+      var winner = homeWins > awayWins ? home : (awayWins > homeWins ? away : null);
+      var card = document.createElement('div');
+      card.className = 'ligue-match-card';
+      var head = document.createElement('div');
+      head.className = 'ligue-inline';
+      head.style.justifyContent = 'space-between';
+      head.innerHTML = '<span>🎾 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      var body = document.createElement('div');
+      body.className = 'ligue-inline ligue-result-row';
+      body.style.justifyContent = 'space-between';
+      var homeEl = document.createElement('div');
+      homeEl.className = 'ligue-result-team';
+      homeEl.textContent = '🎾 ' + home.name;
+      var scoreEl = document.createElement('div');
+      scoreEl.className = 'ligue-result-score';
+      scoreEl.textContent = formatSets(m);
+      var awayEl = document.createElement('div');
+      awayEl.className = 'ligue-result-team';
+      awayEl.textContent = away.name;
+      if (winner) {
+        if (winner.id === home.id) homeEl.classList.add('ligue-result-winner');
+        if (winner.id === away.id) awayEl.classList.add('ligue-result-winner');
+      }
+      body.appendChild(homeEl);
+      body.appendChild(scoreEl);
+      body.appendChild(awayEl);
+      card.appendChild(head);
+      card.appendChild(body);
+      refs.playerManageResults.appendChild(card);
+    });
+  }
+
+  function renderPlayerManageTeams(league) {
+    if (!refs.playerManageTeams) return;
+    refs.playerManageTeams.innerHTML = '';
+    if (!league || !league.teams) return;
+    league.teams.forEach(function(t) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.style.border = '1px solid #111827';
+      var head = document.createElement('div');
+      head.className = 'ligue-inline';
+      head.style.justifyContent = 'space-between';
+      var title = document.createElement('div');
+      title.className = 'tournaments-title';
+      title.textContent = '👥 ' + t.name;
+      head.appendChild(title);
+      var players = document.createElement('div');
+      players.className = 'small-muted';
+      players.textContent = (t.players || []).map(function(p) { return '🎾 ' + p; }).join(' • ');
+      card.appendChild(head);
+      card.appendChild(players);
+      refs.playerManageTeams.appendChild(card);
+    });
+  }
+
 
   window.hideLigueSections = hideLigueSections;
   window.showLigueRoot = showLigueRoot;
@@ -1122,4 +1226,5 @@
   window.showLigueActive = showLigueActive;
   window.showLigueManage = showLigueManage;
   window.showLiguePlayerView = showLiguePlayerView;
+  window.showLiguePlayerManage = showLiguePlayerManage;
 })();
