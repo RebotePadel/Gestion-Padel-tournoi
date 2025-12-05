@@ -1,26 +1,35 @@
 (function(){
   'use strict';
 
-  var leagueRoot = document.getElementById('league-root');
-  var btnHome = document.getElementById('btn-back-home-from-league');
-  var btnFormats = document.getElementById('btn-back-formats-from-league');
+  var btnHomeLigue = document.getElementById('btn-home-league');
+  var btnBackHomeFromLigue = document.getElementById('btn-back-home-from-league');
+  var btnBackFormatsFromLigue = document.getElementById('btn-back-formats-from-league');
 
-  if (btnHome) {
-    btnHome.addEventListener('click', function(){
-      if (window.showScreen) window.showScreen('home');
-      window.scrollTo(0,0);
-    });
+  function openLigue() {
+    if (typeof window.hideAllSections === 'function') window.hideAllSections();
+    var ligueSection = document.getElementById('league-root');
+    if (ligueSection) ligueSection.style.display = 'block';
+    window.scrollTo(0,0);
   }
 
-  if (btnFormats) {
-    btnFormats.addEventListener('click', function(){
-      if (window.showScreen) window.showScreen('tournaments');
-      window.scrollTo(0,0);
-    });
+  function backHome() {
+    if (typeof window.showHome === 'function') window.showHome();
+    else openSection('home-root');
   }
 
-  // Placeholder hook in case future logic needs to run when league is shown
-  if (leagueRoot) {
-    leagueRoot.dataset.ready = 'true';
+  function backFormats() {
+    if (typeof window.showTournaments === 'function') window.showTournaments();
+    else openSection('tournaments-root');
   }
+
+  function openSection(id) {
+    if (typeof window.hideAllSections === 'function') window.hideAllSections();
+    var el = document.getElementById(id);
+    if (el) el.style.display = 'block';
+    window.scrollTo(0,0);
+  }
+
+  if (btnHomeLigue) btnHomeLigue.addEventListener('click', openLigue);
+  if (btnBackHomeFromLigue) btnBackHomeFromLigue.addEventListener('click', backHome);
+  if (btnBackFormatsFromLigue) btnBackFormatsFromLigue.addEventListener('click', backFormats);
 })();
