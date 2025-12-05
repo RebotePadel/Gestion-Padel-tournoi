@@ -381,6 +381,12 @@
     .ligue-panel { margin-top: 12px; }
     .ligue-panel.hidden { display: none; }
     .ligue-match-card { border: 1px solid #111827; border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); }
+    .ligue-result-row { gap: 10px; flex-wrap: wrap; }
+    .ligue-result-team { padding: 8px 10px; border-radius: 12px; border: 1px solid #111827; background: rgba(255,255,255,0.03); font-weight: 600; }
+    .ligue-result-score { font-weight: 800; letter-spacing: 0.08em; color: #e6e6e6; }
+    .ligue-theme-n1 .ligue-result-winner { background: rgba(127,29,29,0.18); border-color: rgba(127,29,29,0.55); color: #fee2e2; }
+    .ligue-theme-n2 .ligue-result-winner { background: rgba(180,83,9,0.18); border-color: rgba(180,83,9,0.55); color: #ffedd5; }
+    .ligue-theme-n3 .ligue-result-winner { background: rgba(202,138,4,0.18); border-color: rgba(202,138,4,0.55); color: #fef9c3; }
     .ligue-badge-accent { padding: 4px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); font-size: 0.8rem; }
     .ligue-theme-n1 .ligue-badge-accent { border-color: rgba(127,29,29,0.6); color: #fca5a5; }
     .ligue-theme-n2 .ligue-badge-accent { border-color: rgba(180,83,9,0.6); color: #fbbf24; }
@@ -2476,14 +2482,14 @@
         <div class="ligue-form-grid ligue-section">
           <div class="ligue-field">
             <label for="ligue-config-name">Nom de la ligue</label>
-            <input type="text" id="ligue-config-name" placeholder="Ex : Ligue Niveau 1 – Hiver" />
+            <input type="text" id="ligue-config-name" placeholder="Ex : Ligue 1 – Hiver" />
           </div>
           <div class="ligue-field">
-            <label for="ligue-config-level">Niveau</label>
+            <label for="ligue-config-level">Ligue</label>
             <select id="ligue-config-level">
-              <option value="Niveau 1">Niveau 1</option>
-              <option value="Niveau 2">Niveau 2</option>
-              <option value="Niveau 3">Niveau 3</option>
+              <option value="Ligue 1">Ligue 1</option>
+              <option value="Ligue 2">Ligue 2</option>
+              <option value="Ligue 3">Ligue 3</option>
             </select>
           </div>
           <div class="ligue-field">
@@ -2509,7 +2515,10 @@
 
         <div class="card ligue-section" style="border:1px solid #111827;">
           <h3 class="tournaments-title" style="margin-bottom:6px;">Équipes</h3>
-          <div class="small-muted">Renseigne 4 à 20 équipes, 2 à 6 joueurs par équipe.</div>
+          <div class="ligue-inline" style="justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <div class="small-muted">Renseigne 4 à 20 équipes, 2 à 6 joueurs par équipe.</div>
+            <button class="btn btn-secondary btn-small" id="btn-ligue-generate-teams">Générer des équipes auto</button>
+          </div>
           <div id="ligue-config-teams" class="ligue-section"></div>
         </div>
       </div>

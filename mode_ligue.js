@@ -5,6 +5,14 @@
 
   var STORAGE_KEY = 'padel_ligues_v1';
   var dayLabels = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  var LEVEL_CLASS = {
+    'ligue 1': 'ligue-theme-n1',
+    'ligue 2': 'ligue-theme-n2',
+    'ligue 3': 'ligue-theme-n3',
+    'niveau 1': 'ligue-theme-n1',
+    'niveau 2': 'ligue-theme-n2',
+    'niveau 3': 'ligue-theme-n3'
+  };
 
   var ligueState = loadState();
   var currentActiveId = null;
@@ -18,6 +26,7 @@
     configBackBtn: document.getElementById('btn-ligue-config-back'),
     activeBackBtn: document.getElementById('btn-ligue-active-back'),
     configGenerateBtn: document.getElementById('btn-ligue-config-generate'),
+    configAutoTeamsBtn: document.getElementById('btn-ligue-generate-teams'),
     closeBtn: document.getElementById('btn-ligue-close'),
     manageCloseBtn: document.getElementById('btn-ligue-manage-close'),
     manageBackBtn: document.getElementById('btn-ligue-manage-back'),
@@ -74,6 +83,7 @@
       var parsed = JSON.parse(raw);
       if (!parsed.activeLeagues) parsed.activeLeagues = [];
       if (!parsed.finishedLeagues) parsed.finishedLeagues = [];
+      migrateLevels(parsed);
       return parsed;
     } catch (e) {
       return { activeLeagues: [], finishedLeagues: [] };
@@ -84,12 +94,27 @@
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(ligueState)); } catch (e) { /* noop */ }
   }
 
+  function normalizeLevel(level) {
+    var txt = (level || '').trim();
+    var lower = txt.toLowerCase();
+    if (lower.indexOf('niveau 1') === 0 || lower.indexOf('ligue 1') === 0) return 'Ligue 1';
+    if (lower.indexOf('niveau 2') === 0 || lower.indexOf('ligue 2') === 0) return 'Ligue 2';
+    if (lower.indexOf('niveau 3') === 0 || lower.indexOf('ligue 3') === 0) return 'Ligue 3';
+    return 'Ligue 1';
+  }
+
+  function migrateLevels(state) {
+    var normalizeLeague = function(lg) { if (lg && lg.level) lg.level = normalizeLevel(lg.level); };
+    if (state.activeLeagues) state.activeLeagues.forEach(normalizeLeague);
+    if (state.finishedLeagues) state.finishedLeagues.forEach(normalizeLeague);
+  }
+
   function applyTheme(container, level) {
     if (!container) return;
     ['ligue-theme-n1', 'ligue-theme-n2', 'ligue-theme-n3'].forEach(function(cls) { container.classList.remove(cls); });
-    if (level === 'Niveau 1') container.classList.add('ligue-theme-n1');
-    else if (level === 'Niveau 2') container.classList.add('ligue-theme-n2');
-    else if (level === 'Niveau 3') container.classList.add('ligue-theme-n3');
+    var normalized = normalizeLevel(level);
+    var cls = LEVEL_CLASS[normalized.toLowerCase()];
+    if (cls) container.classList.add(cls);
   }
 
   function hideLigueSections() {
@@ -176,6 +201,7 @@
   bind(refs.configBackBtn, showLigueRoot);
   bind(refs.activeBackBtn, showLigueRoot);
   bind(refs.configGenerateBtn, handleGenerate);
+  bind(refs.configAutoTeamsBtn, handleAutoTeams);
   bind(refs.closeBtn, handleCloseLeague);
   bind(refs.manageCloseBtn, handleCloseLeague);
   bind(refs.manageBackBtn, showLigueActive);
@@ -282,9 +308,36 @@
     return teams;
   }
 
+  // Remplissage rapide des équipes avec des noms et joueurs aléatoires.
+  function handleAutoTeams() {
+    var count = parseInt(refs.configNbTeams && refs.configNbTeams.value, 10) || 0;
+    if (count < 4 || count > 20) { alert('Merci de choisir entre 4 et 20 équipes.'); return; }
+    renderTeamInputs(count);
+    var teamPool = [
+      'Smash & Co','Padel Kings','Rebote Squad','Ace Hunters','Blue Court','Los Lobos',
+      'Night Session','Padel Crew','Volley Time','Padel Legends','Smash Attack','Team Bandeja',
+      'Chiquita Gang','Padel Stars','Center Court','Last Minute','Padel Horizon','Spin Masters'
+    ];
+    var playerPool = ['Léo','Camille','Noé','Élise','Arthur','Sacha','Mila','Nina','Yanis','Émilie','Gaspard','Lina','Hugo','Jade','Lucas','Maé'];
+    for (var i = 1; i <= count; i++) {
+      var nameInput = document.getElementById('ligue-team-name-' + i);
+      var playersArea = document.getElementById('ligue-team-players-' + i);
+      if (nameInput) nameInput.value = teamPool[(i - 1) % teamPool.length] + ' #' + i;
+      if (playersArea) {
+        var roster = [];
+        var rosterSize = 2 + Math.floor(Math.random() * 3);
+        for (var j = 0; j < rosterSize; j++) {
+          var pick = playerPool[(i + j) % playerPool.length];
+          roster.push('🎾 ' + pick + ' ' + (10 + ((i + j) % 70)));
+        }
+        playersArea.value = roster.join('\n');
+      }
+    }
+  }
+
   function validateConfig() {
     var name = refs.configName ? refs.configName.value.trim() : '';
-    var level = refs.configLevel ? refs.configLevel.value : 'Niveau 1';
+    var level = refs.configLevel ? refs.configLevel.value : 'Ligue 1';
     var nbTeams = parseInt(refs.configNbTeams && refs.configNbTeams.value, 10) || 0;
     var format = refs.configFormat ? refs.configFormat.value : 'aller';
     var start = refs.configStart ? refs.configStart.value : '';
@@ -307,12 +360,13 @@
     var cfg = validateConfig();
     if (cfg.error) { alert(cfg.error); return; }
     var leagueId = 'ligue_' + Date.now();
+    var level = normalizeLevel(cfg.level);
     var matches = buildSchedule(cfg.teams, cfg.format === 'aller_retour');
     matches = assignDates(matches, cfg.start, cfg.days);
     var league = {
       id: leagueId,
       name: cfg.name,
-      level: cfg.level,
+      level: level,
       config: {
         nbTeams: cfg.nbTeams,
         format: cfg.format,
@@ -722,18 +776,24 @@
       head.style.justifyContent = 'space-between';
       head.innerHTML = '<span>🎾 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
       var body = document.createElement('div');
-      body.className = 'ligue-inline';
+      body.className = 'ligue-inline ligue-result-row';
       body.style.justifyContent = 'space-between';
-      var homeEl = document.createElement('span');
-      homeEl.innerHTML = (winner && winner.id === home.id ? '<strong>' + home.name + '</strong>' : home.name) + ' (' + home.score + ')';
-      var awayEl = document.createElement('span');
-      awayEl.innerHTML = (winner && winner.id === away.id ? '<strong>' + away.name + '</strong>' : away.name) + ' (' + away.score + ')';
-      body.appendChild(document.createTextNode('📈 '));
+      var homeEl = document.createElement('div');
+      homeEl.className = 'ligue-result-team';
+      homeEl.textContent = '🎾 ' + home.name;
+      var scoreEl = document.createElement('div');
+      scoreEl.className = 'ligue-result-score';
+      scoreEl.textContent = home.score + ' - ' + away.score;
+      var awayEl = document.createElement('div');
+      awayEl.className = 'ligue-result-team';
+      awayEl.textContent = away.name;
+      // Mise en avant du vainqueur avec la teinte de la ligue.
+      if (winner) {
+        if (winner.id === home.id) homeEl.classList.add('ligue-result-winner');
+        if (winner.id === away.id) awayEl.classList.add('ligue-result-winner');
+      }
       body.appendChild(homeEl);
-      var sep = document.createElement('span');
-      sep.style.color = 'var(--muted)';
-      sep.textContent = 'vs';
-      body.appendChild(sep);
+      body.appendChild(scoreEl);
       body.appendChild(awayEl);
       card.appendChild(head);
       card.appendChild(body);
