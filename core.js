@@ -8,9 +8,8 @@
     tournaments: document.getElementById('tournaments-root'),
     classic: document.getElementById('classic-root'),
     ligue: document.getElementById('ligue-root'),
-    ligueN1: document.getElementById('ligue-n1-root'),
-    ligueN2: document.getElementById('ligue-n2-root'),
-    ligueN3: document.getElementById('ligue-n3-root')
+    ligueConfig: document.getElementById('ligue-config-root'),
+    ligueActive: document.getElementById('ligue-active-root')
   };
 
   var current = 'home';
@@ -60,9 +59,8 @@
   function showTournaments() { showSection('tournaments'); }
   function showClassic() { showSection('classic'); }
   function showLigue() { showSection('ligue'); }
-  function showLigueN1() { showSection('ligueN1'); }
-  function showLigueN2() { showSection('ligueN2'); }
-  function showLigueN3() { showSection('ligueN3'); }
+  function showLigueConfig() { showSection('ligueConfig'); }
+  function showLigueActive() { showSection('ligueActive'); }
 
   function goBack() {
     if (!historyStack.length) {
@@ -94,6 +92,10 @@
   bind('btn-back-formats-from-classic', showTournaments);
 
   bind('btn-back-home-from-ligue', showHome);
+  bind('btn-ligue-config', showLigueConfig);
+  bind('btn-ligue-active', showLigueActive);
+  bind('btn-ligue-config-back', showLigue);
+  bind('btn-ligue-active-back', showLigue);
 
   renderBackButton();
 
@@ -104,8 +106,7 @@
   window.showTournaments = showTournaments;
   window.showClassic = showClassic;
   window.showLigue = showLigue;
-  window.showLigueN1 = showLigueN1;
-  window.showLigueN2 = showLigueN2;
-  window.showLigueN3 = showLigueN3;
+  window.showLigueConfig = showLigueConfig;
+  window.showLigueActive = showLigueActive;
   window.goBack = goBack;
 })();

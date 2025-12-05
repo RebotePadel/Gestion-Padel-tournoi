@@ -278,6 +278,86 @@
       margin-bottom: 8px;
     }
 
+    /* LIGUE THEMES */
+    .ligue-theme-shell {
+      border: 1px solid var(--border);
+      background: linear-gradient(145deg, #0b1220, #020617 45%, #000a18);
+      border-radius: 14px;
+    }
+
+    .ligue-theme-n1 { border-color: #7f1d1d; box-shadow: 0 0 0 1px rgba(127,29,29,0.4); }
+    .ligue-theme-n2 { border-color: #b45309; box-shadow: 0 0 0 1px rgba(180,83,9,0.4); }
+    .ligue-theme-n3 { border-color: #ca8a04; box-shadow: 0 0 0 1px rgba(202,138,4,0.4); }
+
+    .ligue-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--text);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .ligue-theme-n1 .ligue-chip { border-color: rgba(127,29,29,0.6); color: #fca5a5; }
+    .ligue-theme-n2 .ligue-chip { border-color: rgba(180,83,9,0.6); color: #fbbf24; }
+    .ligue-theme-n3 .ligue-chip { border-color: rgba(202,138,4,0.6); color: #fcd34d; }
+
+    .ligue-section { margin-top: 12px; display: grid; gap: 10px; }
+    .ligue-grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    @media (max-width: 900px) { .ligue-grid-2 { grid-template-columns: minmax(0,1fr); } }
+
+    .ligue-form-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 10px; }
+    @media (max-width: 800px) { .ligue-form-grid { grid-template-columns: minmax(0,1fr); } }
+
+    .ligue-field textarea,
+    .ligue-field input[type="number"],
+    .ligue-field input[type="date"] {
+      width: 100%;
+      padding: 6px 10px;
+      border-radius: 10px;
+      border: 1px solid #1e293b;
+      background: #020617;
+      color: var(--text);
+      font-size: 0.85rem;
+      outline: none;
+      resize: vertical;
+      min-height: 70px;
+    }
+
+    .ligue-field input[type="number"],
+    .ligue-field input[type="date"] {
+      border-radius: 999px;
+      min-height: auto;
+    }
+
+    .ligue-field textarea:focus,
+    .ligue-field input[type="number"]:focus,
+    .ligue-field input[type="date"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(229,227,57,0.5);
+    }
+
+    .ligue-field label { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-soft); margin-bottom: 4px; }
+    .ligue-inline { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .ligue-badge { padding: 4px 8px; border-radius: 10px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.08); font-size: 0.8rem; color: var(--muted); }
+
+    .ligue-list { display: grid; gap: 8px; }
+    .ligue-list .card { border: 1px solid #111827; }
+    .ligue-match-row { display: grid; grid-template-columns: 140px 1fr 140px; gap: 8px; align-items: center; padding: 8px; border: 1px solid #111827; border-radius: 10px; background: rgba(255,255,255,0.02); }
+    @media (max-width: 800px) { .ligue-match-row { grid-template-columns: 1fr; } }
+    .ligue-match-row input { width: 100%; padding: 6px 10px; border-radius: 10px; border: 1px solid #1e293b; background: #020617; color: var(--text); }
+    .ligue-match-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(229,227,57,0.4); }
+    .ligue-match-title { font-size: 0.85rem; color: var(--muted); }
+    .ligue-standings { width: 100%; border-collapse: collapse; }
+    .ligue-standings th, .ligue-standings td { padding: 6px 8px; border-bottom: 1px solid #111827; text-align: left; font-size: 0.85rem; }
+    .ligue-standings th { color: var(--blue-soft); text-transform: uppercase; letter-spacing: 0.12em; font-size: 0.78rem; }
+    .ligue-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
     .field { margin-bottom: 8px; }
 
     .field label {
@@ -2303,7 +2383,7 @@
       <header class="tournaments-header">
         <div>
           <p class="tournaments-subtitle">Ligue interne</p>
-          <h1 class="tournaments-title">Gestion de votre ligue interne de padel</h1>
+          <h1 class="tournaments-title">Gestion de vos ligues internes de padel</h1>
         </div>
         <div class="tournaments-actions">
           <button class="btn btn-secondary" id="btn-back-home-from-ligue">🏠 Accueil</button>
@@ -2315,12 +2395,12 @@
           <div class="tournament-type-card-header">
             <div>
               <p class="tournaments-subtitle">Ligue interne</p>
-              <h3 class="tournaments-title">Ligue Niveau 1</h3>
-              <p class="tournament-type-description">Joueurs les plus forts</p>
+              <h3 class="tournaments-title">Configurer une ligue</h3>
+              <p class="tournament-type-description">Créer une nouvelle ligue : équipes, format, calendrier…</p>
             </div>
           </div>
           <div class="tournament-type-actions">
-            <button class="btn" id="btn-ligue-n1">Gérer cette ligue</button>
+            <button class="btn" id="btn-ligue-config">Configurer une ligue</button>
           </div>
         </article>
 
@@ -2328,48 +2408,145 @@
           <div class="tournament-type-card-header">
             <div>
               <p class="tournaments-subtitle">Ligue interne</p>
-              <h3 class="tournaments-title">Ligue Niveau 2</h3>
-              <p class="tournament-type-description">Niveau intermédiaire</p>
+              <h3 class="tournaments-title">Gestion des ligues en cours</h3>
+              <p class="tournament-type-description">Voir et administrer les ligues actuellement actives.</p>
             </div>
           </div>
           <div class="tournament-type-actions">
-            <button class="btn" id="btn-ligue-n2">Gérer cette ligue</button>
-          </div>
-        </article>
-
-        <article class="tournament-type-card">
-          <div class="tournament-type-card-header">
-            <div>
-              <p class="tournaments-subtitle">Ligue interne</p>
-              <h3 class="tournaments-title">Ligue Niveau 3</h3>
-              <p class="tournament-type-description">Niveau loisir / débutant</p>
-            </div>
-          </div>
-          <div class="tournament-type-actions">
-            <button class="btn" id="btn-ligue-n3">Gérer cette ligue</button>
+            <button class="btn" id="btn-ligue-active">Gérer les ligues en cours</button>
           </div>
         </article>
       </section>
+
+      <section class="card ligue-section">
+        <div class="ligue-inline">
+          <div>
+            <p class="tournaments-subtitle">Historique</p>
+            <h3 class="tournaments-title">Historique des ligues terminées</h3>
+          </div>
+          <div class="small-muted">Ligues clôturées et archivées.</div>
+        </div>
+        <div id="ligue-history-list" class="ligue-list">
+          <div class="empty">Aucune ligue terminée pour l’instant.</div>
+        </div>
+      </section>
     </section>
 
-    <section id="ligue-n1-root" style="display:none;">
-      <div class="card">
-        <h2>Ligue Niveau 1</h2>
-        <p>Ligue Niveau 1 – ici seront affichés calendrier, matchs et classement.</p>
+    <section id="ligue-config-root" style="display:none;">
+      <div class="card ligue-theme-shell" id="ligue-config-shell">
+        <header class="tournaments-header" style="margin-bottom:8px;">
+          <div>
+            <p class="tournaments-subtitle">Configuration</p>
+            <h1 class="tournaments-title">Créer une ligue interne</h1>
+          </div>
+          <div class="tournaments-actions ligue-actions">
+            <button class="btn btn-secondary" id="btn-ligue-config-back">← Retour</button>
+            <button class="btn" id="btn-ligue-config-generate">Générer le calendrier</button>
+          </div>
+        </header>
+
+        <div class="ligue-form-grid ligue-section">
+          <div class="ligue-field">
+            <label for="ligue-config-name">Nom de la ligue</label>
+            <input type="text" id="ligue-config-name" placeholder="Ex : Ligue Niveau 1 – Hiver" />
+          </div>
+          <div class="ligue-field">
+            <label for="ligue-config-level">Niveau</label>
+            <select id="ligue-config-level">
+              <option value="Niveau 1">Niveau 1</option>
+              <option value="Niveau 2">Niveau 2</option>
+              <option value="Niveau 3">Niveau 3</option>
+            </select>
+          </div>
+          <div class="ligue-field">
+            <label for="ligue-config-nbteams">Nombre d’équipes (4 à 20)</label>
+            <input type="number" id="ligue-config-nbteams" min="4" max="20" value="8" />
+          </div>
+          <div class="ligue-field">
+            <label for="ligue-config-format">Format</label>
+            <select id="ligue-config-format">
+              <option value="aller">Aller simple</option>
+              <option value="aller_retour">Aller / Retour</option>
+            </select>
+          </div>
+          <div class="ligue-field">
+            <label for="ligue-config-start">Date de début</label>
+            <input type="date" id="ligue-config-start" />
+          </div>
+          <div class="ligue-field">
+            <label>Jours de matchs</label>
+            <div class="ligue-inline" id="ligue-config-days"></div>
+          </div>
+        </div>
+
+        <div class="card ligue-section" style="border:1px solid #111827;">
+          <h3 class="tournaments-title" style="margin-bottom:6px;">Équipes</h3>
+          <div class="small-muted">Renseigne 4 à 20 équipes, 2 à 6 joueurs par équipe.</div>
+          <div id="ligue-config-teams" class="ligue-section"></div>
+        </div>
       </div>
     </section>
 
-    <section id="ligue-n2-root" style="display:none;">
-      <div class="card">
-        <h2>Ligue Niveau 2</h2>
-        <p>Ligue Niveau 2 – ici seront affichés calendrier, matchs et classement.</p>
-      </div>
-    </section>
+    <section id="ligue-active-root" style="display:none;">
+      <div class="card ligue-theme-shell" id="ligue-active-shell">
+        <header class="tournaments-header" style="margin-bottom:8px;">
+          <div>
+            <p class="tournaments-subtitle">Ligues actives</p>
+            <h1 class="tournaments-title">Gestion des ligues en cours</h1>
+          </div>
+          <div class="tournaments-actions ligue-actions">
+            <button class="btn btn-secondary" id="btn-ligue-active-back">← Retour</button>
+          </div>
+        </header>
 
-    <section id="ligue-n3-root" style="display:none;">
-      <div class="card">
-        <h2>Ligue Niveau 3</h2>
-        <p>Ligue Niveau 3 – ici seront affichés calendrier, matchs et classement.</p>
+        <div class="ligue-grid-2 ligue-section">
+          <div class="card" style="border:1px solid #111827;">
+            <h3 class="tournaments-title" style="margin-bottom:6px;">Ligues</h3>
+            <div class="ligue-list" id="ligue-active-list">
+              <div class="empty">Aucune ligue active pour l’instant.</div>
+            </div>
+          </div>
+
+          <div class="card" style="border:1px solid #111827;">
+            <div class="ligue-inline" style="justify-content:space-between;">
+              <div>
+                <p class="tournaments-subtitle">Détails</p>
+                <h3 class="tournaments-title" id="ligue-detail-title">Sélectionne une ligue</h3>
+              </div>
+              <div id="ligue-detail-level" class="ligue-chip" style="display:none;"></div>
+            </div>
+            <div class="small-muted" id="ligue-detail-meta">Aucune ligue sélectionnée.</div>
+
+            <div class="ligue-section">
+              <div>
+                <div class="ligue-inline" style="justify-content:space-between;">
+                  <h4 class="tournaments-title">Équipes</h4>
+                </div>
+                <div id="ligue-detail-teams" class="ligue-list" style="margin-top:6px;"></div>
+              </div>
+
+              <div>
+                <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
+                  <h4 class="tournaments-title">Matchs / calendrier</h4>
+                  <div class="small-muted">Saisis les scores pour mettre à jour le classement.</div>
+                </div>
+                <div id="ligue-detail-matches" class="ligue-section"></div>
+              </div>
+
+              <div>
+                <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
+                  <h4 class="tournaments-title">Classement</h4>
+                  <div class="small-muted">3 pts victoire, 0 pt défaite</div>
+                </div>
+                <table class="ligue-standings" id="ligue-detail-standings"></table>
+              </div>
+            </div>
+
+            <div class="ligue-actions" style="margin-top:10px;">
+              <button class="btn" id="btn-ligue-close">Clôturer la ligue</button>
+            </div>
+          </div>
+        </div>
       </div>
     </section>
 
