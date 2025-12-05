@@ -9,7 +9,8 @@
     classic: document.getElementById('classic-root'),
     ligue: document.getElementById('ligue-root'),
     ligueConfig: document.getElementById('ligue-config-root'),
-    ligueActive: document.getElementById('ligue-active-root')
+    ligueActive: document.getElementById('ligue-active-root'),
+    ligueManage: document.getElementById('ligue-manage-root')
   };
 
   var current = 'home';
@@ -61,6 +62,7 @@
   function showLigue() { showSection('ligue'); }
   function showLigueConfig() { showSection('ligueConfig'); }
   function showLigueActive() { showSection('ligueActive'); }
+  function showLigueManage() { showSection('ligueManage'); }
 
   function goBack() {
     if (!historyStack.length) {
@@ -96,6 +98,7 @@
   bind('btn-ligue-active', showLigueActive);
   bind('btn-ligue-config-back', showLigue);
   bind('btn-ligue-active-back', showLigue);
+  bind('btn-ligue-manage-back', showLigueActive);
 
   renderBackButton();
 
@@ -108,5 +111,7 @@
   window.showLigue = showLigue;
   window.showLigueConfig = showLigueConfig;
   window.showLigueActive = showLigueActive;
+  window.showLigueManage = showLigueManage;
+  window.navigateToSection = showSection;
   window.goBack = goBack;
 })();
