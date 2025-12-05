@@ -6,15 +6,20 @@
   var btnClassicHome = document.getElementById('btn-back-home-from-classic');
 
   function openClassic() {
-    if (typeof window.hideAllSections === 'function') window.hideAllSections();
-    var classicRoot = document.getElementById('classic-root');
-    if (classicRoot) classicRoot.style.display = 'block';
-    window.scrollTo(0,0);
+    if (typeof window.showClassic === 'function') {
+      window.showClassic();
+    } else {
+      if (typeof window.hideAllSections === 'function') window.hideAllSections();
+      var classicRoot = document.getElementById('classic-root');
+      if (classicRoot) classicRoot.style.display = 'block';
+      window.scrollTo(0,0);
+    }
   }
 
   function backToFormats() {
-    if (typeof window.showTournaments === 'function') window.showTournaments();
-    else if (typeof window.hideAllSections === 'function') {
+    if (typeof window.showTournaments === 'function') {
+      window.showTournaments();
+    } else if (typeof window.hideAllSections === 'function') {
       window.hideAllSections();
       var formats = document.getElementById('tournaments-root');
       if (formats) formats.style.display = 'block';
@@ -22,8 +27,9 @@
   }
 
   function backHome() {
-    if (typeof window.showHome === 'function') window.showHome();
-    else if (typeof window.hideAllSections === 'function') {
+    if (typeof window.showHome === 'function') {
+      window.showHome();
+    } else if (typeof window.hideAllSections === 'function') {
       window.hideAllSections();
       var home = document.getElementById('home-root');
       if (home) home.style.display = 'block';

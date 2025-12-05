@@ -52,6 +52,28 @@
       gap: 10px;
       flex-wrap: wrap;
       margin-bottom: 4px;
+      position: relative;
+    }
+
+    .header-back-btn {
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      color: #0f172a;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+      cursor: pointer;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 0;
     }
 
     #app-logo {
@@ -1688,6 +1710,7 @@
 <body>
   <div class="app">
     <div class="app-header">
+      <button id="btn-header-back" class="header-back-btn" aria-label="Retour">←</button>
       <img id="app-logo" alt="Logo club" />
       <h1 id="app-title">Padel Parc</h1>
     </div>
