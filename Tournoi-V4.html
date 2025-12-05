@@ -1103,12 +1103,14 @@
     }
 
     .tv-bracket-body {
-      min-height:200px;
-      max-height:280px;
-      overflow:auto;
+      min-height:140px;
+      max-height:190px;
+      overflow:hidden;
       display:flex;
-      justify-content:center;
-      padding:2px 0;
+      flex-direction:column;
+      justify-content:flex-start;
+      gap:6px;
+      padding:4px 6px;
     }
 
     .tv-bracket-block .bracket-card {
@@ -1122,11 +1124,51 @@
       margin-bottom:2px;
     }
 
-    .tv-bracket-block .bracket-tree {
-      --bracket-gap: 14px;
-      column-gap:18px;
-      transform:scale(0.84);
-      transform-origin: top left;
+    .tv-stage-view {
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .tv-stage-header {
+      font-size:12px;
+      letter-spacing:0.12em;
+      text-transform:uppercase;
+      color:var(--blue-soft);
+      font-weight:700;
+    }
+
+    .tv-stage-strip {
+      display:flex;
+      flex-direction:row-reverse;
+      justify-content:flex-start;
+      align-items:stretch;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .tv-stage-card {
+      flex:1 1 150px;
+      max-width:210px;
+      background: linear-gradient(120deg, rgba(0,48,112,0.96) 0%, rgba(0,75,155,0.94) 55%, rgba(13,98,190,0.9) 100%);
+      color:#f8fafc;
+      border-radius:12px;
+      padding:8px 10px;
+      box-shadow:0 16px 34px rgba(0,0,0,0.75);
+      border:1px solid rgba(59,130,246,0.35);
+    }
+
+    .tv-stage-card.played {
+      opacity:0.9;
+      border-color:rgba(94,234,212,0.4);
+    }
+
+    .tv-stage-card .tv-match-top {
+      font-size:12px;
+    }
+
+    .tv-stage-card .tv-team-line {
+      font-size:13px;
     }
 
     .tv-match-top {
@@ -3273,21 +3315,112 @@
       elTvBracketRow.style.display = visible ? "grid" : "none";
       if (!visible) return;
 
-      const renderTree = (container, tree) => {
+      const renderStage = (container, defMap, bracketType) => {
         container.innerHTML = "";
-        if (tree) {
-          container.appendChild(tree);
+        const stageView = buildTvStageView(defMap, bracketType);
+        if (stageView) {
+          container.appendChild(stageView);
         } else {
           container.innerHTML = '<div class="empty">Aucun arbre disponible.</div>';
         }
       };
 
-      const mainTree = buildBracketTree("main", mainDef, "tv-tree");
-      const hasConso = Object.keys(consoDef).length > 0;
-      const consoTree = hasConso ? buildBracketTree("conso", consoDef, "tv-tree") : null;
+      renderStage(elTvMainTree, mainDef, "main");
+      renderStage(elTvConsoTree, consoDef, "conso");
+    }
 
-      renderTree(elTvMainTree, mainTree);
-      renderTree(elTvConsoTree, consoTree);
+    function buildTvStageView(defMap, bracketType) {
+      const stageOrder = [
+        { key: "QF", label: "Quarts de finale", matches: ["QF1","QF2","QF3","QF4"] },
+        { key: "SF", label: "Demi-finales", matches: ["SF1","SF2"] },
+        { key: "FINAL", label: "Finale", matches: ["FINAL"] }
+      ];
+
+      const pickStage = () => {
+        let lastAvailable = null;
+        for (const stage of stageOrder) {
+          const keys = stage.matches.filter(k => defMap[k]);
+          if (!keys.length) continue;
+          lastAvailable = stage;
+          const hasPending = keys.some(k => !getBracketResult(bracketType, k));
+          if (hasPending) return stage;
+        }
+        return lastAvailable;
+      };
+
+      const stage = pickStage();
+      if (!stage) return null;
+
+      const keys = stage.matches.filter(k => defMap[k]);
+      const view = document.createElement("div");
+      view.className = "tv-stage-view";
+
+      const header = document.createElement("div");
+      header.className = "tv-stage-header";
+      header.textContent = stage.label;
+      view.appendChild(header);
+
+      const strip = document.createElement("div");
+      strip.className = "tv-stage-strip stage-" + stage.key.toLowerCase();
+
+      keys.forEach(key => {
+        const card = renderTvStageCard(bracketType, key, defMap);
+        if (card) strip.appendChild(card);
+      });
+
+      if (!strip.childNodes.length) return null;
+      view.appendChild(strip);
+      return view;
+    }
+
+    function renderTvStageCard(bracketType, key, defMap) {
+      const [t1,t2] = getBracketMatchTeams(bracketType, key);
+      if (!t1 || !t2) return null;
+      const res = getBracketResult(bracketType, key);
+      const def = defMap[key];
+
+      const card = document.createElement("div");
+      card.className = "tv-stage-card" + (res ? " played" : "");
+
+      const top = document.createElement("div");
+      top.className = "tv-match-top";
+      top.innerHTML = `<span>${def.label}</span><span>${key}</span>`;
+      card.appendChild(top);
+
+      const teams = document.createElement("div");
+      teams.className = "tv-match-teams";
+
+      const line1 = document.createElement("div");
+      line1.className = "tv-team-line";
+      const name1 = document.createElement("span");
+      name1.className = "tv-team-name";
+      const teamA = findTeamById(t1);
+      name1.textContent = teamA ? teamA.name : "Équipe " + t1;
+      if (res && res.winnerId === t1) name1.classList.add("bracket-team-winner");
+      const tag1 = document.createElement("span");
+      tag1.className = "tv-tag";
+      tag1.textContent = res ? (res.winnerId === t1 ? "Vainqueur" : "Défaite") : "VS";
+      line1.appendChild(name1);
+      line1.appendChild(tag1);
+
+      const line2 = document.createElement("div");
+      line2.className = "tv-team-line";
+      const name2 = document.createElement("span");
+      name2.className = "tv-team-name";
+      const teamB = findTeamById(t2);
+      name2.textContent = teamB ? teamB.name : "Équipe " + t2;
+      if (res && res.winnerId === t2) name2.classList.add("bracket-team-winner");
+      const tag2 = document.createElement("span");
+      tag2.className = "tv-tag";
+      tag2.textContent = res ? (res.winnerId === t2 ? "Vainqueur" : "Défaite") : "🎾";
+      line2.appendChild(name2);
+      line2.appendChild(tag2);
+
+      teams.appendChild(line1);
+      teams.appendChild(line2);
+      card.appendChild(teams);
+
+      return card;
     }
 
     function renderTvMatchCards(cards, container, variant = "current") {
