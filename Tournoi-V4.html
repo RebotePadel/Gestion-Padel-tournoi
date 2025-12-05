@@ -2827,11 +2827,6 @@
       row.className = "bracket-match-row " + stageClass;
       if (res) row.classList.add("played");
 
-      const header = document.createElement("div");
-      header.className = "bracket-match-header";
-      header.innerHTML = `<span>${def.label}</span><span class="badge">${key}</span>`;
-      row.appendChild(header);
-
       const teamsDiv = document.createElement("div");
       teamsDiv.className = "bracket-match-teams";
 
@@ -2843,6 +2838,11 @@
 
       const label1 = labelFromId(team1Id);
       const label2 = labelFromId(team2Id);
+
+      const header = document.createElement("div");
+      header.className = "bracket-match-header";
+      header.innerHTML = `<span>${def.label} ; ${label1} vs ${label2}</span><span class="badge">${key}</span>`;
+      row.appendChild(header);
 
       const line1 = document.createElement("div");
       line1.className = "bracket-team-line";
@@ -2889,7 +2889,7 @@
       terrainLabel.textContent = "Terrain :";
 
       const terrainSelect = document.createElement("select");
-      terrainSelect.style.width = "70px";
+      terrainSelect.style.width = "140px";
       terrainSelect.style.borderRadius = "999px";
       terrainSelect.style.border = "1px solid #1e293b";
       terrainSelect.style.background = "#020617";
@@ -2919,11 +2919,6 @@
       terrainLine.appendChild(terrainLabel);
       terrainLine.appendChild(terrainSelect);
       row.appendChild(terrainLine);
-
-      const vsLine = document.createElement("div");
-      vsLine.className = "bracket-vs-line";
-      vsLine.textContent = `${label1} vs ${label2}`;
-      row.appendChild(vsLine);
 
       const status = document.createElement("div");
       status.className = "status-line";
