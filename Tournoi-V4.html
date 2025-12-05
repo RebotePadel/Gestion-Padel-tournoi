@@ -666,14 +666,14 @@
     }
 
     .bracket-tree {
-      --bracket-gap: 34px;
+      --bracket-gap: 24px;
       --bracket-line-color: #c2d3ff44;
       display:grid;
-      grid-template-columns:repeat(3, minmax(240px,1fr));
-      column-gap:56px;
+      grid-template-columns:repeat(3, minmax(230px,1fr));
+      column-gap:36px;
       align-items:start;
       justify-items:stretch;
-      margin-top:12px;
+      margin-top:10px;
       width:100%;
     }
     .bracket-tree .stage-qf-column {justify-self:start;}
@@ -883,8 +883,8 @@
       content:"";
       position:absolute;
       top:50%;
-      right:-28px;
-      width:28px;
+      right:-20px;
+      width:20px;
       height:2px;
       background:var(--bracket-line-color);
     }
@@ -893,8 +893,8 @@
       content:"";
       position:absolute;
       top:50%;
-      left:-28px;
-      width:28px;
+      left:-20px;
+      width:20px;
       height:2px;
       background:var(--bracket-line-color);
     }
@@ -903,8 +903,8 @@
       content:"";
       position:absolute;
       top:50%;
-      right:-28px;
-      width:28px;
+      right:-20px;
+      width:20px;
       height:2px;
       background:var(--bracket-line-color);
     }
@@ -915,22 +915,22 @@
       height:calc(100% + (var(--bracket-gap) * 2.4));
       background:
         linear-gradient(var(--bracket-line-color), var(--bracket-line-color)) left 50%/2px 100% no-repeat,
-        linear-gradient(var(--bracket-line-color), var(--bracket-line-color)) left 50%/28px 2px no-repeat;
+        linear-gradient(var(--bracket-line-color), var(--bracket-line-color)) left 50%/20px 2px no-repeat;
     }
 
     .bracket-match-row.stage-final.final-node::before {
       content:"";
       position:absolute;
-      left:-28px;
+      left:-20px;
       top:50%;
-      width:28px;
+      width:20px;
       height:2px;
       background:var(--bracket-line-color);
     }
     .bracket-match-row.stage-final.final-node::after {
       content:"";
       position:absolute;
-      left:-28px;
+      left:-20px;
       top:calc(-1 * var(--bracket-gap));
       width:2px;
       height:calc(100% + (var(--bracket-gap) * 2));
@@ -1089,6 +1089,44 @@
       color:#f8fafc;
       border:1px solid rgba(37,99,235,0.35);
       box-shadow:0 10px 28px rgba(0,0,0,0.7);
+    }
+
+    .tv-bracket-row {
+      display:none;
+      grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));
+      gap:12px;
+      margin-top:6px;
+    }
+
+    .tv-bracket-block {
+      flex:1;
+    }
+
+    .tv-bracket-body {
+      min-height:260px;
+      max-height:380px;
+      overflow:auto;
+      display:flex;
+      justify-content:center;
+      padding:4px 2px;
+    }
+
+    .tv-bracket-block .bracket-card {
+      background:transparent;
+      border:none;
+      padding:0;
+      box-shadow:none;
+    }
+
+    .tv-bracket-block .bracket-title {
+      margin-bottom:2px;
+    }
+
+    .tv-bracket-block .bracket-tree {
+      --bracket-gap: 18px;
+      column-gap:28px;
+      transform:scale(0.96);
+      transform-origin: top left;
     }
 
     .tv-match-top {
@@ -1445,6 +1483,21 @@
           </article>
         </section>
       </main>
+
+      <section id="tv-bracket-row" class="tv-bracket-row">
+        <article class="tv-block tv-bracket-block">
+          <div class="tv-block-title">
+            <span>Arbre tableau principal</span>
+          </div>
+          <div id="tv-main-bracket-tree" class="tv-bracket-body"></div>
+        </article>
+        <article class="tv-block tv-bracket-block">
+          <div class="tv-block-title">
+            <span>Arbre consolante / classement</span>
+          </div>
+          <div id="tv-conso-bracket-tree" class="tv-bracket-body"></div>
+        </article>
+      </section>
     </div>
   </div>
 
@@ -1521,6 +1574,9 @@
     const elTvLeftList    = document.getElementById("tv-left-list");
     const elTvRightList   = document.getElementById("tv-right-list");
     const elTvLogo        = document.getElementById("tv-logo");
+    const elTvBracketRow  = document.getElementById("tv-bracket-row");
+    const elTvMainTree    = document.getElementById("tv-main-bracket-tree");
+    const elTvConsoTree   = document.getElementById("tv-conso-bracket-tree");
 
     /* INIT TEAMS INPUTS */
     function initTeamsInputs() {
@@ -2587,16 +2643,67 @@
         return [t1, t2];
       }
 
-      if (def.losersOf) {
-        const t1 = teamFromPrev(def.losersOf[0], "loser");
-        const t2 = teamFromPrev(def.losersOf[1], "loser");
-        return [t1, t2];
-      }
-
-      return [null,null];
+    if (def.losersOf) {
+      const t1 = teamFromPrev(def.losersOf[0], "loser");
+      const t2 = teamFromPrev(def.losersOf[1], "loser");
+      return [t1, t2];
     }
 
-    function renderBrackets() {
+    return [null,null];
+  }
+
+  function buildBracketTree(bracketType, defMap, extraClass = "") {
+    const hasQF = ["QF1","QF2","QF3","QF4"].some(k => defMap[k]);
+    const hasSF = ["SF1","SF2"].some(k => defMap[k]);
+    const hasFinal = Boolean(defMap.FINAL);
+    if (!hasQF && !hasSF && !hasFinal) return null;
+
+    const tree = document.createElement("div");
+    tree.className = "bracket-tree" + (extraClass ? " " + extraClass : "");
+
+    if (hasQF) {
+      const col = document.createElement("div");
+      col.className = "bracket-column stage-qf-column";
+      const title = document.createElement("div");
+      title.className = "bracket-column-title";
+      title.textContent = "Quarts de finale";
+      col.appendChild(title);
+      ["QF1","QF2","QF3","QF4"].forEach(key => {
+        if (defMap[key]) col.appendChild(renderBracketMatch(bracketType, key, defMap, "stage-qf"));
+      });
+      tree.appendChild(col);
+    }
+
+    if (hasSF) {
+      const col = document.createElement("div");
+      col.className = "bracket-column stage-sf-column";
+      const title = document.createElement("div");
+      title.className = "bracket-column-title";
+      title.textContent = hasQF ? "Demi-finales" : "Demi-finales consolante";
+      col.appendChild(title);
+      ["SF1","SF2"].forEach((key, idx) => {
+        if (!defMap[key]) return;
+        const stageClass = idx === 0 ? "stage-sf sf-top" : "stage-sf sf-bottom";
+        col.appendChild(renderBracketMatch(bracketType, key, defMap, stageClass));
+      });
+      tree.appendChild(col);
+    }
+
+    if (hasFinal) {
+      const col = document.createElement("div");
+      col.className = "bracket-column final-column";
+      const title = document.createElement("div");
+      title.className = "bracket-column-title";
+      title.textContent = "Finale";
+      col.appendChild(title);
+      col.appendChild(renderBracketMatch(bracketType, "FINAL", defMap, "stage-final final-node"));
+      tree.appendChild(col);
+    }
+
+    return tree;
+  }
+
+  function renderBrackets() {
       if (!areAllPoolMatchesDone()) {
         elBracketMainContainer.innerHTML = '<div class="empty">Les tableaux apparaîtront après la validation de tous les matchs de poules.</div>';
         elBracketConsoContainer.innerHTML = '<div class="empty">Les tableaux apparaîtront après la validation de tous les matchs de poules.</div>';
@@ -2614,46 +2721,8 @@
       mainTitle.innerHTML = '<span>Tableau principal</span><span class="badge">1–8</span>';
       mainCard.appendChild(mainTitle);
 
-      const mainTree = document.createElement("div");
-      mainTree.className = "bracket-tree";
-
-      const mainColQF = document.createElement("div");
-      mainColQF.className = "bracket-column stage-qf-column";
-      const mainColQFTitle = document.createElement("div");
-      mainColQFTitle.className = "bracket-column-title";
-      mainColQFTitle.textContent = "Quarts de finale";
-      mainColQF.appendChild(mainColQFTitle);
-
-      const mainColSF = document.createElement("div");
-      mainColSF.className = "bracket-column stage-sf-column";
-      const mainColSFTitle = document.createElement("div");
-      mainColSFTitle.className = "bracket-column-title";
-      mainColSFTitle.textContent = "Demi-finales";
-      mainColSF.appendChild(mainColSFTitle);
-
-      const mainColFinal = document.createElement("div");
-      mainColFinal.className = "bracket-column final-column";
-      const mainColFinalTitle = document.createElement("div");
-      mainColFinalTitle.className = "bracket-column-title";
-      mainColFinalTitle.textContent = "Finale";
-      mainColFinal.appendChild(mainColFinalTitle);
-
-      ["QF1","QF2","QF3","QF4"].forEach(key => {
-        mainColQF.appendChild(renderBracketMatch("main", key, mainDef, "stage-qf"));
-      });
-      ["SF1","SF2"].forEach((key, idx) => {
-        const stageClass = idx === 0 ? "stage-sf sf-top" : "stage-sf sf-bottom";
-        mainColSF.appendChild(renderBracketMatch("main", key, mainDef, stageClass));
-      });
-      ["FINAL"].forEach(key => {
-        mainColFinal.appendChild(renderBracketMatch("main", key, mainDef, "stage-final final-node"));
-      });
-
-      mainTree.appendChild(mainColQF);
-      mainTree.appendChild(mainColSF);
-      mainTree.appendChild(mainColFinal);
-
-      mainCard.appendChild(mainTree);
+      const mainTree = buildBracketTree("main", mainDef);
+      if (mainTree) mainCard.appendChild(mainTree);
 
       const mainPlacementCard = document.createElement("article");
       mainPlacementCard.className = "bracket-card";
@@ -2678,8 +2747,6 @@
       if (!consoKeys.length) {
         elBracketConsoContainer.innerHTML = '<div class="empty">Ce format utilise uniquement le tableau principal.</div>';
       } else {
-        const consoHasQF = ["QF1","QF2","QF3","QF4"].some(k => consoDef[k]);
-        const consoHasSF = ["SF1","SF2"].some(k => consoDef[k]);
         const consoCard = document.createElement("article");
         consoCard.className = "bracket-card";
         const consoTitle = document.createElement("div");
@@ -2689,48 +2756,9 @@
         consoTitle.innerHTML = `<span>${consoLabel}</span><span class="badge">${consoRange}</span>`;
         consoCard.appendChild(consoTitle);
 
-        if (consoHasQF || consoHasSF) {
-          const consoTree = document.createElement("div");
-          consoTree.className = "bracket-tree";
+        const consoTree = buildBracketTree("conso", consoDef);
 
-          if (consoHasQF) {
-            const consoColQF = document.createElement("div");
-            consoColQF.className = "bracket-column stage-qf-column";
-            const consoColQFTitle = document.createElement("div");
-            consoColQFTitle.className = "bracket-column-title";
-            consoColQFTitle.textContent = "Quarts de finale";
-            consoColQF.appendChild(consoColQFTitle);
-            ["QF1","QF2","QF3","QF4"].forEach(key => {
-              if (consoDef[key]) consoColQF.appendChild(renderBracketMatch("conso", key, consoDef, "stage-qf"));
-            });
-            consoTree.appendChild(consoColQF);
-          }
-
-          if (consoHasSF) {
-            const consoColSF = document.createElement("div");
-            consoColSF.className = "bracket-column stage-sf-column";
-            const consoColSFTitle = document.createElement("div");
-            consoColSFTitle.className = "bracket-column-title";
-            consoColSFTitle.textContent = consoHasQF ? "Demi-finales" : "Demi-finales consolante";
-            consoColSF.appendChild(consoColSFTitle);
-            ["SF1","SF2"].forEach((key, idx) => {
-              if (consoDef[key]) {
-                const stageClass = idx === 0 ? "stage-sf sf-top" : "stage-sf sf-bottom";
-                consoColSF.appendChild(renderBracketMatch("conso", key, consoDef, stageClass));
-              }
-            });
-            consoTree.appendChild(consoColSF);
-          }
-
-          const consoColFinal = document.createElement("div");
-          consoColFinal.className = "bracket-column final-column";
-          const consoColFinalTitle = document.createElement("div");
-          consoColFinalTitle.className = "bracket-column-title";
-          consoColFinalTitle.textContent = "Finale";
-          consoColFinal.appendChild(consoColFinalTitle);
-          if (consoDef.FINAL) consoColFinal.appendChild(renderBracketMatch("conso", "FINAL", consoDef, "stage-final final-node"));
-          consoTree.appendChild(consoColFinal);
-
+        if (consoTree) {
           consoCard.appendChild(consoTree);
 
           const consoPlacementCard = document.createElement("article");
@@ -3230,12 +3258,36 @@
           teamAId: t1,
           teamBId: t2,
           placeA: plA,
-          placeB: plB
+        placeB: plB
         });
       });
 
       renderTvMatchCards(mainCards, elTvLeftList);
       renderTvMatchCards(consoCards, elTvRightList);
+      renderTvBracketTrees(mainDef, consoDef);
+    }
+
+    function renderTvBracketTrees(mainDef, consoDef) {
+      if (!elTvBracketRow || !elTvMainTree || !elTvConsoTree) return;
+      const visible = state.bracketsReady;
+      elTvBracketRow.style.display = visible ? "grid" : "none";
+      if (!visible) return;
+
+      const renderTree = (container, tree) => {
+        container.innerHTML = "";
+        if (tree) {
+          container.appendChild(tree);
+        } else {
+          container.innerHTML = '<div class="empty">Aucun arbre disponible.</div>';
+        }
+      };
+
+      const mainTree = buildBracketTree("main", mainDef, "tv-tree");
+      const hasConso = Object.keys(consoDef).length > 0;
+      const consoTree = hasConso ? buildBracketTree("conso", consoDef, "tv-tree") : null;
+
+      renderTree(elTvMainTree, mainTree);
+      renderTree(elTvConsoTree, consoTree);
     }
 
     function renderTvMatchCards(cards, container, variant = "current") {
