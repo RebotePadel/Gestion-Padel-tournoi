@@ -223,6 +223,26 @@
       margin-top:18px;
     }
 
+    .history-standalone .card {
+      background: linear-gradient(135deg, #04060f, #0a1b2e);
+      border:1px solid #0b1220;
+      color:#f8fafc;
+    }
+
+    .history-standalone .card-header-title h2,
+    .history-standalone .card-header-title p,
+    .history-standalone .card-body,
+    .history-standalone .small-muted {
+      color:#f8fafc;
+    }
+
+    .history-standalone #btn-save-history {
+      background:#ffffff;
+      color:#0b1220;
+      padding:6px 12px;
+      font-size:12px;
+    }
+
     .tab-btn {
       padding:8px 14px;
       border-radius:999px;
@@ -759,6 +779,19 @@
       flex-direction:column;
       gap:3px;
       margin-bottom:4px;
+    }
+
+    .bracket-vs-line {
+      margin-top:2px;
+      margin-bottom:4px;
+      font-weight:700;
+      color:#e5e7eb;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:8px;
+      border-top:1px solid rgba(255,255,255,0.06);
+      padding-top:6px;
     }
 
     .bracket-team-line {
@@ -2802,18 +2835,26 @@
       const teamsDiv = document.createElement("div");
       teamsDiv.className = "bracket-match-teams";
 
+      const labelFromId = (id) => {
+        if (!id) return "En attente de résultat précédent…";
+        const team = findTeamById(id);
+        return team ? team.name : ("Équipe " + id);
+      };
+
+      const label1 = labelFromId(team1Id);
+      const label2 = labelFromId(team2Id);
+
       const line1 = document.createElement("div");
       line1.className = "bracket-team-line";
       const name1 = document.createElement("span");
       name1.className = "bracket-team-name";
 
       if (team1Id) {
-        const team = findTeamById(team1Id);
         const isWinner = res && res.winnerId === team1Id;
         if (isWinner) name1.classList.add("bracket-team-winner");
-        name1.textContent = team ? team.name : ("Équipe " + team1Id);
+        name1.textContent = label1;
       } else {
-        name1.textContent = "En attente de résultat précédent…";
+        name1.textContent = label1;
         name1.style.color = "#9ca3af";
       }
       line1.appendChild(name1);
@@ -2824,12 +2865,11 @@
       name2.className = "bracket-team-name";
 
       if (team2Id) {
-        const team = findTeamById(team2Id);
         const isWinner = res && res.winnerId === team2Id;
         if (isWinner) name2.classList.add("bracket-team-winner");
-        name2.textContent = team ? team.name : ("Équipe " + team2Id);
+        name2.textContent = label2;
       } else {
-        name2.textContent = "En attente de résultat précédent…";
+        name2.textContent = label2;
         name2.style.color = "#9ca3af";
       }
       line2.appendChild(name2);
@@ -2849,7 +2889,7 @@
       terrainLabel.textContent = "Terrain :";
 
       const terrainSelect = document.createElement("select");
-      terrainSelect.style.minWidth = "50px";
+      terrainSelect.style.width = "70px";
       terrainSelect.style.borderRadius = "999px";
       terrainSelect.style.border = "1px solid #1e293b";
       terrainSelect.style.background = "#020617";
@@ -2879,6 +2919,11 @@
       terrainLine.appendChild(terrainLabel);
       terrainLine.appendChild(terrainSelect);
       row.appendChild(terrainLine);
+
+      const vsLine = document.createElement("div");
+      vsLine.className = "bracket-vs-line";
+      vsLine.textContent = `${label1} vs ${label2}`;
+      row.appendChild(vsLine);
 
       const status = document.createElement("div");
       status.className = "status-line";
