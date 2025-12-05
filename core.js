@@ -10,7 +10,8 @@
     ligue: document.getElementById('ligue-root'),
     ligueConfig: document.getElementById('ligue-config-root'),
     ligueActive: document.getElementById('ligue-active-root'),
-    ligueManage: document.getElementById('ligue-manage-root')
+    ligueManage: document.getElementById('ligue-manage-root'),
+    liguePlayer: document.getElementById('ligue-player-root')
   };
 
   var current = 'home';
@@ -63,6 +64,7 @@
   function showLigueConfig() { showSection('ligueConfig'); }
   function showLigueActive() { showSection('ligueActive'); }
   function showLigueManage() { showSection('ligueManage'); }
+  function showLiguePlayer() { showSection('liguePlayer'); }
 
   function goBack() {
     if (!historyStack.length) {
@@ -84,6 +86,8 @@
   bind('btn-home-md', showAdmin);
   bind('btn-home-ligue', showLigue);
 
+  bind('btn-ligue-player-view', showLiguePlayer);
+
   bind('btn-back-home-from-md', showHome);
   bind('btn-go-tv', showTV);
   bind('btn-back-admin', showAdmin);
@@ -99,6 +103,7 @@
   bind('btn-ligue-config-back', showLigue);
   bind('btn-ligue-active-back', showLigue);
   bind('btn-ligue-manage-back', showLigueActive);
+  bind('btn-ligue-player-back', showLigue);
 
   renderBackButton();
 
@@ -112,6 +117,7 @@
   window.showLigueConfig = showLigueConfig;
   window.showLigueActive = showLigueActive;
   window.showLigueManage = showLigueManage;
+  window.showLiguePlayer = showLiguePlayer;
   window.navigateToSection = showSection;
   window.goBack = goBack;
 })();

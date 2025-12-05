@@ -2421,6 +2421,7 @@
         </div>
         <div class="tournaments-actions">
           <button class="btn btn-secondary" id="btn-back-home-from-ligue">🏠 Accueil</button>
+          <button class="btn btn-secondary" id="btn-ligue-player-view">Vue joueur</button>
         </div>
       </header>
 
@@ -2464,6 +2465,69 @@
           <div class="empty">Aucune ligue terminée pour l’instant.</div>
         </div>
       </section>
+    </section>
+
+    <section id="ligue-player-root" style="display:none;">
+      <div class="card ligue-theme-shell" id="ligue-player-shell">
+        <header class="tournaments-header" style="margin-bottom:8px;">
+          <div>
+            <p class="tournaments-subtitle">Vue joueur</p>
+            <h1 class="tournaments-title">Ligues internes – kiosque</h1>
+          </div>
+          <div class="tournaments-actions ligue-actions">
+            <button class="btn btn-secondary" id="btn-ligue-player-back">← Ligue</button>
+          </div>
+        </header>
+
+        <div class="ligue-grid-2 ligue-section">
+          <div class="card" style="border:1px solid #111827;">
+            <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
+              <div>
+                <p class="tournaments-subtitle">Ligues actives</p>
+                <h3 class="tournaments-title">Sélectionne une ligue</h3>
+              </div>
+            </div>
+            <div id="ligue-player-list" class="ligue-list" style="margin-top:6px;"></div>
+          </div>
+
+          <div class="card" style="border:1px solid #111827;">
+            <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
+              <div>
+                <p class="tournaments-subtitle">Détails ligue</p>
+                <h3 class="tournaments-title" id="ligue-player-title">Aucune ligue sélectionnée</h3>
+                <div class="small-muted" id="ligue-player-meta">Choisis une ligue active pour afficher calendrier, prochains matchs et classement.</div>
+              </div>
+              <div id="ligue-player-level" class="ligue-chip" style="display:none;"></div>
+            </div>
+
+            <div class="ligue-section" id="ligue-player-panels">
+              <div class="card ligue-theme-shell" id="ligue-player-calendar-shell" style="border:1px solid #111827;">
+                <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
+                  <h4 class="tournaments-title">📅 Calendrier complet</h4>
+                  <div class="small-muted">Dates, rounds et scores</div>
+                </div>
+                <div id="ligue-player-calendar" class="ligue-section"></div>
+              </div>
+
+              <div class="card ligue-theme-shell" id="ligue-player-upcoming-shell" style="border:1px solid #111827;">
+                <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
+                  <h4 class="tournaments-title">⏭️ Matchs à venir</h4>
+                  <div class="small-muted">Matches non joués</div>
+                </div>
+                <div id="ligue-player-upcoming" class="ligue-section"></div>
+              </div>
+
+              <div class="card ligue-theme-shell" id="ligue-player-standings-shell" style="border:1px solid #111827;">
+                <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
+                  <h4 class="tournaments-title">📊 Classement</h4>
+                  <div class="small-muted">Lecture seule</div>
+                </div>
+                <table class="ligue-standings" id="ligue-player-standings"></table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <section id="ligue-config-root" style="display:none;">
