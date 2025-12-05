@@ -1432,6 +1432,26 @@
           </div>
         </div>
       </article>
+
+      <!-- HISTORIQUE (indépendant mais dans configuration) -->
+      <section class="history-standalone">
+        <article class="card">
+          <div class="card-header">
+            <div class="card-header-title">
+              <h2>Historique des tournois</h2>
+              <p>Sauvegarde locale, chargement et suppression des tournois.</p>
+            </div>
+            <button class="collapse-toggle" data-target="history-body">−</button>
+          </div>
+          <div id="history-body" class="card-body">
+            <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
+              <button id="btn-save-history" class="btn">💾 Sauvegarder le tournoi actuel</button>
+              <span class="small-muted">Les données sont stockées uniquement dans ton navigateur.</span>
+            </div>
+            <div id="history-list" class="card" style="background:transparent; border:1px dashed var(--border);"></div>
+          </div>
+        </article>
+      </section>
     </section>
 
     <!-- POULES TAB -->
@@ -1524,26 +1544,6 @@
             </h3>
             <div id="final-ranking-list"></div>
           </div>
-        </div>
-      </article>
-    </section>
-
-    <!-- HISTORIQUE (indépendant) -->
-    <section class="history-standalone">
-      <article class="card">
-        <div class="card-header">
-          <div class="card-header-title">
-            <h2>Historique des tournois</h2>
-            <p>Sauvegarde locale, chargement et suppression des tournois.</p>
-          </div>
-          <button class="collapse-toggle" data-target="history-body">−</button>
-        </div>
-        <div id="history-body" class="card-body">
-          <div style="display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap;">
-            <button id="btn-save-history" class="btn">💾 Sauvegarder le tournoi actuel</button>
-            <span class="small-muted">Les données sont stockées uniquement dans ton navigateur.</span>
-          </div>
-          <div id="history-list" class="card" style="background:transparent; border:1px dashed var(--border);"></div>
         </div>
       </article>
     </section>
