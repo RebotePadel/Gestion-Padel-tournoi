@@ -1740,7 +1740,7 @@
           </div>
           <div class="home-card-footer">
             <span class="home-badge">Section dédiée</span>
-            <button class="btn btn-small" id="btn-home-league">▶ Ouvrir</button>
+            <button class="btn btn-small" id="btn-home-ligue">▶ Ouvrir</button>
           </div>
         </article>
 
@@ -2275,16 +2275,78 @@
   </div>
 </section>
 
-    <!-- PAGE LIGUE INTERNE (placeholder) -->
-    <section id="league-root">
-      <div class="mode-toggle" style="justify-content:flex-start;">
-        <button class="btn btn-secondary btn-small" id="btn-back-home-from-league">🏠 Accueil</button>
-        <button class="btn btn-secondary btn-small" id="btn-back-formats-from-league">🏆 Formats</button>
-      </div>
+    <!-- PAGE LIGUE INTERNE -->
+    <section id="ligue-root" style="display:none;">
+      <header class="tournaments-header">
+        <div>
+          <p class="tournaments-subtitle">Ligue interne</p>
+          <h1 class="tournaments-title">Gestion de votre ligue interne de padel</h1>
+        </div>
+        <div class="tournaments-actions">
+          <button class="btn btn-secondary" id="btn-back-home-from-ligue">🏠 Accueil</button>
+        </div>
+      </header>
+
+      <section class="tournaments-grid">
+        <article class="tournament-type-card">
+          <div class="tournament-type-card-header">
+            <div>
+              <p class="tournaments-subtitle">Ligue interne</p>
+              <h3 class="tournaments-title">Ligue Niveau 1</h3>
+              <p class="tournament-type-description">Joueurs les plus forts</p>
+            </div>
+          </div>
+          <div class="tournament-type-actions">
+            <button class="btn" id="btn-ligue-n1">Gérer cette ligue</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-card-header">
+            <div>
+              <p class="tournaments-subtitle">Ligue interne</p>
+              <h3 class="tournaments-title">Ligue Niveau 2</h3>
+              <p class="tournament-type-description">Niveau intermédiaire</p>
+            </div>
+          </div>
+          <div class="tournament-type-actions">
+            <button class="btn" id="btn-ligue-n2">Gérer cette ligue</button>
+          </div>
+        </article>
+
+        <article class="tournament-type-card">
+          <div class="tournament-type-card-header">
+            <div>
+              <p class="tournaments-subtitle">Ligue interne</p>
+              <h3 class="tournaments-title">Ligue Niveau 3</h3>
+              <p class="tournament-type-description">Niveau loisir / débutant</p>
+            </div>
+          </div>
+          <div class="tournament-type-actions">
+            <button class="btn" id="btn-ligue-n3">Gérer cette ligue</button>
+          </div>
+        </article>
+      </section>
+    </section>
+
+    <section id="ligue-n1-root" style="display:none;">
       <div class="card">
-        <h2>Ligue interne</h2>
-        <p>Gestion de votre ligue interne de padel</p>
-        <div class="empty">Espace à compléter prochainement.</div>
+        <h2>Ligue Niveau 1</h2>
+        <p>Ligue Niveau 1 – ici seront affichés calendrier, matchs et classement.</p>
+      </div>
+    </section>
+
+    <section id="ligue-n2-root" style="display:none;">
+      <div class="card">
+        <h2>Ligue Niveau 2</h2>
+        <p>Ligue Niveau 2 – ici seront affichés calendrier, matchs et classement.</p>
+      </div>
+    </section>
+
+    <section id="ligue-n3-root" style="display:none;">
+      <div class="card">
+        <h2>Ligue Niveau 3</h2>
+        <p>Ligue Niveau 3 – ici seront affichés calendrier, matchs et classement.</p>
       </div>
     </section>
 

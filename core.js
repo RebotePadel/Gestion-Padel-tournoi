@@ -7,7 +7,10 @@
     tv: document.getElementById('tv-root'),
     tournaments: document.getElementById('tournaments-root'),
     classic: document.getElementById('classic-root'),
-    league: document.getElementById('league-root')
+    ligue: document.getElementById('ligue-root'),
+    ligueN1: document.getElementById('ligue-n1-root'),
+    ligueN2: document.getElementById('ligue-n2-root'),
+    ligueN3: document.getElementById('ligue-n3-root')
   };
 
   function hideAllSections() {
@@ -34,7 +37,7 @@
   }
   function showTournaments() { showSection('tournaments'); }
   function showClassic() { showSection('classic'); }
-  function showLeague() { showSection('league'); }
+  function showLigue() { showSection('ligue'); }
 
   function bind(id, handler) {
     var btn = document.getElementById(id);
@@ -43,7 +46,7 @@
 
   bind('btn-home-tournaments', showTournaments);
   bind('btn-home-md', showAdmin);
-  bind('btn-home-league', showLeague);
+  bind('btn-home-ligue', showLigue);
 
   bind('btn-back-home-from-md', showHome);
   bind('btn-go-tv', showTV);
@@ -54,8 +57,7 @@
   bind('btn-back-home-from-classic', showHome);
   bind('btn-back-formats-from-classic', showTournaments);
 
-  bind('btn-back-home-from-league', showHome);
-  bind('btn-back-formats-from-league', showTournaments);
+  bind('btn-back-home-from-ligue', showHome);
 
   window.hideAllSections = hideAllSections;
   window.showHome = showHome;
@@ -63,5 +65,5 @@
   window.showTV = showTV;
   window.showTournaments = showTournaments;
   window.showClassic = showClassic;
-  window.showLeague = showLeague;
+  window.showLigue = showLigue;
 })();
