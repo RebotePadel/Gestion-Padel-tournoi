@@ -666,38 +666,27 @@
     }
 
     .bracket-tree {
-      --bracket-gap: 24px;
+      --bracket-gap: 18px;
       --bracket-line-color: #c2d3ff44;
-      display:grid;
-      grid-template-columns:repeat(3, minmax(230px,1fr));
-      column-gap:36px;
-      align-items:start;
-      justify-items:stretch;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:center;
       margin-top:10px;
       width:100%;
     }
-    .bracket-tree .stage-qf-column {justify-self:start;}
-    .bracket-tree .stage-sf-column {justify-self:center;}
-    .bracket-tree .final-column {justify-self:end;}
-    @media(max-width:1200px){
-      .bracket-tree{display:flex;flex-wrap:wrap;justify-content:center;gap:18px;}
-    }
 
-    .bracket-column {
+    .bracket-stage-block {
+      width:100%;
       display:flex;
       flex-direction:column;
-      gap:var(--bracket-gap);
-      min-width:240px;
-    }
-
-    .bracket-column.final-column {
       align-items:center;
+      gap:6px;
     }
 
-    .bracket-column.final-column .bracket-match-row {
-      width:100%;
-      max-width:240px;
-    }
+    .stage-qf-row-block { max-width:100%; }
+    .stage-sf-row-block { max-width:72%; }
+    .stage-final-row-block { max-width:54%; }
 
     .bracket-column-title {
       font-size:12px;
@@ -705,8 +694,21 @@
       letter-spacing:0.12em;
       color:var(--blue-soft);
       font-weight:600;
-      margin-bottom:2px;
     }
+
+    .bracket-stage-row {
+      display:flex;
+      gap:14px;
+      width:100%;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    .stage-qf-row .bracket-match-row { flex:1; min-width:200px; }
+    .stage-sf-row { justify-content:center; gap:28px; }
+    .stage-sf-row .bracket-match-row { min-width:230px; }
+    .stage-final-row { justify-content:center; }
+    .stage-final-row .bracket-match-row { min-width:240px; }
 
     .bracket-match-row {
       position:relative;
@@ -879,62 +881,15 @@
     }
 
     /* Bracket connectors for tree-like shape */
-    .bracket-match-row.stage-qf::after {
-      content:"";
-      position:absolute;
-      top:50%;
-      right:-20px;
-      width:20px;
-      height:2px;
-      background:var(--bracket-line-color);
-    }
-
-    .bracket-match-row.stage-sf::before {
-      content:"";
-      position:absolute;
-      top:50%;
-      left:-20px;
-      width:20px;
-      height:2px;
-      background:var(--bracket-line-color);
-    }
-
-    .bracket-match-row.stage-sf::after {
-      content:"";
-      position:absolute;
-      top:50%;
-      right:-20px;
-      width:20px;
-      height:2px;
-      background:var(--bracket-line-color);
-    }
-
+    .bracket-match-row.stage-qf::after,
+    .bracket-match-row.stage-sf::before,
+    .bracket-match-row.stage-sf::after,
     .bracket-match-row.stage-sf.sf-top::before,
-    .bracket-match-row.stage-sf.sf-bottom::before {
-      top:calc(-1 * (var(--bracket-gap) * 1.2));
-      height:calc(100% + (var(--bracket-gap) * 2.4));
-      background:
-        linear-gradient(var(--bracket-line-color), var(--bracket-line-color)) left 50%/2px 100% no-repeat,
-        linear-gradient(var(--bracket-line-color), var(--bracket-line-color)) left 50%/20px 2px no-repeat;
-    }
-
-    .bracket-match-row.stage-final.final-node::before {
-      content:"";
-      position:absolute;
-      left:-20px;
-      top:50%;
-      width:20px;
-      height:2px;
-      background:var(--bracket-line-color);
-    }
+    .bracket-match-row.stage-sf.sf-bottom::before,
+    .bracket-match-row.stage-final.final-node::before,
     .bracket-match-row.stage-final.final-node::after {
-      content:"";
-      position:absolute;
-      left:-20px;
-      top:calc(-1 * var(--bracket-gap));
-      width:2px;
-      height:calc(100% + (var(--bracket-gap) * 2));
-      background:var(--bracket-line-color);
+      display:none;
+      content:none;
     }
 
     /* TV */
@@ -2695,52 +2650,41 @@
   }
 
   function buildBracketTree(bracketType, defMap, extraClass = "") {
-    const hasQF = ["QF1","QF2","QF3","QF4"].some(k => defMap[k]);
-    const hasSF = ["SF1","SF2"].some(k => defMap[k]);
-    const hasFinal = Boolean(defMap.FINAL);
-    if (!hasQF && !hasSF && !hasFinal) return null;
+    const keys = Object.keys(defMap);
+    if (!keys.length) return null;
 
     const tree = document.createElement("div");
     tree.className = "bracket-tree" + (extraClass ? " " + extraClass : "");
 
-    if (hasQF) {
-      const col = document.createElement("div");
-      col.className = "bracket-column stage-qf-column";
-      const title = document.createElement("div");
-      title.className = "bracket-column-title";
-      title.textContent = "Quarts de finale";
-      col.appendChild(title);
-      ["QF1","QF2","QF3","QF4"].forEach(key => {
-        if (defMap[key]) col.appendChild(renderBracketMatch(bracketType, key, defMap, "stage-qf"));
-      });
-      tree.appendChild(col);
-    }
+    const stages = [
+      { label: "Quarts de finale", keys: ["QF1","QF2","QF3","QF4"], rowClass: "stage-qf-row", stageClass: "stage-qf" },
+      { label: "Demies",          keys: ["SF1","SF2"],                    rowClass: "stage-sf-row", stageClass: "stage-sf" },
+      { label: "Finale",          keys: ["FINAL"],                         rowClass: "stage-final-row", stageClass: "stage-final final-node" }
+    ];
 
-    if (hasSF) {
-      const col = document.createElement("div");
-      col.className = "bracket-column stage-sf-column";
-      const title = document.createElement("div");
-      title.className = "bracket-column-title";
-      title.textContent = hasQF ? "Demi-finales" : "Demi-finales consolante";
-      col.appendChild(title);
-      ["SF1","SF2"].forEach((key, idx) => {
-        if (!defMap[key]) return;
-        const stageClass = idx === 0 ? "stage-sf sf-top" : "stage-sf sf-bottom";
-        col.appendChild(renderBracketMatch(bracketType, key, defMap, stageClass));
-      });
-      tree.appendChild(col);
-    }
+    stages.forEach(stage => {
+      const availableKeys = stage.keys.filter(k => defMap[k]);
+      if (!availableKeys.length) return;
 
-    if (hasFinal) {
-      const col = document.createElement("div");
-      col.className = "bracket-column final-column";
+      const block = document.createElement("div");
+      block.className = "bracket-stage-block " + stage.rowClass + "-block";
+
       const title = document.createElement("div");
       title.className = "bracket-column-title";
-      title.textContent = "Finale";
-      col.appendChild(title);
-      col.appendChild(renderBracketMatch(bracketType, "FINAL", defMap, "stage-final final-node"));
-      tree.appendChild(col);
-    }
+      title.textContent = stage.label;
+      block.appendChild(title);
+
+      const row = document.createElement("div");
+      row.className = "bracket-stage-row " + stage.rowClass;
+
+      availableKeys.forEach((key, idx) => {
+        const stageClass = stage.stageClass + (stage.rowClass === "stage-sf-row" ? (idx === 0 ? " sf-top" : " sf-bottom") : "");
+        row.appendChild(renderBracketMatch(bracketType, key, defMap, stageClass));
+      });
+
+      block.appendChild(row);
+      tree.appendChild(block);
+    });
 
     return tree;
   }
