@@ -1,5 +1,9 @@
 (function(){
 'use strict';
+/* Résumé corrections :
+   - Rééquilibrage montées/descentes par terrain pour chaque roulement.
+   - Gestion stricte du repos après 2 matchs consécutifs (6 à 16 équipes).
+   - Calcul des roulements basé sur les résultats précédents + cohérence TV. */
 /* SKINS */
 var SKINS = {
   padelParc: {
@@ -395,59 +399,126 @@ function planRoundFromStats(roulementNumber) {
   var playingCount = maxTerrains * 2;
   if (playingCount < 2) return { matches: [], restTeams: [] };
 
-  var statsByMatches = stats.slice();
-  var playingStats, restStats;
+  var restSlots = Math.max(0, n - playingCount);
+  var candidates = [];
 
-  if (n === 16 && roulementNumber) {
-    var isEven = roulementNumber % 2 === 0;
-    var playingIds = [];
-    if (isEven) {
-      for (var id = 1; id <= 8; id++) playingIds.push(id);
-    } else {
-      for (var id2 = 9; id2 <= 16; id2++) playingIds.push(id2);
-    }
-    playingStats = statsByMatches.filter(function (s) {
-      return playingIds.indexOf(s.id) !== -1;
-    });
-    restStats = statsByMatches.filter(function (s) {
-      return playingIds.indexOf(s.id) === -1;
-    });
-
-    if (playingStats.length < 2) {
-      statsByMatches.sort(function (a, b) {
-        if (a.matches !== b.matches) return a.matches - b.matches;
-        if (b.points !== a.points) return b.points - a.points;
-        return a.id - b.id;
-      });
-      playingStats = statsByMatches.slice(0, playingCount);
-      restStats = statsByMatches.slice(playingCount);
-    }
-  } else {
-    statsByMatches.sort(function (a, b) {
+  if (roulementNumber === 1 || !state.pairings[roulementNumber - 1]) {
+    var initial = stats.slice();
+    initial.sort(function (a, b) {
       if (a.matches !== b.matches) return a.matches - b.matches;
       if (b.points !== a.points) return b.points - a.points;
       return a.id - b.id;
     });
-    playingStats = statsByMatches.slice(0, playingCount);
-    restStats = statsByMatches.slice(playingCount);
+    for (var i0 = 0; i0 < initial.length; i0++) {
+      var t0 = findTeamById(initial[i0].id);
+      if (t0) candidates.push({ team: t0, score: i0 });
+    }
+  } else {
+    var prev = getMatchesAndRestForRound(roulementNumber - 1);
+    var maxBase = maxTerrains * 2;
+    var seen = {};
+
+    for (var m = 0; m < prev.matches.length; m++) {
+      var match = prev.matches[m];
+      var baseA = (match.terrain - 1) * 2;
+      var baseB = baseA + 1;
+      var resKey = resultKey(roulementNumber - 1, match.terrain);
+      var res = state.results[resKey];
+
+      var adjA = baseA;
+      var adjB = baseB;
+
+      if (res) {
+        if (res.winnerId === match.teamA.id) adjA = Math.max(0, baseA - 2);
+        if (res.winnerId === match.teamB.id) adjB = Math.max(0, baseB - 2);
+        if (res.loserId === match.teamA.id) adjA = baseA + 2;
+        if (res.loserId === match.teamB.id) adjB = baseB + 2;
+      }
+
+      if (!seen[match.teamA.id]) {
+        candidates.push({ team: match.teamA, score: adjA });
+        seen[match.teamA.id] = true;
+      }
+      if (!seen[match.teamB.id]) {
+        candidates.push({ team: match.teamB, score: adjB });
+        seen[match.teamB.id] = true;
+      }
+    }
+
+    for (var r = 0; r < prev.restTeams.length; r++) {
+      var restTeam = prev.restTeams[r];
+      if (!restTeam || seen[restTeam.id]) continue;
+      candidates.push({ team: restTeam, score: maxBase + r });
+      seen[restTeam.id] = true;
+    }
+
+    if (candidates.length < stats.length) {
+      for (var s = 0; s < stats.length; s++) {
+        var tStat = findTeamById(stats[s].id);
+        if (tStat && !seen[tStat.id]) {
+          candidates.push({ team: tStat, score: maxBase + restSlots + s });
+          seen[tStat.id] = true;
+        }
+      }
+    }
   }
 
-  var playingSorted = playingStats.slice();
-  playingSorted.sort(function (a, b) {
-    if (b.points !== a.points) return b.points - a.points;
-    if (a.matches !== b.matches) return a.matches - b.matches;
-    return a.id - b.id;
+  candidates.sort(function (a, b) {
+    if (a.score !== b.score) return a.score - b.score;
+    var sa = findStatById(a.team.id);
+    var sb = findStatById(b.team.id);
+    var pa = sa ? sa.points : 0;
+    var pb = sb ? sb.points : 0;
+    if (pb !== pa) return pb - pa;
+    var ma = sa ? sa.matches : 0;
+    var mb = sb ? sb.matches : 0;
+    if (ma !== mb) return ma - mb;
+    return a.team.id - b.team.id;
   });
+
+  var playing = [];
+  var rest = [];
+
+  for (var c = 0; c < candidates.length; c++) {
+    var candidate = candidates[c];
+    var consec = getConsecutivePlays(candidate.team.id, roulementNumber - 1);
+    var mustRest = consec >= 2 && rest.length < restSlots;
+    if (mustRest) {
+      rest.push(candidate.team);
+    } else if (playing.length < playingCount) {
+      playing.push(candidate.team);
+    } else if (rest.length < restSlots) {
+      rest.push(candidate.team);
+    } else {
+      playing.push(candidate.team);
+    }
+  }
+
+  if (playing.length < playingCount && rest.length) {
+    rest.sort(function (a, b) {
+      var ca = getConsecutivePlays(a.id, roulementNumber - 1);
+      var cb = getConsecutivePlays(b.id, roulementNumber - 1);
+      if (ca !== cb) return ca - cb;
+      return a.id - b.id;
+    });
+    while (playing.length < playingCount && rest.length) {
+      playing.push(rest.shift());
+    }
+  }
+
+  if (playing.length > playingCount) {
+    while (playing.length > playingCount) {
+      rest.push(playing.pop());
+    }
+  }
 
   var matches = [];
   for (var t = 1; t <= maxTerrains; t++) {
     var idxA = (t - 1) * 2;
     var idxB = idxA + 1;
-    if (idxB >= playingSorted.length) break;
-    var sA = playingSorted[idxA];
-    var sB = playingSorted[idxB];
-    var teamA = findTeamById(sA.id);
-    var teamB = findTeamById(sB.id);
+    if (idxB >= playing.length) break;
+    var teamA = playing[idxA];
+    var teamB = playing[idxB];
     if (!teamA || !teamB) continue;
 
     var label = "";
@@ -464,10 +535,7 @@ function planRoundFromStats(roulementNumber) {
   }
 
   var restTeams = [];
-  for (var r = 0; r < restStats.length; r++) {
-    var team = findTeamById(restStats[r].id);
-    if (team) restTeams.push(team);
-  }
+  for (var rr = 0; rr < rest.length; rr++) restTeams.push(rest[rr]);
   return { matches: matches, restTeams: restTeams };
 }
 
@@ -699,6 +767,21 @@ function renderTvView() {
 }
 
 /* UTILS */
+function getConsecutivePlays(teamId, beforeRound) {
+  var count = 0;
+  for (var r = beforeRound; r >= 1; r--) {
+    var rec = state.pairings[r];
+    if (!rec) break;
+    var played = false;
+    for (var i = 0; i < rec.matches.length; i++) {
+      var m = rec.matches[i];
+      if (m.teamAId === teamId || m.teamBId === teamId) { played = true; break; }
+    }
+    if (played) count++; else break;
+  }
+  return count;
+}
+
 function resultKey(r, t) { return "R" + r + "-T" + t; }
 
 function findTeamById(id) {
