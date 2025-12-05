@@ -100,6 +100,7 @@
       if (!parsed.activeLeagues) parsed.activeLeagues = [];
       if (!parsed.finishedLeagues) parsed.finishedLeagues = [];
       migrateLevels(parsed);
+      normalizeMatches(parsed);
       return parsed;
     } catch (e) {
       return { activeLeagues: [], finishedLeagues: [] };
@@ -123,6 +124,21 @@
     var normalizeLeague = function(lg) { if (lg && lg.level) lg.level = normalizeLevel(lg.level); };
     if (state.activeLeagues) state.activeLeagues.forEach(normalizeLeague);
     if (state.finishedLeagues) state.finishedLeagues.forEach(normalizeLeague);
+  }
+
+  function normalizeMatches(state) {
+    var hydrateLeague = function(lg) {
+      if (!lg.matches) lg.matches = [];
+      lg.matches.forEach(function(m) { ensureMatchSets(m); computeMatchOutcome(m); });
+      if (!lg.standings) lg.standings = buildStandings(lg.teams || []);
+      recomputeStandings(lg);
+    };
+    if (state.activeLeagues) state.activeLeagues.forEach(hydrateLeague);
+    if (state.finishedLeagues) state.finishedLeagues.forEach(function(lg) {
+      if (!lg.matches) lg.matches = [];
+      lg.matches.forEach(function(m) { ensureMatchSets(m); computeMatchOutcome(m); });
+      if (!lg.standings) lg.standings = buildStandings(lg.teams || []);
+    });
   }
 
   function applyTheme(container, level) {
@@ -435,9 +451,9 @@
         var home = list[i];
         var away = list[n - 1 - i];
         if (home.id === 'BYE' || away.id === 'BYE') continue;
-        schedule.push({ id: 'm_' + r + '_' + i + '_1', round: r + 1, home: home.id, away: away.id, date: null, scores: [null, null], played: false });
+        schedule.push({ id: 'm_' + r + '_' + i + '_1', round: r + 1, home: home.id, away: away.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }], played: false });
         if (doubleRound) {
-          schedule.push({ id: 'm_' + r + '_' + i + '_2', round: r + 1 + rounds, home: away.id, away: home.id, date: null, scores: [null, null], played: false });
+          schedule.push({ id: 'm_' + r + '_' + i + '_2', round: r + 1 + rounds, home: away.id, away: home.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }], played: false });
         }
       }
       var fixed = list[0];
@@ -683,42 +699,16 @@
       var home = teamName(league, m.home);
       var away = teamName(league, m.away);
       vs.innerHTML = '<span>' + home + '</span><span style="color:var(--muted);">vs</span><span>' + away + '</span>';
-      var scores = document.createElement('div');
-      scores.className = 'ligue-inline';
-      var s1 = document.createElement('input');
-      s1.type = 'number';
-      s1.min = '0';
-      s1.value = (m.scores && m.scores[0] !== null) ? m.scores[0] : '';
-      s1.dataset.matchId = m.id;
-      s1.dataset.side = '0';
-      var s2 = document.createElement('input');
-      s2.type = 'number';
-      s2.min = '0';
-      s2.value = (m.scores && m.scores[1] !== null) ? m.scores[1] : '';
-      s2.dataset.matchId = m.id;
-      s2.dataset.side = '1';
-      s1.addEventListener('input', function(evt) { updateScore(league, evt.target.dataset.matchId, 0, evt.target.value); });
-      s2.addEventListener('input', function(evt) { updateScore(league, evt.target.dataset.matchId, 1, evt.target.value); });
-      scores.appendChild(s1);
-      scores.appendChild(s2);
+      var helper = document.createElement('div');
+      helper.className = 'small-muted';
+      helper.textContent = 'Score équipe A - Score équipe B (2 sets gagnants)';
+      var scores = createSetInputs(league, m);
       row.appendChild(date);
       row.appendChild(vs);
+      row.appendChild(helper);
       row.appendChild(scores);
       refs.detailMatches.appendChild(row);
     });
-  }
-
-  function updateScore(league, matchId, side, value) {
-    var match = league.matches.find(function(m) { return m.id === matchId; });
-    if (!match) return;
-    var val = value === '' ? null : parseInt(value, 10);
-    if (!match.scores) match.scores = [null, null];
-    match.scores[side] = isNaN(val) ? null : val;
-    match.played = match.scores[0] !== null && match.scores[1] !== null;
-    recomputeStandings(league);
-    saveState();
-    renderStandings(league);
-    if (refs.manageRoot && refs.manageRoot.style.display !== 'none') renderManageView(league);
   }
 
   function recomputeStandings(league) {
@@ -727,14 +717,15 @@
       table[t.id] = { teamId: t.id, name: t.name, played: 0, wins: 0, losses: 0, points: 0 };
     });
     league.matches.forEach(function(m) {
-      if (!m.played || m.scores[0] === null || m.scores[1] === null) return;
+      var outcome = computeMatchOutcome(m);
+      if (!m.played || outcome.setWins[0] === outcome.setWins[1]) return;
       table[m.home].played += 1;
       table[m.away].played += 1;
-      if (m.scores[0] > m.scores[1]) {
+      if (outcome.setWins[0] > outcome.setWins[1]) {
         table[m.home].wins += 1;
         table[m.home].points += 3;
         table[m.away].losses += 1;
-      } else if (m.scores[1] > m.scores[0]) {
+      } else if (outcome.setWins[1] > outcome.setWins[0]) {
         table[m.away].wins += 1;
         table[m.away].points += 3;
         table[m.home].losses += 1;
@@ -763,6 +754,115 @@
   function teamName(league, id) {
     var team = league.teams.find(function(t) { return t.id === id; });
     return team ? team.name : id;
+  }
+
+  function ensureMatchSets(match) {
+    if (!match.sets || !Array.isArray(match.sets)) {
+      match.sets = [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }];
+    }
+    while (match.sets.length < 3) match.sets.push({ home: null, away: null });
+    match.sets = match.sets.map(function(set) {
+      if (!set || typeof set !== 'object') return { home: null, away: null };
+      var h = set.home;
+      var a = set.away;
+      var hh = (h === null || h === undefined || h === '') ? null : parseInt(h, 10);
+      var aa = (a === null || a === undefined || a === '') ? null : parseInt(a, 10);
+      return { home: isNaN(hh) ? null : hh, away: isNaN(aa) ? null : aa };
+    });
+    var hasExisting = match.sets.some(function(s) { return s.home !== null || s.away !== null; });
+    if (!hasExisting && match.scores && match.scores[0] !== null && match.scores[1] !== null) {
+      match.sets[0] = { home: match.scores[0], away: match.scores[1] };
+    }
+    if (!Array.isArray(match.scores) || match.scores.length < 2) match.scores = [null, null];
+  }
+
+  function computeMatchOutcome(match) {
+    ensureMatchSets(match);
+    var setWins = [0, 0];
+    var completed = 0;
+    match.sets.forEach(function(set) {
+      if (set.home === null || set.away === null) return;
+      completed += 1;
+      if (set.home > set.away) setWins[0] += 1;
+      else if (set.away > set.home) setWins[1] += 1;
+    });
+    match.scores = setWins;
+    match.played = completed >= 2 && (setWins[0] === 2 || setWins[1] === 2);
+    return { setWins: setWins, completed: completed };
+  }
+
+  function formatSets(match) {
+    ensureMatchSets(match);
+    var parts = match.sets
+      .filter(function(set) { return set.home !== null && set.away !== null; })
+      .map(function(set) { return set.home + ' - ' + set.away; });
+    return parts.length ? parts.join(', ') : 'À jouer';
+  }
+
+  function updateSetScore(league, matchId, setIndex, side, value) {
+    if (!league || !league.matches) return;
+    var match = league.matches.find(function(m) { return m.id === matchId; });
+    if (!match) return;
+    ensureMatchSets(match);
+    var parsed = value === '' ? null : parseInt(value, 10);
+    if (isNaN(parsed)) parsed = null;
+    if (!match.sets[setIndex]) match.sets[setIndex] = { home: null, away: null };
+    if (side === '1') match.sets[setIndex].away = parsed; else match.sets[setIndex].home = parsed;
+    computeMatchOutcome(match);
+    recomputeStandings(league);
+    saveState();
+    if (refs.manageRoot && refs.manageRoot.style.display !== 'none') renderManageView(league);
+    if (refs.activeRoot && refs.activeRoot.style.display !== 'none') renderActiveDetail(league);
+    if (refs.playerRoot && refs.playerRoot.style.display !== 'none') renderPlayerDetail(league);
+  }
+
+  function createSetInputs(league, match) {
+    ensureMatchSets(match);
+    var wrap = document.createElement('div');
+    wrap.style.display = 'grid';
+    wrap.style.gridTemplateColumns = 'repeat(3, minmax(0, 1fr))';
+    wrap.style.gap = '8px';
+    wrap.style.marginTop = '8px';
+    match.sets.forEach(function(set, idx) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.style.border = '1px solid #111827';
+      card.style.padding = '8px';
+      var label = document.createElement('div');
+      label.className = 'tournaments-subtitle';
+      label.textContent = 'Set ' + (idx + 1);
+      var row = document.createElement('div');
+      row.className = 'ligue-inline';
+      row.style.justifyContent = 'space-between';
+      var homeInput = document.createElement('input');
+      homeInput.type = 'number';
+      homeInput.min = '0';
+      homeInput.placeholder = '6';
+      homeInput.value = set.home !== null ? set.home : '';
+      homeInput.dataset.matchId = match.id;
+      homeInput.dataset.side = '0';
+      homeInput.dataset.setIndex = String(idx);
+      var sep = document.createElement('span');
+      sep.textContent = '-';
+      sep.style.color = 'var(--muted)';
+      var awayInput = document.createElement('input');
+      awayInput.type = 'number';
+      awayInput.min = '0';
+      awayInput.placeholder = '4';
+      awayInput.value = set.away !== null ? set.away : '';
+      awayInput.dataset.matchId = match.id;
+      awayInput.dataset.side = '1';
+      awayInput.dataset.setIndex = String(idx);
+      homeInput.addEventListener('input', function(evt) { updateSetScore(league, match.id, idx, evt.target.dataset.side, evt.target.value); });
+      awayInput.addEventListener('input', function(evt) { updateSetScore(league, match.id, idx, evt.target.dataset.side, evt.target.value); });
+      row.appendChild(homeInput);
+      row.appendChild(sep);
+      row.appendChild(awayInput);
+      card.appendChild(label);
+      card.appendChild(row);
+      wrap.appendChild(card);
+    });
+    return wrap;
   }
 
   function handleCloseLeague() {
@@ -835,27 +935,20 @@
       vs.className = 'ligue-inline';
       vs.style.justifyContent = 'space-between';
       vs.innerHTML = '<span>🎾 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
-      var scores = document.createElement('div');
-      scores.className = 'ligue-inline';
-      var s1 = document.createElement('input');
-      s1.type = 'number';
-      s1.min = '0';
-      s1.value = (m.scores && m.scores[0] !== null) ? m.scores[0] : '';
-      s1.dataset.matchId = m.id;
-      s1.dataset.side = '0';
-      var s2 = document.createElement('input');
-      s2.type = 'number';
-      s2.min = '0';
-      s2.value = (m.scores && m.scores[1] !== null) ? m.scores[1] : '';
-      s2.dataset.matchId = m.id;
-      s2.dataset.side = '1';
-      s1.addEventListener('input', function(evt) { updateScore(league, evt.target.dataset.matchId, 0, evt.target.value); });
-      s2.addEventListener('input', function(evt) { updateScore(league, evt.target.dataset.matchId, 1, evt.target.value); });
-      scores.appendChild(s1);
-      scores.appendChild(s2);
+      var helper = document.createElement('div');
+      helper.className = 'small-muted';
+      helper.textContent = 'Score équipe A - Score équipe B (2 sets gagnants)';
+      var scores = createSetInputs(league, m);
+      var summary = document.createElement('div');
+      summary.className = 'ligue-inline';
+      summary.style.justifyContent = 'space-between';
+      summary.style.marginTop = '6px';
+      summary.innerHTML = '<span style="color:var(--muted);">Résultat</span><span>' + formatSets(m) + '</span>';
       card.appendChild(title);
       card.appendChild(vs);
+      card.appendChild(helper);
       card.appendChild(scores);
+      card.appendChild(summary);
       refs.manageCalendar.appendChild(card);
     });
   }
@@ -869,9 +962,10 @@
       return;
     }
     played.forEach(function(m) {
-      var home = { id: m.home, name: teamName(league, m.home), score: m.scores[0] };
-      var away = { id: m.away, name: teamName(league, m.away), score: m.scores[1] };
-      var winner = home.score === away.score ? null : (home.score > away.score ? home : away);
+      var outcome = computeMatchOutcome(m);
+      var home = { id: m.home, name: teamName(league, m.home), setWins: outcome.setWins[0] };
+      var away = { id: m.away, name: teamName(league, m.away), setWins: outcome.setWins[1] };
+      var winner = home.setWins === away.setWins ? null : (home.setWins > away.setWins ? home : away);
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
       var head = document.createElement('div');
@@ -886,7 +980,7 @@
       homeEl.textContent = '🎾 ' + home.name;
       var scoreEl = document.createElement('div');
       scoreEl.className = 'ligue-result-score';
-      scoreEl.textContent = home.score + ' - ' + away.score;
+      scoreEl.textContent = formatSets(m);
       var awayEl = document.createElement('div');
       awayEl.className = 'ligue-result-team';
       awayEl.textContent = away.name;
@@ -969,12 +1063,9 @@
       vs.textContent = '🎾 ' + teamName(league, m.home) + ' vs ' + teamName(league, m.away);
       var score = document.createElement('div');
       score.className = 'ligue-result-score';
-      if (m.played && m.scores && m.scores[0] !== null && m.scores[1] !== null) {
-        score.textContent = m.scores[0] + ' - ' + m.scores[1];
-      } else {
-        score.textContent = 'À jouer';
-        score.style.color = 'var(--muted)';
-      }
+      var formatted = formatSets(m);
+      score.textContent = formatted;
+      if (formatted === 'À jouer') score.style.color = 'var(--muted)';
       body.appendChild(vs);
       body.appendChild(score);
       card.appendChild(head);
