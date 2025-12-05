@@ -52,7 +52,8 @@
       bracketTerrains: {},
       teamCount: 16,
       poolCount: 4,
-      finalFormat: "16-main-conso"
+      finalFormat: "16-main-conso",
+      logo: ""
     };
 
     /* DOM */
@@ -310,18 +311,31 @@
     });
 
     function setLogoSource(src) {
+      const finalSrc = src || "";
+      state.logo = finalSrc;
+
       if (elLogoPreview) {
-        elLogoPreview.src = src || "";
+        elLogoPreview.src = finalSrc;
       }
-      if (elTvLogo) {
-        if (src) {
-          elTvLogo.src = src;
-          elTvLogo.style.display = "block";
+
+      const classicRoot = document.getElementById("classic-root");
+      const tvLogos = classicRoot ? Array.from(classicRoot.querySelectorAll("#tv-logo")) : [];
+      if (!tvLogos.length && elTvLogo) tvLogos.push(elTvLogo);
+      tvLogos.forEach(img => {
+        if (finalSrc) {
+          img.src = finalSrc;
+          img.style.display = "block";
         } else {
-          elTvLogo.style.display = "none";
-          elTvLogo.removeAttribute("src");
+          img.style.display = "none";
+          img.removeAttribute("src");
         }
+      });
+
+      const appLogo = document.getElementById("app-logo");
+      if (appLogo) {
+        if (finalSrc) appLogo.src = finalSrc; else appLogo.removeAttribute("src");
       }
+
       updateLogoHelper();
     }
 
@@ -333,15 +347,17 @@
     }
 
     /* LOGO UPLOAD */
-    elLogoUpload.addEventListener("change", (e) => {
-      const file = e.target.files && e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (ev) => {
-        setLogoSource(ev.target.result);
-      };
-      reader.readAsDataURL(file);
-    });
+    if (elLogoUpload) {
+      elLogoUpload.addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          setLogoSource(ev.target.result);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
 
     /* RANDOM NAMES */
     elBtnRandomNames.addEventListener("click", () => {
