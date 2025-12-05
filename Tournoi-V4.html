@@ -666,11 +666,13 @@
     }
 
     .bracket-tree {
+      --bracket-gap: 34px;
+      --bracket-line-color: #c2d3ff44;
       display:grid;
-      grid-template-columns:1.15fr 1fr 0.9fr;
+      grid-template-columns:repeat(3, minmax(240px,1fr));
+      column-gap:56px;
+      align-items:start;
       justify-items:stretch;
-      align-items:flex-start;
-      gap:24px;
       margin-top:12px;
       width:100%;
     }
@@ -678,13 +680,13 @@
     .bracket-tree .stage-sf-column {justify-self:center;}
     .bracket-tree .final-column {justify-self:end;}
     @media(max-width:1200px){
-      .bracket-tree{display:flex;flex-wrap:wrap;justify-content:flex-start;gap:14px;}
+      .bracket-tree{display:flex;flex-wrap:wrap;justify-content:center;gap:18px;}
     }
 
     .bracket-column {
       display:flex;
       flex-direction:column;
-      gap:12px;
+      gap:var(--bracket-gap);
       min-width:240px;
     }
 
@@ -707,12 +709,17 @@
     }
 
     .bracket-match-row {
+      position:relative;
       border-radius:10px;
       border:1px solid #111827;
       padding:10px 12px;
       margin-bottom:4px;
       font-size:14px;
       background:linear-gradient(145deg,#020617,#050b18);
+      min-height:104px;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
     }
 
     .bracket-match-row.stage-qf {
@@ -869,6 +876,65 @@
     .bracket-match-row.stage-small-final {
       background:linear-gradient(145deg,rgba(234,179,8,0.6),#020617);
       border-color:#facc15;
+    }
+
+    /* Bracket connectors for tree-like shape */
+    .bracket-match-row.stage-qf::after {
+      content:"";
+      position:absolute;
+      top:50%;
+      right:-28px;
+      width:28px;
+      height:2px;
+      background:var(--bracket-line-color);
+    }
+
+    .bracket-match-row.stage-sf::before {
+      content:"";
+      position:absolute;
+      top:50%;
+      left:-28px;
+      width:28px;
+      height:2px;
+      background:var(--bracket-line-color);
+    }
+
+    .bracket-match-row.stage-sf::after {
+      content:"";
+      position:absolute;
+      top:50%;
+      right:-28px;
+      width:28px;
+      height:2px;
+      background:var(--bracket-line-color);
+    }
+
+    .bracket-match-row.stage-sf.sf-top::before,
+    .bracket-match-row.stage-sf.sf-bottom::before {
+      top:calc(-1 * (var(--bracket-gap) * 1.2));
+      height:calc(100% + (var(--bracket-gap) * 2.4));
+      background:
+        linear-gradient(var(--bracket-line-color), var(--bracket-line-color)) left 50%/2px 100% no-repeat,
+        linear-gradient(var(--bracket-line-color), var(--bracket-line-color)) left 50%/28px 2px no-repeat;
+    }
+
+    .bracket-match-row.stage-final.final-node::before {
+      content:"";
+      position:absolute;
+      left:-28px;
+      top:50%;
+      width:28px;
+      height:2px;
+      background:var(--bracket-line-color);
+    }
+    .bracket-match-row.stage-final.final-node::after {
+      content:"";
+      position:absolute;
+      left:-28px;
+      top:calc(-1 * var(--bracket-gap));
+      width:2px;
+      height:calc(100% + (var(--bracket-gap) * 2));
+      background:var(--bracket-line-color);
     }
 
     /* TV */
@@ -2575,11 +2641,12 @@
       ["QF1","QF2","QF3","QF4"].forEach(key => {
         mainColQF.appendChild(renderBracketMatch("main", key, mainDef, "stage-qf"));
       });
-      ["SF1","SF2"].forEach(key => {
-        mainColSF.appendChild(renderBracketMatch("main", key, mainDef, "stage-sf"));
+      ["SF1","SF2"].forEach((key, idx) => {
+        const stageClass = idx === 0 ? "stage-sf sf-top" : "stage-sf sf-bottom";
+        mainColSF.appendChild(renderBracketMatch("main", key, mainDef, stageClass));
       });
       ["FINAL"].forEach(key => {
-        mainColFinal.appendChild(renderBracketMatch("main", key, mainDef, "stage-final"));
+        mainColFinal.appendChild(renderBracketMatch("main", key, mainDef, "stage-final final-node"));
       });
 
       mainTree.appendChild(mainColQF);
@@ -2646,8 +2713,11 @@
             consoColSFTitle.className = "bracket-column-title";
             consoColSFTitle.textContent = consoHasQF ? "Demi-finales" : "Demi-finales consolante";
             consoColSF.appendChild(consoColSFTitle);
-            ["SF1","SF2"].forEach(key => {
-              if (consoDef[key]) consoColSF.appendChild(renderBracketMatch("conso", key, consoDef, "stage-sf"));
+            ["SF1","SF2"].forEach((key, idx) => {
+              if (consoDef[key]) {
+                const stageClass = idx === 0 ? "stage-sf sf-top" : "stage-sf sf-bottom";
+                consoColSF.appendChild(renderBracketMatch("conso", key, consoDef, stageClass));
+              }
             });
             consoTree.appendChild(consoColSF);
           }
@@ -2658,7 +2728,7 @@
           consoColFinalTitle.className = "bracket-column-title";
           consoColFinalTitle.textContent = "Finale";
           consoColFinal.appendChild(consoColFinalTitle);
-          if (consoDef.FINAL) consoColFinal.appendChild(renderBracketMatch("conso", "FINAL", consoDef, "stage-final"));
+          if (consoDef.FINAL) consoColFinal.appendChild(renderBracketMatch("conso", "FINAL", consoDef, "stage-final final-node"));
           consoTree.appendChild(consoColFinal);
 
           consoCard.appendChild(consoTree);
