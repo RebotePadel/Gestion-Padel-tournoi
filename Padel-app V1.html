@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Moteur Tournois & M/D – Padel Parc</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root {
@@ -387,6 +388,13 @@
     .ligue-theme-n1 .ligue-result-winner { background: rgba(127,29,29,0.18); border-color: rgba(127,29,29,0.55); color: #fee2e2; }
     .ligue-theme-n2 .ligue-result-winner { background: rgba(180,83,9,0.18); border-color: rgba(180,83,9,0.55); color: #ffedd5; }
     .ligue-theme-n3 .ligue-result-winner { background: rgba(202,138,4,0.18); border-color: rgba(202,138,4,0.55); color: #fef9c3; }
+    /* Export / impression des matchs (masquer les scores) */
+    body.printing-matches * { visibility: hidden; }
+    body.printing-matches #ligue-manage-calendar,
+    body.printing-matches #ligue-manage-calendar * { visibility: visible; }
+    body.printing-matches #ligue-manage-calendar { position: absolute; left: 0; top: 0; width: 100%; }
+    body.printing-matches .ligue-score-area { display: none !important; }
+    .ligue-export-hide-scores .ligue-score-area { display: none !important; }
     .ligue-badge-accent { padding: 4px 8px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04); font-size: 0.8rem; }
     .ligue-theme-n1 .ligue-badge-accent { border-color: rgba(127,29,29,0.6); color: #fca5a5; }
     .ligue-theme-n2 .ligue-badge-accent { border-color: rgba(180,83,9,0.6); color: #fbbf24; }
@@ -2549,9 +2557,26 @@
         <div class="ligue-panel hidden" id="panel-player-rules">
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">📜 Règlement</h4>
-            <div class="small-muted">À compléter</div>
+            <div class="small-muted">Lecture seule</div>
           </div>
-          <div class="ligue-section small-muted">Le règlement sera ajouté ici.</div>
+          <div class="ligue-section" id="ligue-player-reglement-panel">
+            <div class="card" style="border:1px solid #111827;">
+              <p class="ligue-inline" style="gap:6px; flex-wrap:wrap; align-items:center;">
+                <span>Vous avez du</span>
+                <span id="ligue-player-reglement-start" class="ligue-badge">—</span>
+                <span>au</span>
+                <span id="ligue-player-reglement-end" class="ligue-badge">—</span>
+                <span>pour programmer vos matchs.</span>
+              </p>
+              <div class="ligue-section small-muted" style="margin-top:8px; color: var(--text);">
+                <p style="margin-bottom:6px;">Comment programmer vos matchs ? Mettez vous d’accord avec votre adversaire sur la date et l’heure du match ! Heure creuse, heure pleine, week-end, c’est quand vous voulez !</p>
+                <p style="margin-bottom:6px;">Cependant, vous êtes obligé de respecter l’ordre des matchs qui vous a été transmis. Exemple, vous ne pouvez pas jouer le match 3 avant le match 1.</p>
+                <p style="margin-bottom:6px;">Pour réserver votre partie, vous pouvez : nous envoyer un message sur le WhatsApp de la ligue, nous joindre par téléphone.</p>
+                <p style="margin-bottom:6px;">Niveau jeu : 2 sets gagnants avec avantage. Le 3ème set est un super-tie en 10 points. Avant de démarrer votre match : récupérez votre boîte de balles neuves et votre fiche de score au bar. Rendez-nous le score à la fin.</p>
+                <p>Vous êtes en auto-arbitrage, merci de rester courtois et fair play.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -2704,7 +2729,10 @@
         <div class="ligue-panel" id="panel-ligue-calendar">
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">📅 Prochains matchs</h4>
-            <div class="ligue-badge-accent" id="ligue-calendar-note">Planification complète</div>
+            <div class="ligue-inline" style="gap:8px; align-items:center;">
+              <button class="btn btn-secondary btn-small" id="btn-ligue-export-matches">Exporter la liste des matchs</button>
+              <div class="ligue-badge-accent" id="ligue-calendar-note">Planification complète</div>
+            </div>
           </div>
           <div id="ligue-manage-calendar" class="ligue-section"></div>
         </div>
@@ -2736,9 +2764,26 @@
         <div class="ligue-panel hidden" id="panel-ligue-rules">
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">📜 Règlement</h4>
-            <div class="small-muted">À compléter</div>
+            <div class="small-muted">Créneaux et consignes</div>
           </div>
-          <div class="ligue-section small-muted">Le règlement sera ajouté ici.</div>
+          <div class="ligue-section" id="ligue-reglement-panel">
+            <div class="card" style="border:1px solid #111827;">
+              <p class="ligue-inline" style="gap:6px; flex-wrap:wrap; align-items:center;">
+                <span>Vous avez du</span>
+                <input type="date" id="ligue-reglement-start" class="ligue-reglement-date" />
+                <span>au</span>
+                <input type="date" id="ligue-reglement-end" class="ligue-reglement-date" />
+                <span>pour programmer vos matchs.</span>
+              </p>
+              <div class="ligue-section small-muted" style="margin-top:8px; color: var(--text);">
+                <p style="margin-bottom:6px;">Comment programmer vos matchs ? Mettez vous d’accord avec votre adversaire sur la date et l’heure du match ! Heure creuse, heure pleine, week-end, c’est quand vous voulez !</p>
+                <p style="margin-bottom:6px;">Cependant, vous êtes obligé de respecter l’ordre des matchs qui vous a été transmis. Exemple, vous ne pouvez pas jouer le match 3 avant le match 1.</p>
+                <p style="margin-bottom:6px;">Pour réserver votre partie, vous pouvez : nous envoyer un message sur le WhatsApp de la ligue, nous joindre par téléphone.</p>
+                <p style="margin-bottom:6px;">Niveau jeu : 2 sets gagnants avec avantage. Le 3ème set est un super-tie en 10 points. Avant de démarrer votre match : récupérez votre boîte de balles neuves et votre fiche de score au bar. Rendez-nous le score à la fin.</p>
+                <p>Vous êtes en auto-arbitrage, merci de rester courtois et fair play.</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
