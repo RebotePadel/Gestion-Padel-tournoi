@@ -378,7 +378,6 @@
     }
 
     bindLogoUpload(elHomeLogoUpload);
-    bindLogoUpload(elLogoUpload);
 
     /* RANDOM NAMES */
     elBtnRandomNames.addEventListener("click", () => {
