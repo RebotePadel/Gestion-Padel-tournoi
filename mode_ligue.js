@@ -904,6 +904,7 @@
     league.matches.forEach(function(m) {
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
+      if (winnerId) card.classList.add('ligue-match-validated');
       var title = document.createElement('div');
       title.className = 'ligue-inline';
       title.style.justifyContent = 'space-between';
@@ -930,28 +931,23 @@
       return;
     }
 
-    var pending = league.matches.filter(function(m) { return !m.played || m.editing; });
-    var finished = league.matches.filter(function(m) { return m.played && !m.editing; });
+    var hasFinished = false;
+    league.matches.forEach(function(m) {
+      var editingMode = !m.played || m.editing;
+      var card = buildResultCard(league, m, editingMode);
+      if (!editingMode) {
+        hasFinished = true;
+        card.classList.add('ligue-match-validated');
+      }
+      refs.manageResults.appendChild(card);
+    });
 
-    if (pending.length) {
-      var pendingTitle = document.createElement('h4');
-      pendingTitle.className = 'tournaments-title';
-      pendingTitle.textContent = 'Résultats à saisir';
-      refs.manageResults.appendChild(pendingTitle);
-      pending.forEach(function(m) { refs.manageResults.appendChild(buildResultCard(league, m, true)); });
-    }
-
-    if (finished.length) {
-      var finTitle = document.createElement('h4');
-      finTitle.className = 'tournaments-title';
-      finTitle.style.marginTop = '8px';
-      finTitle.textContent = 'Résultats validés';
-      refs.manageResults.appendChild(finTitle);
-      finished.forEach(function(m) { refs.manageResults.appendChild(buildResultCard(league, m, false)); });
-    }
-
-    if (!pending.length && !finished.length) {
-      refs.manageResults.innerHTML = '<div class="empty">Aucun résultat disponible.</div>';
+    if (!hasFinished) {
+      var info = document.createElement('div');
+      info.className = 'small-muted';
+      info.style.marginTop = '8px';
+      info.textContent = 'Valide un score pour le voir ici et dans la vue joueur.';
+      refs.manageResults.appendChild(info);
     }
   }
 
@@ -966,7 +962,23 @@
     var head = document.createElement('div');
     head.className = 'ligue-inline';
     head.style.justifyContent = 'space-between';
-    head.innerHTML = '<span>🎾 Journée ' + match.round + '</span><span class="small-muted">' + (match.date || 'Date à définir') + '</span>';
+    var headLeft = document.createElement('span');
+    headLeft.textContent = '🎾 Journée ' + match.round;
+    var headRight = document.createElement('div');
+    headRight.className = 'ligue-inline';
+    headRight.style.gap = '8px';
+    var dateEl = document.createElement('span');
+    dateEl.className = 'small-muted';
+    dateEl.textContent = match.date || 'Date à définir';
+    headRight.appendChild(dateEl);
+    if (!editingMode && match.played) {
+      var badge = document.createElement('span');
+      badge.className = 'ligue-badge ligue-badge-valid';
+      badge.textContent = '✅ Validé';
+      headRight.appendChild(badge);
+    }
+    head.appendChild(headLeft);
+    head.appendChild(headRight);
 
     var body = document.createElement('div');
     body.className = 'ligue-inline ligue-result-row';
