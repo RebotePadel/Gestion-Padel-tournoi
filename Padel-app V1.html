@@ -168,6 +168,35 @@
       padding: 6px 4px;
     }
 
+    /* TIMER M/D */
+    .md-timer-panel { margin-top: 12px; }
+    .md-timer-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; }
+    .md-timer-pop { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); z-index: 9999; display: none; }
+    .md-timer-pop .md-timer-shell {
+      min-width: 260px;
+      background: rgba(10,18,34,0.96);
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.65);
+      overflow: hidden;
+      position: relative;
+    }
+    .md-timer-pop .md-timer-shell.pulse { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(229,227,57,0.35), 0 22px 50px rgba(0,0,0,0.7); }
+    .md-timer-pop header {
+      cursor: move;
+      background: linear-gradient(135deg, #0f172a, #0b1220);
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      user-select: none;
+    }
+    .md-timer-pop header h4 { margin: 0; font-size: 0.9rem; letter-spacing: 0.08em; text-transform: uppercase; }
+    .md-timer-body { padding: 12px; text-align: center; }
+    .md-timer-remaining { font-size: 2rem; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 6px; }
+    .md-timer-status { font-size: 0.8rem; color: var(--muted); }
+
     /* HOME */
     .home-hero {
       text-align: center;
@@ -1939,6 +1968,7 @@
       <div class="mode-toggle">
         <button class="btn btn-secondary btn-small" id="btn-back-home-from-md">🏠 Accueil</button>
         <button id="btn-go-tv" class="btn btn-secondary btn-small">🎥 Vue TV</button>
+        <button id="btn-toggle-md-timer" class="btn btn-secondary btn-small">⏱ Timer M/D</button>
       </div>
 
       <div class="grid">
@@ -1981,6 +2011,30 @@
           </div>
           <div style="margin-top:8px; text-align:right;">
             <button class="btn" id="btn-start" disabled>🚀 Lancer la M/D</button>
+          </div>
+        </div>
+
+        <div class="card md-timer-panel" id="md-timer-panel" style="display:none;">
+          <h2>Timer M/D</h2>
+          <p>Définis la durée d’un roulement et lance le compte à rebours.</p>
+          <div class="field">
+            <label for="md-timer-select">Durée (minutes)</label>
+            <select id="md-timer-select">
+              <option value="10">10</option>
+              <option value="15" selected>15</option>
+              <option value="20">20</option>
+              <option value="25">25</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="md-timer-custom">Durée personnalisée (minutes)</label>
+            <input type="number" min="1" step="1" id="md-timer-custom" placeholder="Entrer une durée" />
+          </div>
+          <div class="md-timer-controls">
+            <div class="chip" id="md-timer-display">15:00</div>
+            <button class="btn btn-small" id="md-timer-start">Lancer le timer</button>
+            <button class="btn btn-secondary btn-small" id="md-timer-pause">Mettre en pause</button>
+            <button class="btn btn-secondary btn-small" id="md-timer-reset">Réinitialiser</button>
           </div>
         </div>
       </div>
@@ -2886,13 +2940,175 @@
               <span>Points cumulés</span>
             </div>
             <div id="tv-podium" class="tv-podium"></div>
-            <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
-            <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
-          </div>
-        </section>
-      </main>
-    </section>
+          <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
+          <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
+        </div>
+      </section>
+    </main>
+  </section>
+
+    <!-- Pop-up Timer M/D -->
+    <div class="md-timer-pop" id="md-timer-pop">
+      <div class="md-timer-shell" id="md-timer-shell">
+        <header id="md-timer-drag">
+          <h4>⏱️ Timer de manche M/D</h4>
+          <button class="btn btn-secondary btn-small" id="md-timer-close">✖ Fermer</button>
+        </header>
+        <div class="md-timer-body">
+          <div class="md-timer-remaining" id="md-timer-remaining">15:00</div>
+          <div class="md-timer-status" id="md-timer-status">Montante/Descendante en cours</div>
+        </div>
+      </div>
+    </div>
   </div>
+
+  <!-- Début logique timer M/D -->
+  <script>
+    (function() {
+      var refs = {
+        toggle: document.getElementById('btn-toggle-md-timer'),
+        panel: document.getElementById('md-timer-panel'),
+        select: document.getElementById('md-timer-select'),
+        custom: document.getElementById('md-timer-custom'),
+        display: document.getElementById('md-timer-display'),
+        start: document.getElementById('md-timer-start'),
+        pause: document.getElementById('md-timer-pause'),
+        reset: document.getElementById('md-timer-reset'),
+        pop: document.getElementById('md-timer-pop'),
+        shell: document.getElementById('md-timer-shell'),
+        drag: document.getElementById('md-timer-drag'),
+        close: document.getElementById('md-timer-close'),
+        remaining: document.getElementById('md-timer-remaining'),
+        status: document.getElementById('md-timer-status')
+      };
+
+      if (!refs.toggle || !refs.panel) return;
+
+      var state = {
+        baseDuration: 15 * 60,
+        remaining: 15 * 60,
+        interval: null,
+        paused: true
+      };
+
+      function format(seconds) {
+        var m = Math.floor(seconds / 60);
+        var s = seconds % 60;
+        return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+      }
+
+      function updateDisplay() {
+        refs.display.textContent = format(state.remaining);
+        refs.remaining.textContent = format(state.remaining);
+      }
+
+      function stopTimer(message) {
+        if (state.interval) {
+          clearInterval(state.interval);
+          state.interval = null;
+        }
+        state.paused = true;
+        if (message) refs.status.textContent = message;
+      }
+
+      function startInterval() {
+        stopTimer();
+        state.paused = false;
+        refs.status.textContent = 'Montante/Descendante en cours';
+        state.interval = setInterval(function() {
+          if (state.remaining <= 0) {
+            stopTimer('Temps écoulé !');
+            refs.shell.classList.add('pulse');
+            return;
+          }
+          state.remaining -= 1;
+          updateDisplay();
+          if (state.remaining <= 0) {
+            stopTimer('Temps écoulé !');
+            refs.shell.classList.add('pulse');
+          }
+        }, 1000);
+      }
+
+      function applyDurationFromInputs() {
+        var custom = parseInt(refs.custom.value, 10);
+        var minutes = !isNaN(custom) && custom > 0 ? custom : parseInt(refs.select.value, 10) || 15;
+        state.baseDuration = minutes * 60;
+        state.remaining = state.baseDuration;
+        refs.shell.classList.remove('pulse');
+        updateDisplay();
+      }
+
+      refs.toggle.addEventListener('click', function() {
+        var visible = refs.panel.style.display !== 'none';
+        refs.panel.style.display = visible ? 'none' : 'block';
+      });
+
+      refs.start.addEventListener('click', function() {
+        applyDurationFromInputs();
+        state.remaining = state.baseDuration;
+        updateDisplay();
+        refs.pop.style.display = 'block';
+        refs.pop.style.left = '50%';
+        refs.pop.style.top = '16px';
+        refs.pop.style.transform = 'translateX(-50%)';
+        startInterval();
+      });
+
+      refs.pause.addEventListener('click', function() {
+        if (state.paused) {
+          refs.shell.classList.remove('pulse');
+          startInterval();
+          refs.pause.textContent = 'Mettre en pause';
+        } else {
+          stopTimer('Timer en pause');
+          refs.pause.textContent = 'Reprendre';
+        }
+      });
+
+      refs.reset.addEventListener('click', function() {
+        stopTimer('Timer réinitialisé');
+        state.remaining = state.baseDuration;
+        updateDisplay();
+        refs.pause.textContent = 'Mettre en pause';
+      });
+
+      refs.close.addEventListener('click', function() {
+        stopTimer('Timer arrêté');
+        refs.pop.style.display = 'none';
+        refs.pause.textContent = 'Mettre en pause';
+        refs.shell.classList.remove('pulse');
+      });
+
+      // Drag & drop du pop-up
+      var dragState = { active: false, offsetX: 0, offsetY: 0 };
+      refs.drag.addEventListener('mousedown', function(e) {
+        dragState.active = true;
+        var rect = refs.pop.getBoundingClientRect();
+        dragState.offsetX = e.clientX - rect.left;
+        dragState.offsetY = e.clientY - rect.top;
+        refs.pop.style.transform = 'none';
+        document.addEventListener('mousemove', onDragMove);
+        document.addEventListener('mouseup', onDragEnd);
+      });
+
+      function onDragMove(e) {
+        if (!dragState.active) return;
+        refs.pop.style.left = (e.clientX - dragState.offsetX) + 'px';
+        refs.pop.style.top = (e.clientY - dragState.offsetY) + 'px';
+      }
+
+      function onDragEnd() {
+        dragState.active = false;
+        document.removeEventListener('mousemove', onDragMove);
+        document.removeEventListener('mouseup', onDragEnd);
+      }
+
+      updateDisplay();
+    })();
+  </script>
+  <!-- Fin logique timer M/D -->
+
   <script src="core.js"></script>
   <script src="mode_classic.js"></script>
   <script src="mode_md.js"></script>
