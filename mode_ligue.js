@@ -789,6 +789,12 @@
     return team ? team.name : id;
   }
 
+  // Retrieve a full team object by id; used in player view rendering to avoid ReferenceError.
+  function teamById(league, id) {
+    if (!league || !league.teams) return null;
+    return league.teams.find(function(t) { return t.id === id; }) || null;
+  }
+
   function ensureMatchSets(match) {
     if (!match.sets || !Array.isArray(match.sets)) {
       match.sets = [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }];
