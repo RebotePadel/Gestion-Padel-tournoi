@@ -514,9 +514,9 @@
         var home = list[i];
         var away = list[n - 1 - i];
         if (home.id === 'BYE' || away.id === 'BYE') continue;
-        schedule.push({ id: 'm_' + r + '_' + i + '_1', round: r + 1, home: home.id, away: away.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }], played: false });
+        schedule.push({ id: 'm_' + r + '_' + i + '_1', round: r + 1, home: home.id, away: away.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }], played: false });
         if (doubleRound) {
-          schedule.push({ id: 'm_' + r + '_' + i + '_2', round: r + 1 + rounds, home: away.id, away: home.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }], played: false });
+          schedule.push({ id: 'm_' + r + '_' + i + '_2', round: r + 1 + rounds, home: away.id, away: home.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }], played: false });
         }
       }
       var fixed = list[0];
@@ -846,9 +846,11 @@
       if (set.home > set.away) setWins[0] += 1;
       else if (set.away > set.home) setWins[1] += 1;
     });
+    var hasWinner = completed === 2 && setWins[0] !== setWins[1];
     match.scores = setWins;
-    match.played = completed === 2 && setWins[0] !== setWins[1];
-    return { setWins: setWins, completed: completed };
+    match.played = hasWinner;
+    match.winnerTeamId = hasWinner ? (setWins[0] > setWins[1] ? match.home : match.away) : null;
+    return { setWins: setWins, completed: completed, winner: match.winnerTeamId };
   }
 
   function formatSets(match) {
@@ -856,7 +858,7 @@
     var parts = match.sets
       .filter(function(set) { return set.home !== null && set.away !== null; })
       .map(function(set) { return set.home + ' - ' + set.away; });
-    return parts.length ? parts.join(', ') : 'À jouer';
+    return parts.length ? parts.join(' / ') : 'À jouer';
   }
 
   function updateReglementDates(start, end) {
@@ -960,12 +962,11 @@
     league.matches.forEach(function(m) {
       ensureMatchSets(m);
       var outcome = computeMatchOutcome(m);
+      var isEditing = !m.played || m.editing;
       var home = { id: m.home, name: teamName(league, m.home), setWins: outcome.setWins[0] };
       var away = { id: m.away, name: teamName(league, m.away), setWins: outcome.setWins[1] };
-      var winner = null;
-      if (m.played && outcome.setWins[0] !== outcome.setWins[1]) {
-        winner = outcome.setWins[0] > outcome.setWins[1] ? 'home' : 'away';
-      }
+      var winnerId = m.winnerTeamId;
+
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
       var head = document.createElement('div');
@@ -980,19 +981,19 @@
       homeEl.textContent = home.name;
       var scoreEl = document.createElement('div');
       scoreEl.className = 'ligue-result-score';
-      scoreEl.textContent = formatSets(m);
+      scoreEl.textContent = m.played ? formatSets(m) : 'À jouer';
       var awayEl = document.createElement('div');
       awayEl.className = 'ligue-result-team';
       awayEl.textContent = away.name;
-      if (winner === 'home') homeEl.classList.add('winner-tag');
-      if (winner === 'away') awayEl.classList.add('winner-tag');
+      if (winnerId === home.id) homeEl.classList.add('winner-tag', 'match-winner');
+      if (winnerId === away.id) awayEl.classList.add('winner-tag', 'match-winner');
       body.appendChild(homeEl);
       body.appendChild(scoreEl);
       body.appendChild(awayEl);
 
       var inputWrap = document.createElement('div');
       inputWrap.className = 'ligue-score-area';
-      inputWrap.style.display = 'grid';
+      inputWrap.style.display = isEditing ? 'grid' : 'none';
       inputWrap.style.gridTemplateColumns = 'repeat(1, minmax(0,1fr))';
       inputWrap.style.gap = '8px';
       var setInputs = [];
@@ -1028,11 +1029,24 @@
       var actions = document.createElement('div');
       actions.className = 'ligue-inline ligue-score-area';
       actions.style.justifyContent = 'flex-end';
-      var submit = document.createElement('button');
-      submit.className = 'btn';
-      submit.textContent = 'Valider le résultat';
-      submit.addEventListener('click', function() { handleValidateResult(league, m, setInputs); });
-      actions.appendChild(submit);
+      if (isEditing) {
+        var submit = document.createElement('button');
+        submit.className = 'btn';
+        submit.textContent = 'Valider le résultat';
+        submit.addEventListener('click', function() { handleValidateResult(league, m, setInputs); });
+        actions.appendChild(submit);
+      } else {
+        var editBtn = document.createElement('button');
+        editBtn.className = 'btn btn-secondary btn-small';
+        editBtn.textContent = 'Modifier le score';
+        (function(matchRef) {
+          editBtn.addEventListener('click', function() {
+            matchRef.editing = true;
+            renderManageView(league);
+          });
+        })(m);
+        actions.appendChild(editBtn);
+      }
       inputWrap.appendChild(actions);
 
       card.appendChild(head);
@@ -1070,6 +1084,8 @@
     match.sets = sets;
     match.scores = setWins;
     match.played = true;
+    match.editing = false;
+    match.winnerTeamId = setWins[0] > setWins[1] ? match.home : match.away;
     recomputeStandings(league);
     saveState();
     renderManageView(league);
@@ -1230,18 +1246,13 @@
       refs.playerManageResults.innerHTML = '<div class="empty">Aucun résultat pour l’instant.</div>';
       return;
     }
-    var played = league.matches.filter(function(m) { return m.played; });
-    if (!played.length) {
-      refs.playerManageResults.innerHTML = '<div class="empty">Aucun match joué pour le moment.</div>';
-      return;
-    }
-    played.forEach(function(m) {
+    league.matches.forEach(function(m) {
+      ensureMatchSets(m);
+      computeMatchOutcome(m);
       var home = teamById(league, m.home) || { id: m.home, name: m.home };
       var away = teamById(league, m.away) || { id: m.away, name: m.away };
-      var sets = m.sets || [];
-      var homeWins = sets.filter(function(s) { return s && s.home !== null && s.away !== null && s.home > s.away; }).length;
-      var awayWins = sets.filter(function(s) { return s && s.home !== null && s.away !== null && s.away > s.home; }).length;
-      var winner = homeWins > awayWins ? home : (awayWins > homeWins ? away : null);
+      var winnerId = m.played ? m.winnerTeamId : null;
+      var scoreText = m.played ? formatSets(m) : 'À jouer';
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
       var head = document.createElement('div');
@@ -1256,14 +1267,12 @@
       homeEl.textContent = '🎾 ' + home.name;
       var scoreEl = document.createElement('div');
       scoreEl.className = 'ligue-result-score';
-      scoreEl.textContent = formatSets(m);
+      scoreEl.textContent = scoreText;
       var awayEl = document.createElement('div');
       awayEl.className = 'ligue-result-team';
       awayEl.textContent = away.name;
-      if (winner) {
-        if (winner.id === home.id) homeEl.classList.add('winner-tag');
-        if (winner.id === away.id) awayEl.classList.add('winner-tag');
-      }
+      if (winnerId === home.id) homeEl.classList.add('winner-tag', 'match-winner');
+      if (winnerId === away.id) awayEl.classList.add('winner-tag', 'match-winner');
       body.appendChild(homeEl);
       body.appendChild(scoreEl);
       body.appendChild(awayEl);
