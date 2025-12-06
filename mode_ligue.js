@@ -14,6 +14,8 @@
   };
 
   var ligueState = loadState();
+  // Persist normalized state immediately so refreshed tabs recover active leagues
+  saveState();
   var currentActiveId = null;
   var currentManageTab = 'calendar';
   var currentPlayerId = null;
@@ -1239,20 +1241,39 @@
     var league = getActiveLeague(currentActiveId);
     if (!league) { alert('Sélectionne une ligue à exporter.'); return; }
     setActiveManageTab('calendar');
-    var exportAll = true;
+    var mode = 1;
     try {
-      exportAll = window.confirm('Exporter tous les matchs ?\nOK = tous les matchs, Annuler = par équipe');
-    } catch (e) { exportAll = true; }
+      var choice = window.prompt('Choix export : 1 = tous les matchs, 2 = par équipe', '1');
+      mode = (choice && choice.trim() === '2') ? 2 : 1;
+    } catch (e) { mode = 1; }
     var useImage = false;
     try { useImage = window.confirm('Exporter en image (PNG) ?\nOK pour PNG, Annuler pour PDF.'); } catch (e) { useImage = false; }
-    if (exportAll) {
+    if (mode === 1) {
       if (useImage) exportMatchesToImage(league); else exportMatchesToPrint(league);
       return;
     }
 
     var teams = league.teams || [];
-    teams.forEach(function(team) {
-      var subset = (league.matches || []).filter(function(m) { return m.home === team.id || m.away === team.id; });
+    if (!teams.length) { alert('Aucune équipe disponible pour filtrer.'); return; }
+    var listLabel = teams.map(function(t, idx) { return (idx + 1) + ' - ' + (t.name || t.id); }).join('\n');
+    var selection = null;
+    try {
+      selection = window.prompt('Sélectionne les équipes à exporter (ex: 1,3,4):\n' + listLabel, '1');
+    } catch (e) { selection = null; }
+    if (!selection) { alert('Merci de choisir au moins une équipe.'); return; }
+    var chosenIndexes = selection.split(/[ ,;]+/).map(function(val) { return parseInt(val, 10); }).filter(function(v) { return !isNaN(v); });
+    var chosenIds = [];
+    chosenIndexes.forEach(function(idx) {
+      if (idx >= 1 && idx <= teams.length) {
+        var team = teams[idx - 1];
+        if (team && chosenIds.indexOf(team.id) === -1) chosenIds.push(team.id);
+      }
+    });
+    if (!chosenIds.length) { alert('Merci de choisir au moins une équipe valide.'); return; }
+
+    chosenIds.forEach(function(teamId) {
+      var team = teams.find(function(t) { return t.id === teamId; }) || { id: teamId, name: teamId };
+      var subset = (league.matches || []).filter(function(m) { return m.home === teamId || m.away === teamId; });
       if (!subset.length) return;
       var suffix = '_equipe_' + slugifyName(team.name || team.id);
       if (useImage) exportMatchesToImage(league, subset, suffix); else exportMatchesToPrint(league, subset, suffix);
