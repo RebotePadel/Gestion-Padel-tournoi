@@ -554,10 +554,51 @@
       var meta = document.createElement('div');
       meta.className = 'small-muted';
       meta.textContent = 'Du ' + (lg.config.startDate || '—') + ' • clôturée le ' + (lg.finishedAt ? lg.finishedAt.slice(0, 10) : '—');
+      var standingsContainer = document.createElement('div');
+      standingsContainer.className = 'ligue-history-standings hidden';
+      var toggleBtn = document.createElement('button');
+      toggleBtn.className = 'btn btn-small';
+      toggleBtn.textContent = 'Voir classement';
+      toggleBtn.addEventListener('click', function() {
+        toggleFinishedLeagueStandings(lg, standingsContainer, toggleBtn);
+      });
       card.appendChild(title);
       card.appendChild(meta);
+      card.appendChild(toggleBtn);
+      card.appendChild(standingsContainer);
       refs.historyList.appendChild(card);
     });
+  }
+
+  function toggleFinishedLeagueStandings(league, container, btn) {
+    if (!league || !container) return;
+    var willShow = container.classList.contains('hidden') || !container.innerHTML;
+    if (willShow) {
+      container.innerHTML = '';
+      if (!league.standings || !league.standings.length) {
+        container.innerHTML = '<div class="empty">Classement indisponible pour cette ligue.</div>';
+      } else {
+        var table = document.createElement('table');
+        table.className = 'ligue-standings';
+        var thead = document.createElement('thead');
+        thead.innerHTML = '<tr><th>#</th><th>Équipe</th><th>J</th><th>V</th><th>D</th><th>Pts</th></tr>';
+        table.appendChild(thead);
+        var tbody = document.createElement('tbody');
+        league.standings.forEach(function(s, idx) {
+          var row = document.createElement('tr');
+          row.innerHTML = '<td>' + (idx + 1) + '</td><td>' + (s.name || s.id) + '</td><td>' + (s.played || 0) + '</td><td>' + (s.wins || 0) + '</td><td>' + (s.losses || 0) + '</td><td>' + (s.points || 0) + '</td>';
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
+      }
+      container.classList.remove('hidden');
+      if (btn) btn.textContent = 'Masquer le classement';
+    } else {
+      container.classList.add('hidden');
+      container.innerHTML = '';
+      if (btn) btn.textContent = 'Voir classement';
+    }
   }
 
   function renderActiveList() {
@@ -872,6 +913,8 @@
     var league = getActiveLeague(currentActiveId);
     if (!league) return;
     if (!confirm('Clôturer la ligue "' + league.name + '" ?')) return;
+    // Figé: s'assurer que le classement final est calculé avant archivage
+    recomputeStandings(league);
     league.finishedAt = new Date().toISOString();
     ligueState.activeLeagues = ligueState.activeLeagues.filter(function(l) { return l.id !== league.id; });
     ligueState.finishedLeagues.push(league);
