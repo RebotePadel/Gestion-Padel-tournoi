@@ -152,7 +152,11 @@
     var hydrateLeague = function(lg) {
       ensureReglementConfig(lg);
       if (!lg.matches) lg.matches = [];
-      lg.matches.forEach(function(m) { ensureMatchSets(m); computeMatchOutcome(m); });
+      lg.matches.forEach(function(m) {
+        ensureMatchSets(m);
+        if (typeof m.validated === 'undefined') m.validated = !!m.played;
+        computeMatchOutcome(m);
+      });
       if (!lg.standings) lg.standings = buildStandings(lg.teams || []);
       recomputeStandings(lg);
     };
@@ -160,7 +164,11 @@
     if (state.finishedLeagues) state.finishedLeagues.forEach(function(lg) {
       ensureReglementConfig(lg);
       if (!lg.matches) lg.matches = [];
-      lg.matches.forEach(function(m) { ensureMatchSets(m); computeMatchOutcome(m); });
+      lg.matches.forEach(function(m) {
+        ensureMatchSets(m);
+        if (typeof m.validated === 'undefined') m.validated = !!m.played;
+        computeMatchOutcome(m);
+      });
       if (!lg.standings) lg.standings = buildStandings(lg.teams || []);
     });
   }
@@ -743,7 +751,7 @@
     });
     league.matches.forEach(function(m) {
       var outcome = computeMatchOutcome(m);
-      if (!m.played || outcome.setWins[0] === outcome.setWins[1]) return;
+      if (!m.validated || outcome.setWins[0] === outcome.setWins[1]) return;
       table[m.home].played += 1;
       table[m.away].played += 1;
       if (outcome.setWins[0] > outcome.setWins[1]) {
@@ -815,9 +823,11 @@
     match.scores = setWins;
     if (match.editing) {
       match.played = false;
+      match.validated = false;
       match.winnerTeamId = null;
     } else {
       match.played = hasWinner;
+      match.validated = hasWinner;
       match.winnerTeamId = hasWinner ? winner : null;
     }
     return { setWins: setWins, completed: completed, winner: match.winnerTeamId };
@@ -904,7 +914,7 @@
     league.matches.forEach(function(m) {
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
-      if (winnerId) card.classList.add('ligue-match-validated');
+      if (m.validated) card.classList.add('ligue-match-validated');
       var title = document.createElement('div');
       title.className = 'ligue-inline';
       title.style.justifyContent = 'space-between';
@@ -933,9 +943,9 @@
 
     var hasFinished = false;
     league.matches.forEach(function(m) {
-      var editingMode = !m.played || m.editing;
+      var editingMode = m.editing || !m.validated;
       var card = buildResultCard(league, m, editingMode);
-      if (!editingMode) {
+      if (!editingMode && m.validated) {
         hasFinished = true;
         card.classList.add('ligue-match-validated');
       }
@@ -1050,6 +1060,7 @@
       editBtn.addEventListener('click', function() {
         match.editing = true;
         match.played = false;
+        match.validated = false;
         match.winnerTeamId = null;
         recomputeStandings(league);
         renderManageView(league);
@@ -1122,6 +1133,7 @@
 
     match.sets = sets;
     match.editing = false;
+    match.validated = true;
     computeMatchOutcome(match);
     recomputeStandings(league);
     saveState();
@@ -1283,7 +1295,7 @@
       refs.playerManageResults.innerHTML = '<div class="empty">Aucun résultat pour l’instant.</div>';
       return;
     }
-    var finished = league.matches.filter(function(m) { return m.played && !m.editing; });
+    var finished = league.matches.filter(function(m) { return m.validated && !m.editing; });
     if (!finished.length) {
       refs.playerManageResults.innerHTML = '<div class="empty">Aucun résultat pour l’instant.</div>';
       return;
@@ -1293,7 +1305,7 @@
       computeMatchOutcome(m);
       var home = teamById(league, m.home) || { id: m.home, name: m.home };
       var away = teamById(league, m.away) || { id: m.away, name: m.away };
-      var winnerId = m.played ? m.winnerTeamId : null;
+      var winnerId = m.validated ? m.winnerTeamId : null;
       var scoreText = formatSets(m);
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
