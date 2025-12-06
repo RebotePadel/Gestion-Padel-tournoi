@@ -1295,7 +1295,8 @@
       refs.playerManageResults.innerHTML = '<div class="empty">Aucun résultat pour l’instant.</div>';
       return;
     }
-    var finished = league.matches.filter(function(m) { return m.validated && !m.editing; });
+    // Player view must mirror admin but stay read-only: only keep validated matches
+    var finished = league.matches.filter(function(m) { return !!m.validated; });
     if (!finished.length) {
       refs.playerManageResults.innerHTML = '<div class="empty">Aucun résultat pour l’instant.</div>';
       return;
