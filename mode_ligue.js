@@ -13,9 +13,10 @@
     'niveau 3': 'ligue-theme-n3'
   };
 
+  var hadStoredState = false;
   var ligueState = loadState();
-  // Persist normalized state immediately so refreshed tabs recover active leagues
-  saveState();
+  // Persist normalized state immediately only if we reloaded existing data
+  if (hadStoredState && ligueState) saveState();
   var currentActiveId = null;
   var currentManageTab = 'calendar';
   var currentPlayerId = null;
@@ -117,9 +118,11 @@
   var playerViewButtons = Array.prototype.slice.call(document.querySelectorAll('.btn-ligue-player-view'));
 
   function loadState() {
+    var empty = { activeLeagues: [], finishedLeagues: [] };
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { activeLeagues: [], finishedLeagues: [] };
+      hadStoredState = !!raw;
+      if (!raw) return empty;
       var parsed = JSON.parse(raw);
       if (!parsed.activeLeagues) parsed.activeLeagues = [];
       if (!parsed.finishedLeagues) parsed.finishedLeagues = [];
@@ -127,7 +130,7 @@
       normalizeMatches(parsed);
       return parsed;
     } catch (e) {
-      return { activeLeagues: [], finishedLeagues: [] };
+      return empty;
     }
   }
 
@@ -350,6 +353,8 @@
   renderTeamInputs(parseInt(refs.configNbTeams && refs.configNbTeams.value, 10) || 8);
   renderHistory();
   renderActiveList();
+  renderPlayerList();
+  window.addEventListener('beforeunload', saveState);
 
   function renderTeamInputs(count) {
     if (!refs.configTeams) return;
