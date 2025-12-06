@@ -2962,6 +2962,92 @@
     </div>
   </div>
 
+  <!-- Début logique persistance logo -->
+  <script>
+    (function() {
+      var LOGO_STORAGE_KEY = 'padel_app_logo_v1';
+
+      function applyLogoToElements(src) {
+        var logoSrc = src || '';
+        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview'];
+        baseTargets.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          if (logoSrc) {
+            el.src = logoSrc;
+            el.style.display = 'block';
+          } else {
+            el.removeAttribute('src');
+            el.style.display = 'none';
+          }
+        });
+
+        var tvTargets = document.querySelectorAll('#tv-logo');
+        tvTargets.forEach(function(img) {
+          if (logoSrc) {
+            img.src = logoSrc;
+            img.style.display = 'block';
+            img.style.width = '72px';
+            img.style.height = '72px';
+          } else {
+            img.removeAttribute('src');
+            img.style.display = 'none';
+          }
+        });
+
+        var helperTargets = ['home-logo-helper', 'logo-helper'];
+        helperTargets.forEach(function(id) {
+          var el = document.getElementById(id);
+          if (!el) return;
+          el.style.display = logoSrc ? 'none' : 'block';
+        });
+      }
+
+      function savePersistedLogo(dataUrl) {
+        try {
+          localStorage.setItem(LOGO_STORAGE_KEY, dataUrl || '');
+        } catch (e) {
+          console.warn('Impossible de sauvegarder le logo localement', e);
+        }
+      }
+
+      function loadPersistedLogo() {
+        var stored = null;
+        try {
+          stored = localStorage.getItem(LOGO_STORAGE_KEY);
+        } catch (e) {
+          console.warn('Impossible de charger le logo persistant', e);
+        }
+        if (stored) applyLogoToElements(stored);
+      }
+
+      function bindLogoPersistence(input) {
+        if (!input) return;
+        input.addEventListener('change', function(e) {
+          var file = e.target.files && e.target.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function(ev) {
+            var dataUrl = ev.target && ev.target.result ? ev.target.result : '';
+            applyLogoToElements(dataUrl);
+            savePersistedLogo(dataUrl);
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      bindLogoPersistence(document.getElementById('home-logo-upload'));
+      bindLogoPersistence(document.getElementById('logo-upload'));
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadPersistedLogo);
+      } else {
+        loadPersistedLogo();
+      }
+    })();
+  </script>
+  <!-- Fin logique persistance logo -->
+
   <!-- Début logique timer M/D -->
   <script>
     (function() {
