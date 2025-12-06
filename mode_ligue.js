@@ -188,6 +188,10 @@
     if (cls) container.classList.add(cls);
   }
 
+  function slugifyName(txt) {
+    return (txt || 'ligue').toString().toLowerCase().replace(/[^a-z0-9]+/gi, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+  }
+
   function hideLigueSections() {
     ['ligue-root', 'ligue-config-root', 'ligue-active-root', 'ligue-manage-root', 'ligue-player-root', 'ligue-player-manage-root'].forEach(function(id) {
       var el = document.getElementById(id);
@@ -939,6 +943,37 @@
     });
   }
 
+  // Render a calendar list into a given container, optionally with a filtered match set (used for exports)
+  function renderCalendarInto(container, league, matchList) {
+    if (!container || !league) return;
+    container.innerHTML = '';
+    var list = matchList && matchList.length ? matchList : league.matches || [];
+    if (!list.length) {
+      container.innerHTML = '<div class="empty">Aucun match programmé.</div>';
+      return;
+    }
+    list.forEach(function(m) {
+      var card = document.createElement('div');
+      card.className = 'ligue-match-card';
+      if (m.validated) card.classList.add('ligue-match-validated');
+      var title = document.createElement('div');
+      title.className = 'ligue-inline';
+      title.style.justifyContent = 'space-between';
+      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      var vs = document.createElement('div');
+      vs.className = 'ligue-inline';
+      vs.style.justifyContent = 'space-between';
+      vs.innerHTML = '<span>🎾 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
+      var status = document.createElement('div');
+      status.className = 'small-muted';
+      status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
+      card.appendChild(title);
+      card.appendChild(vs);
+      card.appendChild(status);
+      container.appendChild(card);
+    });
+  }
+
   function renderManageResults(league) {
     if (!refs.manageResults) return;
     refs.manageResults.innerHTML = '';
@@ -1204,35 +1239,69 @@
     var league = getActiveLeague(currentActiveId);
     if (!league) { alert('Sélectionne une ligue à exporter.'); return; }
     setActiveManageTab('calendar');
+    var exportAll = true;
+    try {
+      exportAll = window.confirm('Exporter tous les matchs ?\nOK = tous les matchs, Annuler = par équipe');
+    } catch (e) { exportAll = true; }
     var useImage = false;
     try { useImage = window.confirm('Exporter en image (PNG) ?\nOK pour PNG, Annuler pour PDF.'); } catch (e) { useImage = false; }
-    if (useImage) exportMatchesToImage(league); else exportMatchesToPrint(league);
+    if (exportAll) {
+      if (useImage) exportMatchesToImage(league); else exportMatchesToPrint(league);
+      return;
+    }
+
+    var teams = league.teams || [];
+    teams.forEach(function(team) {
+      var subset = (league.matches || []).filter(function(m) { return m.home === team.id || m.away === team.id; });
+      if (!subset.length) return;
+      var suffix = '_equipe_' + slugifyName(team.name || team.id);
+      if (useImage) exportMatchesToImage(league, subset, suffix); else exportMatchesToPrint(league, subset, suffix);
+    });
   }
 
-  function exportMatchesToPrint(league) {
+  function exportMatchesToPrint(league, matches, suffix) {
     if (!league) return;
+    var backup = null;
+    if (matches && matches.length && refs.manageCalendar) {
+      backup = refs.manageCalendar.innerHTML;
+      renderCalendarInto(refs.manageCalendar, league, matches);
+    }
+    var originalTitle = document.title;
+    if (suffix) document.title = (league.name || 'ligue') + suffix;
     document.body.classList.add('printing-matches');
-    var cleanup = function() { document.body.classList.remove('printing-matches'); };
+    var cleanup = function() {
+      document.body.classList.remove('printing-matches');
+      if (backup !== null) renderManageCalendar(league);
+      document.title = originalTitle;
+    };
     setTimeout(function() {
       try { window.print(); } finally { setTimeout(cleanup, 150); }
     }, 40);
   }
 
-  function exportMatchesToImage(league) {
+  function exportMatchesToImage(league, matches, suffix) {
     if (!league || !refs.manageCalendar) return;
     if (!window.html2canvas) { alert('html2canvas est requis pour exporter en image.'); return; }
     var container = refs.manageCalendar;
+    var backup = null;
+    if (matches && matches.length) {
+      backup = container.innerHTML;
+      renderCalendarInto(container, league, matches);
+    }
     setActiveManageTab('calendar');
     container.classList.add('ligue-export-hide-scores');
     window.html2canvas(container, { backgroundColor: null, scale: 2 }).then(function(canvas) {
       var link = document.createElement('a');
-      link.download = 'calendrier_' + (league.name || 'ligue') + '.png';
+      var base = 'calendrier_' + (league.name || 'ligue');
+      if (suffix) base += suffix;
+      link.download = base + '.png';
       link.href = canvas.toDataURL('image/png');
       link.click();
     }).catch(function() {
       alert('Export image impossible.');
     }).finally(function() {
       container.classList.remove('ligue-export-hide-scores');
+      if (backup !== null) renderManageCalendar(league);
     });
   }
 
@@ -1316,6 +1385,7 @@
       var scoreText = formatSets(m);
       var card = document.createElement('div');
       card.className = 'ligue-match-card';
+      if (winnerId === home.id || winnerId === away.id) card.classList.add('ligue-match-winner-card');
       var head = document.createElement('div');
       head.className = 'ligue-inline';
       head.style.justifyContent = 'space-between';
