@@ -109,6 +109,9 @@
   };
   var playerViewButtons = Array.prototype.slice.call(document.querySelectorAll('.btn-ligue-player-view'));
 
+  if (refs.playerBtn) refs.playerBtn.textContent = '📱 Vue joueur';
+  playerViewButtons.forEach(function(btn) { btn.textContent = '📱 Vue joueur'; });
+
   var ligueState = loadState();
   // Persist normalized state immediately only if we reloaded existing data
   if (hadStoredState && ligueState) saveState();
@@ -557,14 +560,17 @@
       var standingsContainer = document.createElement('div');
       standingsContainer.className = 'ligue-history-standings hidden';
       var toggleBtn = document.createElement('button');
-      toggleBtn.className = 'btn btn-small';
+      toggleBtn.className = 'btn btn-small ligue-history-btn';
       toggleBtn.textContent = 'Voir classement';
       toggleBtn.addEventListener('click', function() {
         toggleFinishedLeagueStandings(lg, standingsContainer, toggleBtn);
       });
+      var actions = document.createElement('div');
+      actions.className = 'ligue-history-actions';
+      actions.appendChild(toggleBtn);
       card.appendChild(title);
       card.appendChild(meta);
-      card.appendChild(toggleBtn);
+      card.appendChild(actions);
       card.appendChild(standingsContainer);
       refs.historyList.appendChild(card);
     });

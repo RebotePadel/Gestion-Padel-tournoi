@@ -457,6 +457,14 @@
     .ligue-theme-n2 .ligue-badge-accent { border-color: rgba(180,83,9,0.6); color: #fbbf24; }
     .ligue-theme-n3 .ligue-badge-accent { border-color: rgba(202,138,4,0.6); color: #fcd34d; }
 
+    /* Historique ligues : bouton et disposition */
+    .ligue-history-actions { display: flex; justify-content: flex-end; margin-top: 8px; }
+    .ligue-history-btn { background: #fff; color: #0f172a; border: 1px solid rgba(255,255,255,0.2); border-radius: 10px; font-weight: 600; }
+
+    /* Nuances blocs ligue (config vs actif) */
+    .ligue-block-config { background: linear-gradient(145deg, rgba(15,23,42,0.7), rgba(15,23,42,0.55)); }
+    .ligue-block-active { background: linear-gradient(145deg, rgba(15,23,42,0.9), rgba(2,6,23,0.9)); }
+
     .field { margin-bottom: 8px; }
 
     .field label {
@@ -2511,12 +2519,12 @@
         </div>
         <div class="tournaments-actions">
           <button class="btn btn-secondary" id="btn-back-home-from-ligue">🏠 Accueil</button>
-          <button class="btn btn-secondary btn-ligue-player-view">Vue joueur</button>
+          <button class="btn btn-secondary btn-ligue-player-view">📱 Vue joueur</button>
         </div>
       </header>
 
       <section class="tournaments-grid">
-        <article class="tournament-type-card">
+        <article class="tournament-type-card ligue-block-config">
           <div class="tournament-type-card-header">
             <div>
               <p class="tournaments-subtitle">Ligue interne</p>
@@ -2529,7 +2537,7 @@
           </div>
         </article>
 
-        <article class="tournament-type-card">
+        <article class="tournament-type-card ligue-block-active">
           <div class="tournament-type-card-header">
             <div>
               <p class="tournaments-subtitle">Ligue interne</p>
@@ -2561,7 +2569,7 @@
       <div class="card ligue-theme-shell" id="ligue-player-shell">
         <header class="tournaments-header" style="margin-bottom:8px;">
           <div>
-            <p class="tournaments-subtitle">Vue joueur</p>
+            <p class="tournaments-subtitle">📱 Vue joueur</p>
             <h1 class="tournaments-title">Ligues internes – kiosque</h1>
           </div>
           <div class="tournaments-actions ligue-actions">
@@ -2586,7 +2594,7 @@
       <div class="card ligue-theme-shell" id="ligue-player-manage-shell">
         <header class="tournaments-header" style="margin-bottom:8px;">
           <div>
-            <p class="tournaments-subtitle">Vue joueur</p>
+            <p class="tournaments-subtitle">📱 Vue joueur</p>
             <h1 class="tournaments-title" id="ligue-player-manage-title">Aucune ligue sélectionnée</h1>
             <div class="small-muted" id="ligue-player-manage-meta">Sélectionne une ligue active pour accéder aux onglets.</div>
           </div>
@@ -2686,7 +2694,7 @@
           </div>
           <div class="tournaments-actions ligue-actions">
             <button class="btn btn-secondary" id="btn-ligue-config-back">← Retour</button>
-            <button class="btn btn-secondary btn-ligue-player-view">Vue joueur</button>
+            <button class="btn btn-secondary btn-ligue-player-view">📱 Vue joueur</button>
             <button class="btn" id="btn-ligue-config-generate">Générer le calendrier</button>
           </div>
         </header>
@@ -2741,7 +2749,7 @@
           </div>
           <div class="tournaments-actions ligue-actions">
             <button class="btn btn-secondary" id="btn-ligue-active-back">← Retour</button>
-            <button class="btn btn-secondary btn-ligue-player-view">Vue joueur</button>
+            <button class="btn btn-secondary btn-ligue-player-view">📱 Vue joueur</button>
           </div>
         </header>
 
@@ -2808,7 +2816,7 @@
           <div class="tournaments-actions ligue-actions">
             <div id="ligue-manage-level" class="ligue-chip" style="display:none;"></div>
             <button class="btn btn-secondary" id="btn-ligue-manage-back">← Ligues</button>
-            <button class="btn btn-secondary btn-ligue-player-view">Vue joueur</button>
+            <button class="btn btn-secondary btn-ligue-player-view">📱 Vue joueur</button>
             <button class="btn" id="btn-ligue-manage-close">🏁 Clôturer</button>
           </div>
         </header>
