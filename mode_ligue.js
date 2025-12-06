@@ -14,14 +14,6 @@
   };
 
   var hadStoredState = false;
-  var ligueState = loadState();
-  // Persist normalized state immediately only if we reloaded existing data
-  if (hadStoredState && ligueState) saveState();
-  var currentActiveId = null;
-  var currentManageTab = 'calendar';
-  var currentPlayerId = null;
-  var currentPlayerTab = 'calendar';
-
   var refs = {
     homeBtn: document.getElementById('btn-home-ligue'),
     backHomeBtn: document.getElementById('btn-back-home-from-ligue'),
@@ -116,6 +108,14 @@
     playerReglementEnd: document.getElementById('ligue-player-reglement-end')
   };
   var playerViewButtons = Array.prototype.slice.call(document.querySelectorAll('.btn-ligue-player-view'));
+
+  var ligueState = loadState();
+  // Persist normalized state immediately only if we reloaded existing data
+  if (hadStoredState && ligueState) saveState();
+  var currentActiveId = null;
+  var currentManageTab = 'calendar';
+  var currentPlayerId = null;
+  var currentPlayerTab = 'calendar';
 
   function loadState() {
     var empty = { activeLeagues: [], finishedLeagues: [] };
