@@ -514,9 +514,9 @@
         var home = list[i];
         var away = list[n - 1 - i];
         if (home.id === 'BYE' || away.id === 'BYE') continue;
-        schedule.push({ id: 'm_' + r + '_' + i + '_1', round: r + 1, home: home.id, away: away.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }], played: false });
+        schedule.push({ id: 'm_' + r + '_' + i + '_1', round: r + 1, home: home.id, away: away.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }], played: false });
         if (doubleRound) {
-          schedule.push({ id: 'm_' + r + '_' + i + '_2', round: r + 1 + rounds, home: away.id, away: home.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }], played: false });
+          schedule.push({ id: 'm_' + r + '_' + i + '_2', round: r + 1 + rounds, home: away.id, away: home.id, date: null, scores: [null, null], sets: [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }], played: false });
         }
       }
       var fixed = list[0];
@@ -822,10 +822,10 @@
 
   function ensureMatchSets(match) {
     if (!match.sets || !Array.isArray(match.sets)) {
-      match.sets = [{ home: null, away: null }, { home: null, away: null }];
+      match.sets = [{ home: null, away: null }, { home: null, away: null }, { home: null, away: null }];
     }
-    while (match.sets.length < 2) match.sets.push({ home: null, away: null });
-    match.sets = match.sets.slice(0, 2).map(function(set) {
+    while (match.sets.length < 3) match.sets.push({ home: null, away: null });
+    match.sets = match.sets.slice(0, 3).map(function(set) {
       if (!set || typeof set !== 'object') return { home: null, away: null };
       var h = set.home;
       var a = set.away;
@@ -846,10 +846,19 @@
       if (set.home > set.away) setWins[0] += 1;
       else if (set.away > set.home) setWins[1] += 1;
     });
-    var hasWinner = completed === 2 && setWins[0] !== setWins[1];
+    var winner = null;
+    if (setWins[0] >= 2 || setWins[1] >= 2) {
+      winner = setWins[0] > setWins[1] ? match.home : match.away;
+    }
+    var hasWinner = winner !== null && completed >= 2;
     match.scores = setWins;
-    match.played = hasWinner;
-    match.winnerTeamId = hasWinner ? (setWins[0] > setWins[1] ? match.home : match.away) : null;
+    if (match.editing) {
+      match.played = false;
+      match.winnerTeamId = null;
+    } else {
+      match.played = hasWinner;
+      match.winnerTeamId = hasWinner ? winner : null;
+    }
     return { setWins: setWins, completed: completed, winner: match.winnerTeamId };
   }
 
@@ -981,12 +990,14 @@
       homeEl.textContent = home.name;
       var scoreEl = document.createElement('div');
       scoreEl.className = 'ligue-result-score';
-      scoreEl.textContent = m.played ? formatSets(m) : 'À jouer';
+      scoreEl.textContent = m.played && !m.editing ? formatSets(m) : (isEditing ? 'Saisie en cours' : 'À jouer');
       var awayEl = document.createElement('div');
       awayEl.className = 'ligue-result-team';
       awayEl.textContent = away.name;
-      if (winnerId === home.id) homeEl.classList.add('winner-tag', 'match-winner');
-      if (winnerId === away.id) awayEl.classList.add('winner-tag', 'match-winner');
+      if (!isEditing) {
+        if (winnerId === home.id) homeEl.classList.add('winner-tag', 'match-winner');
+        if (winnerId === away.id) awayEl.classList.add('winner-tag', 'match-winner');
+      }
       body.appendChild(homeEl);
       body.appendChild(scoreEl);
       body.appendChild(awayEl);
@@ -997,7 +1008,7 @@
       inputWrap.style.gridTemplateColumns = 'repeat(1, minmax(0,1fr))';
       inputWrap.style.gap = '8px';
       var setInputs = [];
-      [0, 1].forEach(function(idx) {
+      [0, 1, 2].forEach(function(idx) {
         var row = document.createElement('div');
         row.style.display = 'grid';
         row.style.gridTemplateColumns = '100px repeat(2, minmax(0,1fr))';
@@ -1042,6 +1053,9 @@
         (function(matchRef) {
           editBtn.addEventListener('click', function() {
             matchRef.editing = true;
+            matchRef.played = false;
+            matchRef.winnerTeamId = null;
+            recomputeStandings(league);
             renderManageView(league);
           });
         })(m);
@@ -1063,29 +1077,42 @@
       var entry = setInputs[i];
       var homeVal = entry.home.value === '' ? null : parseInt(entry.home.value, 10);
       var awayVal = entry.away.value === '' ? null : parseInt(entry.away.value, 10);
-      if (homeVal === null || awayVal === null || isNaN(homeVal) || isNaN(awayVal)) {
-        alert('Merci de saisir les scores complets sur 2 sets (0 à 7).');
+
+      if (i < 2 && (homeVal === null || awayVal === null || isNaN(homeVal) || isNaN(awayVal))) {
+        alert('Merci de saisir les scores complets sur les deux premiers sets (0 à 7).');
         return;
       }
-      if (homeVal < 0 || homeVal > 7 || awayVal < 0 || awayVal > 7) {
-        alert('Les scores doivent être compris entre 0 et 7 jeux.');
+
+      if (i === 2 && ((homeVal === null) !== (awayVal === null))) {
+        alert('Renseigne les deux scores du set 3 ou laisse-les vides.');
         return;
       }
+
+      if (homeVal !== null && (homeVal < 0 || homeVal > 7 || isNaN(homeVal))) { alert('Les scores doivent être entre 0 et 7.'); return; }
+      if (awayVal !== null && (awayVal < 0 || awayVal > 7 || isNaN(awayVal))) { alert('Les scores doivent être entre 0 et 7.'); return; }
+
       sets.push({ home: homeVal, away: awayVal });
     }
+
     var setWins = [0, 0];
+    var completedSets = 0;
     sets.forEach(function(s) {
+      if (s.home === null || s.away === null) return;
+      completedSets += 1;
       if (s.home > s.away) setWins[0] += 1; else if (s.away > s.home) setWins[1] += 1;
     });
+
+    if (completedSets < 2) { alert('Au moins deux sets complets sont requis.'); return; }
     if (setWins[0] === setWins[1]) {
-      alert('Un vainqueur doit être déterminé en 2 sets.');
-      return;
+      if (!sets[2] || sets[2].home === null || sets[2].away === null) {
+        alert('Match à égalité : ajoute le set 3 pour désigner un vainqueur.');
+        return;
+      }
     }
+
     match.sets = sets;
-    match.scores = setWins;
-    match.played = true;
     match.editing = false;
-    match.winnerTeamId = setWins[0] > setWins[1] ? match.home : match.away;
+    computeMatchOutcome(match);
     recomputeStandings(league);
     saveState();
     renderManageView(league);
