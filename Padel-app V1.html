@@ -352,6 +352,49 @@
       background-color: rgba(250, 204, 21, 0.08);
     }
 
+    /* Début styles typographie personnalisée */
+    .app-font-system { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+    .app-font-inter { font-family: "Inter", system-ui, sans-serif; }
+    .app-font-poppins { font-family: "Poppins", system-ui, sans-serif; }
+    .app-font-montserrat { font-family: "Montserrat", system-ui, sans-serif; }
+    /* Fin styles typographie personnalisée */
+
+    /* Début thèmes boutons */
+    .app-buttons-solid .btn { border: 1px solid transparent; }
+    .app-buttons-outline .btn { background: transparent !important; border: 1px solid var(--brand-primary); color: var(--brand-primary); }
+    .app-buttons-ghost .btn { background: transparent !important; border: 1px solid transparent; color: var(--brand-primary); }
+    /* Fin thèmes boutons */
+
+    /* Début formes cartes */
+    .app-cards-square .card,
+    .app-cards-square .ligue-match-card,
+    .app-cards-square .tournament-type-card,
+    .app-cards-square .home-card { border-radius: 0px; }
+
+    .app-cards-rounded .card,
+    .app-cards-rounded .ligue-match-card,
+    .app-cards-rounded .tournament-type-card,
+    .app-cards-rounded .home-card { border-radius: 0.75rem; }
+
+    .app-cards-pill .card,
+    .app-cards-pill .ligue-match-card,
+    .app-cards-pill .tournament-type-card,
+    .app-cards-pill .home-card { border-radius: 1.5rem; }
+    /* Fin formes cartes */
+
+    /* Début thèmes de fond */
+    .app-bg-solid { background: var(--bg-dark); }
+    .app-bg-gradient { background: radial-gradient(circle at 0 0, var(--brand-accent-soft), transparent 55%), radial-gradient(circle at 100% 100%, var(--brand-primary-glow), transparent 60%), linear-gradient(135deg, var(--bg-dark), var(--bg-dark) 40%, #001428); }
+    .app-bg-pattern { background-color: var(--bg-dark); background-image: radial-gradient(circle at 1px, rgba(255,255,255,0.08) 1px, transparent 0); background-size: 16px 16px; }
+    .app-bg-image { background-color: var(--bg-dark); }
+    /* Fin thèmes de fond */
+
+    /* Bandeau sponsor TV */
+    .tv-sponsor { position: absolute; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
+    .tv-sponsor img { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
+    .tv-sponsor .tv-sponsor-name { font-weight: 700; font-size: 0.8rem; }
+    /* Fin bandeau sponsor TV */
+
     .theme-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
@@ -377,6 +420,11 @@
       gap: 8px;
       margin-bottom: 10px;
     }
+
+    .settings-section { margin-top: 12px; border: 1px solid var(--border); border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); }
+    .settings-subtitle { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+    .settings-inline { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; align-items: end; }
+    .settings-inline .field { margin-bottom: 0; }
 
     .club-theme-card { margin-top: 12px; }
 
@@ -779,6 +827,7 @@
     }
 
     /* VUE TV */
+    #tv-root { position: relative; }
     .tv-header {
       display: flex;
       justify-content: space-between;
@@ -2143,6 +2192,82 @@
           </div>
         </div>
 
+        <div class="settings-section app-block-interactive" aria-label="Typographie">
+          <div class="settings-subtitle">✒️ Typographie</div>
+          <div class="field">
+            <label for="club-theme-font">Police globale</label>
+            <select id="club-theme-font">
+              <option value="system">Système</option>
+              <option value="inter">Inter</option>
+              <option value="poppins">Poppins</option>
+              <option value="montserrat">Montserrat</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
+          <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
+          <div class="settings-inline">
+            <div class="field">
+              <label for="app-sponsor-name">Nom du sponsor</label>
+              <input id="app-sponsor-name" type="text" placeholder="Nom du sponsor" />
+            </div>
+            <div class="field">
+              <label for="app-sponsor-logo">Logo du sponsor</label>
+              <input id="app-sponsor-logo" type="file" accept="image/*" />
+              <div class="small-muted">Le logo sera affiché en vue TV s'il est défini.</div>
+            </div>
+            <div class="field">
+              <label>Aperçu sponsor</label>
+              <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section app-block-interactive" aria-label="Style des boutons">
+          <div class="settings-subtitle">🎛️ Style des boutons</div>
+          <div class="field">
+            <label for="app-button-style">Apparence</label>
+            <select id="app-button-style">
+              <option value="solid">Plein</option>
+              <option value="outline">Contour</option>
+              <option value="ghost">Transparent</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section app-block-interactive" aria-label="Forme des cartes">
+          <div class="settings-subtitle">🧊 Forme des blocs</div>
+          <div class="field">
+            <label for="app-card-shape">Arrondis</label>
+            <select id="app-card-shape">
+              <option value="rounded">Arrondi léger</option>
+              <option value="square">Carré</option>
+              <option value="pill">Très arrondi</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="settings-section app-block-interactive" aria-label="Fond de l'application">
+          <div class="settings-subtitle">🌌 Fond de l'application</div>
+          <div class="settings-inline">
+            <div class="field">
+              <label for="app-bg-style">Style de fond</label>
+              <select id="app-bg-style">
+                <option value="solid">Uni</option>
+                <option value="gradient">Dégradé</option>
+                <option value="pattern">Motif discret</option>
+                <option value="image">Image personnalisée</option>
+              </select>
+            </div>
+            <div class="field" id="app-bg-image-field">
+              <label for="app-bg-image">Image de fond</label>
+              <input id="app-bg-image" type="file" accept="image/*" />
+              <div class="small-muted">Utilisée si le mode image est sélectionné.</div>
+            </div>
+          </div>
+        </div>
+
         <div class="theme-actions">
           <div class="small-muted">Le logo uploadé est partagé dans ce thème.</div>
           <div class="theme-buttons">
@@ -3111,6 +3236,11 @@
         </div>
       </header>
 
+      <div id="tv-sponsor-banner" class="tv-sponsor">
+        <img id="tv-sponsor-logo" alt="Sponsor" />
+        <div class="tv-sponsor-name" id="tv-sponsor-name"></div>
+      </div>
+
       <main class="tv-main">
         <section class="tv-column">
           <div class="tv-block">
@@ -3491,7 +3621,14 @@
         backgroundColor: '#020617',
         cardBackground: '#0b1220',
         textColor: '#ffffff',
-        logoDataUrl: null
+        logoDataUrl: null,
+        fontFamily: 'system',
+        sponsorName: '',
+        sponsorLogoDataUrl: null,
+        buttonStyle: 'solid',
+        cardShape: 'rounded',
+        backgroundStyle: 'gradient',
+        backgroundImageDataUrl: null
       };
 
       var currentClubProfile = null;
@@ -3500,6 +3637,32 @@
       function cloneProfile(data) {
         return Object.assign({}, DEFAULT_PROFILE, data || {});
       }
+
+      var FONT_CLASS_MAP = {
+        system: 'app-font-system',
+        inter: 'app-font-inter',
+        poppins: 'app-font-poppins',
+        montserrat: 'app-font-montserrat'
+      };
+
+      var BUTTON_CLASS_MAP = {
+        solid: 'app-buttons-solid',
+        outline: 'app-buttons-outline',
+        ghost: 'app-buttons-ghost'
+      };
+
+      var CARD_CLASS_MAP = {
+        square: 'app-cards-square',
+        rounded: 'app-cards-rounded',
+        pill: 'app-cards-pill'
+      };
+
+      var BG_CLASS_MAP = {
+        solid: 'app-bg-solid',
+        gradient: 'app-bg-gradient',
+        pattern: 'app-bg-pattern',
+        image: 'app-bg-image'
+      };
 
       function hexToRgba(hex, alpha) {
         if (!hex) return '';
@@ -3511,6 +3674,13 @@
         var g = (intVal >> 8) & 255;
         var b = intVal & 255;
         return 'rgba(' + r + ',' + g + ',' + b + ',' + (alpha != null ? alpha : 1) + ')';
+      }
+
+      function applyClassGroup(target, map, activeKey) {
+        if (!target) return;
+        Object.keys(map).forEach(function(key) { target.classList.remove(map[key]); });
+        var cls = map[activeKey];
+        if (cls) target.classList.add(cls);
       }
 
       function applyLogoVisual(src) {
@@ -3570,6 +3740,66 @@
         return cloneProfile();
       }
 
+      function applyBackgroundStyles(profile) {
+        var body = document.body;
+        applyClassGroup(body, BG_CLASS_MAP, (profile && profile.backgroundStyle) || 'gradient');
+        if (profile && profile.backgroundStyle === 'image' && profile.backgroundImageDataUrl) {
+          body.style.backgroundImage = 'url(' + profile.backgroundImageDataUrl + ')';
+          body.style.backgroundSize = 'cover';
+          body.style.backgroundPosition = 'center';
+          body.style.backgroundRepeat = 'no-repeat';
+        } else {
+          body.style.backgroundImage = '';
+          body.style.backgroundSize = '';
+          body.style.backgroundPosition = '';
+          body.style.backgroundRepeat = '';
+        }
+      }
+
+      function applySponsorBanner(profile) {
+        var banner = document.getElementById('tv-sponsor-banner');
+        var logo = document.getElementById('tv-sponsor-logo');
+        var nameEl = document.getElementById('tv-sponsor-name');
+        if (!banner) return;
+        var hasContent = !!(profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
+        if (!hasContent) {
+          banner.style.display = 'none';
+          if (logo) { logo.removeAttribute('src'); logo.style.display = 'none'; }
+          if (nameEl) nameEl.textContent = '';
+          return;
+        }
+        banner.style.display = 'inline-flex';
+        if (logo) {
+          if (profile.sponsorLogoDataUrl) {
+            logo.src = profile.sponsorLogoDataUrl;
+            logo.style.display = 'block';
+          } else {
+            logo.removeAttribute('src');
+            logo.style.display = 'none';
+          }
+        }
+        if (nameEl) nameEl.textContent = profile.sponsorName || '';
+      }
+
+      function updateSponsorPreview(src) {
+        var preview = document.getElementById('app-sponsor-preview');
+        if (!preview) return;
+        if (src) {
+          preview.src = src;
+          preview.style.display = 'block';
+        } else {
+          preview.removeAttribute('src');
+          preview.style.display = 'none';
+        }
+      }
+
+      function toggleBgImageField() {
+        var field = document.getElementById('app-bg-image-field');
+        if (!field || !formInputs.bgStyle) return;
+        var useImage = (formInputs.bgStyle.value || '').toLowerCase() === 'image';
+        field.style.display = useImage ? 'block' : 'none';
+      }
+
       function applyClubTheme(profile) {
         currentClubProfile = cloneProfile(profile);
         var root = document.documentElement;
@@ -3593,6 +3823,12 @@
         root.style.setProperty('--card', currentClubProfile.cardBackground);
         root.style.setProperty('--text', currentClubProfile.textColor);
 
+        var body = document.body;
+        applyClassGroup(body, FONT_CLASS_MAP, currentClubProfile.fontFamily || 'system');
+        applyClassGroup(body, BUTTON_CLASS_MAP, currentClubProfile.buttonStyle || 'solid');
+        applyClassGroup(body, CARD_CLASS_MAP, currentClubProfile.cardShape || 'rounded');
+        applyBackgroundStyles(currentClubProfile);
+
         var nameTargets = document.querySelectorAll('[data-club-name]');
         nameTargets.forEach(function(el) { el.textContent = currentClubProfile.name || DEFAULT_PROFILE.name; });
         var shortTargets = document.querySelectorAll('[data-club-shortname]');
@@ -3600,6 +3836,8 @@
         document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
+        applySponsorBanner(currentClubProfile);
+        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
 
       function syncThemeForm() {
@@ -3612,6 +3850,13 @@
         formInputs.bg.value = currentClubProfile.backgroundColor || DEFAULT_PROFILE.backgroundColor;
         formInputs.card.value = currentClubProfile.cardBackground || DEFAULT_PROFILE.cardBackground;
         formInputs.text.value = currentClubProfile.textColor || DEFAULT_PROFILE.textColor;
+        if (formInputs.font) formInputs.font.value = currentClubProfile.fontFamily || 'system';
+        if (formInputs.sponsorName) formInputs.sponsorName.value = currentClubProfile.sponsorName || '';
+        if (formInputs.buttonStyle) formInputs.buttonStyle.value = currentClubProfile.buttonStyle || 'solid';
+        if (formInputs.cardShape) formInputs.cardShape.value = currentClubProfile.cardShape || 'rounded';
+        if (formInputs.bgStyle) formInputs.bgStyle.value = currentClubProfile.backgroundStyle || 'gradient';
+        toggleBgImageField();
+        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
 
       function persistAndApply() {
@@ -3629,10 +3874,79 @@
           accent: document.getElementById('club-theme-accent'),
           bg: document.getElementById('club-theme-bg'),
           card: document.getElementById('club-theme-card'),
-          text: document.getElementById('club-theme-text')
+          text: document.getElementById('club-theme-text'),
+          font: document.getElementById('club-theme-font'),
+          sponsorName: document.getElementById('app-sponsor-name'),
+          sponsorLogo: document.getElementById('app-sponsor-logo'),
+          buttonStyle: document.getElementById('app-button-style'),
+          cardShape: document.getElementById('app-card-shape'),
+          bgStyle: document.getElementById('app-bg-style'),
+          bgImage: document.getElementById('app-bg-image')
         };
 
         syncThemeForm();
+
+        if (formInputs.font) {
+          formInputs.font.addEventListener('change', function() {
+            currentClubProfile.fontFamily = this.value || 'system';
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.buttonStyle) {
+          formInputs.buttonStyle.addEventListener('change', function() {
+            currentClubProfile.buttonStyle = this.value || 'solid';
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.cardShape) {
+          formInputs.cardShape.addEventListener('change', function() {
+            currentClubProfile.cardShape = this.value || 'rounded';
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.bgStyle) {
+          formInputs.bgStyle.addEventListener('change', function() {
+            currentClubProfile.backgroundStyle = this.value || 'gradient';
+            toggleBgImageField();
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.bgImage) {
+          formInputs.bgImage.addEventListener('change', function(e) {
+            var file = e.target.files && e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+              currentClubProfile.backgroundImageDataUrl = evt.target.result;
+              persistAndApply();
+            };
+            reader.readAsDataURL(file);
+          });
+        }
+
+        if (formInputs.sponsorName) {
+          formInputs.sponsorName.addEventListener('input', function() {
+            currentClubProfile.sponsorName = this.value || '';
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.sponsorLogo) {
+          formInputs.sponsorLogo.addEventListener('change', function(e) {
+            var file = e.target.files && e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(evt) {
+              currentClubProfile.sponsorLogoDataUrl = evt.target.result;
+              persistAndApply();
+            };
+            reader.readAsDataURL(file);
+          });
+        }
 
         var saveBtn = document.getElementById('btn-save-club-theme');
         if (saveBtn) {
@@ -3646,7 +3960,14 @@
               backgroundColor: formInputs.bg.value || DEFAULT_PROFILE.backgroundColor,
               cardBackground: formInputs.card.value || DEFAULT_PROFILE.cardBackground,
               textColor: formInputs.text.value || DEFAULT_PROFILE.textColor,
-              logoDataUrl: currentClubProfile.logoDataUrl
+              logoDataUrl: currentClubProfile.logoDataUrl,
+              fontFamily: (formInputs.font && formInputs.font.value) || 'system',
+              sponsorName: (formInputs.sponsorName && formInputs.sponsorName.value) || '',
+              sponsorLogoDataUrl: currentClubProfile.sponsorLogoDataUrl,
+              buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
+              cardShape: (formInputs.cardShape && formInputs.cardShape.value) || 'rounded',
+              backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
+              backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl
             });
             persistAndApply();
           });
@@ -3656,7 +3977,8 @@
         if (resetBtn) {
           resetBtn.addEventListener('click', function() {
             var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo });
+            var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor });
             persistAndApply();
           });
         }
@@ -3680,17 +4002,18 @@
         initTheme();
       }
 
-      window.clubTheme = {
-        getProfile: function() { return currentClubProfile; },
-        apply: applyClubTheme,
-        updateLogo: updateLogo,
-        reset: function() {
-          var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
-          currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo });
-          persistAndApply();
-        },
-        syncForm: syncThemeForm
-      };
+        window.clubTheme = {
+          getProfile: function() { return currentClubProfile; },
+          apply: applyClubTheme,
+          updateLogo: updateLogo,
+          reset: function() {
+            var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
+            var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor });
+            persistAndApply();
+          },
+          syncForm: syncThemeForm
+        };
 
       window.applyThemeLogo = applyLogoVisual;
     })();
