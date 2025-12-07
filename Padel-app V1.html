@@ -3473,6 +3473,42 @@
         paused: true
       };
 
+      // Début bips timer M/D
+      var audioCtx = null;
+      function ensureAudioCtx() {
+        if (!audioCtx) {
+          var Ctor = window.AudioContext || window.webkitAudioContext;
+          if (Ctor) audioCtx = new Ctor();
+        }
+        return audioCtx;
+      }
+
+      function playBeep(pitch, duration) {
+        try {
+          var ctx = ensureAudioCtx();
+          if (!ctx) return;
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.value = pitch || 600;
+          gain.gain.value = 0.08;
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          var now = ctx.currentTime;
+          osc.start(now);
+          gain.gain.setValueAtTime(gain.gain.value, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + (duration || 0.2));
+          osc.stop(now + (duration || 0.2));
+        } catch (e) {
+          /* audio best-effort */
+        }
+      }
+
+      function playFinalBeep() {
+        playBeep(400, 0.5);
+      }
+      // Fin bips timer M/D
+
       function format(seconds) {
         var m = Math.floor(seconds / 60);
         var s = seconds % 60;
@@ -3498,16 +3534,14 @@
         state.paused = false;
         refs.status.textContent = 'Montante/Descendante en cours';
         state.interval = setInterval(function() {
-          if (state.remaining <= 0) {
-            stopTimer('Temps écoulé !');
-            refs.shell.classList.add('pulse');
-            return;
-          }
           state.remaining -= 1;
           updateDisplay();
           if (state.remaining <= 0) {
+            playFinalBeep();
             stopTimer('Temps écoulé !');
             refs.shell.classList.add('pulse');
+          } else if (state.remaining <= 5 && state.remaining >= 1) {
+            playBeep();
           }
         }, 1000);
       }
