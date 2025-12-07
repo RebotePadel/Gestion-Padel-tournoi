@@ -12,7 +12,8 @@
     ligueActive: document.getElementById('ligue-active-root'),
     ligueManage: document.getElementById('ligue-manage-root'),
     liguePlayer: document.getElementById('ligue-player-root'),
-    liguePlayerManage: document.getElementById('ligue-player-manage-root')
+    liguePlayerManage: document.getElementById('ligue-player-manage-root'),
+    settings: document.getElementById('settings-root')
   };
 
   var current = 'home';
@@ -25,6 +26,16 @@
       btn.style.display = 'none';
     } else {
       btn.style.display = 'inline-flex';
+    }
+  }
+
+  function renderSettingsButton() {
+    var btn = document.getElementById('btn-open-settings');
+    if (!btn) return;
+    if (current === 'home') {
+      btn.classList.add('is-visible');
+    } else {
+      btn.classList.remove('is-visible');
     }
   }
 
@@ -48,6 +59,7 @@
       historyStack = [];
     }
     renderBackButton();
+    renderSettingsButton();
     window.scrollTo(0, 0);
   }
 
@@ -66,6 +78,7 @@
   function showLigueActive() { showSection('ligueActive'); }
   function showLigueManage() { showSection('ligueManage'); }
   function showLiguePlayer() { showSection('liguePlayer'); }
+  function showSettings() { showSection('settings'); }
 
   function goBack() {
     if (!historyStack.length) {
@@ -86,6 +99,8 @@
   bind('btn-home-tournaments', showTournaments);
   bind('btn-home-md', showAdmin);
   bind('btn-home-ligue', showLigue);
+  bind('btn-open-settings', showSettings);
+  bind('btn-settings-home', showHome);
 
   bind('btn-ligue-player-view', showLiguePlayer);
 
@@ -107,6 +122,7 @@
   bind('btn-ligue-player-back', showLigue);
 
   renderBackButton();
+  renderSettingsButton();
 
   window.hideAllSections = hideAllSections;
   window.showHome = showHome;
@@ -119,6 +135,7 @@
   window.showLigueActive = showLigueActive;
   window.showLigueManage = showLigueManage;
   window.showLiguePlayer = showLiguePlayer;
+  window.showSettings = showSettings;
   window.navigateToSection = showSection;
   window.goBack = goBack;
 })();
