@@ -63,6 +63,8 @@
     reglementEnd: document.getElementById('ligue-reglement-end'),
     manageTabs: document.getElementById('ligue-manage-tabs'),
     manageCalendarNote: document.getElementById('ligue-calendar-note'),
+    dayExportSelect: document.getElementById('ligue-day-export-select'),
+    dayExportBtn: document.getElementById('btn-ligue-day-export'),
     exportMatchesBtn: document.getElementById('btn-ligue-export-matches'),
     managePanels: {
       calendar: document.getElementById('panel-ligue-calendar'),
@@ -326,6 +328,7 @@
   bind(refs.manageCloseBtn, handleCloseLeague);
   bind(refs.manageBackBtn, showLigueActive);
   bind(refs.exportMatchesBtn, handleExportMatches);
+  bind(refs.dayExportBtn, handleDayExport);
 
   if (refs.configLevel) refs.configLevel.addEventListener('change', function() { applyTheme(refs.configShell, refs.configLevel.value); });
   if (refs.configNbTeams) refs.configNbTeams.addEventListener('change', function() {
@@ -557,13 +560,11 @@
       var meta = document.createElement('div');
       meta.className = 'small-muted';
       meta.textContent = 'Du ' + (lg.config.startDate || '—') + ' • clôturée le ' + (lg.finishedAt ? lg.finishedAt.slice(0, 10) : '—');
-      var standingsContainer = document.createElement('div');
-      standingsContainer.className = 'ligue-history-standings hidden';
       var toggleBtn = document.createElement('button');
       toggleBtn.className = 'btn btn-small ligue-history-btn';
-      toggleBtn.textContent = 'Voir classement';
+      toggleBtn.textContent = '📊 Voir classement';
       toggleBtn.addEventListener('click', function() {
-        toggleFinishedLeagueStandings(lg, standingsContainer, toggleBtn);
+        openFinishedLeagueModal(lg);
       });
       var actions = document.createElement('div');
       actions.className = 'ligue-history-actions';
@@ -571,8 +572,41 @@
       card.appendChild(title);
       card.appendChild(meta);
       card.appendChild(actions);
-      card.appendChild(standingsContainer);
       refs.historyList.appendChild(card);
+    });
+  }
+
+  function buildFinishedStandingsTable(league) {
+    var wrapper = document.createElement('div');
+    wrapper.className = 'ligue-history-standings';
+    if (!league || !league.standings || !league.standings.length) {
+      wrapper.innerHTML = '<div class="empty">Classement indisponible pour cette ligue.</div>';
+      return wrapper;
+    }
+    var table = document.createElement('table');
+    table.className = 'ligue-standings';
+    var thead = document.createElement('thead');
+    thead.innerHTML = '<tr><th>#</th><th>Équipe</th><th>J</th><th>V</th><th>D</th><th>Pts</th></tr>';
+    table.appendChild(thead);
+    var tbody = document.createElement('tbody');
+    league.standings.forEach(function(s, idx) {
+      var row = document.createElement('tr');
+      row.innerHTML = '<td>' + (idx + 1) + '</td><td>' + (s.name || s.id) + '</td><td>' + (s.played || 0) + '</td><td>' + (s.wins || 0) + '</td><td>' + (s.losses || 0) + '</td><td>' + (s.points || 0) + '</td>';
+      tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    wrapper.appendChild(table);
+    return wrapper;
+  }
+
+  function openFinishedLeagueModal(league) {
+    if (!league || !(window.socialModal && window.socialModal.open)) return;
+    var content = buildFinishedStandingsTable(league);
+    window.socialModal.open({
+      title: 'Classement – ' + (league.name || 'Ligue'),
+      content: content,
+      downloadLabel: 'Exporter image réseaux',
+      onDownload: function() { triggerLeagueSocialExport(league); }
     });
   }
 
@@ -929,7 +963,20 @@
     renderHistory();
     renderActiveList();
     renderActiveDetail(null);
+    triggerLeagueSocialExport(league);
     showLigueRoot();
+  }
+
+  function triggerLeagueSocialExport(league) {
+    if (!league || typeof window.buildSocialLeagueImage !== 'function') return;
+    window.buildSocialLeagueImage(league).then(function(canvas) {
+      var filename = 'ligue_' + slugifyName(league.name || 'ligue') + '_finale.png';
+      if (window.socialModal && window.socialModal.preview) {
+        window.socialModal.preview(canvas, 'Image réseaux – ' + (league.name || ''), filename);
+      } else if (typeof window.exportSocialImage === 'function') {
+        window.exportSocialImage(canvas, filename);
+      }
+    }).catch(function(err) { console.warn('Export social ligue', err); });
   }
 
   function setActiveManageTab(tab) {
@@ -958,6 +1005,7 @@
       refs.manageLevel.textContent = league.level;
       refs.manageLevel.style.display = 'inline-flex';
     }
+    renderDayExportOptions(league);
     renderManageCalendar(league);
     renderManageStandings(league);
     renderManageResults(league);
@@ -1027,6 +1075,28 @@
       card.appendChild(vs);
       card.appendChild(status);
       container.appendChild(card);
+    });
+  }
+
+  function renderDayExportOptions(league) {
+    if (!refs.dayExportSelect) return;
+    refs.dayExportSelect.innerHTML = '';
+    if (!league || !league.matches || !league.matches.length) {
+      var opt = document.createElement('option');
+      opt.value = '';
+      opt.textContent = 'Aucune journée';
+      refs.dayExportSelect.appendChild(opt);
+      return;
+    }
+    var rounds = Array.from(new Set(league.matches.map(function(m) { return m.round; }).filter(Boolean))).sort(function(a, b) {
+      return parseInt(a, 10) - parseInt(b, 10);
+    });
+    rounds.forEach(function(r, idx) {
+      var opt = document.createElement('option');
+      opt.value = r;
+      opt.textContent = 'Journée ' + r;
+      if (idx === 0) opt.selected = true;
+      refs.dayExportSelect.appendChild(opt);
     });
   }
 
@@ -1331,6 +1401,25 @@
       if (!subset.length) return;
       var suffix = '_equipe_' + slugifyName(team.name || team.id);
       if (useImage) exportMatchesToImage(league, subset, suffix); else exportMatchesToPrint(league, subset, suffix);
+    });
+  }
+
+  function handleDayExport() {
+    var league = getActiveLeague(currentActiveId);
+    if (!league) { alert('Sélectionne une ligue active.'); return; }
+    var roundVal = refs.dayExportSelect ? parseInt(refs.dayExportSelect.value, 10) : NaN;
+    if (isNaN(roundVal)) { alert('Choisis une journée à exporter.'); return; }
+    if (typeof window.buildSocialDayImage !== 'function') { alert('Export image réseaux indisponible.'); return; }
+    window.buildSocialDayImage(league, roundVal).then(function(canvas) {
+      var filename = 'ligue_' + slugifyName(league.name || 'ligue') + '_journee_' + roundVal + '.png';
+      if (window.socialModal && window.socialModal.preview) {
+        window.socialModal.preview(canvas, 'Résumé journée ' + roundVal + ' – ' + (league.name || ''), filename);
+      } else if (typeof window.exportSocialImage === 'function') {
+        window.exportSocialImage(canvas, filename);
+      }
+    }).catch(function(err) {
+      console.warn('Export journée ligue', err);
+      alert('Impossible de générer l\'image de la journée.');
     });
   }
 

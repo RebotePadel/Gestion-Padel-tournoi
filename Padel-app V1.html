@@ -493,6 +493,37 @@
     .ligue-block-config { background: linear-gradient(145deg, rgba(15,23,42,0.7), rgba(15,23,42,0.55)); }
     .ligue-block-active { background: linear-gradient(145deg, rgba(15,23,42,0.9), rgba(2,6,23,0.9)); }
 
+    /* Modale social / aperçu */
+    .social-modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; z-index: 99; }
+    .social-modal.open { display: flex; }
+    .social-modal-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+    .social-modal-panel { position: relative; background: #0b1220; border: 1px solid #1e293b; border-radius: 14px; padding: 14px; width: min(900px, 92vw); box-shadow: 0 24px 60px rgba(0,0,0,0.5); z-index: 1; }
+    .social-modal-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .social-modal-close { background: #111827; color: #e5e7eb; border: 1px solid #1f2937; border-radius: 8px; padding: 6px 10px; cursor: pointer; }
+    .social-modal-body { max-height: 70vh; overflow: auto; border: 1px dashed rgba(255,255,255,0.08); border-radius: 10px; padding: 10px; background: rgba(255,255,255,0.02); }
+    .social-modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 12px; }
+    .social-preview-img img { width: 100%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
+
+    /* Social export visuels */
+    .social-bg { width: 1080px; height: 1080px; padding: 40px; background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); display: flex; align-items: center; justify-content: center; }
+    .social-card { width: 980px; min-height: 980px; border-radius: 28px; padding: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 28px 70px rgba(0,0,0,0.55); color: #f9fafb; display: flex; flex-direction: column; gap: 16px; }
+    .social-header { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+    .social-logo { width: 120px; height: 120px; border-radius: 24px; border: 2px solid rgba(255,255,255,0.18); object-fit: cover; background: rgba(0,0,0,0.35); }
+    .social-title { font-size: 2.1rem; letter-spacing: 0.02em; }
+    .social-level-band { width: 100%; padding: 10px 14px; border-radius: 14px; color: #0b1220; font-weight: 800; text-transform: uppercase; letter-spacing: 0.18em; text-align: center; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1); }
+    .social-podium { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px; }
+    .social-podium-item { padding: 12px; border-radius: 16px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); text-align: center; box-shadow: 0 16px 30px rgba(0,0,0,0.25); }
+    .social-podium-item strong { display: block; font-size: 1.4rem; }
+    .social-ranking { border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden; }
+    .social-ranking table { width: 100%; border-collapse: collapse; }
+    .social-ranking th, .social-ranking td { padding: 8px 10px; text-align: left; font-size: 0.9rem; }
+    .social-ranking thead { background: rgba(255,255,255,0.05); }
+    .social-ranking tbody tr:nth-child(odd) { background: rgba(255,255,255,0.02); }
+    .social-day-list { display: flex; flex-direction: column; gap: 8px; }
+    .social-day-match { padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03); display: flex; justify-content: space-between; align-items: center; }
+    .social-match-winner { background: linear-gradient(135deg, rgba(34,197,94,0.18), rgba(34,197,94,0.32)); border: 1px solid rgba(34,197,94,0.45); }
+    .social-footer { text-align: center; color: rgba(255,255,255,0.68); font-size: 0.95rem; margin-top: auto; }
+
     .field { margin-bottom: 8px; }
 
     .field label {
@@ -2865,6 +2896,18 @@
               <div class="ligue-badge-accent" id="ligue-calendar-note">Planification complète</div>
             </div>
           </div>
+          <div class="card ligue-section app-block-interactive" style="margin:10px 0;">
+            <div class="ligue-inline" style="justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h5 class="tournaments-title" style="margin-bottom:4px;">Résumé réseaux par journée</h5>
+                <div class="small-muted">Choisis la journée à exporter au format carré 1080×1080.</div>
+              </div>
+              <div class="ligue-inline" style="gap:8px; align-items:center;">
+                <select id="ligue-day-export-select" class="btn-small" style="min-width:140px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;"></select>
+                <button class="btn btn-secondary btn-small" id="btn-ligue-day-export">Exporter la journée</button>
+              </div>
+            </div>
+          </div>
           <div id="ligue-manage-calendar" class="ligue-section"></div>
         </div>
 
@@ -3001,6 +3044,319 @@
       </div>
     </div>
   </div>
+
+  <div id="social-export-template" style="display:none;"></div>
+
+  <div id="social-modal" class="social-modal">
+    <div class="social-modal-overlay"></div>
+    <div class="social-modal-panel">
+      <div class="social-modal-header">
+        <h3 class="tournaments-title" id="social-modal-title">Aperçu réseaux</h3>
+        <button class="social-modal-close" id="social-modal-close">✕</button>
+      </div>
+      <div class="social-modal-body" id="social-modal-body"></div>
+      <div class="social-modal-actions">
+        <button class="btn btn-secondary btn-small" id="social-modal-cancel">Fermer</button>
+        <button class="btn btn-small" id="social-modal-download">Télécharger PNG</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Début génération image réseaux ligue -->
+  <script>
+    (function() {
+      var LOGO_KEY = 'padel_app_logo_v1';
+      var LEVEL_COLORS = { 'ligue 1': '#004B9B', 'ligue 2': '#4D81B9', 'ligue 3': '#99B7D7', 'niveau 1': '#004B9B', 'niveau 2': '#4D81B9', 'niveau 3': '#99B7D7' };
+      var templateRoot = document.getElementById('social-export-template');
+      var modalRefs = {
+        container: document.getElementById('social-modal'),
+        title: document.getElementById('social-modal-title'),
+        body: document.getElementById('social-modal-body'),
+        download: document.getElementById('social-modal-download'),
+        close: document.getElementById('social-modal-close'),
+        cancel: document.getElementById('social-modal-cancel'),
+        overlay: null
+      };
+      modalRefs.overlay = modalRefs.container ? modalRefs.container.querySelector('.social-modal-overlay') : null;
+      var modalState = { download: null };
+
+      function slugify(txt) {
+        return (txt || 'ligue').toString().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '');
+      }
+
+      function getStoredLogo() {
+        try { return localStorage.getItem(LOGO_KEY) || ''; } catch (e) { return ''; }
+      }
+
+      function prepareRoot() {
+        if (!templateRoot) return null;
+        var prev = templateRoot.getAttribute('style') || '';
+        templateRoot.setAttribute('data-prev-style', prev);
+        templateRoot.style.display = 'block';
+        templateRoot.style.position = 'fixed';
+        templateRoot.style.left = '-9999px';
+        templateRoot.style.top = '-9999px';
+        templateRoot.innerHTML = '';
+        return templateRoot;
+      }
+
+      function cleanupRoot(root) {
+        if (!root) return;
+        root.innerHTML = '';
+        var prev = root.getAttribute('data-prev-style');
+        if (prev !== null) root.setAttribute('style', prev); else root.removeAttribute('style');
+      }
+
+      function levelColor(level) {
+        var key = (level || '').toLowerCase();
+        return LEVEL_COLORS[key] || '#4D81B9';
+      }
+
+      function teamNameFromLeague(league, id) {
+        if (!league || !league.teams) return id;
+        var t = league.teams.find(function(team) { return team.id === id; });
+        return (t && (t.name || t.id)) || id;
+      }
+
+      function formatSetsSocial(match) {
+        if (!match || !match.sets) return 'À jouer';
+        var parts = (match.sets || [])
+          .filter(function(s) { return s && s.home !== null && s.home !== undefined && s.away !== null && s.away !== undefined; })
+          .map(function(s) { return s.home + ' - ' + s.away; });
+        return parts.length ? parts.join(' / ') : 'À jouer';
+      }
+
+      function resolveWinnerId(match) {
+        if (!match) return null;
+        if (match.winnerTeamId) return match.winnerTeamId;
+        var sets = match.sets || [];
+        var wins = [0, 0];
+        sets.forEach(function(s) {
+          if (!s || s.home === null || s.away === null) return;
+          if (s.home > s.away) wins[0] += 1; else if (s.away > s.home) wins[1] += 1;
+        });
+        if (wins[0] === wins[1]) return null;
+        return wins[0] > wins[1] ? match.home : match.away;
+      }
+
+      function addLevelBand(container, level) {
+        var band = document.createElement('div');
+        band.className = 'social-level-band';
+        var color = levelColor(level);
+        band.style.background = color;
+        band.textContent = level || 'Ligue';
+        container.appendChild(band);
+      }
+
+      function buildRankingTable(standings) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'social-ranking';
+        var table = document.createElement('table');
+        var thead = document.createElement('thead');
+        thead.innerHTML = '<tr><th>#</th><th>Équipe</th><th>J</th><th>V</th><th>D</th><th>Pts</th></tr>';
+        table.appendChild(thead);
+        var tbody = document.createElement('tbody');
+        (standings || []).forEach(function(s, idx) {
+          var row = document.createElement('tr');
+          row.innerHTML = '<td>' + (idx + 1) + '</td><td>' + (s.name || s.id) + '</td><td>' + (s.played || 0) + '</td><td>' + (s.wins || 0) + '</td><td>' + (s.losses || 0) + '</td><td>' + (s.points || 0) + '</td>';
+          tbody.appendChild(row);
+        });
+        table.appendChild(tbody);
+        wrapper.appendChild(table);
+        return wrapper;
+      }
+
+      function buildPodium(standings) {
+        var podium = document.createElement('div');
+        podium.className = 'social-podium';
+        var top = (standings || []).slice(0, 3);
+        top.forEach(function(s, idx) {
+          var item = document.createElement('div');
+          item.className = 'social-podium-item';
+          item.innerHTML = '<div style="font-size:1.6rem;">' + ['🥇','🥈','🥉'][idx] + '</div><strong>' + (s.name || s.id || 'Équipe') + '</strong><div style="font-weight:600; opacity:0.8;">' + (s.points || 0) + ' pts</div>';
+          podium.appendChild(item);
+        });
+        return podium;
+      }
+
+      function buildSocialLeagueImage(league) {
+        return new Promise(function(resolve, reject) {
+          if (!league) return reject(new Error('Aucune ligue fournie'));
+          var root = prepareRoot();
+          if (!root) return reject(new Error('Template introuvable'));
+          var bg = document.createElement('div');
+          bg.className = 'social-bg';
+          var card = document.createElement('div');
+          card.className = 'social-card';
+          var header = document.createElement('div');
+          header.className = 'social-header';
+          var logoSrc = getStoredLogo();
+          if (logoSrc) { var logo = document.createElement('img'); logo.className = 'social-logo'; logo.src = logoSrc; header.appendChild(logo); }
+          var title = document.createElement('div');
+          title.className = 'social-title';
+          title.textContent = league.name || 'Ligue interne';
+          header.appendChild(title);
+          if (league.level) { var levelText = document.createElement('div'); levelText.style.opacity = '0.8'; levelText.textContent = league.level; header.appendChild(levelText); }
+          card.appendChild(header);
+          addLevelBand(card, league.level || 'Ligue');
+
+          if (league.finishedAt) {
+            var dateLine = document.createElement('div');
+            dateLine.className = 'small-muted';
+            dateLine.style.textAlign = 'center';
+            dateLine.textContent = 'Clôturée le ' + league.finishedAt.slice(0, 10);
+            card.appendChild(dateLine);
+          }
+
+          card.appendChild(buildPodium(league.standings || []));
+          var ranking = buildRankingTable(league.standings || []);
+          card.appendChild(ranking);
+
+          var footer = document.createElement('div');
+          footer.className = 'social-footer';
+          footer.innerHTML = '🏆 Powered by Padel App';
+          card.appendChild(footer);
+
+          bg.appendChild(card);
+          root.appendChild(bg);
+
+          html2canvas(bg, { backgroundColor: null, useCORS: true, width: 1080, height: 1080, scale: 2 }).then(function(canvas) {
+            cleanupRoot(root);
+            resolve(canvas);
+          }).catch(function(err) { cleanupRoot(root); reject(err); });
+        });
+      }
+
+      function buildSocialDayImage(league, roundNumber) {
+        return new Promise(function(resolve, reject) {
+          if (!league) return reject(new Error('Aucune ligue fournie'));
+          var root = prepareRoot();
+          if (!root) return reject(new Error('Template introuvable'));
+          var matches = (league.matches || []).filter(function(m) { return parseInt(m.round, 10) === parseInt(roundNumber, 10); });
+          var bg = document.createElement('div');
+          bg.className = 'social-bg';
+          var card = document.createElement('div');
+          card.className = 'social-card';
+          var header = document.createElement('div');
+          header.className = 'social-header';
+          var logoSrc = getStoredLogo();
+          if (logoSrc) { var logo = document.createElement('img'); logo.className = 'social-logo'; logo.src = logoSrc; header.appendChild(logo); }
+          var title = document.createElement('div'); title.className = 'social-title'; title.textContent = league.name || 'Ligue interne'; header.appendChild(title);
+          if (league.level) { var levelText = document.createElement('div'); levelText.style.opacity = '0.8'; levelText.textContent = league.level; header.appendChild(levelText); }
+          card.appendChild(header);
+          addLevelBand(card, league.level || 'Ligue');
+
+          var dayTitle = document.createElement('h3');
+          dayTitle.className = 'tournaments-title';
+          dayTitle.style.textAlign = 'center';
+          dayTitle.textContent = 'Résumé Journée ' + roundNumber;
+          card.appendChild(dayTitle);
+
+          if (matches.length) {
+            var dates = matches.map(function(m) { return m.date; }).filter(Boolean);
+            var unique = Array.from(new Set(dates));
+            var dateLine = document.createElement('div');
+            dateLine.className = 'small-muted';
+            dateLine.style.textAlign = 'center';
+            dateLine.textContent = unique.length === 1 ? ('📅 ' + unique[0]) : ('📅 Période de la journée ' + roundNumber);
+            card.appendChild(dateLine);
+          }
+
+          var list = document.createElement('div');
+          list.className = 'social-day-list';
+          if (!matches.length) {
+            var empty = document.createElement('div');
+            empty.className = 'small-muted';
+            empty.textContent = 'Aucun match pour cette journée.';
+            list.appendChild(empty);
+          } else {
+            matches.forEach(function(m) {
+              var row = document.createElement('div');
+              row.className = 'social-day-match';
+              var score = formatSetsSocial(m);
+              var winner = resolveWinnerId(m);
+              var left = document.createElement('div');
+              left.innerHTML = '<div style="font-weight:700;">' + teamNameFromLeague(league, m.home) + ' vs ' + teamNameFromLeague(league, m.away) + '</div><div class="small-muted">' + (m.date || 'Date à définir') + '</div>';
+              var right = document.createElement('div');
+              right.style.fontWeight = '800';
+              right.textContent = score;
+              if (winner) row.classList.add('social-match-winner');
+              row.appendChild(left);
+              row.appendChild(right);
+              list.appendChild(row);
+            });
+          }
+          card.appendChild(list);
+
+          var footer = document.createElement('div');
+          footer.className = 'social-footer';
+          footer.innerHTML = '🎾 Powered by Padel App';
+          card.appendChild(footer);
+
+          bg.appendChild(card);
+          root.appendChild(bg);
+
+          html2canvas(bg, { backgroundColor: null, useCORS: true, width: 1080, height: 1080, scale: 2 }).then(function(canvas) {
+            cleanupRoot(root);
+            resolve(canvas);
+          }).catch(function(err) { cleanupRoot(root); reject(err); });
+        });
+      }
+
+      function exportSocialImage(canvas, filename) {
+        if (!canvas) return;
+        var link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = filename || 'export.png';
+        link.click();
+      }
+
+      function closeSocialModal() {
+        if (!modalRefs.container) return;
+        modalState.download = null;
+        if (modalRefs.container.classList.contains('open')) modalRefs.container.classList.remove('open');
+      }
+
+      function openSocialModal(options) {
+        if (!modalRefs.container || !modalRefs.body) return;
+        modalRefs.title.textContent = (options && options.title) || 'Aperçu réseaux';
+        modalRefs.body.innerHTML = '';
+        if (options && options.content) modalRefs.body.appendChild(options.content);
+        if (modalRefs.download) {
+          modalRefs.download.textContent = (options && options.downloadLabel) || 'Télécharger PNG';
+          modalRefs.download.style.display = options && options.onDownload ? 'inline-flex' : 'none';
+        }
+        modalState.download = options && options.onDownload ? options.onDownload : null;
+        modalRefs.container.classList.add('open');
+      }
+
+      function showSocialPreview(canvas, title, filename) {
+        var imgWrap = document.createElement('div');
+        imgWrap.className = 'social-preview-img';
+        var img = document.createElement('img');
+        img.src = canvas.toDataURL('image/png');
+        img.alt = title || 'Aperçu';
+        imgWrap.appendChild(img);
+        openSocialModal({
+          title: title || 'Aperçu réseaux',
+          content: imgWrap,
+          downloadLabel: 'Télécharger PNG',
+          onDownload: function() { exportSocialImage(canvas, filename || 'export.png'); }
+        });
+      }
+
+      if (modalRefs.close) modalRefs.close.addEventListener('click', closeSocialModal);
+      if (modalRefs.cancel) modalRefs.cancel.addEventListener('click', closeSocialModal);
+      if (modalRefs.overlay) modalRefs.overlay.addEventListener('click', closeSocialModal);
+      if (modalRefs.download) modalRefs.download.addEventListener('click', function() { if (modalState.download) modalState.download(); });
+
+      window.buildSocialLeagueImage = buildSocialLeagueImage;
+      window.buildSocialDayImage = buildSocialDayImage;
+      window.exportSocialImage = exportSocialImage;
+      window.socialModal = { open: openSocialModal, close: closeSocialModal, preview: showSocialPreview };
+    })();
+  </script>
+  <!-- Fin génération image réseaux ligue -->
 
   <!-- Début logique persistance logo -->
   <script>
