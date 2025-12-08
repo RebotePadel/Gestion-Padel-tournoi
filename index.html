@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Gestion Padel Parc APP</title>
+  <title>Gestion</title>
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -3835,7 +3835,7 @@
         nameTargets.forEach(function(el) { el.textContent = currentClubProfile.name || DEFAULT_PROFILE.name; });
         var shortTargets = document.querySelectorAll('[data-club-shortname]');
         shortTargets.forEach(function(el) { el.textContent = currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName; });
-        document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
+       document.title = 'Gestion – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
         applySponsorBanner(currentClubProfile);
