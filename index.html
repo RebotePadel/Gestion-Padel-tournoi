@@ -25,6 +25,14 @@
     .font-poppins {
       font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
+	/* Bloc sponsor TV déplaçable */
+#tv-sponsor-banner {
+  cursor: move;
+}
+
+#tv-sponsor-banner.dragging {
+  opacity: 0.9;
+}
   </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
@@ -3736,6 +3744,48 @@
           el.style.display = logoSrc ? 'none' : 'block';
         });
       }
+	  function makeElementDraggable(el, handle) {
+  if (!el) return;
+
+  var dragHandle = handle || el;
+  var startX = 0;
+  var startY = 0;
+  var startLeft = 0;
+  var startTop = 0;
+
+  function onMouseDown(e) {
+    e.preventDefault();
+
+    var rect = el.getBoundingClientRect();
+    startLeft = rect.left;
+    startTop = rect.top;
+    startX = e.clientX;
+    startY = e.clientY;
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+    el.classList.add('dragging');
+    el.style.position = 'fixed';
+  }
+
+  function onMouseMove(e) {
+    var dx = e.clientX - startX;
+    var dy = e.clientY - startY;
+
+    el.style.left = (startLeft + dx) + 'px';
+    el.style.top = (startTop + dy) + 'px';
+    el.style.right = 'auto';
+    el.style.bottom = 'auto';
+  }
+
+  function onMouseUp() {
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    el.classList.remove('dragging');
+  }
+
+  dragHandle.addEventListener('mousedown', onMouseDown);
+}
 
       function saveProfile() {
         try {
@@ -3774,30 +3824,48 @@
         }
       }
 
-      function applySponsorBanner(profile) {
-        var banner = document.getElementById('tv-sponsor-banner');
-        var logo = document.getElementById('tv-sponsor-logo');
-        var nameEl = document.getElementById('tv-sponsor-name');
-        if (!banner) return;
-        var hasContent = !!(profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
-        if (!hasContent) {
-          banner.style.display = 'none';
-          if (logo) { logo.removeAttribute('src'); logo.style.display = 'none'; }
-          if (nameEl) nameEl.textContent = '';
-          return;
-        }
-        banner.style.display = 'inline-flex';
-        if (logo) {
-          if (profile.sponsorLogoDataUrl) {
-            logo.src = profile.sponsorLogoDataUrl;
-            logo.style.display = 'block';
-          } else {
-            logo.removeAttribute('src');
-            logo.style.display = 'none';
-          }
-        }
-        if (nameEl) nameEl.textContent = profile.sponsorName || '';
-      }
+ function applySponsorBanner(profile) {
+  var banner = document.getElementById('tv-sponsor-banner');
+  var logo = document.getElementById('tv-sponsor-logo');
+  var nameEl = document.getElementById('tv-sponsor-name');
+  if (!banner) return;
+
+  var hasContent = !!(profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
+  if (!hasContent) {
+    banner.style.display = 'none';
+    if (logo) {
+      logo.removeAttribute('src');
+      logo.style.display = 'none';
+    }
+    if (nameEl) nameEl.textContent = '';
+    return;
+  }
+
+  banner.style.display = 'inline-flex';
+
+  if (logo) {
+    if (profile.sponsorLogoDataUrl) {
+      logo.src = profile.sponsorLogoDataUrl;
+      logo.style.display = 'block';
+    } else {
+      logo.removeAttribute('src');
+      logo.style.display = 'none';
+    }
+  }
+  if (nameEl) nameEl.textContent = profile.sponsorName || '';
+
+  // 🟡 Position par défaut
+  banner.style.position = 'fixed';
+  banner.style.bottom = banner.style.bottom || '1.5rem';
+  banner.style.right  = banner.style.right  || '1.5rem';
+  banner.style.zIndex = '50';
+
+  // 🟡 Activer le drag une seule fois
+  if (!banner.dataset.draggableAttached) {
+    makeElementDraggable(banner);
+    banner.dataset.draggableAttached = '1';
+  }
+}
 
       function updateSponsorPreview(src) {
         var preview = document.getElementById('app-sponsor-preview');
