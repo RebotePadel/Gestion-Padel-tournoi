@@ -138,40 +138,4 @@
   window.showSettings = showSettings;
   window.navigateToSection = showSection;
   window.goBack = goBack;
-
-  // -------------------------------------------------------------
-  //      PARAMÉTRAGE DU MINI-JEU PADEL PONG (SPONSOR / IA)
-  // -------------------------------------------------------------
-  var sponsorInput = document.getElementById('pp-sponsor-name');
-  var logoInput = document.getElementById('pp-sponsor-logo');
-  var aiInput = document.getElementById('pp-ai-name');
-  var saveBtn = document.getElementById('pp-save-settings');
-
-  // Si les éléments existent sur la page (mode paramètres)
-  if (sponsorInput && logoInput && aiInput && saveBtn) {
-    // 1) Pré-remplir les champs avec la config existante
-    try {
-      var stored = localStorage.getItem('padelPongConfig');
-      if (stored) {
-        var cfg = JSON.parse(stored);
-        if (cfg.sponsorName) sponsorInput.value = cfg.sponsorName;
-        if (cfg.sponsorLogoUrl) logoInput.value = cfg.sponsorLogoUrl;
-        if (cfg.aiName) aiInput.value = cfg.aiName;
-      }
-    } catch (e) {
-      console.warn('Impossible de lire la config Padel Pong', e);
-    }
-
-    // 2) Sauvegarder la config quand on clique sur le bouton
-    saveBtn.addEventListener('click', function () {
-      var config = {
-        sponsorName: sponsorInput.value.trim() || 'Padel Parc',
-        sponsorLogoUrl: logoInput.value.trim() || 'padel-parc-logo.png',
-        aiName: aiInput.value.trim() || 'IA Padel Parc'
-      };
-
-      localStorage.setItem('padelPongConfig', JSON.stringify(config));
-      alert('Paramètres du mini-jeu enregistrés !');
-    });
-  }
 })();
