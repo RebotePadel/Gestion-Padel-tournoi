@@ -3718,87 +3718,94 @@
       }
 
       function buildSocialDayImage(league, roundNumber, bgOverride) {
+        // Nouveau rendu: export journée en PNG avec fond personnalisé chargé depuis les paramètres
         return new Promise(function(resolve, reject) {
           if (!league) return reject(new Error('Aucune ligue fournie'));
-          var root = prepareRoot();
-          if (!root) return reject(new Error('Template introuvable'));
-          var matches = (league.matches || []).filter(function(m) { return parseInt(m.round, 10) === parseInt(roundNumber, 10); });
-          var bg = document.createElement('div');
-          bg.className = 'social-bg';
           var bgSrc = bgOverride || window.leagueExportBackgroundDataUrl || null;
-          if (bgSrc) {
-            bg.style.backgroundImage = 'url(' + bgSrc + ')';
-            bg.style.backgroundSize = 'cover';
-            bg.style.backgroundPosition = 'center';
-            bg.style.backgroundRepeat = 'no-repeat';
-          } else {
-            bg.classList.add('social-day-bg');
-          }
-          var card = document.createElement('div');
-          card.className = 'social-card';
-          var header = document.createElement('div');
-          header.className = 'social-header';
-          var logoSrc = getStoredLogo();
-          if (logoSrc) { var logo = document.createElement('img'); logo.className = 'social-logo'; logo.src = logoSrc; header.appendChild(logo); }
-          var title = document.createElement('div'); title.className = 'social-title'; title.textContent = league.name || 'Ligue interne'; header.appendChild(title);
-          if (league.level) { var levelText = document.createElement('div'); levelText.style.opacity = '0.8'; levelText.textContent = league.level; header.appendChild(levelText); }
-          card.appendChild(header);
-          addLevelBand(card, league.level || 'Ligue');
+          if (!bgSrc) return reject(new Error('Aucun fond fourni'));
 
-          var dayTitle = document.createElement('h3');
-          dayTitle.className = 'tournaments-title';
-          dayTitle.style.textAlign = 'center';
-          dayTitle.textContent = 'Résumé Journée ' + roundNumber;
-          card.appendChild(dayTitle);
+          var matches = (league.matches || []).filter(function(m) { return parseInt(m.round, 10) === parseInt(roundNumber, 10); });
+          var img = new Image();
+          img.onload = function() {
+            var cw = img.naturalWidth || 1080;
+            var ch = img.naturalHeight || 1920;
+            var canvas = document.createElement('canvas');
+            canvas.width = cw;
+            canvas.height = ch;
+            var ctx = canvas.getContext('2d');
 
-          if (matches.length) {
-            var dates = matches.map(function(m) { return m.date; }).filter(Boolean);
-            var unique = Array.from(new Set(dates));
-            var dateLine = document.createElement('div');
-            dateLine.className = 'small-muted';
-            dateLine.style.textAlign = 'center';
-            dateLine.textContent = unique.length === 1 ? ('📅 ' + unique[0]) : ('📅 Période de la journée ' + roundNumber);
-            card.appendChild(dateLine);
-          }
+            // Dessiner le fond
+            ctx.drawImage(img, 0, 0, cw, ch);
 
-          var list = document.createElement('div');
-          list.className = 'social-day-list';
-          if (!matches.length) {
-            var empty = document.createElement('div');
-            empty.className = 'small-muted';
-            empty.textContent = 'Aucun match pour cette journée.';
-            list.appendChild(empty);
-          } else {
-            matches.forEach(function(m) {
-              var row = document.createElement('div');
-              row.className = 'social-day-match';
-              var score = formatSetsSocial(m);
-              var winner = resolveWinnerId(m);
-              var left = document.createElement('div');
-              left.innerHTML = '<div style="font-weight:700;">' + teamNameFromLeague(league, m.home) + ' vs ' + teamNameFromLeague(league, m.away) + '</div><div class="small-muted">' + (m.date || 'Date à définir') + '</div>';
-              var right = document.createElement('div');
-              right.style.fontWeight = '800';
-              right.textContent = score;
-              if (winner) row.classList.add('social-match-winner');
-              row.appendChild(left);
-              row.appendChild(right);
-              list.appendChild(row);
-            });
-          }
-          card.appendChild(list);
+            // Palette et polices
+            var accent = '#e5e339';
+            var softBlue = '#b4d2fa';
+            var whiteBlue = '#f0f4ff';
+            var fontFamily = (getComputedStyle(document.documentElement).getPropertyValue('--app-font-family') || '').trim() || 'Poppins, Montserrat, system-ui, sans-serif';
 
-          var footer = document.createElement('div');
-          footer.className = 'social-footer';
-          footer.innerHTML = '🎾 Powered by Padel App';
-          card.appendChild(footer);
+            function text(txt, size, color, x, y, align, weight) {
+              ctx.save();
+              ctx.font = (weight || '700') + ' ' + size + 'px ' + fontFamily;
+              ctx.fillStyle = color;
+              ctx.textAlign = align || 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(txt, x, y);
+              ctx.restore();
+            }
 
-          bg.appendChild(card);
-          root.appendChild(bg);
+            // Zones dynamiques basées sur la hauteur
+            var titleY = ch * 0.20;
+            var subtitleY = ch * 0.26;
+            var tableTop = ch * 0.34;
+            var rowGap = ch * 0.08;
+            var headerSize = Math.max(18, Math.round(ch * 0.032));
+            var titleSize = Math.max(28, Math.round(ch * 0.055));
+            var subtitleSize = Math.max(20, Math.round(ch * 0.032));
+            var rowTextSize = Math.max(18, Math.round(ch * 0.03));
 
-          html2canvas(bg, { backgroundColor: null, useCORS: true, width: 1080, height: 1080, scale: 2 }).then(function(canvas) {
-            cleanupRoot(root);
+            // Titre et sous-titre
+            text('Ligue Interne Journée ' + roundNumber, titleSize, accent, cw / 2, titleY, 'center', '800');
+            text('Résultats officiels', subtitleSize, softBlue, cw / 2, subtitleY, 'center', '700');
+
+            // Entêtes du tableau
+            var colA = cw * 0.18;
+            var colScore = cw * 0.5;
+            var colB = cw * 0.62;
+            text('Équipe A', headerSize, whiteBlue, colA, tableTop, 'left', '700');
+            text('Score', headerSize, softBlue, colScore, tableTop, 'center', '700');
+            text('Équipe B', headerSize, whiteBlue, colB, tableTop, 'left', '700');
+
+            // Ligne de séparation sous l'entête
+            ctx.save();
+            ctx.strokeStyle = softBlue;
+            ctx.lineWidth = Math.max(1, ch * 0.0025);
+            ctx.beginPath();
+            ctx.moveTo(cw * 0.12, tableTop + ch * 0.02);
+            ctx.lineTo(cw * 0.88, tableTop + ch * 0.02);
+            ctx.stroke();
+            ctx.restore();
+
+            // Lignes de matchs (max 5)
+            var rows = matches.slice(0, 5);
+            if (!rows.length) {
+              text('Aucun match pour cette journée.', rowTextSize, whiteBlue, cw / 2, tableTop + rowGap, 'center', '600');
+            } else {
+              rows.forEach(function(m, idx) {
+                var y = tableTop + rowGap * (idx + 1);
+                var score = formatSetsSocial(m) || '–';
+                text(teamNameFromLeague(league, m.home), rowTextSize, whiteBlue, colA, y, 'left', '600');
+                text(score, rowTextSize, accent, colScore, y, 'center', '800');
+                text(teamNameFromLeague(league, m.away), rowTextSize, whiteBlue, colB, y, 'left', '600');
+              });
+            }
+
+            // Footer
+            text('Merci à tous les joueurs – Padel Parc', Math.max(16, Math.round(ch * 0.025)), softBlue, cw / 2, ch * 0.90, 'center', '600');
+
             resolve(canvas);
-          }).catch(function(err) { cleanupRoot(root); reject(err); });
+          };
+          img.onerror = function() { reject(new Error('Fond journée introuvable')); };
+          img.src = bgSrc;
         });
       }
 
