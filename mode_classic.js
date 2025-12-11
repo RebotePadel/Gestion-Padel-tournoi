@@ -386,20 +386,22 @@
     bindLogoUpload(elHomeLogoUpload);
 
     /* RANDOM NAMES */
-    elBtnRandomNames.addEventListener("click", () => {
-      const baseNames = [
-        "Smash & Co","Padel Kings","Rebote Squad","Ace Hunters","Blue Court","Los Lobos",
-        "Night Session","Padel Crew","Volley Time","Padel Legends","Smash Attack","Team Bandeja",
-        "Chiquita Gang","Padel Stars","Center Court","Last Minute"
-      ];
-      const inputs = elTeamsGrid.querySelectorAll("input[data-team-index]");
-      inputs.forEach((inp, idx) => {
-        const name = baseNames[idx % baseNames.length] + " #" + (idx + 1);
-        inp.value = name;
+    if (elBtnRandomNames) {
+      elBtnRandomNames.addEventListener("click", () => {
+        const baseNames = [
+          "Smash & Co","Padel Kings","Rebote Squad","Ace Hunters","Blue Court","Los Lobos",
+          "Night Session","Padel Crew","Volley Time","Padel Legends","Smash Attack","Team Bandeja",
+          "Chiquita Gang","Padel Stars","Center Court","Last Minute"
+        ];
+        const inputs = elTeamsGrid.querySelectorAll("input[data-team-index]");
+        inputs.forEach((inp, idx) => {
+          const name = baseNames[idx % baseNames.length] + " #" + (idx + 1);
+          inp.value = name;
+        });
+        ensureTeamsFromInputs();
+        elConfigInfo.textContent = "Noms aléatoires appliqués. Tu peux modifier à la main si besoin.";
       });
-      ensureTeamsFromInputs();
-      elConfigInfo.textContent = "Noms aléatoires appliqués. Tu peux modifier à la main si besoin.";
-    });
+    }
 
     /* GENERATE POOLS */
     elBtnGeneratePools.addEventListener("click", () => {

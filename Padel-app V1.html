@@ -405,7 +405,7 @@
     /* Fin thèmes de fond */
 
     /* Bandeau sponsor TV */
-    .tv-sponsor { position: absolute; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
+    .tv-sponsor { position: fixed; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
     .tv-sponsor img { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
     .tv-sponsor .tv-sponsor-name { font-weight: 700; font-size: 0.8rem; }
     /* Fin bandeau sponsor TV */
@@ -3995,13 +3995,12 @@
       function makeSponsorDraggable(bannerId, posKey, containerId) {
         var banner = document.getElementById(bannerId);
         if (!banner) return;
-        var container = containerId ? document.getElementById(containerId) : null;
         var activeProfile = currentClubProfile || DEFAULT_PROFILE;
         if (activeProfile && activeProfile[posKey]) applySponsorPosition(banner, activeProfile[posKey]);
 
         function onDragStart(e) {
           e.preventDefault();
-          var rect = (container || document.body).getBoundingClientRect();
+          var rect = { left: 0, top: 0, width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 0, height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0 };
           var start = { x: e.clientX, y: e.clientY };
           var box = banner.getBoundingClientRect();
           var offsetX = box.left - rect.left;
