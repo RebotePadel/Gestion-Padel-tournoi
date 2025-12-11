@@ -219,12 +219,16 @@ enableCardCollapsing();
 })();
 
 /* EVENTS ADMIN M/D */
-elBtnInitTeams.addEventListener("click", function () {
-  var name = (elName.value || "").trim();
-  var n = parseInt(elTeamCount.value, 10);
-  var maxR = parseInt(elMaxRoulements.value, 10);
-  if (!name) { alert("Merci de saisir un nom de tournoi."); return; }
-  if (isNaN(n) || n < 6 || n > 16) { alert("Le moteur gère entre 6 et 16 équipes."); return; }
+  elBtnInitTeams.addEventListener("click", function () {
+    var name = (elName.value || "").trim();
+    var n = parseInt(elTeamCount.value, 10);
+    var maxR = parseInt(elMaxRoulements.value, 10);
+    // Autoriser jusqu'à 16 roulements (plancher à 4 pour rester cohérent)
+    if (isNaN(maxR)) maxR = 12;
+    if (maxR < 4) maxR = 4;
+    if (maxR > 16) maxR = 16;
+    if (!name) { alert("Merci de saisir un nom de tournoi."); return; }
+    if (isNaN(n) || n < 6 || n > 16) { alert("Le moteur gère entre 6 et 16 équipes."); return; }
 
   state.name = name;
   state.teamCount = n;
