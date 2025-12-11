@@ -134,6 +134,25 @@ function getMaxTerrains() {
   return maxT > 0 ? maxT : 1;
 }
 
+// Nouveau : détecter si une équipe a déjà enchaîné 2 matchs
+function playedInRound(teamId, roundNum) {
+  var rec = state.pairings[roundNum];
+  if (!rec || !rec.matches) return false;
+  for (var i = 0; i < rec.matches.length; i++) {
+    var m = rec.matches[i];
+    if (m.teamAId === teamId || m.teamBId === teamId) return true;
+  }
+  return false;
+}
+
+function countConsecutivePlays(teamId, beforeRound) {
+  var streak = 0;
+  for (var r = beforeRound; r >= 1; r--) {
+    if (playedInRound(teamId, r)) streak++; else break;
+  }
+  return streak;
+}
+
 function clampTerrain(t) {
   var maxT = getMaxTerrains();
   if (t < 1) return 1;
@@ -481,14 +500,48 @@ function planRoundFromStats(roulementNumber) {
   var n = state.teamCount;
   if (!n || !state.teams.length) return { matches: [], restTeams: [] };
 
-  var maxTerrains = Math.min(4, Math.floor(n / 2));
-  if (maxTerrains < 1) return { matches: [], restTeams: [] };
-  var capacity = maxTerrains * 2;
+  // Cas de référence 16 équipes : on conserve exactement le comportement existant
+  if (n === 16) {
+    var maxTerrains16 = Math.min(4, Math.floor(n / 2));
+    if (maxTerrains16 < 1) return { matches: [], restTeams: [] };
+    var capacity16 = maxTerrains16 * 2;
+    var playEvenIds16 = (roulementNumber % 2 === 1);
+    var playing16 = [];
+    var rest16 = [];
+    for (var i16 = 0; i16 < state.teams.length; i16++) {
+      var team16 = state.teams[i16];
+      var isEven16 = (team16.id % 2 === 0);
+      if ((playEvenIds16 && isEven16) || (!playEvenIds16 && !isEven16)) playing16.push(team16); else rest16.push(team16);
+    }
+    while (playing16.length > capacity16) { rest16.push(playing16.pop()); }
+    var targets16 = [];
+    for (var p16 = 0; p16 < playing16.length; p16++) {
+      var meta16 = getTeamMeta(playing16[p16].id, p16);
+      targets16.push({ team: playing16[p16], target: clampTerrain(meta16.nextTerrain || initialTerrainForIndex(p16)) });
+    }
+    targets16.sort(function (a, b) { if (a.target !== b.target) return a.target - b.target; return a.team.id - b.team.id; });
+    var matches16 = [];
+    for (var t16 = 1; t16 <= maxTerrains16; t16++) {
+      if (targets16.length < 2) break;
+      var sA16 = targets16.shift();
+      var sB16 = targets16.shift();
+      if (!sA16 || !sB16) break;
+      var label16 = (t16 === 1) ? "Terrain fort" : (t16 === maxTerrains16 ? "Terrain fun" : "Terrain intermédiaire");
+      matches16.push({ terrain: t16, teamA: sA16.team, teamB: sB16.team, label: label16 });
+    }
+    for (var r16 = 0; r16 < targets16.length; r16++) rest16.push(targets16[r16].team);
+    return { matches: matches16, restTeams: rest16 };
+  }
 
-  var playEvenIds = (roulementNumber % 2 === 1); // roulement impair → équipes paires jouent
+  // Génération flexible pour les autres formats (8, 10, 12, 14, 18, 20…)
+  var maxTerrains = getMaxTerrains();
+  var capacity = maxTerrains * 2;
+  var playEvenIds = (roulementNumber % 2 === 1);
   var playing = [];
   var rest = [];
+  var forcedRest = [];
 
+  // Sélection des équipes qui doivent jouer selon la parité
   for (var i = 0; i < state.teams.length; i++) {
     var team = state.teams[i];
     var isEven = (team.id % 2 === 0);
@@ -499,42 +552,52 @@ function planRoundFromStats(roulementNumber) {
     }
   }
 
-  // En cas de débordement théorique, on bascule l’excédent au repos
-  while (playing.length > capacity) {
-    rest.push(playing.pop());
+  // Règle anti-fatigue : pas plus de 2 matchs d’affilée (sauf format 8)
+  var fatigueLimitActive = (n !== 8);
+  var filteredPlaying = [];
+  for (var fp = 0; fp < playing.length; fp++) {
+    var teamP = playing[fp];
+    var consec = countConsecutivePlays(teamP.id, roulementNumber - 1);
+    var metaP = getTeamMeta(teamP.id, fp);
+    if (fatigueLimitActive && consec >= 2) {
+      forcedRest.push(teamP);
+    } else {
+      filteredPlaying.push({ team: teamP, target: clampTerrain(metaP.nextTerrain || initialTerrainForIndex(fp)), consec: consec, lastPlayed: metaP.lastPlayed || 0 });
+    }
   }
 
-  var playingTargets = [];
-  for (var p = 0; p < playing.length; p++) {
-    var meta = getTeamMeta(playing[p].id, p);
-    playingTargets.push({ team: playing[p], target: clampTerrain(meta.nextTerrain || initialTerrainForIndex(p)) });
+  // Si trop d’équipes pour la capacité, on met au repos celles qui ont le plus enchaîné
+  if (filteredPlaying.length > capacity) {
+    filteredPlaying.sort(function (a, b) {
+      if (a.consec !== b.consec) return b.consec - a.consec;
+      if (a.lastPlayed !== b.lastPlayed) return b.lastPlayed - a.lastPlayed;
+      return b.team.id - a.team.id;
+    });
+    while (filteredPlaying.length > capacity) {
+      var drop = filteredPlaying.shift();
+      forcedRest.push(drop.team);
+    }
   }
 
-  playingTargets.sort(function (a, b) {
+  // Attribution des terrains en respectant les cibles montante/descendante
+  filteredPlaying.sort(function (a, b) {
     if (a.target !== b.target) return a.target - b.target;
     return a.team.id - b.team.id;
   });
 
   var matches = [];
   for (var t = 1; t <= maxTerrains; t++) {
-    if (playingTargets.length < 2) break;
-    var slotA = playingTargets.shift();
-    var slotB = playingTargets.shift();
+    if (filteredPlaying.length < 2) break;
+    var slotA = filteredPlaying.shift();
+    var slotB = filteredPlaying.shift();
     if (!slotA || !slotB) break;
-    var label = "";
-    if (t === 1) label = "Terrain fort";
-    else if (t === maxTerrains) label = "Terrain fun";
-    else label = "Terrain intermédiaire";
-    matches.push({
-      terrain: t,
-      teamA: slotA.team,
-      teamB: slotB.team,
-      label: label
-    });
+    var label = (t === 1) ? "Terrain fort" : (t === maxTerrains ? "Terrain fun" : "Terrain intermédiaire");
+    matches.push({ terrain: t, teamA: slotA.team, teamB: slotB.team, label: label });
   }
 
-  // Équipes restantes (non appariées faute de place) repassent au repos ce tour
-  for (var r = 0; r < playingTargets.length; r++) rest.push(playingTargets[r].team);
+  // Équipes restantes = repos
+  for (var r = 0; r < filteredPlaying.length; r++) rest.push(filteredPlaying[r].team);
+  for (var fr = 0; fr < forcedRest.length; fr++) rest.push(forcedRest[fr]);
 
   return { matches: matches, restTeams: rest };
 }
