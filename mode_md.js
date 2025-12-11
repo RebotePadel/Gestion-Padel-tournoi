@@ -171,10 +171,12 @@ function ensureTeamMetaInitialized() {
   for (var i = 0; i < state.teams.length; i++) {
     var team = state.teams[i];
     if (!state.teamMeta[team.id]) {
-      state.teamMeta[team.id] = { nextTerrain: initialTerrainForIndex(i), lastPlayed: 0 };
+      state.teamMeta[team.id] = { nextTerrain: initialTerrainForIndex(i), lastPlayed: 0, lastTerrain: initialTerrainForIndex(i), lastOutcome: null };
     } else {
       state.teamMeta[team.id].nextTerrain = clampTerrain(state.teamMeta[team.id].nextTerrain || initialTerrainForIndex(i));
       state.teamMeta[team.id].lastPlayed = state.teamMeta[team.id].lastPlayed || 0;
+      state.teamMeta[team.id].lastTerrain = clampTerrain(state.teamMeta[team.id].lastTerrain || state.teamMeta[team.id].nextTerrain || initialTerrainForIndex(i));
+      state.teamMeta[team.id].lastOutcome = state.teamMeta[team.id].lastOutcome || null;
     }
   }
 }
@@ -182,7 +184,7 @@ function ensureTeamMetaInitialized() {
 function getTeamMeta(teamId, indexFallback) {
   ensureTeamMetaInitialized();
   if (!state.teamMeta[teamId]) {
-    state.teamMeta[teamId] = { nextTerrain: initialTerrainForIndex(indexFallback || 0), lastPlayed: 0 };
+    state.teamMeta[teamId] = { nextTerrain: initialTerrainForIndex(indexFallback || 0), lastPlayed: 0, lastTerrain: initialTerrainForIndex(indexFallback || 0), lastOutcome: null };
   }
   return state.teamMeta[teamId];
 }
@@ -449,8 +451,12 @@ function setWinner(roulement, terrain, winnerId) {
   var metaL = getTeamMeta(loserId);
   metaW.nextTerrain = clampTerrain(terrain - 1);
   metaW.lastPlayed = roulement;
+  metaW.lastTerrain = terrain;
+  metaW.lastOutcome = 'win';
   metaL.nextTerrain = clampTerrain(terrain + 1);
   metaL.lastPlayed = roulement;
+  metaL.lastTerrain = terrain;
+  metaL.lastOutcome = 'loss';
 
   clearFuturePairings(roulement);
 
@@ -553,6 +559,8 @@ function planRoundFromStats(roulementNumber) {
       target: clampTerrain(meta.nextTerrain || initialTerrainForIndex(i)),
       consec: consec,
       lastPlayed: meta.lastPlayed || 0,
+      lastTerrain: meta.lastTerrain || clampTerrain(meta.nextTerrain || initialTerrainForIndex(i)),
+      lastOutcome: meta.lastOutcome || null,
       parity: (team.id % 2 === 0)
     };
     if ((playEvenIds && info.parity) || (!playEvenIds && !info.parity)) preferred.push(info); else alternate.push(info);
@@ -611,14 +619,54 @@ function planRoundFromStats(roulementNumber) {
     return a.team.id - b.team.id;
   });
 
+  // Nouveau : respect strict des montées/descendes post-match :
+  // - gagnant ne doit jamais être placé sur un terrain plus bas que son dernier terrain
+  // - perdant ne doit jamais être placé sur un terrain plus haut que son dernier terrain
+  function canPlayOnTerrain(info, terrainIdx) {
+    if (info.lastOutcome === 'win' && info.lastTerrain) return terrainIdx <= info.lastTerrain;
+    if (info.lastOutcome === 'loss' && info.lastTerrain) return terrainIdx >= info.lastTerrain;
+    return true;
+  }
+
+  function pickBestCandidate(list, terrainIdx) {
+    var filtered = [];
+    for (var iPick = 0; iPick < list.length; iPick++) {
+      var cand = list[iPick];
+      if (canPlayOnTerrain(cand, terrainIdx)) filtered.push(cand);
+    }
+    if (!filtered.length) return null;
+    filtered.sort(function(a,b){
+      var da = Math.abs(a.target - terrainIdx);
+      var db = Math.abs(b.target - terrainIdx);
+      if (da !== db) return da - db;
+      if (a.matches !== b.matches) return a.matches - b.matches;
+      if (a.consec !== b.consec) return a.consec - b.consec;
+      return a.team.id - b.team.id;
+    });
+    return filtered[0];
+  }
+
+  function removeCandidate(list, cand) {
+    var idx = list.indexOf(cand);
+    if (idx >= 0) list.splice(idx,1);
+  }
+
   var matches = [];
+  var remaining = selection.slice();
   for (var t = 1; t <= maxTerrains; t++) {
-    if (selection.length < 2) break;
-    var slotA = selection.shift();
-    var slotB = selection.shift();
-    if (!slotA || !slotB) break;
+    if (remaining.length < 2) break;
+    var candA = pickBestCandidate(remaining, t);
+    if (!candA) break;
+    removeCandidate(remaining, candA);
+    var candB = pickBestCandidate(remaining, t);
+    if (!candB) {
+      // pas assez de candidats compatibles : on réinsère et on arrête ce terrain
+      remaining.push(candA);
+      break;
+    }
+    removeCandidate(remaining, candB);
     var label = (t === 1) ? "Terrain fort" : (t === maxTerrains ? "Terrain fun" : "Terrain intermédiaire");
-    matches.push({ terrain: t, teamA: slotA.team, teamB: slotB.team, label: label });
+    matches.push({ terrain: t, teamA: candA.team, teamB: candB.team, label: label });
   }
 
   // Équipes restantes = repos
