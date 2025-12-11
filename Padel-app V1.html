@@ -3718,7 +3718,7 @@
       }
 
       function buildSocialDayImage(league, roundNumber, bgOverride) {
-        // Export journée avec fond utilisateur : mise en page proportionnelle et tableau sans colonne terrain
+        // Export journée avec fond utilisateur : mise en page proportionnelle sportive
         return new Promise(function(resolve, reject) {
           if (!league) return reject(new Error('Aucune ligue fournie'));
           var bgSrc = bgOverride || window.leagueExportBackgroundDataUrl || null;
@@ -3739,8 +3739,11 @@
 
             // Palette et police
             var accent = '#e5e339';
-            var softBlue = '#b4d2fa';
-            var whiteBlue = '#f0f4ff';
+            var softBlue = '#9fbff2';
+            var whiteBlue = '#f9fafb';
+            var darkBand = 'rgba(2, 6, 23, 0.85)';
+            var rowOdd = 'rgba(15, 23, 42, 0.85)';
+            var rowEven = 'rgba(30, 64, 175, 0.75)';
             var fontFamily = (getComputedStyle(document.documentElement).getPropertyValue('--app-font-family') || '').trim() || "Poppins, Montserrat, system-ui, sans-serif";
 
             function px(percent) { return percent * H; }
@@ -3754,29 +3757,56 @@
               ctx.restore();
             }
 
+            function drawRoundedRect(x, y, w, h, r, fill) {
+              ctx.save();
+              ctx.beginPath();
+              if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); }
+              else {
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+              }
+              ctx.closePath();
+              ctx.fillStyle = fill;
+              ctx.fill();
+              ctx.restore();
+            }
+
             // Zone centrale
             var contentLeft = W * 0.12;
             var contentRight = W * 0.88;
             var contentWidth = contentRight - contentLeft;
 
             // Titre et sous-titre
-            var titleY = px(0.18);
+            var titleY = H * 0.18;
             var titleSize = px(0.045);
             drawText('Ligue Interne Journée ' + roundNumber, titleSize, accent, W / 2, titleY, 'center', '600');
 
-            var subtitleY = titleY + px(0.05);
-            var subtitleSize = px(0.028);
+            var subtitleY = H * 0.23;
+            var subtitleSize = px(0.030);
             drawText('Résultats officiels', subtitleSize, softBlue, W / 2, subtitleY, 'center', '700');
 
-            // Entêtes
-            var headerY = subtitleY + px(0.06);
-            var headerSize = px(0.028);
-            var colA = contentLeft;
+            // En-tête tableau
+            var headerY = H * 0.30;
+            var rowHeight = H * 0.065;
+            var headerH = rowHeight * 0.9;
+            var headerTop = headerY - rowHeight * 0.7;
+            drawRoundedRect(contentLeft, headerTop, contentWidth, headerH, rowHeight * 0.2, darkBand);
+
+            var colA = contentLeft + contentWidth * 0.02;
             var colScore = W / 2;
-            var colB = contentLeft + contentWidth * 0.55;
+            var colB = contentLeft + contentWidth * 0.98;
+            var headerSize = px(0.028);
+            ctx.textBaseline = 'middle';
             drawText('Équipe A', headerSize, whiteBlue, colA, headerY, 'left', '700');
             drawText('Score', headerSize, softBlue, colScore, headerY, 'center', '700');
-            drawText('Équipe B', headerSize, whiteBlue, colB, headerY, 'left', '700');
+            drawText('Équipe B', headerSize, whiteBlue, colB, headerY, 'right', '700');
 
             // Séparateur
             ctx.save();
@@ -3788,18 +3818,46 @@
             ctx.stroke();
             ctx.restore();
 
-            // Lignes de matchs (max 5)
-            var rows = matches.slice(0, 5);
-            var rowHeight = px(0.065);
+            // Lignes de matchs (1 à 8 max)
+            var rows = matches.slice(0, 8);
+            var firstRowY = headerY + rowHeight;
             if (!rows.length) {
-              drawText('Aucun match pour cette journée.', px(0.03), whiteBlue, W / 2, headerY + rowHeight, 'center', '600');
+              drawText('Aucun match pour cette journée.', px(0.03), whiteBlue, W / 2, firstRowY, 'center', '600');
             } else {
               rows.forEach(function(m, idx) {
-                var y = headerY + rowHeight * (idx + 1);
+                var y = firstRowY + rowHeight * idx;
+                var rectY = y - rowHeight * 0.7;
+                var bgRow = (idx % 2 === 0) ? rowOdd : rowEven;
+                drawRoundedRect(contentLeft, rectY, contentWidth, headerH, rowHeight * 0.18, bgRow);
+
+                var baseTeamSize = px(0.028);
+                var scoreSize = px(0.025);
+                var teamA = teamNameFromLeague(league, m.home);
+                var teamB = teamNameFromLeague(league, m.away);
                 var score = formatSetsSocial(m) || '–';
-                drawText(teamNameFromLeague(league, m.home), px(0.028), whiteBlue, colA, y, 'left', '600');
-                drawText(score, px(0.028), accent, colScore, y, 'center', '800');
-                drawText(teamNameFromLeague(league, m.away), px(0.028), whiteBlue, colB, y, 'left', '600');
+
+                function fitTeam(text, baseSize, maxWidth) {
+                  var size = baseSize;
+                  ctx.font = '600 ' + size + 'px ' + fontFamily;
+                  while (ctx.measureText(text).width > maxWidth && size > baseSize * 0.8) {
+                    size = size * 0.94;
+                    ctx.font = '600 ' + size + 'px ' + fontFamily;
+                  }
+                  return size;
+                }
+
+                var halfWidth = contentWidth * 0.5;
+                var maxTeamWidth = halfWidth * 0.5;
+                var sizeA = fitTeam(teamA, baseTeamSize, maxTeamWidth);
+                var sizeB = fitTeam(teamB, baseTeamSize, maxTeamWidth);
+
+                ctx.textBaseline = 'middle';
+                ctx.textAlign = 'left';
+                drawText(teamA, sizeA, whiteBlue, colA, y, 'left', '600');
+                ctx.textAlign = 'center';
+                drawText(score, scoreSize, accent, colScore, y, 'center', '700');
+                ctx.textAlign = 'right';
+                drawText(teamB, sizeB, whiteBlue, colB, y, 'right', '600');
               });
             }
 
