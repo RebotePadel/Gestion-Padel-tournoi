@@ -2,7 +2,8 @@
 'use strict';
 
 // Racine du mode M/D pour limiter tout accès DOM à cette section uniquement
-var mdRoot = document.getElementById('md-root');
+// Fallback sur #admin-root (structure actuelle de l’app) pour éviter les sélecteurs vides.
+var mdRoot = document.getElementById('md-root') || document.getElementById('admin-root') || document;
 function mdSel(selector) {
   return mdRoot ? mdRoot.querySelector(selector) : null;
 }
