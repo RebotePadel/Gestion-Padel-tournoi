@@ -91,7 +91,9 @@ var state = {
   teams: [],
   stats: [],
   results: {},
-  pairings: {}
+  pairings: {},
+  // Nouveau : méta par équipe pour suivre le prochain terrain/dernier roulement joué
+  teamMeta: {}
 };
 
 /* DOM M/D EXISTANT */
@@ -125,6 +127,61 @@ var elTvCurrentList   = mdTvRoot ? mdTvRoot.querySelector("#tv-current-list") : 
 var elTvNextList      = mdTvRoot ? mdTvRoot.querySelector("#tv-next-list") : null;
 var elTvPodium        = mdTvRoot ? mdTvRoot.querySelector("#tv-podium") : null;
 var elTvRankingGrid   = mdTvRoot ? mdTvRoot.querySelector("#tv-ranking-grid") : null;
+
+// --- Utilitaires de terrain / méta-équipe ---
+function getMaxTerrains() {
+  var maxT = Math.min(4, Math.floor(state.teamCount / 2));
+  return maxT > 0 ? maxT : 1;
+}
+
+function clampTerrain(t) {
+  var maxT = getMaxTerrains();
+  if (t < 1) return 1;
+  if (t > maxT) return maxT;
+  return t;
+}
+
+function initialTerrainForIndex(idx) {
+  var maxT = getMaxTerrains();
+  return ((Math.floor(idx / 2) % maxT) + 1);
+}
+
+function ensureTeamMetaInitialized() {
+  if (!state.teamMeta) state.teamMeta = {};
+  var maxT = getMaxTerrains();
+  for (var i = 0; i < state.teams.length; i++) {
+    var team = state.teams[i];
+    if (!state.teamMeta[team.id]) {
+      state.teamMeta[team.id] = { nextTerrain: initialTerrainForIndex(i), lastPlayed: 0 };
+    } else {
+      state.teamMeta[team.id].nextTerrain = clampTerrain(state.teamMeta[team.id].nextTerrain || initialTerrainForIndex(i));
+      state.teamMeta[team.id].lastPlayed = state.teamMeta[team.id].lastPlayed || 0;
+    }
+  }
+}
+
+function getTeamMeta(teamId, indexFallback) {
+  ensureTeamMetaInitialized();
+  if (!state.teamMeta[teamId]) {
+    state.teamMeta[teamId] = { nextTerrain: initialTerrainForIndex(indexFallback || 0), lastPlayed: 0 };
+  }
+  return state.teamMeta[teamId];
+}
+
+function resetTeamMeta() {
+  state.teamMeta = {};
+  ensureTeamMetaInitialized();
+}
+
+function clearFuturePairings(fromRound) {
+  for (var key in state.pairings) {
+    if (!state.pairings.hasOwnProperty(key)) continue;
+    var rNum = parseInt(key, 10);
+    if (!isNaN(rNum) && rNum > fromRound) {
+      delete state.pairings[key];
+    }
+  }
+}
 
 applySkin();
 ensureHistoryUI();
@@ -160,6 +217,7 @@ elBtnInitTeams.addEventListener("click", function () {
   for (var j = 0; j < state.teams.length; j++) {
     state.stats.push({ id: state.teams[j].id, name: state.teams[j].name, wins:0, losses:0, points:0, matches:0 });
   }
+  resetTeamMeta();
   renderTeamsEditor();
   elBtnStart.disabled = false;
   renderTvView();
@@ -366,6 +424,17 @@ function setWinner(roulement, terrain, winnerId) {
     sW.points += 3; sW.wins += 1; sW.matches += 1;
     sL.losses += 1; sL.matches += 1;
   }
+  // Nouveau : préparer le prochain terrain au prochain roulement de jeu
+  var maxTerrains = getMaxTerrains();
+  var metaW = getTeamMeta(winnerId);
+  var metaL = getTeamMeta(loserId);
+  metaW.nextTerrain = clampTerrain(terrain - 1);
+  metaW.lastPlayed = roulement;
+  metaL.nextTerrain = clampTerrain(terrain + 1);
+  metaL.lastPlayed = roulement;
+
+  clearFuturePairings(roulement);
+
   renderRound(); renderRanking(); renderTvView();
 }
 
@@ -406,154 +475,68 @@ function renderRanking() {
   elRanking.innerHTML = html;
 }
 
-/* ENGINE 6–16 + CAS 16 PAIR/IMPAIR */
+// Moteur pair/impair : roulement impair = équipes paires, roulement pair = équipes impaires
 function planRoundFromStats(roulementNumber) {
+  ensureTeamMetaInitialized();
   var n = state.teamCount;
-  var stats = state.stats;
-  if (!n || !stats.length) return { matches: [], restTeams: [] };
+  if (!n || !state.teams.length) return { matches: [], restTeams: [] };
 
   var maxTerrains = Math.min(4, Math.floor(n / 2));
-  var playingCount = maxTerrains * 2;
-  if (playingCount < 2) return { matches: [], restTeams: [] };
+  if (maxTerrains < 1) return { matches: [], restTeams: [] };
+  var capacity = maxTerrains * 2;
 
-  var restSlots = Math.max(0, n - playingCount);
-  var candidates = [];
-
-  if (roulementNumber === 1 || !state.pairings[roulementNumber - 1]) {
-    var initial = stats.slice();
-    initial.sort(function (a, b) {
-      if (a.matches !== b.matches) return a.matches - b.matches;
-      if (b.points !== a.points) return b.points - a.points;
-      return a.id - b.id;
-    });
-    for (var i0 = 0; i0 < initial.length; i0++) {
-      var t0 = findTeamById(initial[i0].id);
-      if (t0) candidates.push({ team: t0, score: i0 });
-    }
-  } else {
-    var prev = getMatchesAndRestForRound(roulementNumber - 1);
-    var maxBase = maxTerrains * 2;
-    var seen = {};
-
-    for (var m = 0; m < prev.matches.length; m++) {
-      var match = prev.matches[m];
-      var baseA = (match.terrain - 1) * 2;
-      var baseB = baseA + 1;
-      var resKey = resultKey(roulementNumber - 1, match.terrain);
-      var res = state.results[resKey];
-
-      var adjA = baseA;
-      var adjB = baseB;
-
-      if (res) {
-        if (res.winnerId === match.teamA.id) adjA = Math.max(0, baseA - 2);
-        if (res.winnerId === match.teamB.id) adjB = Math.max(0, baseB - 2);
-        if (res.loserId === match.teamA.id) adjA = baseA + 2;
-        if (res.loserId === match.teamB.id) adjB = baseB + 2;
-      }
-
-      if (!seen[match.teamA.id]) {
-        candidates.push({ team: match.teamA, score: adjA });
-        seen[match.teamA.id] = true;
-      }
-      if (!seen[match.teamB.id]) {
-        candidates.push({ team: match.teamB, score: adjB });
-        seen[match.teamB.id] = true;
-      }
-    }
-
-    for (var r = 0; r < prev.restTeams.length; r++) {
-      var restTeam = prev.restTeams[r];
-      if (!restTeam || seen[restTeam.id]) continue;
-      candidates.push({ team: restTeam, score: maxBase + r });
-      seen[restTeam.id] = true;
-    }
-
-    if (candidates.length < stats.length) {
-      for (var s = 0; s < stats.length; s++) {
-        var tStat = findTeamById(stats[s].id);
-        if (tStat && !seen[tStat.id]) {
-          candidates.push({ team: tStat, score: maxBase + restSlots + s });
-          seen[tStat.id] = true;
-        }
-      }
-    }
-  }
-
-  candidates.sort(function (a, b) {
-    if (a.score !== b.score) return a.score - b.score;
-    var sa = findStatById(a.team.id);
-    var sb = findStatById(b.team.id);
-    var pa = sa ? sa.points : 0;
-    var pb = sb ? sb.points : 0;
-    if (pb !== pa) return pb - pa;
-    var ma = sa ? sa.matches : 0;
-    var mb = sb ? sb.matches : 0;
-    if (ma !== mb) return ma - mb;
-    return a.team.id - b.team.id;
-  });
-
+  var playEvenIds = (roulementNumber % 2 === 1); // roulement impair → équipes paires jouent
   var playing = [];
   var rest = [];
 
-  for (var c = 0; c < candidates.length; c++) {
-    var candidate = candidates[c];
-    var consec = getConsecutivePlays(candidate.team.id, roulementNumber - 1);
-    var mustRest = consec >= 2 && rest.length < restSlots;
-    if (mustRest) {
-      rest.push(candidate.team);
-    } else if (playing.length < playingCount) {
-      playing.push(candidate.team);
-    } else if (rest.length < restSlots) {
-      rest.push(candidate.team);
+  for (var i = 0; i < state.teams.length; i++) {
+    var team = state.teams[i];
+    var isEven = (team.id % 2 === 0);
+    if ((playEvenIds && isEven) || (!playEvenIds && !isEven)) {
+      playing.push(team);
     } else {
-      playing.push(candidate.team);
+      rest.push(team);
     }
   }
 
-  if (playing.length < playingCount && rest.length) {
-    rest.sort(function (a, b) {
-      var ca = getConsecutivePlays(a.id, roulementNumber - 1);
-      var cb = getConsecutivePlays(b.id, roulementNumber - 1);
-      if (ca !== cb) return ca - cb;
-      return a.id - b.id;
-    });
-    while (playing.length < playingCount && rest.length) {
-      playing.push(rest.shift());
-    }
+  // En cas de débordement théorique, on bascule l’excédent au repos
+  while (playing.length > capacity) {
+    rest.push(playing.pop());
   }
 
-  if (playing.length > playingCount) {
-    while (playing.length > playingCount) {
-      rest.push(playing.pop());
-    }
+  var playingTargets = [];
+  for (var p = 0; p < playing.length; p++) {
+    var meta = getTeamMeta(playing[p].id, p);
+    playingTargets.push({ team: playing[p], target: clampTerrain(meta.nextTerrain || initialTerrainForIndex(p)) });
   }
+
+  playingTargets.sort(function (a, b) {
+    if (a.target !== b.target) return a.target - b.target;
+    return a.team.id - b.team.id;
+  });
 
   var matches = [];
   for (var t = 1; t <= maxTerrains; t++) {
-    var idxA = (t - 1) * 2;
-    var idxB = idxA + 1;
-    if (idxB >= playing.length) break;
-    var teamA = playing[idxA];
-    var teamB = playing[idxB];
-    if (!teamA || !teamB) continue;
-
+    if (playingTargets.length < 2) break;
+    var slotA = playingTargets.shift();
+    var slotB = playingTargets.shift();
+    if (!slotA || !slotB) break;
     var label = "";
     if (t === 1) label = "Terrain fort";
     else if (t === maxTerrains) label = "Terrain fun";
     else label = "Terrain intermédiaire";
-
     matches.push({
       terrain: t,
-      teamA: teamA,
-      teamB: teamB,
+      teamA: slotA.team,
+      teamB: slotB.team,
       label: label
     });
   }
 
-  var restTeams = [];
-  for (var rr = 0; rr < rest.length; rr++) restTeams.push(rest[rr]);
-  return { matches: matches, restTeams: restTeams };
+  // Équipes restantes (non appariées faute de place) repassent au repos ce tour
+  for (var r = 0; r < playingTargets.length; r++) rest.push(playingTargets[r].team);
+
+  return { matches: matches, restTeams: rest };
 }
 
 function getMatchesAndRestForRound(roulement) {
@@ -1015,6 +998,7 @@ function loadHistoryEntry(entry) {
   state.stats = Array.isArray(snap.stats) ? snap.stats : [];
   state.results = snap.results || {};
   state.pairings = snap.pairings || {};
+  state.teamMeta = snap.teamMeta || {};
 
   if (elName) elName.value = state.name;
   if (elTeamCount) elTeamCount.value = String(state.teamCount);
@@ -1025,6 +1009,7 @@ function loadHistoryEntry(entry) {
     elTournamentSection.style.display = 'block';
     elBtnStart.disabled = false;
   }
+  ensureTeamMetaInitialized();
   updateTopBar();
   renderRound();
   renderRanking();
