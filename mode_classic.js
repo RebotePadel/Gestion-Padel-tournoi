@@ -41,7 +41,8 @@
   if (btnClassicHome) btnClassicHome.addEventListener('click', backHome);
 
     const POOLS = ["A","B","C","D"];
-    const HISTORY_KEY = "tournoiHistoryV4";
+    // Séparation explicite de l’historique du mode classique
+    const HISTORY_KEY = "brainbox_tournament_history_classic";
 
     const state = {
       name: "",
@@ -67,7 +68,7 @@
     const elHeaderTournament  = document.getElementById("header-tournament-name");
     const elAdminSubtitle     = document.getElementById("admin-subtitle");
     const elTeamsGrid         = document.getElementById("teams-grid");
-    const elBtnRandomNames    = document.getElementById("btn-random-names");
+    const elBtnRandomNames    = document.querySelector("#classic-root #btn-random-names");
     const elBtnGeneratePools  = document.getElementById("btn-generate-pools");
     const elConfigInfo        = document.getElementById("config-info");
     const elSetsPerMatch      = document.getElementById("sets-per-match");

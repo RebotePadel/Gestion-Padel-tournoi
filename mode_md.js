@@ -29,7 +29,8 @@ var SKINS = {
 };
 
 var ACTIVE_SKIN_KEY = "padelParc";
-var HISTORY_KEY = "mdHistoryEntriesV1";
+// Séparation explicite de l’historique du mode Montante/Descendante
+var HISTORY_KEY = "brainbox_tournament_history_md";
 
 function applySkin() {
   var skin = SKINS[ACTIVE_SKIN_KEY];
@@ -92,7 +93,7 @@ var elMaxRoulements  = document.getElementById("max-roulements");
 var elBtnInitTeams   = document.getElementById("btn-init-teams");
 var elTeamsEdit      = document.getElementById("teams-edit");
 var elTeamsInfo      = document.getElementById("teams-info");
-var elBtnRandomNames = document.getElementById("btn-random-names");
+var elBtnRandomNames = document.querySelector("#admin-root #btn-random-names");
 var elBtnStart       = document.getElementById("btn-start");
 
 var elTournamentSection = document.getElementById("tournament-section");
