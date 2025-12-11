@@ -537,67 +537,98 @@ function planRoundFromStats(roulementNumber) {
   var maxTerrains = getMaxTerrains();
   var capacity = maxTerrains * 2;
   var playEvenIds = (roulementNumber % 2 === 1);
-  var playing = [];
-  var rest = [];
-  var forcedRest = [];
 
-  // Sélection des équipes qui doivent jouer selon la parité
+  // Prépare les infos utilisées pour équilibrer les matchs et limiter la fatigue
+  var fatigueLimitActive = (n !== 8);
+  var preferred = [];
+  var alternate = [];
   for (var i = 0; i < state.teams.length; i++) {
     var team = state.teams[i];
-    var isEven = (team.id % 2 === 0);
-    if ((playEvenIds && isEven) || (!playEvenIds && !isEven)) {
-      playing.push(team);
-    } else {
-      rest.push(team);
+    var stat = findStatById(team.id) || { matches: 0, points: 0, wins: 0, losses: 0 };
+    var meta = getTeamMeta(team.id, i);
+    var consec = countConsecutivePlays(team.id, roulementNumber - 1);
+    var info = {
+      team: team,
+      matches: stat.matches || 0,
+      target: clampTerrain(meta.nextTerrain || initialTerrainForIndex(i)),
+      consec: consec,
+      lastPlayed: meta.lastPlayed || 0,
+      parity: (team.id % 2 === 0)
+    };
+    if ((playEvenIds && info.parity) || (!playEvenIds && !info.parity)) preferred.push(info); else alternate.push(info);
+  }
+
+  // Tri helper : privilégier ceux qui ont le moins joué, puis les moins fatigués
+  function sortByNeed(a, b) {
+    if (a.matches !== b.matches) return a.matches - b.matches;
+    if (a.consec !== b.consec) return a.consec - b.consec;
+    if (a.lastPlayed !== b.lastPlayed) return a.lastPlayed - b.lastPlayed;
+    return a.team.id - b.team.id;
+  }
+  preferred.sort(sortByNeed);
+  alternate.sort(sortByNeed);
+
+  // Sélection des équipes devant jouer ce roulement
+  var selection = [];
+  var fatiguePool = [];
+
+  function takeFrom(list) {
+    while (selection.length < capacity && list.length) {
+      var cand = list.shift();
+      if (fatigueLimitActive && cand.consec >= 2) {
+        fatiguePool.push(cand);
+      } else {
+        selection.push(cand);
+      }
     }
   }
 
-  // Règle anti-fatigue : pas plus de 2 matchs d’affilée (sauf format 8)
-  var fatigueLimitActive = (n !== 8);
-  var filteredPlaying = [];
-  for (var fp = 0; fp < playing.length; fp++) {
-    var teamP = playing[fp];
-    var consec = countConsecutivePlays(teamP.id, roulementNumber - 1);
-    var metaP = getTeamMeta(teamP.id, fp);
-    if (fatigueLimitActive && consec >= 2) {
-      forcedRest.push(teamP);
-    } else {
-      filteredPlaying.push({ team: teamP, target: clampTerrain(metaP.nextTerrain || initialTerrainForIndex(fp)), consec: consec, lastPlayed: metaP.lastPlayed || 0 });
+  takeFrom(preferred);
+  takeFrom(alternate);
+
+  // Si pas assez d’équipes, on réintroduit les joueurs en surcharge fatigue (le moins sollicités d’abord)
+  if (selection.length < capacity && fatiguePool.length) {
+    fatiguePool.sort(sortByNeed);
+    while (selection.length < capacity && fatiguePool.length) {
+      selection.push(fatiguePool.shift());
     }
   }
 
-  // Si trop d’équipes pour la capacité, on met au repos celles qui ont le plus enchaîné
-  if (filteredPlaying.length > capacity) {
-    filteredPlaying.sort(function (a, b) {
+  // Si trop d’équipes (peu probable), on écarte ceux qui ont le plus joué
+  if (selection.length > capacity) {
+    selection.sort(function (a, b) {
+      if (a.matches !== b.matches) return b.matches - a.matches;
       if (a.consec !== b.consec) return b.consec - a.consec;
-      if (a.lastPlayed !== b.lastPlayed) return b.lastPlayed - a.lastPlayed;
       return b.team.id - a.team.id;
     });
-    while (filteredPlaying.length > capacity) {
-      var drop = filteredPlaying.shift();
-      forcedRest.push(drop.team);
-    }
+    while (selection.length > capacity) selection.shift();
   }
 
-  // Attribution des terrains en respectant les cibles montante/descendante
-  filteredPlaying.sort(function (a, b) {
+  // Attribution des terrains : on respecte la cible montante/descendante puis l’équité
+  selection.sort(function (a, b) {
     if (a.target !== b.target) return a.target - b.target;
+    if (a.matches !== b.matches) return a.matches - b.matches;
     return a.team.id - b.team.id;
   });
 
   var matches = [];
   for (var t = 1; t <= maxTerrains; t++) {
-    if (filteredPlaying.length < 2) break;
-    var slotA = filteredPlaying.shift();
-    var slotB = filteredPlaying.shift();
+    if (selection.length < 2) break;
+    var slotA = selection.shift();
+    var slotB = selection.shift();
     if (!slotA || !slotB) break;
     var label = (t === 1) ? "Terrain fort" : (t === maxTerrains ? "Terrain fun" : "Terrain intermédiaire");
     matches.push({ terrain: t, teamA: slotA.team, teamB: slotB.team, label: label });
   }
 
   // Équipes restantes = repos
-  for (var r = 0; r < filteredPlaying.length; r++) rest.push(filteredPlaying[r].team);
-  for (var fr = 0; fr < forcedRest.length; fr++) rest.push(forcedRest[fr]);
+  var rest = [];
+  var allInfos = preferred.concat(alternate).concat(fatiguePool).concat(selection);
+  var playingIds = matches.reduce(function (acc, m) { acc[m.teamA.id] = true; acc[m.teamB.id] = true; return acc; }, {});
+  for (var r = 0; r < allInfos.length; r++) {
+    var infoR = allInfos[r];
+    if (!playingIds[infoR.team.id]) rest.push(infoR.team);
+  }
 
   return { matches: matches, restTeams: rest };
 }
