@@ -14,6 +14,7 @@
       --brand-bg: #020617;
       --brand-card-bg: #0b1220;
       --brand-text: #f9fafb;
+      --brand-title: #e5e339;
       --brand-accent-soft: rgba(229, 227, 57, 0.25);
       --brand-primary-glow: rgba(0, 75, 155, 0.55);
 
@@ -277,6 +278,20 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+    }
+
+    /* Nouveau : couleur des titres pilotée par le thème */
+    .home-card-title,
+    .tournaments-title,
+    .settings-header h2,
+    .settings-subtitle,
+    .card h1,
+    .card h2,
+    .card h3,
+    h1, h2, h3,
+    .tv-title,
+    .md-timer-display {
+      color: var(--brand-title, var(--brand-accent));
     }
 
     .home-card-title {
@@ -1264,7 +1279,8 @@
       align-items:center;
       gap:12px;
     }#home-root .logo-wrapper,
-    #classic-root .logo-wrapper{
+    #classic-root .logo-wrapper,
+    #settings-root .logo-wrapper{
       width: 72px;
       height: 72px;
       border-radius: 16px;
@@ -1278,7 +1294,8 @@
       position:relative;
       cursor:pointer;
     }#home-root .logo-wrapper::after,
-    #classic-root .logo-wrapper::after{
+    #classic-root .logo-wrapper::after,
+    #settings-root .logo-wrapper::after{
       content:"Choisir un fichier";
       position:absolute;
       inset:0;
@@ -1293,19 +1310,27 @@
       opacity:0;
       transition:opacity 0.15s ease-in-out;
     }#home-root .logo-wrapper:hover::after,
-    #classic-root .logo-wrapper:hover::after{
+    #classic-root .logo-wrapper:hover::after,
+    #settings-root .logo-wrapper:hover::after{
       opacity:1;
     }#home-root .logo-wrapper input[type="file"],
-    #classic-root .logo-wrapper input[type="file"]{
+    #classic-root .logo-wrapper input[type="file"],
+    #settings-root .logo-wrapper input[type="file"]{
       position:absolute;
       inset:0;
       opacity:0;
       cursor:pointer;
     }#home-root .logo-wrapper img,
-    #classic-root .logo-wrapper img{
+    #classic-root .logo-wrapper img,
+    #settings-root .logo-wrapper img{
       max-width:100%;
       max-height:100%;
       object-fit:contain;
+    }
+
+    /* Nouveau : wrapper logo affichage simple (sans upload) */
+    .logo-wrapper.is-display { cursor: default; }
+    .logo-wrapper.is-display::after { display: none; }
     }#classic-root .app-header-text{
       display:flex;
       flex-direction:column;
@@ -2144,11 +2169,10 @@
       <div class="home-hero"></div>
 
       <div class="home-logo" style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px;">
-        <label class="logo-wrapper">
+        <div class="logo-wrapper is-display">
           <img id="home-logo-preview" alt="Logo centre" />
-          <input id="home-logo-upload" type="file" accept="image/*" />
-        </label>
-        <div class="small-muted" id="home-logo-helper">Upload ton logo pour l’ensemble de l’app.</div>
+        </div>
+        <div class="small-muted">Logo géré dans l’onglet ⚙️ Paramètres.</div>
       </div>
 
       <div class="home-grid">
@@ -2263,6 +2287,21 @@
                 <label for="club-theme-text">Couleur du texte</label>
                 <input id="club-theme-text" type="color" value="#ffffff" />
               </div>
+              <div class="field">
+                <label for="club-theme-title">Couleur des titres</label>
+                <input id="club-theme-title" type="color" value="#e5e339" />
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive" aria-label="Logo du club">
+              <div class="settings-subtitle">🖼️ Logo du club</div>
+              <div class="settings-inline" style="align-items:center;">
+                <label class="logo-wrapper" style="margin-right:12px;">
+                  <img id="settings-logo-preview" alt="Logo du club" />
+                  <input id="settings-logo-upload" type="file" accept="image/*" />
+                </label>
+                <div class="small-muted" id="settings-logo-helper">Le logo uploadé est utilisé sur toutes les vues (accueil, TV, ligue…).</div>
+              </div>
             </div>
 
             <div class="settings-section app-block-interactive" aria-label="Typographie">
@@ -2294,6 +2333,19 @@
                   <label>Aperçu sponsor</label>
                   <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
                 </div>
+              </div>
+              <div class="settings-inline" style="gap:16px;">
+                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
+                  <input id="app-sponsor-md-toggle" type="checkbox" checked />
+                  Afficher en TV M/D
+                </label>
+                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
+                  <input id="app-sponsor-classic-toggle" type="checkbox" checked />
+                  Afficher en TV Tournoi
+                </label>
+              </div>
+              <div class="theme-actions" style="justify-content:flex-end; padding-top:6px;">
+                <button class="btn btn-secondary btn-small" id="btn-clear-sponsor" type="button">Supprimer le sponsor actuel</button>
               </div>
             </div>
 
@@ -2603,14 +2655,13 @@
         <div class="app">
     <header class="app-header">
       <div class="app-header-main">
-        <label class="logo-wrapper">
+        <div class="logo-wrapper is-display">
           <img id="logo-preview" alt="Logo centre" />
-          <input id="logo-upload" type="file" accept="image/*" />
-        </label>
+        </div>
         <div class="app-header-text">
           <h1>Tournoi classique</h1>
           <div class="subtitle" id="admin-subtitle">Poules + tableaux • … équipes</div>
-          <div class="small-muted" id="logo-helper">Upload ton logo et configure ton tournoi dans l’onglet “Configuration”.</div>
+          <div class="small-muted">Logo géré dans l’onglet ⚙️ Paramètres.</div>
         </div>
       </div>
       <div class="header-right">
@@ -2879,6 +2930,10 @@
       <div class="tv-inner">
         <div class="tv-logo-bar">
           <img id="tv-logo" alt="Logo TV" />
+        </div>
+        <div id="classic-tv-sponsor-banner" class="tv-sponsor" style="right: 16px; top: 16px; bottom: auto;">
+          <img id="classic-tv-sponsor-logo" alt="Sponsor" />
+          <div class="tv-sponsor-name" id="classic-tv-sponsor-name"></div>
         </div>
         <div id="pong-tv-widget-classic" class="pong-tv-widget pong-draggable" style="display:none;">
           <div class="widget-head" id="pong-tv-drag-classic">
@@ -3788,6 +3843,7 @@
         backgroundColor: '#020617',
         cardBackground: '#0b1220',
         textColor: '#ffffff',
+        titleColor: '#e5e339',
         logoDataUrl: null,
         fontFamily: 'system',
         sponsorName: '',
@@ -3795,7 +3851,9 @@
         buttonStyle: 'solid',
         cardShape: 'rounded',
         backgroundStyle: 'gradient',
-        backgroundImageDataUrl: null
+        backgroundImageDataUrl: null,
+        tvSponsorMd: true,
+        tvSponsorClassic: true
       };
 
       var currentClubProfile = null;
@@ -3852,7 +3910,7 @@
 
       function applyLogoVisual(src) {
         var logoSrc = src || '';
-        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview'];
+        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview', 'settings-logo-preview'];
         baseTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
@@ -3878,7 +3936,7 @@
           }
         });
 
-        var helperTargets = ['home-logo-helper', 'logo-helper'];
+        var helperTargets = ['settings-logo-helper'];
         helperTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
@@ -3923,12 +3981,13 @@
         }
       }
 
-      function applySponsorBanner(profile) {
-        var banner = document.getElementById('tv-sponsor-banner');
-        var logo = document.getElementById('tv-sponsor-logo');
-        var nameEl = document.getElementById('tv-sponsor-name');
+      function renderSponsorBanner(ids, profile, enabled) {
+        if (!ids || !ids.banner) return;
+        var banner = document.getElementById(ids.banner);
         if (!banner) return;
-        var hasContent = !!(profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
+        var logo = ids.logo ? document.getElementById(ids.logo) : null;
+        var nameEl = ids.name ? document.getElementById(ids.name) : null;
+        var hasContent = !!(enabled && profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
         if (!hasContent) {
           banner.style.display = 'none';
           if (logo) { logo.removeAttribute('src'); logo.style.display = 'none'; }
@@ -3981,6 +4040,7 @@
         root.style.setProperty('--brand-text', currentClubProfile.textColor);
         root.style.setProperty('--brand-accent-soft', accentSoft);
         root.style.setProperty('--brand-primary-glow', primaryGlow);
+        root.style.setProperty('--brand-title', currentClubProfile.titleColor || currentClubProfile.accentColor);
 
         root.style.setProperty('--blue-strong', currentClubProfile.primaryColor);
         root.style.setProperty('--blue-mid', currentClubProfile.secondaryColor);
@@ -4003,7 +4063,8 @@
         document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
-        applySponsorBanner(currentClubProfile);
+        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
+        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
 
@@ -4017,11 +4078,14 @@
         formInputs.bg.value = currentClubProfile.backgroundColor || DEFAULT_PROFILE.backgroundColor;
         formInputs.card.value = currentClubProfile.cardBackground || DEFAULT_PROFILE.cardBackground;
         formInputs.text.value = currentClubProfile.textColor || DEFAULT_PROFILE.textColor;
+        formInputs.title.value = currentClubProfile.titleColor || DEFAULT_PROFILE.titleColor;
         if (formInputs.font) formInputs.font.value = currentClubProfile.fontFamily || 'system';
         if (formInputs.sponsorName) formInputs.sponsorName.value = currentClubProfile.sponsorName || '';
         if (formInputs.buttonStyle) formInputs.buttonStyle.value = currentClubProfile.buttonStyle || 'solid';
         if (formInputs.cardShape) formInputs.cardShape.value = currentClubProfile.cardShape || 'rounded';
         if (formInputs.bgStyle) formInputs.bgStyle.value = currentClubProfile.backgroundStyle || 'gradient';
+        if (formInputs.sponsorMdToggle) formInputs.sponsorMdToggle.checked = currentClubProfile.tvSponsorMd !== false;
+        if (formInputs.sponsorClassicToggle) formInputs.sponsorClassicToggle.checked = currentClubProfile.tvSponsorClassic !== false;
         toggleBgImageField();
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
@@ -4042,9 +4106,12 @@
           bg: document.getElementById('club-theme-bg'),
           card: document.getElementById('club-theme-card'),
           text: document.getElementById('club-theme-text'),
+          title: document.getElementById('club-theme-title'),
           font: document.getElementById('club-theme-font'),
           sponsorName: document.getElementById('app-sponsor-name'),
           sponsorLogo: document.getElementById('app-sponsor-logo'),
+          sponsorMdToggle: document.getElementById('app-sponsor-md-toggle'),
+          sponsorClassicToggle: document.getElementById('app-sponsor-classic-toggle'),
           buttonStyle: document.getElementById('app-button-style'),
           cardShape: document.getElementById('app-card-shape'),
           bgStyle: document.getElementById('app-bg-style'),
@@ -4056,6 +4123,13 @@
         if (formInputs.font) {
           formInputs.font.addEventListener('change', function() {
             currentClubProfile.fontFamily = this.value || 'system';
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.title) {
+          formInputs.title.addEventListener('change', function() {
+            currentClubProfile.titleColor = this.value || DEFAULT_PROFILE.titleColor;
             persistAndApply();
           });
         }
@@ -4115,6 +4189,32 @@
           });
         }
 
+        var clearSponsorBtn = document.getElementById('btn-clear-sponsor');
+        if (clearSponsorBtn) {
+          clearSponsorBtn.addEventListener('click', function() {
+            currentClubProfile.sponsorName = '';
+            currentClubProfile.sponsorLogoDataUrl = null;
+            if (formInputs.sponsorName) formInputs.sponsorName.value = '';
+            if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
+            updateSponsorPreview(null);
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.sponsorMdToggle) {
+          formInputs.sponsorMdToggle.addEventListener('change', function() {
+            currentClubProfile.tvSponsorMd = !!this.checked;
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.sponsorClassicToggle) {
+          formInputs.sponsorClassicToggle.addEventListener('change', function() {
+            currentClubProfile.tvSponsorClassic = !!this.checked;
+            persistAndApply();
+          });
+        }
+
         var saveBtn = document.getElementById('btn-save-club-theme');
         if (saveBtn) {
           saveBtn.addEventListener('click', function() {
@@ -4127,6 +4227,7 @@
               backgroundColor: formInputs.bg.value || DEFAULT_PROFILE.backgroundColor,
               cardBackground: formInputs.card.value || DEFAULT_PROFILE.cardBackground,
               textColor: formInputs.text.value || DEFAULT_PROFILE.textColor,
+              titleColor: formInputs.title.value || DEFAULT_PROFILE.titleColor,
               logoDataUrl: currentClubProfile.logoDataUrl,
               fontFamily: (formInputs.font && formInputs.font.value) || 'system',
               sponsorName: (formInputs.sponsorName && formInputs.sponsorName.value) || '',
@@ -4134,7 +4235,9 @@
               buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
               cardShape: (formInputs.cardShape && formInputs.cardShape.value) || 'rounded',
               backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
-              backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl
+              backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl,
+              tvSponsorMd: formInputs.sponsorMdToggle ? !!formInputs.sponsorMdToggle.checked : true,
+              tvSponsorClassic: formInputs.sponsorClassicToggle ? !!formInputs.sponsorClassicToggle.checked : true
             });
             persistAndApply();
           });
@@ -4194,7 +4297,7 @@
 
       function applyLogoToElements(src) {
         var logoSrc = src || '';
-        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview'];
+        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview', 'settings-logo-preview'];
         baseTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
@@ -4220,7 +4323,7 @@
           }
         });
 
-        var helperTargets = ['home-logo-helper', 'logo-helper'];
+        var helperTargets = ['settings-logo-helper'];
         helperTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
@@ -4269,8 +4372,7 @@
         });
       }
 
-      bindLogoPersistence(document.getElementById('home-logo-upload'));
-      bindLogoPersistence(document.getElementById('logo-upload'));
+      bindLogoPersistence(document.getElementById('settings-logo-upload'));
 
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', loadPersistedLogo);
