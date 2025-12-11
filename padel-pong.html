@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Padel Pong Mobile</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <style>
+    :root {
+      --pp-dark: #004b9b;
+      --pp-mid: #4d81b9;
+      --pp-light: #e6edf5;
+      --pp-accent: #e5e339;
+      --pp-bg: #0b1830;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #233b70 0, #050915 55%, #000 100%);
+      color: var(--pp-light);
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .card {
+      background: rgba(11, 24, 48, 0.95);
+      border-radius: 18px;
+      padding: 14px 16px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(153, 183, 215, 0.2);
+    }
+
+    .title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      text-align: center;
+      margin-bottom: 8px;
+      color: var(--pp-light);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .brand-chip {
+      font-size: 0.75rem;
+      text-align: center;
+      color: #99b7d7;
+      margin-bottom: 10px;
+    }
+
+    .input-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-bottom: 10px;
+    }
+
+    .input-group label {
+      font-size: 0.78rem;
+      color: #c6d4f2;
+    }
+
+    input[type="text"] {
+      border-radius: 999px;
+      border: 1px solid rgba(153, 183, 215, 0.5);
+      padding: 6px 10px;
+      font-size: 0.85rem;
+      background: rgba(4, 11, 25, 0.9);
+      color: var(--pp-light);
+      outline: none;
+    }
+
+    input[type="text"]::placeholder {
+      color: #6f87b3;
+    }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 4px;
+      margin-bottom: 10px;
+      font-size: 0.85rem;
+    }
+
+    .toggle-row label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #dde6fb;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--pp-accent);
+    }
+
+    .btn {
+      border-radius: 999px;
+      border: none;
+      padding: 10px 16px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-align: center;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      width: 100%;
+      transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.15s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pp-accent), #ffe85a);
+      color: #222;
+      box-shadow: 0 6px 16px rgba(229, 227, 57, 0.5);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(229, 227, 57, 0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, var(--pp-mid), var(--pp-dark));
+      color: var(--pp-light);
+      border: 1px solid rgba(153, 183, 215, 0.7);
+    }
+
+    .btn-secondary:active {
+      transform: translateY(1px);
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-sm {
+      padding: 6px 10px;
+      font-size: 0.8rem;
+      border-radius: 999px;
+      width: auto;
+      text-transform: none;
+      letter-spacing: 0.03em;
+    }
+
+    /* Canvas / jeu */
+    .game-card {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: radial-gradient(circle at center, #0c3c79 0, #001129 55%, #000 100%);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 2px solid rgba(153, 183, 215, 0.7);
+    }
+
+    canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .scoreboard {
+      position: absolute;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(8px);
+      font-size: 0.8rem;
+      color: #f6f8ff;
+    }
+
+    .scoreboard span {
+      font-weight: 600;
+    }
+
+    .score-separator {
+      width: 18px;
+      text-align: center;
+      color: var(--pp-accent);
+    }
+
+    .control-hint {
+      font-size: 0.8rem;
+      color: #9fb3df;
+      text-align: center;
+      margin-top: 4px;
+    }
+
+    /* Zone commandes */
+    .controls-row {
+      display: flex;
+      gap: 90px; /* écart latéral flèches <-> A/B bien large */
+      margin-top: 12px;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .player-label {
+      font-size: 0.8rem;
+      text-align: center;
+      color: #c6d4f2;
+      margin-bottom: 6px;
+    }
+
+    .dpad-wrapper,
+    .actions-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Colonne Haut / Bas */
+    .dpad {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+      touch-action: none;
+    }
+
+    .dpad-btn {
+      width: 82px;
+      height: 82px;
+      border-radius: 16px;
+      border: 1px solid rgba(153, 183, 215, 0.7);
+      background: radial-gradient(circle at top, rgba(77,129,185,0.9), rgba(4,11,25,0.95));
+      color: var(--pp-light);
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 12px rgba(0, 0, 0, 0.8);
+    }
+
+    .dpad-btn:active {
+      background: radial-gradient(circle at top, rgba(229,227,57,0.3), rgba(4,11,25,0.95));
+      border-color: var(--pp-accent);
+      transform: translateY(2px);
+    }
+
+    .actions-label {
+      font-size: 0.8rem;
+      color: #c6d4f2;
+    }
+
+    /* Colonne A / B à droite */
+    .actions-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .action-btn {
+      width: 82px;
+      height: 82px;
+      border-radius: 999px;
+      border: 1px solid rgba(153, 183, 215, 0.9);
+      font-size: 1.4rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 14px rgba(0, 0, 0, 0.8);
+      touch-action: manipulation;
+    }
+
+    .action-a {
+      background: radial-gradient(circle at top, #ffb347, #ff7a3c);
+      color: #221006;
+    }
+
+    .action-b {
+      background: radial-gradient(circle at top, #c084ff, #7f3cff);
+      color: #fdfbff;
+    }
+
+    .action-btn:active {
+      transform: translateY(2px);
+      box-shadow: 0 3px 9px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Résultat */
+    .result-card {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .result-panel {
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, #001129, #072559);
+      border: 1px solid rgba(153, 183, 215, 0.8);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .result-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+      color: var(--pp-accent);
+      text-shadow: 0 0 6px rgba(229, 227, 57, 0.7);
+    }
+
+    .result-names {
+      font-size: 0.9rem;
+      color: #dde6fb;
+      margin-bottom: 4px;
+    }
+
+    .result-score {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--pp-light);
+      margin-bottom: 4px;
+    }
+
+    .result-tagline {
+      font-size: 0.75rem;
+      color: #9fb3df;
+      margin-bottom: 6px;
+    }
+
+    .pp-chip {
+      font-size: 0.7rem;
+      color: #f6f8ff;
+      margin-top: 3px;
+    }
+
+    .pp-chip span {
+      color: var(--pp-accent);
+    }
+
+    .result-popup {
+      margin-top: 4px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .result-popup.win {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      box-shadow: 0 0 14px rgba(39, 174, 96, 0.6);
+    }
+
+    .result-popup.lose {
+      background: linear-gradient(135deg, #ff4b5c, #c0392b);
+      box-shadow: 0 0 14px rgba(255, 75, 92, 0.6);
+    }
+
+    @media (min-height: 750px) {
+      .app-container {
+        padding-top: 18px;
+        padding-bottom: 18px;
+      }
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- ÉCRAN D'ACCUEIL SOLO -->
+    <div id="menu-screen" class="card">
+      <div class="title">Padel Pong</div>
+      <div class="brand-chip" id="brand-chip">Solo vs IA • Padel Parc</div>
+
+      <div class="input-group">
+        <label for="player1-name">Ton nom</label>
+        <input id="player1-name" type="text" placeholder="Joueur" />
+      </div>
+
+      <div class="toggle-row">
+        <label>
+          <input id="sound-toggle" type="checkbox" checked />
+          Son ON
+        </label>
+      </div>
+
+      <button id="start-btn" class="btn btn-primary">
+        ▶️ Jouer
+      </button>
+    </div>
+
+    <!-- ÉCRAN DE JEU -->
+    <div id="game-card" class="card game-card">
+      <div class="canvas-wrapper">
+        <canvas id="game-canvas"></canvas>
+        <div class="scoreboard" id="scoreboard">
+          <span id="score-p1">0</span>
+          <span class="score-separator">•</span>
+          <span id="score-p2">0</span>
+        </div>
+      </div>
+      <div class="control-hint">
+        Haut / Bas pour te déplacer • A = puissance • B = effet courbe • 1er à 5 points gagne
+      </div>
+
+      <div class="controls-row">
+        <div class="dpad-wrapper">
+          <div class="player-label">Toi</div>
+          <div class="dpad">
+            <button class="dpad-btn" id="dpad-up" data-dir="-1">▲</button>
+            <button class="dpad-btn" id="dpad-down" data-dir="1">▼</button>
+          </div>
+        </div>
+
+        <div class="actions-wrapper">
+          <div class="actions-label">Actions</div>
+          <div class="actions-buttons">
+            <button id="btn-a" class="action-btn action-a">A</button>
+            <button id="btn-b" class="action-btn action-b">B</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; margin-top:6px;">
+        <button id="back-to-menu" class="btn btn-secondary btn-sm">⏹ Quitter</button>
+        <button id="restart-btn" class="btn btn-secondary btn-sm">🔁 Rejouer</button>
+      </div>
+    </div>
+
+    <!-- ÉCRAN DE RÉSULTAT -->
+    <div id="result-card" class="card result-card">
+      <div id="result-panel" class="result-panel">
+        <div class="result-title">Fin de la partie</div>
+        <div class="result-names" id="result-names"></div>
+        <div class="result-score" id="result-score"></div>
+        <div class="result-tagline" id="result-tagline"></div>
+        <div id="result-popup" class="result-popup"></div>
+        <div class="pp-chip">Padel Pong • <span id="chip-sponsor">Padel Parc</span></div>
+      </div>
+      <button id="download-result" class="btn btn-primary">📸 Télécharger l'image du résultat</button>
+      <button id="play-again-from-result" class="btn btn-secondary">🔁 Rejouer</button>
+      <button id="back-menu-from-result" class="btn btn-secondary btn-sm">⬅️ Menu</button>
+    </div>
+  </div>
+
+  <script>
+ // ---------- CONFIG PADEL PONG (lecture depuis localStorage) ----------
+const defaultConfig = {
+  sponsorName: "Padel Parc",
+  sponsorLogoUrl: "config.sponsorLogoUrl", // image utilisée au centre du terrain
+  aiName: "IA Padel Parc"
+};
+
+let config = { ...defaultConfig };
+
+try {
+  const stored = localStorage.getItem("padelPongConfig");
+  if (stored) {
+    const parsed = JSON.parse(stored);
+    if (parsed && typeof parsed === "object") {
+      config = { ...config, ...parsed };
+    }
+  }
+} catch (e) {
+  console.warn("Config Padel Pong invalide dans localStorage", e);
+}
+    // ----- Variables globales du jeu -----
+    const canvas = document.getElementById("game-canvas");
+    const ctx = canvas.getContext("2d");
+
+    let width = 320;
+    let height = 180;
+
+    const paddleWidth = 8;
+    const paddleHeight = 35;
+    const paddleGap = 14;
+    const paddleSpeed = 3;
+
+    const ballRadius = 5;
+    const ballSpeedBase = 2.3;
+
+    let p1Y = 50;
+    let p2Y = 50;
+    let p1Dir = 0;
+
+    let ballX, ballY, ballVX, ballVY;
+
+    let scoreP1 = 0;
+    let scoreP2 = 0;
+    const maxScore = 5;
+
+    let lastTime = 0;
+    let gameRunning = false;
+    let gameEnded = false;
+
+    let player1Name = "Joueur";
+    let player2Name = config.aiName;
+
+    let soundEnabled = true;
+    let audioContext = null;
+
+    // Mode de balle : normal / power / spin
+    let ballMode = "normal";
+    let ballSpinDirection = 0; // +1 = courbe vers le bas, -1 = vers le haut
+    let playerPowerMode = null;
+    let aiPowerMode = null;
+
+    // Logo sponsor au centre du terrain
+    const logoImg = new Image();
+    logoImg.src = config.sponsorLogoUrl;
+    let logoLoaded = false;
+    logoImg.onload = () => {
+      logoLoaded = true;
+    };
+
+    // ----- DOM éléments -----
+    const menuScreen = document.getElementById("menu-screen");
+    const gameCard = document.getElementById("game-card");
+    const resultCard = document.getElementById("result-card");
+
+    const startBtn = document.getElementById("start-btn");
+    const restartBtn = document.getElementById("restart-btn");
+    const backToMenuBtn = document.getElementById("back-to-menu");
+    const soundToggle = document.getElementById("sound-toggle");
+
+    const p1NameInput = document.getElementById("player1-name");
+
+    const scoreP1Span = document.getElementById("score-p1");
+    const scoreP2Span = document.getElementById("score-p2");
+
+    const brandChip = document.getElementById("brand-chip");
+    const resultNames = document.getElementById("result-names");
+    const resultScore = document.getElementById("result-score");
+    const resultTagline = document.getElementById("result-tagline");
+    const resultPanel = document.getElementById("result-panel");
+    const resultPopup = document.getElementById("result-popup");
+    const downloadResultBtn = document.getElementById("download-result");
+    const playAgainFromResultBtn = document.getElementById("play-again-from-result");
+    const backMenuFromResultBtn = document.getElementById("back-menu-from-result");
+    const chipSponsor = document.getElementById("chip-sponsor");
+
+    const dpadUpBtn = document.getElementById("dpad-up");
+    const dpadDownBtn = document.getElementById("dpad-down");
+
+    const btnA = document.getElementById("btn-a");
+    const btnB = document.getElementById("btn-b");
+
+    // Appliquer sponsor & IA dans l’UI
+    brandChip.textContent = `Solo vs ${config.aiName} • ${config.sponsorName}`;
+    chipSponsor.textContent = config.sponsorName;
+    
+    // ----- Resize canvas -----
+    function resizeCanvasInternal() {
+      width = 320;
+      height = 180;
+      canvas.width = width;
+      canvas.height = height;
+    }
+    resizeCanvasInternal();
+    window.addEventListener("resize", resizeCanvasInternal);
+
+    // ----- Audio -----
+    function initAudioContext() {
+      if (!audioContext) {
+        audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function playBlop(freq = 420) {
+      if (!soundEnabled) return;
+      if (!audioContext) initAudioContext();
+      const ctxAudio = audioContext;
+      const osc = ctxAudio.createOscillator();
+      const gainNode = ctxAudio.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, ctxAudio.currentTime);
+      gainNode.gain.setValueAtTime(0.12, ctxAudio.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctxAudio.currentTime + 0.12);
+      osc.connect(gainNode);
+      gainNode.connect(ctxAudio.destination);
+      osc.start();
+      osc.stop(ctxAudio.currentTime + 0.13);
+    }
+
+    // ----- Logique du jeu -----
+    function resetBall(direction = 1) {
+      ballX = width / 2;
+      ballY = height / 2;
+
+      ballMode = "normal";
+      ballSpinDirection = 0;
+      playerPowerMode = null;
+      aiPowerMode = null;
+
+      const angle = (Math.random() * 0.6 - 0.3);
+      const speed = ballSpeedBase + (scoreP1 + scoreP2) * 0.08;
+      ballVX = direction * speed * Math.cos(angle);
+      ballVY = speed * Math.sin(angle);
+    }
+
+    function resetGameState() {
+      scoreP1 = 0;
+      scoreP2 = 0;
+      scoreP1Span.textContent = scoreP1;
+      scoreP2Span.textContent = scoreP2;
+      p1Y = height / 2;
+      p2Y = height / 2;
+      p1Dir = 0;
+      gameEnded = false;
+      resetBall(Math.random() < 0.5 ? 1 : -1);
+    }
+
+    function updateAI(delta) {
+      // IA ~5–6/10
+      const aiSpeed = 2.2;
+      const moveAmount = aiSpeed * (delta / 16.67);
+
+      if (ballVX > 0) {
+        const noise = (Math.random() - 0.5) * 10;
+        const targetY = ballY + noise;
+
+        if (targetY < p2Y - 4) {
+          p2Y -= moveAmount;
+        } else if (targetY > p2Y + 4) {
+          p2Y += moveAmount;
+        }
+
+        const minY = paddleHeight / 2;
+        const maxY = height - paddleHeight / 2;
+        p2Y = Math.max(minY, Math.min(maxY, p2Y));
+
+        // IA utilise parfois A / B
+        if (!aiPowerMode && ballX > width * 0.6) {
+          const r = Math.random();
+          if (r < 0.10) {
+            aiPowerMode = "power";
+          } else if (r < 0.18) {
+            aiPowerMode = "spin";
+          }
+        }
+      }
+    }
+
+    function update(delta) {
+      if (!gameRunning || gameEnded) return;
+
+      const moveAmount = paddleSpeed * (delta / 16.67);
+      p1Y += p1Dir * moveAmount;
+
+      const minY = paddleHeight / 2;
+      const maxY = height - paddleHeight / 2;
+      p1Y = Math.max(minY, Math.min(maxY, p1Y));
+
+      updateAI(delta);
+
+      const speedFactor = delta / 16.67;
+      ballX += ballVX * speedFactor;
+      ballY += ballVY * speedFactor;
+
+      if (ballMode === "spin" && ballSpinDirection !== 0) {
+        const spinStrength = 0.14;
+        ballVY += ballSpinDirection * spinStrength * speedFactor;
+      }
+
+      if (ballY - ballRadius <= 6) {
+        ballY = 6 + ballRadius;
+        ballVY = Math.abs(ballVY);
+        playBlop(460);
+      } else if (ballY + ballRadius >= height - 6) {
+        ballY = height - 6 - ballRadius;
+        ballVY = -Math.abs(ballVY);
+        playBlop(460);
+      }
+
+      // Collision joueur (gauche)
+      if (ballX - ballRadius <= (10 + paddleWidth) && ballVX < 0) {
+        const leftLimit = 10 + paddleWidth;
+
+        const topPaddle1Center = p1Y - paddleGap / 2;
+        const topPaddle2Center = p1Y + paddleGap / 2;
+
+        const hitTop = (ballY >= topPaddle1Center - paddleHeight / 2 &&
+                        ballY <= topPaddle1Center + paddleHeight / 2);
+        const hitBottom = (ballY >= topPaddle2Center - paddleHeight / 2 &&
+                           ballY <= topPaddle2Center + paddleHeight / 2);
+
+        if (hitTop || hitBottom) {
+          ballX = leftLimit + ballRadius;
+
+          let speedMult = 1.05;
+          let vyKick = 0.6;
+          if (playerPowerMode === "power") {
+            speedMult = 1.28;
+          } else if (playerPowerMode === "spin") {
+            vyKick = 0.4;
+          }
+
+          ballVX = Math.abs(ballVX) * speedMult;
+          const center = hitTop ? topPaddle1Center : topPaddle2Center;
+          const offset = (ballY - center) / (paddleHeight / 2);
+          ballVY += offset * vyKick;
+
+          if (playerPowerMode === "spin") {
+            ballMode = "spin";
+            ballSpinDirection = p1Y < height / 2 ? 1 : -1;
+          } else if (playerPowerMode === "power") {
+            ballMode = "power";
+            ballSpinDirection = 0;
+          } else {
+            ballMode = "normal";
+            ballSpinDirection = 0;
+          }
+          playerPowerMode = null;
+
+          const freq = ballMode === "power" ? 580 : ballMode === "spin" ? 360 : 520;
+          playBlop(freq);
+        }
+      }
+
+      // Collision IA (droite)
+      if (ballX + ballRadius >= (width - 10 - paddleWidth) && ballVX > 0) {
+        const rightLimit = width - 10 - paddleWidth;
+
+        const topPaddle1Center = p2Y - paddleGap / 2;
+        const topPaddle2Center = p2Y + paddleGap / 2;
+
+        const hitTop = (ballY >= topPaddle1Center - paddleHeight / 2 &&
+                        ballY <= topPaddle1Center + paddleHeight / 2);
+        const hitBottom = (ballY >= topPaddle2Center - paddleHeight / 2 &&
+                           ballY <= topPaddle2Center + paddleHeight / 2);
+
+        if (hitTop || hitBottom) {
+          ballX = rightLimit - ballRadius;
+
+          let speedMult = 1.05;
+          let vyKick = 0.6;
+          if (aiPowerMode === "power") {
+            speedMult = 1.22;
+          } else if (aiPowerMode === "spin") {
+            vyKick = 0.4;
+          }
+
+          ballVX = -Math.abs(ballVX) * speedMult;
+          const center = hitTop ? topPaddle1Center : topPaddle2Center;
+          const offset = (ballY - center) / (paddleHeight / 2);
+          ballVY += offset * vyKick;
+
+          if (aiPowerMode === "spin") {
+            ballMode = "spin";
+            ballSpinDirection = p2Y < height / 2 ? 1 : -1;
+          } else if (aiPowerMode === "power") {
+            ballMode = "power";
+            ballSpinDirection = 0;
+          } else {
+            ballMode = "normal";
+            ballSpinDirection = 0;
+          }
+          aiPowerMode = null;
+
+          const freq = ballMode === "power" ? 560 : ballMode === "spin" ? 340 : 520;
+          playBlop(freq);
+        }
+      }
+
+      // Mur gauche = point IA
+      if (ballX + ballRadius < 0) {
+        scoreP2++;
+        scoreP2Span.textContent = scoreP2;
+        ballMode = "normal";
+        ballSpinDirection = 0;
+        playerPowerMode = null;
+        aiPowerMode = null;
+        if (scoreP2 >= maxScore) {
+          endGame(2);
+        } else {
+          resetBall(1);
+        }
+      }
+
+      // Mur droit = point joueur
+      if (ballX - ballRadius > width) {
+        scoreP1++;
+        scoreP1Span.textContent = scoreP1;
+        ballMode = "normal";
+        ballSpinDirection = 0;
+        playerPowerMode = null;
+        aiPowerMode = null;
+        if (scoreP1 >= maxScore) {
+          endGame(1);
+        } else {
+          resetBall(-1);
+        }
+      }
+    }
+
+    // ----- Dessin du terrain -----
+    function drawCourt() {
+      const grd = ctx.createLinearGradient(0, 0, 0, height);
+      grd.addColorStop(0, "#0f3c88");
+      grd.addColorStop(0.5, "#03224a");
+      grd.addColorStop(1, "#02091a");
+      ctx.fillStyle = grd;
+      ctx.fillRect(0, 0, width, height);
+
+      ctx.fillStyle = "rgba(153,183,215,0.12)";
+      ctx.fillRect(0, 0, 5, height);
+      ctx.fillRect(width - 5, 0, 5, height);
+
+      ctx.strokeStyle = "rgba(229,227,57,0.7)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(6, 6, width - 12, height - 12);
+
+      ctx.strokeStyle = "rgba(153,183,215,0.45)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(6, height / 2);
+      ctx.lineTo(width - 6, height / 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = "rgba(230,237,245,0.4)";
+      ctx.setLineDash([4, 6]);
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(width / 2, 6);
+      ctx.lineTo(width / 2, height - 6);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      ctx.strokeStyle = "rgba(153,183,215,0.4)";
+      ctx.lineWidth = 1;
+      const quarterLeft = width / 2 - (width - 12) / 4;
+      const quarterRight = width / 2 + (width - 12) / 4;
+      ctx.beginPath();
+      ctx.moveTo(quarterLeft, 6);
+      ctx.lineTo(quarterLeft, height - 6);
+      ctx.moveTo(quarterRight, 6);
+      ctx.lineTo(quarterRight, height - 6);
+      ctx.stroke();
+
+      // Logo sponsor au centre
+      if (logoLoaded) {
+        const size = 54;
+        const x = width / 2 - size / 2;
+        const y = height / 2 - size / 2;
+        const r = 12;
+
+        ctx.save();
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(x, y, size, size, r);
+        } else {
+          ctx.arc(width / 2, height / 2, size / 2, 0, Math.PI * 2);
+        }
+        ctx.clip();
+
+        ctx.fillStyle = "#000";
+        ctx.fillRect(x, y, size, size);
+        ctx.drawImage(logoImg, x, y, size, size);
+
+        ctx.restore();
+
+        ctx.strokeStyle = "rgba(229,227,57,0.8)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(x, y, size, size, r);
+        } else {
+          ctx.arc(width / 2, height / 2, size / 2, 0, Math.PI * 2);
+        }
+        ctx.stroke();
+      }
+    }
+
+    function drawBall() {
+      let color = "#fffb9a";
+      let glow = "#fffb9a";
+
+      if (ballMode === "power") {
+        color = "#ffb347";
+        glow = "#ffb347";
+      } else if (ballMode === "spin") {
+        color = "#c084ff";
+        glow = "#c084ff";
+      }
+
+      ctx.save();
+
+      const trailX = ballX - ballVX * 0.5;
+      const trailY = ballY - ballVY * 0.5;
+      ctx.globalAlpha = 0.35;
+      ctx.fillStyle = glow;
+      ctx.beginPath();
+      ctx.arc(trailX, trailY, ballRadius * 1.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+
+      ctx.beginPath();
+      ctx.arc(ballX, ballY, ballRadius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = glow;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      if (ballMode === "spin") {
+        ctx.strokeStyle = "rgba(0,0,0,0.6)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(ballX - ballRadius / 2, ballY);
+        ctx.lineTo(ballX + ballRadius / 2, ballY);
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function draw() {
+      drawCourt();
+
+      ctx.fillStyle = "#e5e339";
+      const p1TopCenter = p1Y - paddleGap / 2;
+      const p1BottomCenter = p1Y + paddleGap / 2;
+      ctx.fillRect(10, p1TopCenter - paddleHeight / 2, paddleWidth, paddleHeight);
+      ctx.fillRect(10, p1BottomCenter - paddleHeight / 2, paddleWidth, paddleHeight);
+
+      ctx.fillStyle = "#99b7d7";
+      const p2TopCenter = p2Y - paddleGap / 2;
+      const p2BottomCenter = p2Y + paddleGap / 2;
+      ctx.fillRect(width - 10 - paddleWidth, p2TopCenter - paddleHeight / 2, paddleWidth, paddleHeight);
+      ctx.fillRect(width - 10 - paddleWidth, p2BottomCenter - paddleHeight / 2, paddleWidth, paddleHeight);
+
+      drawBall();
+    }
+
+    function gameLoop(timestamp) {
+      if (!lastTime) lastTime = timestamp;
+      const delta = timestamp - lastTime;
+      lastTime = timestamp;
+
+      if (gameRunning && !gameEnded) {
+        update(delta);
+        draw();
+      }
+
+      requestAnimationFrame(gameLoop);
+    }
+    requestAnimationFrame(gameLoop);
+
+    // ----- Fin de partie -----
+    function endGame(winner) {
+      gameEnded = true;
+      gameRunning = false;
+
+      const p1 = player1Name || "Joueur";
+      const p2 = player2Name;
+
+      let winnerScore = winner === 1 ? scoreP1 : scoreP2;
+      let loserScore = winner === 1 ? scoreP2 : scoreP1;
+
+      resultNames.textContent = `${p1} vs ${p2}`;
+      resultScore.textContent = `${winnerScore} – ${loserScore}`;
+
+      if (winner === 1) {
+        resultTagline.textContent = `${p1} bat ${p2} !`;
+        resultPopup.className = "result-popup win";
+        resultPopup.textContent =
+          "Bravo! Tu as gagné une récompense ! 🏆 Va voir l'arbitre du tournoi ! 👌🏼";
+      } else {
+        resultTagline.textContent = `${p2} remporte ce match.`;
+        resultPopup.className = "result-popup lose";
+        resultPopup.textContent =
+          "Dommage ! Retente ta chance ! 🔂";
+      }
+
+      gameCard.style.display = "none";
+      resultCard.style.display = "flex";
+    }
+
+    // ----- D-Pad -----
+    function attachDpadButton(btn) {
+      const dir = parseInt(btn.dataset.dir, 10);
+
+      const start = (e) => {
+        e.preventDefault();
+        p1Dir = dir;
+      };
+      const end = (e) => {
+        e.preventDefault();
+        if (p1Dir === dir) p1Dir = 0;
+      };
+
+      btn.addEventListener("touchstart", start, { passive: false });
+      btn.addEventListener("touchend", end, { passive: false });
+      btn.addEventListener("touchcancel", end, { passive: false });
+
+      btn.addEventListener("mousedown", start);
+      btn.addEventListener("mouseup", end);
+      btn.addEventListener("mouseleave", end);
+    }
+
+    attachDpadButton(dpadUpBtn);
+    attachDpadButton(dpadDownBtn);
+
+    // ----- Boutons A & B -----
+    function setupActionButton(btn, mode) {
+      const handler = (e) => {
+        e.preventDefault();
+        playerPowerMode = mode;
+        playBlop(mode === "power" ? 600 : 340);
+      };
+
+      btn.addEventListener("touchstart", handler, { passive: false });
+      btn.addEventListener("click", handler);
+    }
+
+    setupActionButton(btnA, "power");
+    setupActionButton(btnB, "spin");
+
+    // ----- UI events -----
+    soundToggle.addEventListener("change", () => {
+      soundEnabled = soundToggle.checked;
+      if (soundEnabled) initAudioContext();
+    });
+startBtn.addEventListener("click", () => {
+  player1Name = p1NameInput.value.trim() || "Joueur";
+  player2Name = config.aiName;
+
+  scoreP1Span.textContent = "0";
+  scoreP2Span.textContent = "0";
+
+  menuScreen.style.display = "none";
+  resultCard.style.display = "none";
+  gameCard.style.display = "flex";
+
+  resetGameState();
+  gameRunning = true;
+  lastTime = 0;
+    });
+
+    restartBtn.addEventListener("click", () => {
+      resetGameState();
+      gameRunning = true;
+    });
+
+    backToMenuBtn.addEventListener("click", () => {
+      gameRunning = false;
+      menuScreen.style.display = "block";
+      gameCard.style.display = "none";
+      resultCard.style.display = "none";
+    });
+
+    playAgainFromResultBtn.addEventListener("click", () => {
+      resultCard.style.display = "none";
+      gameCard.style.display = "flex";
+      resetGameState();
+      gameRunning = true;
+    });
+
+    backMenuFromResultBtn.addEventListener("click", () => {
+      resultCard.style.display = "none";
+      menuScreen.style.display = "block";
+      gameCard.style.display = "none";
+    });
+
+    // ----- Capture d'image du résultat -----
+    downloadResultBtn.addEventListener("click", async () => {
+      try {
+        const canvasImg = await html2canvas(resultPanel, {
+          backgroundColor: "#001129",
+          scale: 2
+        });
+        const dataUrl = canvasImg.toDataURL("image/png");
+        const p1 = player1Name || "Joueur";
+        const p2 = player2Name;
+        const link = document.createElement("a");
+        link.href = dataUrl;
+        link.download = `padel-pong-${p1}-vs-${p2}.png`;
+        link.click();
+      } catch (err) {
+        console.error("Erreur capture résultat:", err);
+        alert("Impossible de générer l'image du résultat sur ce navigateur.");
+      }
+    });
+
+    // Débloquer l'audio sur 1ère interaction
+    window.addEventListener("click", () => {
+      if (!audioContext && soundEnabled) {
+        initAudioContext();
+      }
+    }, { once: true });
+  </script>
+</body>
+</html>
