@@ -405,7 +405,7 @@
     /* Fin thèmes de fond */
 
     /* Bandeau sponsor TV */
-    .tv-sponsor { position: absolute; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
+    .tv-sponsor { position: absolute; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
     .tv-sponsor img { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
     .tv-sponsor .tv-sponsor-name { font-weight: 700; font-size: 0.8rem; }
     /* Fin bandeau sponsor TV */
@@ -3853,7 +3853,9 @@
         backgroundStyle: 'gradient',
         backgroundImageDataUrl: null,
         tvSponsorMd: true,
-        tvSponsorClassic: true
+        tvSponsorClassic: true,
+        tvSponsorMdPos: null,
+        tvSponsorClassicPos: null
       };
 
       var currentClubProfile = null;
@@ -3981,6 +3983,73 @@
         }
       }
 
+      // Nouveau : bloc sponsor déplaçable en vue TV
+      function applySponsorPosition(el, pos) {
+        if (!el || !pos) return;
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.left = (typeof pos.x === 'number' ? pos.x : 0) + '%';
+        el.style.top = (typeof pos.y === 'number' ? pos.y : 0) + '%';
+      }
+
+      function makeSponsorDraggable(bannerId, posKey, containerId) {
+        var banner = document.getElementById(bannerId);
+        if (!banner) return;
+        var container = containerId ? document.getElementById(containerId) : null;
+        var activeProfile = currentClubProfile || DEFAULT_PROFILE;
+        if (activeProfile && activeProfile[posKey]) applySponsorPosition(banner, activeProfile[posKey]);
+
+        function onDragStart(e) {
+          e.preventDefault();
+          var rect = (container || document.body).getBoundingClientRect();
+          var start = { x: e.clientX, y: e.clientY };
+          var box = banner.getBoundingClientRect();
+          var offsetX = box.left - rect.left;
+          var offsetY = box.top - rect.top;
+          var currentPos = null;
+
+          function clampPercent(val, size, total) {
+            var maxPct = 100 - ((size / total) * 100);
+            var pct = (val / total) * 100;
+            if (maxPct < 0) maxPct = 0;
+            if (pct < 0) pct = 0;
+            if (pct > maxPct) pct = maxPct;
+            return pct;
+          }
+
+          function onMove(ev) {
+            ev.preventDefault();
+            var deltaX = ev.clientX - start.x;
+            var deltaY = ev.clientY - start.y;
+            var newLeft = offsetX + deltaX;
+            var newTop = offsetY + deltaY;
+            var width = rect.width || window.innerWidth;
+            var height = rect.height || window.innerHeight;
+            var xPct = clampPercent(newLeft, banner.offsetWidth, width);
+            var yPct = clampPercent(newTop, banner.offsetHeight, height);
+            banner.style.left = xPct + '%';
+            banner.style.top = yPct + '%';
+            banner.style.right = 'auto';
+            banner.style.bottom = 'auto';
+            currentPos = { x: xPct, y: yPct };
+          }
+
+          function onEnd() {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            if (currentPos && currentClubProfile) {
+              currentClubProfile[posKey] = currentPos;
+              saveProfile();
+            }
+          }
+
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onEnd);
+        }
+
+        banner.addEventListener('mousedown', onDragStart);
+      }
+
       function renderSponsorBanner(ids, profile, enabled) {
         if (!ids || !ids.banner) return;
         var banner = document.getElementById(ids.banner);
@@ -4005,6 +4074,13 @@
           }
         }
         if (nameEl) nameEl.textContent = profile.sponsorName || '';
+        if (ids.posKey && (!profile || !profile[ids.posKey])) {
+          banner.style.left = '';
+          banner.style.top = '';
+          banner.style.right = '';
+          banner.style.bottom = '';
+        }
+        if (ids.posKey && profile && profile[ids.posKey]) applySponsorPosition(banner, profile[ids.posKey]);
       }
 
       function updateSponsorPreview(src) {
@@ -4063,9 +4139,14 @@
         document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
-        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
-        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
+        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
+        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
+      }
+
+      function initSponsorDragBlocks() {
+        makeSponsorDraggable('tv-sponsor-banner', 'tvSponsorMdPos', 'tv-root');
+        makeSponsorDraggable('classic-tv-sponsor-banner', 'tvSponsorClassicPos', 'tv-overlay');
       }
 
       function syncThemeForm() {
@@ -4237,7 +4318,9 @@
               backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
               backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl,
               tvSponsorMd: formInputs.sponsorMdToggle ? !!formInputs.sponsorMdToggle.checked : true,
-              tvSponsorClassic: formInputs.sponsorClassicToggle ? !!formInputs.sponsorClassicToggle.checked : true
+              tvSponsorClassic: formInputs.sponsorClassicToggle ? !!formInputs.sponsorClassicToggle.checked : true,
+              tvSponsorMdPos: currentClubProfile.tvSponsorMdPos,
+              tvSponsorClassicPos: currentClubProfile.tvSponsorClassicPos
             });
             persistAndApply();
           });
@@ -4248,7 +4331,9 @@
           resetBtn.addEventListener('click', function() {
             var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
             var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor });
+            var preservedMdPos = currentClubProfile && currentClubProfile.tvSponsorMdPos;
+            var preservedClassicPos = currentClubProfile && currentClubProfile.tvSponsorClassicPos;
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos });
             persistAndApply();
           });
         }
@@ -4264,6 +4349,7 @@
         currentClubProfile = loadProfile();
         applyClubTheme(currentClubProfile);
         bindThemeForm();
+        initSponsorDragBlocks();
       }
 
       if (document.readyState === 'loading') {
