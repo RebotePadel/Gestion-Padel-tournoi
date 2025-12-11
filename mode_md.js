@@ -1,11 +1,12 @@
 (function(){
 'use strict';
 
-// Racine du mode M/D pour limiter tout accès DOM à cette section uniquement
-// Fallback sur #admin-root (structure actuelle de l’app) pour éviter les sélecteurs vides.
+// Racines scindées : admin M/D et TV M/D
 var mdRoot = document.getElementById('md-root') || document.getElementById('admin-root') || document;
+var mdAdminRoot = document.getElementById('admin-root') || mdRoot;
+var mdTvRoot = document.getElementById('tv-root') || document;
 function mdSel(selector) {
-  return mdRoot ? mdRoot.querySelector(selector) : null;
+  return mdAdminRoot ? mdAdminRoot.querySelector(selector) : null;
 }
 /* Résumé corrections :
    - Rééquilibrage montées/descentes par terrain pour chaque roulement.
@@ -72,7 +73,7 @@ function applySkin() {
       logoEl.style.display = "block";
     } else logoEl.style.display = "none";
   }
-  var tvLogo = mdSel("#tv-logo");
+  var tvLogo = mdTvRoot ? mdTvRoot.querySelector('#tv-logo') : null;
   if (tvLogo) {
     if (skin.logoUrl) {
       tvLogo.src = skin.logoUrl;
@@ -116,13 +117,14 @@ var elRanking       = mdSel("#ranking");
 var elBtnPrevRound  = mdSel("#btn-prev-round");
 var elBtnNextRound  = mdSel("#btn-next-round");
 
-var elTvTournoiName   = mdSel("#tv-tournoi-name");
-var elTvRoulementInfo = mdSel("#tv-roulement-info");
-var elTvLabelRoulement= mdSel("#tv-label-roulement");
-var elTvCurrentList   = mdSel("#tv-current-list");
-var elTvNextList      = mdSel("#tv-next-list");
-var elTvPodium        = mdSel("#tv-podium");
-var elTvRankingGrid   = mdSel("#tv-ranking-grid");
+// Sélecteurs TV : scope sur la racine TV pour éviter les collisions avec le classique
+var elTvTournoiName   = mdTvRoot ? mdTvRoot.querySelector("#tv-tournoi-name") : null;
+var elTvRoulementInfo = mdTvRoot ? mdTvRoot.querySelector("#tv-roulement-info") : null;
+var elTvLabelRoulement= mdTvRoot ? mdTvRoot.querySelector("#tv-label-roulement") : null;
+var elTvCurrentList   = mdTvRoot ? mdTvRoot.querySelector("#tv-current-list") : null;
+var elTvNextList      = mdTvRoot ? mdTvRoot.querySelector("#tv-next-list") : null;
+var elTvPodium        = mdTvRoot ? mdTvRoot.querySelector("#tv-podium") : null;
+var elTvRankingGrid   = mdTvRoot ? mdTvRoot.querySelector("#tv-ranking-grid") : null;
 
 applySkin();
 ensureHistoryUI();
