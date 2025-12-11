@@ -3718,7 +3718,7 @@
       }
 
       function buildSocialDayImage(league, roundNumber, bgOverride) {
-        // Nouveau rendu: export journée en PNG avec fond personnalisé chargé depuis les paramètres
+        // Export journée avec fond utilisateur : mise en page proportionnelle et tableau sans colonne terrain
         return new Promise(function(resolve, reject) {
           if (!league) return reject(new Error('Aucune ligue fournie'));
           var bgSrc = bgOverride || window.leagueExportBackgroundDataUrl || null;
@@ -3727,25 +3727,26 @@
           var matches = (league.matches || []).filter(function(m) { return parseInt(m.round, 10) === parseInt(roundNumber, 10); });
           var img = new Image();
           img.onload = function() {
-            var cw = img.naturalWidth || 1080;
-            var ch = img.naturalHeight || 1920;
+            var W = img.naturalWidth || 1080;
+            var H = img.naturalHeight || 1920;
             var canvas = document.createElement('canvas');
-            canvas.width = cw;
-            canvas.height = ch;
+            canvas.width = W;
+            canvas.height = H;
             var ctx = canvas.getContext('2d');
 
-            // Dessiner le fond
-            ctx.drawImage(img, 0, 0, cw, ch);
+            // Fond plein écran
+            ctx.drawImage(img, 0, 0, W, H);
 
-            // Palette et polices
+            // Palette et police
             var accent = '#e5e339';
             var softBlue = '#b4d2fa';
             var whiteBlue = '#f0f4ff';
-            var fontFamily = (getComputedStyle(document.documentElement).getPropertyValue('--app-font-family') || '').trim() || 'Poppins, Montserrat, system-ui, sans-serif';
+            var fontFamily = (getComputedStyle(document.documentElement).getPropertyValue('--app-font-family') || '').trim() || "Poppins, Montserrat, system-ui, sans-serif";
 
-            function text(txt, size, color, x, y, align, weight) {
+            function px(percent) { return percent * H; }
+            function drawText(txt, size, color, x, y, align, weight) {
               ctx.save();
-              ctx.font = (weight || '700') + ' ' + size + 'px ' + fontFamily;
+              ctx.font = (weight || '600') + ' ' + size + 'px ' + fontFamily;
               ctx.fillStyle = color;
               ctx.textAlign = align || 'center';
               ctx.textBaseline = 'middle';
@@ -3753,54 +3754,57 @@
               ctx.restore();
             }
 
-            // Zones dynamiques basées sur la hauteur
-            var titleY = ch * 0.20;
-            var subtitleY = ch * 0.26;
-            var tableTop = ch * 0.34;
-            var rowGap = ch * 0.08;
-            var headerSize = Math.max(18, Math.round(ch * 0.032));
-            var titleSize = Math.max(28, Math.round(ch * 0.055));
-            var subtitleSize = Math.max(20, Math.round(ch * 0.032));
-            var rowTextSize = Math.max(18, Math.round(ch * 0.03));
+            // Zone centrale
+            var contentLeft = W * 0.12;
+            var contentRight = W * 0.88;
+            var contentWidth = contentRight - contentLeft;
 
             // Titre et sous-titre
-            text('Ligue Interne Journée ' + roundNumber, titleSize, accent, cw / 2, titleY, 'center', '800');
-            text('Résultats officiels', subtitleSize, softBlue, cw / 2, subtitleY, 'center', '700');
+            var titleY = px(0.18);
+            var titleSize = px(0.045);
+            drawText('Ligue Interne Journée ' + roundNumber, titleSize, accent, W / 2, titleY, 'center', '600');
 
-            // Entêtes du tableau
-            var colA = cw * 0.18;
-            var colScore = cw * 0.5;
-            var colB = cw * 0.62;
-            text('Équipe A', headerSize, whiteBlue, colA, tableTop, 'left', '700');
-            text('Score', headerSize, softBlue, colScore, tableTop, 'center', '700');
-            text('Équipe B', headerSize, whiteBlue, colB, tableTop, 'left', '700');
+            var subtitleY = titleY + px(0.05);
+            var subtitleSize = px(0.028);
+            drawText('Résultats officiels', subtitleSize, softBlue, W / 2, subtitleY, 'center', '700');
 
-            // Ligne de séparation sous l'entête
+            // Entêtes
+            var headerY = subtitleY + px(0.06);
+            var headerSize = px(0.028);
+            var colA = contentLeft;
+            var colScore = W / 2;
+            var colB = contentLeft + contentWidth * 0.55;
+            drawText('Équipe A', headerSize, whiteBlue, colA, headerY, 'left', '700');
+            drawText('Score', headerSize, softBlue, colScore, headerY, 'center', '700');
+            drawText('Équipe B', headerSize, whiteBlue, colB, headerY, 'left', '700');
+
+            // Séparateur
             ctx.save();
-            ctx.strokeStyle = softBlue;
-            ctx.lineWidth = Math.max(1, ch * 0.0025);
+            ctx.strokeStyle = 'rgba(180,210,250,0.8)';
+            ctx.lineWidth = px(0.003);
             ctx.beginPath();
-            ctx.moveTo(cw * 0.12, tableTop + ch * 0.02);
-            ctx.lineTo(cw * 0.88, tableTop + ch * 0.02);
+            ctx.moveTo(contentLeft, headerY + px(0.018));
+            ctx.lineTo(contentRight, headerY + px(0.018));
             ctx.stroke();
             ctx.restore();
 
             // Lignes de matchs (max 5)
             var rows = matches.slice(0, 5);
+            var rowHeight = px(0.065);
             if (!rows.length) {
-              text('Aucun match pour cette journée.', rowTextSize, whiteBlue, cw / 2, tableTop + rowGap, 'center', '600');
+              drawText('Aucun match pour cette journée.', px(0.03), whiteBlue, W / 2, headerY + rowHeight, 'center', '600');
             } else {
               rows.forEach(function(m, idx) {
-                var y = tableTop + rowGap * (idx + 1);
+                var y = headerY + rowHeight * (idx + 1);
                 var score = formatSetsSocial(m) || '–';
-                text(teamNameFromLeague(league, m.home), rowTextSize, whiteBlue, colA, y, 'left', '600');
-                text(score, rowTextSize, accent, colScore, y, 'center', '800');
-                text(teamNameFromLeague(league, m.away), rowTextSize, whiteBlue, colB, y, 'left', '600');
+                drawText(teamNameFromLeague(league, m.home), px(0.028), whiteBlue, colA, y, 'left', '600');
+                drawText(score, px(0.028), accent, colScore, y, 'center', '800');
+                drawText(teamNameFromLeague(league, m.away), px(0.028), whiteBlue, colB, y, 'left', '600');
               });
             }
 
             // Footer
-            text('Merci à tous les joueurs – Padel Parc', Math.max(16, Math.round(ch * 0.025)), softBlue, cw / 2, ch * 0.90, 'center', '600');
+            drawText('Merci à tous les joueurs – Padel Parc', px(0.022), softBlue, W / 2, H * 0.88, 'center', '600');
 
             resolve(canvas);
           };
