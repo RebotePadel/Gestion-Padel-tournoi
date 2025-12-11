@@ -1,5 +1,13 @@
 (function(){
 'use strict';
+
+// Racines scindées : admin M/D et TV M/D
+var mdRoot = document.getElementById('md-root') || document.getElementById('admin-root') || document;
+var mdAdminRoot = document.getElementById('admin-root') || mdRoot;
+var mdTvRoot = document.getElementById('tv-root') || document;
+function mdSel(selector) {
+  return mdAdminRoot ? mdAdminRoot.querySelector(selector) : null;
+}
 /* Résumé corrections :
    - Rééquilibrage montées/descentes par terrain pour chaque roulement.
    - Gestion stricte du repos après 2 matchs consécutifs (6 à 16 équipes).
@@ -29,7 +37,8 @@ var SKINS = {
 };
 
 var ACTIVE_SKIN_KEY = "padelParc";
-var HISTORY_KEY = "mdHistoryEntriesV1";
+// Séparation explicite de l’historique du mode Montante/Descendante
+var HISTORY_KEY = "tournament_history_md";
 
 function applySkin() {
   var skin = SKINS[ACTIVE_SKIN_KEY];
@@ -49,10 +58,10 @@ function applySkin() {
   if (c.success)    root.style.setProperty('--success', c.success);
   if (c.danger)     root.style.setProperty('--danger', c.danger);
 
-  var titleEl = document.getElementById("app-title");
-  var subtitleEl = document.getElementById("app-subtitle");
-  var logoEl = document.getElementById("app-logo");
-  var inputName = document.getElementById("tournament-name");
+  var titleEl = mdSel("#app-title");
+  var subtitleEl = mdSel("#app-subtitle");
+  var logoEl = mdSel("#app-logo");
+  var inputName = mdSel("#tournament-name");
   if (titleEl && skin.name) titleEl.textContent = skin.name;
   if (subtitleEl && skin.subtitle) subtitleEl.textContent = skin.subtitle;
   if (inputName && skin.placeholderTournamentName) {
@@ -64,7 +73,7 @@ function applySkin() {
       logoEl.style.display = "block";
     } else logoEl.style.display = "none";
   }
-  var tvLogo = document.getElementById("tv-logo");
+  var tvLogo = mdTvRoot ? mdTvRoot.querySelector('#tv-logo') : null;
   if (tvLogo) {
     if (skin.logoUrl) {
       tvLogo.src = skin.logoUrl;
@@ -82,39 +91,118 @@ var state = {
   teams: [],
   stats: [],
   results: {},
-  pairings: {}
+  pairings: {},
+  // Nouveau : méta par équipe pour suivre le prochain terrain/dernier roulement joué
+  teamMeta: {}
 };
 
 /* DOM M/D EXISTANT */
-var elName           = document.getElementById("tournament-name");
-var elTeamCount      = document.getElementById("team-count");
-var elMaxRoulements  = document.getElementById("max-roulements");
-var elBtnInitTeams   = document.getElementById("btn-init-teams");
-var elTeamsEdit      = document.getElementById("teams-edit");
-var elTeamsInfo      = document.getElementById("teams-info");
-var elBtnRandomNames = document.getElementById("btn-random-names");
-var elBtnStart       = document.getElementById("btn-start");
+var elName           = mdSel("#tournament-name");
+var elTeamCount      = mdSel("#team-count");
+var elMaxRoulements  = mdSel("#max-roulements");
+var elBtnInitTeams   = mdSel("#btn-init-teams");
+var elTeamsEdit      = mdSel("#teams-edit");
+var elTeamsInfo      = mdSel("#teams-info");
+var elBtnRandomNames = mdSel("#btn-random-names");
+var elBtnStart       = mdSel("#btn-start");
 
-var elTournamentSection = document.getElementById("tournament-section");
-var elTitleTournament   = document.getElementById("title-tournament");
-var elSubtitleTournament= document.getElementById("subtitle-tournament");
-var elChipRoulement     = document.getElementById("chip-roulement");
-var elChipTeams         = document.getElementById("chip-teams");
-var elLabelRoulement    = document.getElementById("label-roulement");
+var elTournamentSection = mdSel("#tournament-section");
+var elTitleTournament   = mdSel("#title-tournament");
+var elSubtitleTournament= mdSel("#subtitle-tournament");
+var elChipRoulement     = mdSel("#chip-roulement");
+var elChipTeams         = mdSel("#chip-teams");
+var elLabelRoulement    = mdSel("#label-roulement");
 
-var elMatchesGrid   = document.getElementById("matches-grid");
-var elRestList      = document.getElementById("rest-list");
-var elRanking       = document.getElementById("ranking");
-var elBtnPrevRound  = document.getElementById("btn-prev-round");
-var elBtnNextRound  = document.getElementById("btn-next-round");
+var elMatchesGrid   = mdSel("#matches-grid");
+var elRestList      = mdSel("#rest-list");
+var elRanking       = mdSel("#ranking");
+var elBtnPrevRound  = mdSel("#btn-prev-round");
+var elBtnNextRound  = mdSel("#btn-next-round");
 
-var elTvTournoiName   = document.getElementById("tv-tournoi-name");
-var elTvRoulementInfo = document.getElementById("tv-roulement-info");
-var elTvLabelRoulement= document.getElementById("tv-label-roulement");
-var elTvCurrentList   = document.getElementById("tv-current-list");
-var elTvNextList      = document.getElementById("tv-next-list");
-var elTvPodium        = document.getElementById("tv-podium");
-var elTvRankingGrid   = document.getElementById("tv-ranking-grid");
+// Sélecteurs TV : scope sur la racine TV pour éviter les collisions avec le classique
+var elTvTournoiName   = mdTvRoot ? mdTvRoot.querySelector("#tv-tournoi-name") : null;
+var elTvRoulementInfo = mdTvRoot ? mdTvRoot.querySelector("#tv-roulement-info") : null;
+var elTvLabelRoulement= mdTvRoot ? mdTvRoot.querySelector("#tv-label-roulement") : null;
+var elTvCurrentList   = mdTvRoot ? mdTvRoot.querySelector("#tv-current-list") : null;
+var elTvNextList      = mdTvRoot ? mdTvRoot.querySelector("#tv-next-list") : null;
+var elTvPodium        = mdTvRoot ? mdTvRoot.querySelector("#tv-podium") : null;
+var elTvRankingGrid   = mdTvRoot ? mdTvRoot.querySelector("#tv-ranking-grid") : null;
+
+// --- Utilitaires de terrain / méta-équipe ---
+function getMaxTerrains() {
+  var maxT = Math.min(4, Math.floor(state.teamCount / 2));
+  return maxT > 0 ? maxT : 1;
+}
+
+// Nouveau : détecter si une équipe a déjà enchaîné 2 matchs
+function playedInRound(teamId, roundNum) {
+  var rec = state.pairings[roundNum];
+  if (!rec || !rec.matches) return false;
+  for (var i = 0; i < rec.matches.length; i++) {
+    var m = rec.matches[i];
+    if (m.teamAId === teamId || m.teamBId === teamId) return true;
+  }
+  return false;
+}
+
+function countConsecutivePlays(teamId, beforeRound) {
+  var streak = 0;
+  for (var r = beforeRound; r >= 1; r--) {
+    if (playedInRound(teamId, r)) streak++; else break;
+  }
+  return streak;
+}
+
+function clampTerrain(t) {
+  var maxT = getMaxTerrains();
+  if (t < 1) return 1;
+  if (t > maxT) return maxT;
+  return t;
+}
+
+function initialTerrainForIndex(idx) {
+  var maxT = getMaxTerrains();
+  return ((Math.floor(idx / 2) % maxT) + 1);
+}
+
+function ensureTeamMetaInitialized() {
+  if (!state.teamMeta) state.teamMeta = {};
+  var maxT = getMaxTerrains();
+  for (var i = 0; i < state.teams.length; i++) {
+    var team = state.teams[i];
+    if (!state.teamMeta[team.id]) {
+      state.teamMeta[team.id] = { nextTerrain: initialTerrainForIndex(i), lastPlayed: 0, lastTerrain: initialTerrainForIndex(i), lastOutcome: null };
+    } else {
+      state.teamMeta[team.id].nextTerrain = clampTerrain(state.teamMeta[team.id].nextTerrain || initialTerrainForIndex(i));
+      state.teamMeta[team.id].lastPlayed = state.teamMeta[team.id].lastPlayed || 0;
+      state.teamMeta[team.id].lastTerrain = clampTerrain(state.teamMeta[team.id].lastTerrain || state.teamMeta[team.id].nextTerrain || initialTerrainForIndex(i));
+      state.teamMeta[team.id].lastOutcome = state.teamMeta[team.id].lastOutcome || null;
+    }
+  }
+}
+
+function getTeamMeta(teamId, indexFallback) {
+  ensureTeamMetaInitialized();
+  if (!state.teamMeta[teamId]) {
+    state.teamMeta[teamId] = { nextTerrain: initialTerrainForIndex(indexFallback || 0), lastPlayed: 0, lastTerrain: initialTerrainForIndex(indexFallback || 0), lastOutcome: null };
+  }
+  return state.teamMeta[teamId];
+}
+
+function resetTeamMeta() {
+  state.teamMeta = {};
+  ensureTeamMetaInitialized();
+}
+
+function clearFuturePairings(fromRound) {
+  for (var key in state.pairings) {
+    if (!state.pairings.hasOwnProperty(key)) continue;
+    var rNum = parseInt(key, 10);
+    if (!isNaN(rNum) && rNum > fromRound) {
+      delete state.pairings[key];
+    }
+  }
+}
 
 applySkin();
 ensureHistoryUI();
@@ -150,31 +238,39 @@ elBtnInitTeams.addEventListener("click", function () {
   for (var j = 0; j < state.teams.length; j++) {
     state.stats.push({ id: state.teams[j].id, name: state.teams[j].name, wins:0, losses:0, points:0, matches:0 });
   }
+  resetTeamMeta();
   renderTeamsEditor();
   elBtnStart.disabled = false;
   renderTvView();
 });
 
-elBtnRandomNames.addEventListener("click", function () {
-  if (!state.teams.length) return;
-  var baseNames = [
-    "Smash & Co","Padel Kings","Rebote Squad","Ace Hunters","Blue Court","Los Lobos",
-    "Night Session","Padel Crew","Volley Time","Padel Legends","Smash Attack","Team Bandeja",
-    "Chiquita Gang","Padel Stars","Center Court","Last Minute"
+// Générateur dédié aux noms aléatoires du mode M/D
+function generateMDTeamNames() {
+  return [
+    "Vertical Smash","Padel Pulse","Vibora Crew","Lob & Roll","Court Commanders","Spin Doctors",
+    "Moonballs","Padel Flow","Sidewall Squad","Retro Bandeja","Flash Dropshot","Power Alley",
+    "Service Kick","Cross Winners","Night Rally","Tactical Lobs"
   ];
-  for (var i = 0; i < state.teams.length; i++) {
-    var name = baseNames[i % baseNames.length] + " #" + (i + 1);
-    state.teams[i].name = name;
-    var s = findStatById(state.teams[i].id);
-    if (s) s.name = name;
-  }
-  renderTeamsEditor();
-  if (elTournamentSection.style.display !== "none") {
-    renderRound();
-    renderRanking();
-  }
-  renderTvView();
-});
+}
+
+if (elBtnRandomNames) {
+  elBtnRandomNames.addEventListener("click", function () {
+    if (!state.teams.length) return;
+    var baseNames = generateMDTeamNames();
+    for (var i = 0; i < state.teams.length; i++) {
+      var name = baseNames[i % baseNames.length] + " #" + (i + 1);
+      state.teams[i].name = name;
+      var s = findStatById(state.teams[i].id);
+      if (s) s.name = name;
+    }
+    renderTeamsEditor();
+    if (elTournamentSection && elTournamentSection.style.display !== "none") {
+      renderRound();
+      renderRanking();
+    }
+    renderTvView();
+  });
+}
 
 elBtnStart.addEventListener("click", function () {
   if (!state.teams.length) { alert("Configure d’abord les équipes."); return; }
@@ -349,6 +445,21 @@ function setWinner(roulement, terrain, winnerId) {
     sW.points += 3; sW.wins += 1; sW.matches += 1;
     sL.losses += 1; sL.matches += 1;
   }
+  // Nouveau : préparer le prochain terrain au prochain roulement de jeu
+  var maxTerrains = getMaxTerrains();
+  var metaW = getTeamMeta(winnerId);
+  var metaL = getTeamMeta(loserId);
+  metaW.nextTerrain = clampTerrain(terrain - 1);
+  metaW.lastPlayed = roulement;
+  metaW.lastTerrain = terrain;
+  metaW.lastOutcome = 'win';
+  metaL.nextTerrain = clampTerrain(terrain + 1);
+  metaL.lastPlayed = roulement;
+  metaL.lastTerrain = terrain;
+  metaL.lastOutcome = 'loss';
+
+  clearFuturePairings(roulement);
+
   renderRound(); renderRanking(); renderTvView();
 }
 
@@ -389,154 +500,185 @@ function renderRanking() {
   elRanking.innerHTML = html;
 }
 
-/* ENGINE 6–16 + CAS 16 PAIR/IMPAIR */
+// Moteur pair/impair : roulement impair = équipes paires, roulement pair = équipes impaires
 function planRoundFromStats(roulementNumber) {
+  ensureTeamMetaInitialized();
   var n = state.teamCount;
-  var stats = state.stats;
-  if (!n || !stats.length) return { matches: [], restTeams: [] };
+  if (!n || !state.teams.length) return { matches: [], restTeams: [] };
 
-  var maxTerrains = Math.min(4, Math.floor(n / 2));
-  var playingCount = maxTerrains * 2;
-  if (playingCount < 2) return { matches: [], restTeams: [] };
-
-  var restSlots = Math.max(0, n - playingCount);
-  var candidates = [];
-
-  if (roulementNumber === 1 || !state.pairings[roulementNumber - 1]) {
-    var initial = stats.slice();
-    initial.sort(function (a, b) {
-      if (a.matches !== b.matches) return a.matches - b.matches;
-      if (b.points !== a.points) return b.points - a.points;
-      return a.id - b.id;
-    });
-    for (var i0 = 0; i0 < initial.length; i0++) {
-      var t0 = findTeamById(initial[i0].id);
-      if (t0) candidates.push({ team: t0, score: i0 });
+  // Cas de référence 16 équipes : on conserve exactement le comportement existant
+  if (n === 16) {
+    var maxTerrains16 = Math.min(4, Math.floor(n / 2));
+    if (maxTerrains16 < 1) return { matches: [], restTeams: [] };
+    var capacity16 = maxTerrains16 * 2;
+    var playEvenIds16 = (roulementNumber % 2 === 1);
+    var playing16 = [];
+    var rest16 = [];
+    for (var i16 = 0; i16 < state.teams.length; i16++) {
+      var team16 = state.teams[i16];
+      var isEven16 = (team16.id % 2 === 0);
+      if ((playEvenIds16 && isEven16) || (!playEvenIds16 && !isEven16)) playing16.push(team16); else rest16.push(team16);
     }
-  } else {
-    var prev = getMatchesAndRestForRound(roulementNumber - 1);
-    var maxBase = maxTerrains * 2;
-    var seen = {};
-
-    for (var m = 0; m < prev.matches.length; m++) {
-      var match = prev.matches[m];
-      var baseA = (match.terrain - 1) * 2;
-      var baseB = baseA + 1;
-      var resKey = resultKey(roulementNumber - 1, match.terrain);
-      var res = state.results[resKey];
-
-      var adjA = baseA;
-      var adjB = baseB;
-
-      if (res) {
-        if (res.winnerId === match.teamA.id) adjA = Math.max(0, baseA - 2);
-        if (res.winnerId === match.teamB.id) adjB = Math.max(0, baseB - 2);
-        if (res.loserId === match.teamA.id) adjA = baseA + 2;
-        if (res.loserId === match.teamB.id) adjB = baseB + 2;
-      }
-
-      if (!seen[match.teamA.id]) {
-        candidates.push({ team: match.teamA, score: adjA });
-        seen[match.teamA.id] = true;
-      }
-      if (!seen[match.teamB.id]) {
-        candidates.push({ team: match.teamB, score: adjB });
-        seen[match.teamB.id] = true;
-      }
+    while (playing16.length > capacity16) { rest16.push(playing16.pop()); }
+    var targets16 = [];
+    for (var p16 = 0; p16 < playing16.length; p16++) {
+      var meta16 = getTeamMeta(playing16[p16].id, p16);
+      targets16.push({ team: playing16[p16], target: clampTerrain(meta16.nextTerrain || initialTerrainForIndex(p16)) });
     }
-
-    for (var r = 0; r < prev.restTeams.length; r++) {
-      var restTeam = prev.restTeams[r];
-      if (!restTeam || seen[restTeam.id]) continue;
-      candidates.push({ team: restTeam, score: maxBase + r });
-      seen[restTeam.id] = true;
+    targets16.sort(function (a, b) { if (a.target !== b.target) return a.target - b.target; return a.team.id - b.team.id; });
+    var matches16 = [];
+    for (var t16 = 1; t16 <= maxTerrains16; t16++) {
+      if (targets16.length < 2) break;
+      var sA16 = targets16.shift();
+      var sB16 = targets16.shift();
+      if (!sA16 || !sB16) break;
+      var label16 = (t16 === 1) ? "Terrain fort" : (t16 === maxTerrains16 ? "Terrain fun" : "Terrain intermédiaire");
+      matches16.push({ terrain: t16, teamA: sA16.team, teamB: sB16.team, label: label16 });
     }
+    for (var r16 = 0; r16 < targets16.length; r16++) rest16.push(targets16[r16].team);
+    return { matches: matches16, restTeams: rest16 };
+  }
 
-    if (candidates.length < stats.length) {
-      for (var s = 0; s < stats.length; s++) {
-        var tStat = findTeamById(stats[s].id);
-        if (tStat && !seen[tStat.id]) {
-          candidates.push({ team: tStat, score: maxBase + restSlots + s });
-          seen[tStat.id] = true;
-        }
+  // Génération flexible pour les autres formats (8, 10, 12, 14, 18, 20…)
+  var maxTerrains = getMaxTerrains();
+  var capacity = maxTerrains * 2;
+  var playEvenIds = (roulementNumber % 2 === 1);
+
+  // Prépare les infos utilisées pour équilibrer les matchs et limiter la fatigue
+  var fatigueLimitActive = (n !== 8);
+  var preferred = [];
+  var alternate = [];
+  for (var i = 0; i < state.teams.length; i++) {
+    var team = state.teams[i];
+    var stat = findStatById(team.id) || { matches: 0, points: 0, wins: 0, losses: 0 };
+    var meta = getTeamMeta(team.id, i);
+    var consec = countConsecutivePlays(team.id, roulementNumber - 1);
+    var info = {
+      team: team,
+      matches: stat.matches || 0,
+      target: clampTerrain(meta.nextTerrain || initialTerrainForIndex(i)),
+      consec: consec,
+      lastPlayed: meta.lastPlayed || 0,
+      lastTerrain: meta.lastTerrain || clampTerrain(meta.nextTerrain || initialTerrainForIndex(i)),
+      lastOutcome: meta.lastOutcome || null,
+      parity: (team.id % 2 === 0)
+    };
+    if ((playEvenIds && info.parity) || (!playEvenIds && !info.parity)) preferred.push(info); else alternate.push(info);
+  }
+
+  // Tri helper : privilégier ceux qui ont le moins joué, puis les moins fatigués
+  function sortByNeed(a, b) {
+    if (a.matches !== b.matches) return a.matches - b.matches;
+    if (a.consec !== b.consec) return a.consec - b.consec;
+    if (a.lastPlayed !== b.lastPlayed) return a.lastPlayed - b.lastPlayed;
+    return a.team.id - b.team.id;
+  }
+  preferred.sort(sortByNeed);
+  alternate.sort(sortByNeed);
+
+  // Sélection des équipes devant jouer ce roulement
+  var selection = [];
+  var fatiguePool = [];
+
+  function takeFrom(list) {
+    while (selection.length < capacity && list.length) {
+      var cand = list.shift();
+      if (fatigueLimitActive && cand.consec >= 2) {
+        fatiguePool.push(cand);
+      } else {
+        selection.push(cand);
       }
     }
   }
 
-  candidates.sort(function (a, b) {
-    if (a.score !== b.score) return a.score - b.score;
-    var sa = findStatById(a.team.id);
-    var sb = findStatById(b.team.id);
-    var pa = sa ? sa.points : 0;
-    var pb = sb ? sb.points : 0;
-    if (pb !== pa) return pb - pa;
-    var ma = sa ? sa.matches : 0;
-    var mb = sb ? sb.matches : 0;
-    if (ma !== mb) return ma - mb;
+  takeFrom(preferred);
+  takeFrom(alternate);
+
+  // Si pas assez d’équipes, on réintroduit les joueurs en surcharge fatigue (le moins sollicités d’abord)
+  if (selection.length < capacity && fatiguePool.length) {
+    fatiguePool.sort(sortByNeed);
+    while (selection.length < capacity && fatiguePool.length) {
+      selection.push(fatiguePool.shift());
+    }
+  }
+
+  // Si trop d’équipes (peu probable), on écarte ceux qui ont le plus joué
+  if (selection.length > capacity) {
+    selection.sort(function (a, b) {
+      if (a.matches !== b.matches) return b.matches - a.matches;
+      if (a.consec !== b.consec) return b.consec - a.consec;
+      return b.team.id - a.team.id;
+    });
+    while (selection.length > capacity) selection.shift();
+  }
+
+  // Attribution des terrains : on respecte la cible montante/descendante puis l’équité
+  selection.sort(function (a, b) {
+    if (a.target !== b.target) return a.target - b.target;
+    if (a.matches !== b.matches) return a.matches - b.matches;
     return a.team.id - b.team.id;
   });
 
-  var playing = [];
-  var rest = [];
-
-  for (var c = 0; c < candidates.length; c++) {
-    var candidate = candidates[c];
-    var consec = getConsecutivePlays(candidate.team.id, roulementNumber - 1);
-    var mustRest = consec >= 2 && rest.length < restSlots;
-    if (mustRest) {
-      rest.push(candidate.team);
-    } else if (playing.length < playingCount) {
-      playing.push(candidate.team);
-    } else if (rest.length < restSlots) {
-      rest.push(candidate.team);
-    } else {
-      playing.push(candidate.team);
-    }
+  // Nouveau : respect strict des montées/descendes post-match :
+  // - gagnant ne doit jamais être placé sur un terrain plus bas que son dernier terrain
+  // - perdant ne doit jamais être placé sur un terrain plus haut que son dernier terrain
+  function canPlayOnTerrain(info, terrainIdx) {
+    if (info.lastOutcome === 'win' && info.lastTerrain) return terrainIdx <= info.lastTerrain;
+    if (info.lastOutcome === 'loss' && info.lastTerrain) return terrainIdx >= info.lastTerrain;
+    return true;
   }
 
-  if (playing.length < playingCount && rest.length) {
-    rest.sort(function (a, b) {
-      var ca = getConsecutivePlays(a.id, roulementNumber - 1);
-      var cb = getConsecutivePlays(b.id, roulementNumber - 1);
-      if (ca !== cb) return ca - cb;
-      return a.id - b.id;
+  function pickBestCandidate(list, terrainIdx) {
+    var filtered = [];
+    for (var iPick = 0; iPick < list.length; iPick++) {
+      var cand = list[iPick];
+      if (canPlayOnTerrain(cand, terrainIdx)) filtered.push(cand);
+    }
+    if (!filtered.length) return null;
+    filtered.sort(function(a,b){
+      var da = Math.abs(a.target - terrainIdx);
+      var db = Math.abs(b.target - terrainIdx);
+      if (da !== db) return da - db;
+      if (a.matches !== b.matches) return a.matches - b.matches;
+      if (a.consec !== b.consec) return a.consec - b.consec;
+      return a.team.id - b.team.id;
     });
-    while (playing.length < playingCount && rest.length) {
-      playing.push(rest.shift());
-    }
+    return filtered[0];
   }
 
-  if (playing.length > playingCount) {
-    while (playing.length > playingCount) {
-      rest.push(playing.pop());
-    }
+  function removeCandidate(list, cand) {
+    var idx = list.indexOf(cand);
+    if (idx >= 0) list.splice(idx,1);
   }
 
   var matches = [];
+  var remaining = selection.slice();
   for (var t = 1; t <= maxTerrains; t++) {
-    var idxA = (t - 1) * 2;
-    var idxB = idxA + 1;
-    if (idxB >= playing.length) break;
-    var teamA = playing[idxA];
-    var teamB = playing[idxB];
-    if (!teamA || !teamB) continue;
-
-    var label = "";
-    if (t === 1) label = "Terrain fort";
-    else if (t === maxTerrains) label = "Terrain fun";
-    else label = "Terrain intermédiaire";
-
-    matches.push({
-      terrain: t,
-      teamA: teamA,
-      teamB: teamB,
-      label: label
-    });
+    if (remaining.length < 2) break;
+    var candA = pickBestCandidate(remaining, t);
+    if (!candA) break;
+    removeCandidate(remaining, candA);
+    var candB = pickBestCandidate(remaining, t);
+    if (!candB) {
+      // pas assez de candidats compatibles : on réinsère et on arrête ce terrain
+      remaining.push(candA);
+      break;
+    }
+    removeCandidate(remaining, candB);
+    var label = (t === 1) ? "Terrain fort" : (t === maxTerrains ? "Terrain fun" : "Terrain intermédiaire");
+    matches.push({ terrain: t, teamA: candA.team, teamB: candB.team, label: label });
   }
 
-  var restTeams = [];
-  for (var rr = 0; rr < rest.length; rr++) restTeams.push(rest[rr]);
-  return { matches: matches, restTeams: restTeams };
+  // Équipes restantes = repos
+  var rest = [];
+  var allInfos = preferred.concat(alternate).concat(fatiguePool).concat(selection);
+  var playingIds = matches.reduce(function (acc, m) { acc[m.teamA.id] = true; acc[m.teamB.id] = true; return acc; }, {});
+  for (var r = 0; r < allInfos.length; r++) {
+    var infoR = allInfos[r];
+    if (!playingIds[infoR.team.id]) rest.push(infoR.team);
+  }
+
+  return { matches: matches, restTeams: rest };
 }
 
 function getMatchesAndRestForRound(roulement) {
@@ -998,6 +1140,7 @@ function loadHistoryEntry(entry) {
   state.stats = Array.isArray(snap.stats) ? snap.stats : [];
   state.results = snap.results || {};
   state.pairings = snap.pairings || {};
+  state.teamMeta = snap.teamMeta || {};
 
   if (elName) elName.value = state.name;
   if (elTeamCount) elTeamCount.value = String(state.teamCount);
@@ -1008,6 +1151,7 @@ function loadHistoryEntry(entry) {
     elTournamentSection.style.display = 'block';
     elBtnStart.disabled = false;
   }
+  ensureTeamMetaInitialized();
   updateTopBar();
   renderRound();
   renderRanking();
