@@ -1,6 +1,12 @@
 (function(){
   'use strict';
 
+  // Racine du mode classique pour éviter toute interférence avec les autres modes
+  var classicRoot = document.getElementById('classic-root');
+  function selClassic(selector) {
+    return classicRoot ? classicRoot.querySelector(selector) : null;
+  }
+
   var btnOpenClassic = document.getElementById('btn-open-classic');
   var btnBackFormats = document.getElementById('btn-back-formats-from-classic');
   var btnClassicHome = document.getElementById('btn-back-home-from-classic');
@@ -42,7 +48,7 @@
 
     const POOLS = ["A","B","C","D"];
     // Séparation explicite de l’historique du mode classique
-    const HISTORY_KEY = "brainbox_tournament_history_classic";
+    const HISTORY_KEY = "tournament_history_classic";
 
     const state = {
       name: "",
@@ -64,65 +70,65 @@
     };
 
     /* DOM */
-    const elTournamentName    = document.getElementById("tournament-name");
-    const elHeaderTournament  = document.getElementById("header-tournament-name");
-    const elAdminSubtitle     = document.getElementById("admin-subtitle");
-    const elTeamsGrid         = document.getElementById("teams-grid");
-    const elBtnRandomNames    = document.querySelector("#classic-root #btn-random-names");
-    const elBtnGeneratePools  = document.getElementById("btn-generate-pools");
-    const elConfigInfo        = document.getElementById("config-info");
-    const elSetsPerMatch      = document.getElementById("sets-per-match");
-    const elGamesPerSet       = document.getElementById("games-per-set");
-    const elTeamCount         = document.getElementById("team-count");
-    const elTerrainA          = document.getElementById("terrain-pool-A");
-    const elTerrainB          = document.getElementById("terrain-pool-B");
-    const elTerrainC          = document.getElementById("terrain-pool-C");
-    const elTerrainD          = document.getElementById("terrain-pool-D");
+    const elTournamentName    = selClassic("#tournament-name");
+    const elHeaderTournament  = selClassic("#header-tournament-name");
+    const elAdminSubtitle     = selClassic("#admin-subtitle");
+    const elTeamsGrid         = selClassic("#teams-grid");
+    const elBtnRandomNames    = selClassic("#btn-random-names");
+    const elBtnGeneratePools  = selClassic("#btn-generate-pools");
+    const elConfigInfo        = selClassic("#config-info");
+    const elSetsPerMatch      = selClassic("#sets-per-match");
+    const elGamesPerSet       = selClassic("#games-per-set");
+    const elTeamCount         = selClassic("#team-count");
+    const elTerrainA          = selClassic("#terrain-pool-A");
+    const elTerrainB          = selClassic("#terrain-pool-B");
+    const elTerrainC          = selClassic("#terrain-pool-C");
+    const elTerrainD          = selClassic("#terrain-pool-D");
 
-    const elPoolsGrid         = document.getElementById("pools-grid");
-    const elPoolsStatus       = document.getElementById("pools-status");
-    const elBtnGenerateBr     = document.getElementById("btn-generate-brackets");
-    const elBtnRandomPools    = document.getElementById("btn-random-pools");
-    const elBtnSaveHistory    = document.getElementById("btn-save-history");
-    const elHistoryList       = document.getElementById("history-list");
+    const elPoolsGrid         = selClassic("#pools-grid");
+    const elPoolsStatus       = selClassic("#pools-status");
+    const elBtnGenerateBr     = selClassic("#btn-generate-brackets");
+    const elBtnRandomPools    = selClassic("#btn-random-pools");
+    const elBtnSaveHistory    = selClassic("#btn-save-history");
+    const elHistoryList       = selClassic("#history-list");
 
-    const elBracketMainContainer = document.getElementById("bracket-main-container");
-    const elBracketConsoContainer= document.getElementById("bracket-conso-container");
-    const elBracketsStatus    = document.getElementById("brackets-status");
-    const elFinalRankingBox   = document.getElementById("final-ranking-container");
-    const elFinalRankingList  = document.getElementById("final-ranking-list");
-    const elClassementPhrase  = document.getElementById("classement-phrase");
-    const elClassementMessage = document.getElementById("classement-message");
-    const elClassementPodium  = document.getElementById("classement-podium");
+    const elBracketMainContainer = selClassic("#bracket-main-container");
+    const elBracketConsoContainer= selClassic("#bracket-conso-container");
+    const elBracketsStatus    = selClassic("#brackets-status");
+    const elFinalRankingBox   = selClassic("#final-ranking-container");
+    const elFinalRankingList  = selClassic("#final-ranking-list");
+    const elClassementPhrase  = selClassic("#classement-phrase");
+    const elClassementMessage = selClassic("#classement-message");
+    const elClassementPodium  = selClassic("#classement-podium");
 
-    const tabButtons = document.querySelectorAll(".tab-btn");
-    const tabPanels  = document.querySelectorAll(".tab-panel");
+    const tabButtons = classicRoot ? classicRoot.querySelectorAll(".tab-btn") : [];
+    const tabPanels  = classicRoot ? classicRoot.querySelectorAll(".tab-panel") : [];
 
     // Logo
-    const elLogoUpload   = document.getElementById("logo-upload");
-    const elLogoPreview  = document.getElementById("logo-preview");
-    const elLogoHelper   = document.getElementById("logo-helper");
-    const elHomeLogoUpload  = document.getElementById("home-logo-upload");
-    const elHomeLogoPreview = document.getElementById("home-logo-preview");
-    const elHomeLogoHelper  = document.getElementById("home-logo-helper");
+    const elLogoUpload   = selClassic("#logo-upload");
+    const elLogoPreview  = selClassic("#logo-preview");
+    const elLogoHelper   = selClassic("#logo-helper");
+    const elHomeLogoUpload  = selClassic("#home-logo-upload");
+    const elHomeLogoPreview = selClassic("#home-logo-preview");
+    const elHomeLogoHelper  = selClassic("#home-logo-helper");
 
     // TV
-    const elTvOverlay     = document.getElementById("tv-overlay");
-    const elBtnOpenTv     = document.getElementById("btn-open-tv");
-    const elBtnCloseTv    = document.getElementById("btn-close-tv");
-    const elTvTitle       = document.getElementById("tv-title");
-    const elTvSubtitle    = document.getElementById("tv-subtitle");
-    const elTvPhaseTag    = document.getElementById("tv-phase-tag");
-    const elTvMain        = document.querySelector(".tv-main");
-    const elTvLeftTitle   = document.getElementById("tv-left-title");
-    const elTvRightTitle  = document.getElementById("tv-right-title");
-    const elTvLeftList    = document.getElementById("tv-left-list");
-    const elTvRightList   = document.getElementById("tv-right-list");
-    const elTvLogo        = document.getElementById("tv-logo");
-    const elTvBracketRow  = document.getElementById("tv-bracket-row");
-    const elTvMainTree    = document.getElementById("tv-main-bracket-tree");
-    const elTvConsoTree   = document.getElementById("tv-conso-bracket-tree");
-    const elTvFinalRanking= document.getElementById("tv-final-ranking");
+    const elTvOverlay     = selClassic("#tv-overlay");
+    const elBtnOpenTv     = selClassic("#btn-open-tv");
+    const elBtnCloseTv    = selClassic("#btn-close-tv");
+    const elTvTitle       = selClassic("#tv-title");
+    const elTvSubtitle    = selClassic("#tv-subtitle");
+    const elTvPhaseTag    = selClassic("#tv-phase-tag");
+    const elTvMain        = selClassic(".tv-main");
+    const elTvLeftTitle   = selClassic("#tv-left-title");
+    const elTvRightTitle  = selClassic("#tv-right-title");
+    const elTvLeftList    = selClassic("#tv-left-list");
+    const elTvRightList   = selClassic("#tv-right-list");
+    const elTvLogo        = selClassic("#tv-logo");
+    const elTvBracketRow  = selClassic("#tv-bracket-row");
+    const elTvMainTree    = selClassic("#tv-main-bracket-tree");
+    const elTvConsoTree   = selClassic("#tv-conso-bracket-tree");
+    const elTvFinalRanking= selClassic("#tv-final-ranking");
 
     /* INIT TEAMS INPUTS */
     function initTeamsInputs() {
@@ -386,21 +392,27 @@
 
     bindLogoUpload(elHomeLogoUpload);
 
+    // Générateur dédié aux noms aléatoires du mode classique
+    function generateClassicTeamNames() {
+      return [
+        "Smash & Co","Padel Kings","Rebote Squad","Ace Hunters","Blue Court","Los Lobos",
+        "Night Session","Padel Crew","Volley Time","Padel Legends","Smash Attack","Team Bandeja",
+        "Chiquita Gang","Padel Stars","Center Court","Last Minute",
+        "Baseline Bros","Service Volée","Padel Nova","Crosscourt Crew"
+      ];
+    }
+
     /* RANDOM NAMES */
     if (elBtnRandomNames) {
       elBtnRandomNames.addEventListener("click", () => {
-        const baseNames = [
-          "Smash & Co","Padel Kings","Rebote Squad","Ace Hunters","Blue Court","Los Lobos",
-          "Night Session","Padel Crew","Volley Time","Padel Legends","Smash Attack","Team Bandeja",
-          "Chiquita Gang","Padel Stars","Center Court","Last Minute"
-        ];
-        const inputs = elTeamsGrid.querySelectorAll("input[data-team-index]");
+        const baseNames = generateClassicTeamNames();
+        const inputs = elTeamsGrid ? elTeamsGrid.querySelectorAll("input[data-team-index]") : [];
         inputs.forEach((inp, idx) => {
           const name = baseNames[idx % baseNames.length] + " #" + (idx + 1);
           inp.value = name;
         });
         ensureTeamsFromInputs();
-        elConfigInfo.textContent = "Noms aléatoires appliqués. Tu peux modifier à la main si besoin.";
+        if (elConfigInfo) elConfigInfo.textContent = "Noms aléatoires appliqués. Tu peux modifier à la main si besoin.";
       });
     }
 

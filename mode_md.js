@@ -1,5 +1,11 @@
 (function(){
 'use strict';
+
+// Racine du mode M/D pour limiter tout accès DOM à cette section uniquement
+var mdRoot = document.getElementById('md-root');
+function mdSel(selector) {
+  return mdRoot ? mdRoot.querySelector(selector) : null;
+}
 /* Résumé corrections :
    - Rééquilibrage montées/descentes par terrain pour chaque roulement.
    - Gestion stricte du repos après 2 matchs consécutifs (6 à 16 équipes).
@@ -30,7 +36,7 @@ var SKINS = {
 
 var ACTIVE_SKIN_KEY = "padelParc";
 // Séparation explicite de l’historique du mode Montante/Descendante
-var HISTORY_KEY = "brainbox_tournament_history_md";
+var HISTORY_KEY = "tournament_history_md";
 
 function applySkin() {
   var skin = SKINS[ACTIVE_SKIN_KEY];
@@ -50,10 +56,10 @@ function applySkin() {
   if (c.success)    root.style.setProperty('--success', c.success);
   if (c.danger)     root.style.setProperty('--danger', c.danger);
 
-  var titleEl = document.getElementById("app-title");
-  var subtitleEl = document.getElementById("app-subtitle");
-  var logoEl = document.getElementById("app-logo");
-  var inputName = document.getElementById("tournament-name");
+  var titleEl = mdSel("#app-title");
+  var subtitleEl = mdSel("#app-subtitle");
+  var logoEl = mdSel("#app-logo");
+  var inputName = mdSel("#tournament-name");
   if (titleEl && skin.name) titleEl.textContent = skin.name;
   if (subtitleEl && skin.subtitle) subtitleEl.textContent = skin.subtitle;
   if (inputName && skin.placeholderTournamentName) {
@@ -65,7 +71,7 @@ function applySkin() {
       logoEl.style.display = "block";
     } else logoEl.style.display = "none";
   }
-  var tvLogo = document.getElementById("tv-logo");
+  var tvLogo = mdSel("#tv-logo");
   if (tvLogo) {
     if (skin.logoUrl) {
       tvLogo.src = skin.logoUrl;
@@ -87,35 +93,35 @@ var state = {
 };
 
 /* DOM M/D EXISTANT */
-var elName           = document.getElementById("tournament-name");
-var elTeamCount      = document.getElementById("team-count");
-var elMaxRoulements  = document.getElementById("max-roulements");
-var elBtnInitTeams   = document.getElementById("btn-init-teams");
-var elTeamsEdit      = document.getElementById("teams-edit");
-var elTeamsInfo      = document.getElementById("teams-info");
-var elBtnRandomNames = document.querySelector("#admin-root #btn-random-names");
-var elBtnStart       = document.getElementById("btn-start");
+var elName           = mdSel("#tournament-name");
+var elTeamCount      = mdSel("#team-count");
+var elMaxRoulements  = mdSel("#max-roulements");
+var elBtnInitTeams   = mdSel("#btn-init-teams");
+var elTeamsEdit      = mdSel("#teams-edit");
+var elTeamsInfo      = mdSel("#teams-info");
+var elBtnRandomNames = mdSel("#btn-random-names");
+var elBtnStart       = mdSel("#btn-start");
 
-var elTournamentSection = document.getElementById("tournament-section");
-var elTitleTournament   = document.getElementById("title-tournament");
-var elSubtitleTournament= document.getElementById("subtitle-tournament");
-var elChipRoulement     = document.getElementById("chip-roulement");
-var elChipTeams         = document.getElementById("chip-teams");
-var elLabelRoulement    = document.getElementById("label-roulement");
+var elTournamentSection = mdSel("#tournament-section");
+var elTitleTournament   = mdSel("#title-tournament");
+var elSubtitleTournament= mdSel("#subtitle-tournament");
+var elChipRoulement     = mdSel("#chip-roulement");
+var elChipTeams         = mdSel("#chip-teams");
+var elLabelRoulement    = mdSel("#label-roulement");
 
-var elMatchesGrid   = document.getElementById("matches-grid");
-var elRestList      = document.getElementById("rest-list");
-var elRanking       = document.getElementById("ranking");
-var elBtnPrevRound  = document.getElementById("btn-prev-round");
-var elBtnNextRound  = document.getElementById("btn-next-round");
+var elMatchesGrid   = mdSel("#matches-grid");
+var elRestList      = mdSel("#rest-list");
+var elRanking       = mdSel("#ranking");
+var elBtnPrevRound  = mdSel("#btn-prev-round");
+var elBtnNextRound  = mdSel("#btn-next-round");
 
-var elTvTournoiName   = document.getElementById("tv-tournoi-name");
-var elTvRoulementInfo = document.getElementById("tv-roulement-info");
-var elTvLabelRoulement= document.getElementById("tv-label-roulement");
-var elTvCurrentList   = document.getElementById("tv-current-list");
-var elTvNextList      = document.getElementById("tv-next-list");
-var elTvPodium        = document.getElementById("tv-podium");
-var elTvRankingGrid   = document.getElementById("tv-ranking-grid");
+var elTvTournoiName   = mdSel("#tv-tournoi-name");
+var elTvRoulementInfo = mdSel("#tv-roulement-info");
+var elTvLabelRoulement= mdSel("#tv-label-roulement");
+var elTvCurrentList   = mdSel("#tv-current-list");
+var elTvNextList      = mdSel("#tv-next-list");
+var elTvPodium        = mdSel("#tv-podium");
+var elTvRankingGrid   = mdSel("#tv-ranking-grid");
 
 applySkin();
 ensureHistoryUI();
@@ -156,26 +162,33 @@ elBtnInitTeams.addEventListener("click", function () {
   renderTvView();
 });
 
-elBtnRandomNames.addEventListener("click", function () {
-  if (!state.teams.length) return;
-  var baseNames = [
-    "Smash & Co","Padel Kings","Rebote Squad","Ace Hunters","Blue Court","Los Lobos",
-    "Night Session","Padel Crew","Volley Time","Padel Legends","Smash Attack","Team Bandeja",
-    "Chiquita Gang","Padel Stars","Center Court","Last Minute"
+// Générateur dédié aux noms aléatoires du mode M/D
+function generateMDTeamNames() {
+  return [
+    "Vertical Smash","Padel Pulse","Vibora Crew","Lob & Roll","Court Commanders","Spin Doctors",
+    "Moonballs","Padel Flow","Sidewall Squad","Retro Bandeja","Flash Dropshot","Power Alley",
+    "Service Kick","Cross Winners","Night Rally","Tactical Lobs"
   ];
-  for (var i = 0; i < state.teams.length; i++) {
-    var name = baseNames[i % baseNames.length] + " #" + (i + 1);
-    state.teams[i].name = name;
-    var s = findStatById(state.teams[i].id);
-    if (s) s.name = name;
-  }
-  renderTeamsEditor();
-  if (elTournamentSection.style.display !== "none") {
-    renderRound();
-    renderRanking();
-  }
-  renderTvView();
-});
+}
+
+if (elBtnRandomNames) {
+  elBtnRandomNames.addEventListener("click", function () {
+    if (!state.teams.length) return;
+    var baseNames = generateMDTeamNames();
+    for (var i = 0; i < state.teams.length; i++) {
+      var name = baseNames[i % baseNames.length] + " #" + (i + 1);
+      state.teams[i].name = name;
+      var s = findStatById(state.teams[i].id);
+      if (s) s.name = name;
+    }
+    renderTeamsEditor();
+    if (elTournamentSection && elTournamentSection.style.display !== "none") {
+      renderRound();
+      renderRanking();
+    }
+    renderTvView();
+  });
+}
 
 elBtnStart.addEventListener("click", function () {
   if (!state.teams.length) { alert("Configure d’abord les équipes."); return; }
