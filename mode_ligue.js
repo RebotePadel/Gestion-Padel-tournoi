@@ -1455,8 +1455,9 @@
     if (!league) { alert('Sélectionne une ligue active.'); return; }
     var roundVal = refs.dayExportSelect ? parseInt(refs.dayExportSelect.value, 10) : NaN;
     if (isNaN(roundVal)) { alert('Choisis une journée à exporter.'); return; }
+    if (!window.leagueExportBackgroundDataUrl) { alert('Merci de choisir un fond d’export dans les paramètres de la Ligue interne avant de générer l’export.'); return; }
     if (typeof window.buildSocialDayImage !== 'function') { alert('Export image réseaux indisponible.'); return; }
-    window.buildSocialDayImage(league, roundVal).then(function(canvas) {
+    window.buildSocialDayImage(league, roundVal, window.leagueExportBackgroundDataUrl).then(function(canvas) {
       var filename = 'ligue_' + slugifyName(league.name || 'ligue') + '_journee_' + roundVal + '.png';
       if (window.socialModal && window.socialModal.preview) {
         window.socialModal.preview(canvas, 'Résumé journée ' + roundVal + ' – ' + (league.name || ''), filename);

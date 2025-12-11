@@ -30,18 +30,27 @@
       --muted: #9ca3af;
       --success: #22c55e;
       --danger: #ef4444;
+      --app-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: var(--app-font-family);
       background: radial-gradient(circle at 0 0, var(--brand-accent-soft), transparent 55%),
                   radial-gradient(circle at 100% 100%, var(--brand-primary-glow), transparent 60%),
                   linear-gradient(135deg, var(--bg-dark), var(--bg-dark) 40%, #001428);
       color: var(--text);
       min-height: 100vh;
       padding: 16px;
+    }
+
+    h1, h2, h3, h4, h5, h6,
+    .card, .btn, .settings-shell, .settings-section,
+    input, select, textarea, label,
+    .tournaments-title, .small-muted, .chip, .tab,
+    .tv-overlay, .tv-match-card, .ranking-item, .team-chip {
+      font-family: var(--app-font-family);
     }
 
     .app {
@@ -697,7 +706,7 @@
     /* Social export visuels */
     .social-bg { width: 1080px; height: 1080px; padding: 40px; background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); display: flex; align-items: center; justify-content: center; }
     /* Nouveau : fond dédié pour l'export de journée (ligue interne) */
-    .social-day-bg { background: url('assets/Export-fond-journee.jpg') center/cover no-repeat, radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); }
+    .social-day-bg { background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); }
     .social-card { width: 980px; min-height: 980px; border-radius: 28px; padding: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 28px 70px rgba(0,0,0,0.55); color: #f9fafb; display: flex; flex-direction: column; gap: 16px; }
     .social-header { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
     .social-logo { width: 120px; height: 120px; border-radius: 24px; border: 2px solid rgba(255,255,255,0.18); object-fit: cover; background: rgba(0,0,0,0.35); }
@@ -2299,18 +2308,20 @@
               </div>
             </div>
 
-            <div class="settings-section app-block-interactive" aria-label="Typographie">
-              <div class="settings-subtitle">✒️ Typographie</div>
-              <div class="field">
-                <label for="club-theme-font">Police globale</label>
-                <select id="club-theme-font">
-                  <option value="system">Système</option>
-                  <option value="inter">Inter</option>
-                  <option value="poppins">Poppins</option>
-                  <option value="montserrat">Montserrat</option>
-                </select>
+              <div class="settings-section app-block-interactive" aria-label="Typographie">
+                <div class="settings-subtitle">✒️ Typographie</div>
+                <div class="field">
+                  <label for="club-theme-font">Police globale</label>
+                  <select id="club-theme-font">
+                  <option value="system">Police système (par défaut)</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Nunito">Nunito</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
             <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
               <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
@@ -2341,6 +2352,16 @@
               </div>
               <div class="theme-actions" style="justify-content:flex-end; padding-top:6px;">
                 <button class="btn btn-secondary btn-small" id="btn-clear-sponsor" type="button">Supprimer le sponsor actuel</button>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive" aria-label="Fond export journée ligue">
+              <div class="settings-subtitle">🖼️ Fond export scores de journée (Ligue interne)</div>
+              <div class="field">
+                <label for="league-export-bg-upload">Fond pour l’export des scores de journée</label>
+                <input id="league-export-bg-upload" type="file" accept="image/*" class="settings-input" />
+                <p class="settings-hint">Téléverse une image (jpg ou png) qui servira de fond pour l’export graphique des scores de chaque journée.</p>
+                <img id="league-export-bg-preview" alt="Prévisualisation du fond d’export" style="max-width: 220px; display:none; margin-top:8px; border-radius:8px;" />
               </div>
             </div>
 
@@ -3696,7 +3717,7 @@
         });
       }
 
-      function buildSocialDayImage(league, roundNumber) {
+      function buildSocialDayImage(league, roundNumber, bgOverride) {
         return new Promise(function(resolve, reject) {
           if (!league) return reject(new Error('Aucune ligue fournie'));
           var root = prepareRoot();
@@ -3704,6 +3725,15 @@
           var matches = (league.matches || []).filter(function(m) { return parseInt(m.round, 10) === parseInt(roundNumber, 10); });
           var bg = document.createElement('div');
           bg.className = 'social-bg';
+          var bgSrc = bgOverride || window.leagueExportBackgroundDataUrl || null;
+          if (bgSrc) {
+            bg.style.backgroundImage = 'url(' + bgSrc + ')';
+            bg.style.backgroundSize = 'cover';
+            bg.style.backgroundPosition = 'center';
+            bg.style.backgroundRepeat = 'no-repeat';
+          } else {
+            bg.classList.add('social-day-bg');
+          }
           var card = document.createElement('div');
           card.className = 'social-card';
           var header = document.createElement('div');
@@ -3858,6 +3888,26 @@
 
       var currentClubProfile = null;
       var formInputs = {};
+      var fontLinkEl = null;
+
+      var AVAILABLE_FONTS = [
+        { key: 'system', google: null, family: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+        { key: 'Inter', google: 'Inter:wght@400;600;700', family: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Poppins', google: 'Poppins:wght@400;600;700', family: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Montserrat', google: 'Montserrat:wght@400;600;700', family: "'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Roboto', google: 'Roboto:wght@400;500;700', family: "'Roboto', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Nunito', google: 'Nunito:wght@400;600;800', family: "'Nunito', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" }
+      ];
+
+      function normalizeFontKey(key) {
+        var val = (key || 'system').toString().toLowerCase();
+        if (val === 'inter') return 'Inter';
+        if (val === 'poppins') return 'Poppins';
+        if (val === 'montserrat') return 'Montserrat';
+        if (val === 'roboto') return 'Roboto';
+        if (val === 'nunito') return 'Nunito';
+        return 'system';
+      }
 
       function cloneProfile(data) {
         return Object.assign({}, DEFAULT_PROFILE, data || {});
@@ -3981,6 +4031,34 @@
         }
       }
 
+      // Nouveau : chargement dynamique des Google Fonts sélectionnées
+      function ensureFontLink() {
+        if (!fontLinkEl) {
+          fontLinkEl = document.getElementById('dynamic-font-link');
+          if (!fontLinkEl) {
+            fontLinkEl = document.createElement('link');
+            fontLinkEl.id = 'dynamic-font-link';
+            fontLinkEl.rel = 'stylesheet';
+            document.head.appendChild(fontLinkEl);
+          }
+        }
+        return fontLinkEl;
+      }
+
+      function applyAppFont(fontKey) {
+        var key = normalizeFontKey(fontKey);
+        var cfg = AVAILABLE_FONTS.find(function(f) { return f.key.toLowerCase() === key.toLowerCase(); }) || AVAILABLE_FONTS[0];
+        var family = cfg.family || AVAILABLE_FONTS[0].family;
+        document.documentElement.style.setProperty('--app-font-family', family);
+        var link = ensureFontLink();
+        if (cfg && cfg.google) {
+          var baseUrl = 'https://fonts.googleapis.com/css2?family=';
+          link.href = baseUrl + encodeURIComponent(cfg.google) + '&display=swap';
+        } else {
+          link.href = '';
+        }
+      }
+
       // Nouveau : bloc sponsor déplaçable en vue TV
       function applySponsorPosition(el, pos) {
         if (!el || !pos) return;
@@ -4101,6 +4179,7 @@
 
       function applyClubTheme(profile) {
         currentClubProfile = cloneProfile(profile);
+        currentClubProfile.fontFamily = normalizeFontKey(currentClubProfile.fontFamily);
         var root = document.documentElement;
         var accentSoft = hexToRgba(currentClubProfile.accentColor, 0.25) || 'rgba(229,227,57,0.25)';
         var primaryGlow = hexToRgba(currentClubProfile.primaryColor, 0.55) || 'rgba(0,75,155,0.55)';
@@ -4124,7 +4203,7 @@
         root.style.setProperty('--text', currentClubProfile.textColor);
 
         var body = document.body;
-        applyClassGroup(body, FONT_CLASS_MAP, currentClubProfile.fontFamily || 'system');
+        applyAppFont(currentClubProfile.fontFamily || 'system');
         applyClassGroup(body, BUTTON_CLASS_MAP, currentClubProfile.buttonStyle || 'solid');
         applyClassGroup(body, CARD_CLASS_MAP, currentClubProfile.cardShape || 'rounded');
         applyBackgroundStyles(currentClubProfile);
@@ -4157,7 +4236,11 @@
         formInputs.card.value = currentClubProfile.cardBackground || DEFAULT_PROFILE.cardBackground;
         formInputs.text.value = currentClubProfile.textColor || DEFAULT_PROFILE.textColor;
         formInputs.title.value = currentClubProfile.titleColor || DEFAULT_PROFILE.titleColor;
-        if (formInputs.font) formInputs.font.value = currentClubProfile.fontFamily || 'system';
+        if (formInputs.font) {
+          var fontVal = normalizeFontKey(currentClubProfile.fontFamily);
+          var exists = AVAILABLE_FONTS.some(function(f) { return f.key === fontVal; });
+          formInputs.font.value = exists ? fontVal : 'system';
+        }
         if (formInputs.sponsorName) formInputs.sponsorName.value = currentClubProfile.sponsorName || '';
         if (formInputs.buttonStyle) formInputs.buttonStyle.value = currentClubProfile.buttonStyle || 'solid';
         if (formInputs.cardShape) formInputs.cardShape.value = currentClubProfile.cardShape || 'rounded';
@@ -4200,7 +4283,7 @@
 
         if (formInputs.font) {
           formInputs.font.addEventListener('change', function() {
-            currentClubProfile.fontFamily = this.value || 'system';
+            currentClubProfile.fontFamily = normalizeFontKey(this.value || 'system');
             persistAndApply();
           });
         }
@@ -4307,7 +4390,7 @@
               textColor: formInputs.text.value || DEFAULT_PROFILE.textColor,
               titleColor: formInputs.title.value || DEFAULT_PROFILE.titleColor,
               logoDataUrl: currentClubProfile.logoDataUrl,
-              fontFamily: (formInputs.font && formInputs.font.value) || 'system',
+              fontFamily: normalizeFontKey((formInputs.font && formInputs.font.value) || 'system'),
               sponsorName: (formInputs.sponsorName && formInputs.sponsorName.value) || '',
               sponsorLogoDataUrl: currentClubProfile.sponsorLogoDataUrl,
               buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
@@ -4372,6 +4455,66 @@
     })();
   </script>
   <!-- Fin système de thème club -->
+
+  <!-- Début fond export journée (Ligue interne) -->
+  <script>
+    (function() {
+      var BG_KEY = 'league_export_background';
+      window.leagueExportBackgroundDataUrl = null;
+
+      function applyPreview(src) {
+        var preview = document.getElementById('league-export-bg-preview');
+        if (!preview) return;
+        if (src) {
+          preview.src = src;
+          preview.style.display = 'block';
+        } else {
+          preview.removeAttribute('src');
+          preview.style.display = 'none';
+        }
+      }
+
+      function loadBg() {
+        try {
+          var saved = localStorage.getItem(BG_KEY);
+          if (saved) {
+            window.leagueExportBackgroundDataUrl = saved;
+            applyPreview(saved);
+          }
+        } catch (err) {
+          console.warn('Impossible de relire le fond de journée', err);
+        }
+      }
+
+      function bindUpload() {
+        var input = document.getElementById('league-export-bg-upload');
+        if (!input) return;
+        input.addEventListener('change', function() {
+          var file = this.files && this.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            window.leagueExportBackgroundDataUrl = e.target.result;
+            applyPreview(window.leagueExportBackgroundDataUrl);
+            try {
+              localStorage.setItem(BG_KEY, window.leagueExportBackgroundDataUrl);
+            } catch (err) {
+              console.warn('Impossible de sauvegarder le fond de journée dans localStorage', err);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { loadBg(); bindUpload(); });
+      } else {
+        loadBg();
+        bindUpload();
+      }
+    })();
+  </script>
+  <!-- Fin fond export journée (Ligue interne) -->
 
   <!-- Début logique persistance logo -->
   <script>
