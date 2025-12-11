@@ -2,39 +2,10 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Gestion</title>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png">
+  <title>Moteur Tournois & M/D – Padel Parc</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Montserrat:wght@400;500;700&family=Poppins:wght@400;500;700&display=swap"
-    rel="stylesheet"
-  >
-  <style>
-    .font-system {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .font-roboto {
-      font-family: "Roboto", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .font-montserrat {
-      font-family: "Montserrat", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-    .font-poppins {
-      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-	/* Bloc sponsor TV déplaçable */
-#tv-sponsor-banner {
-  cursor: move;
-}
-
-#tv-sponsor-banner.dragging {
-  opacity: 0.9;
-}
-  </style>
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+
   <style>
     :root {
       --brand-primary: #004b9b;
@@ -43,6 +14,7 @@
       --brand-bg: #020617;
       --brand-card-bg: #0b1220;
       --brand-text: #f9fafb;
+      --brand-title: #e5e339;
       --brand-accent-soft: rgba(229, 227, 57, 0.25);
       --brand-primary-glow: rgba(0, 75, 155, 0.55);
 
@@ -308,6 +280,20 @@
       gap: 8px;
     }
 
+    /* Nouveau : couleur des titres pilotée par le thème */
+    .home-card-title,
+    .tournaments-title,
+    .settings-header h2,
+    .settings-subtitle,
+    .card h1,
+    .card h2,
+    .card h3,
+    h1, h2, h3,
+    .tv-title,
+    .md-timer-display {
+      color: var(--brand-title, var(--brand-accent));
+    }
+
     .home-card-title {
       font-size: 0.95rem;
       text-transform: uppercase;
@@ -419,7 +405,7 @@
     /* Fin thèmes de fond */
 
     /* Bandeau sponsor TV */
-    .tv-sponsor { position: absolute; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); }
+    .tv-sponsor { position: fixed; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
     .tv-sponsor img { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
     .tv-sponsor .tv-sponsor-name { font-weight: 700; font-size: 0.8rem; }
     /* Fin bandeau sponsor TV */
@@ -454,6 +440,72 @@
     .settings-subtitle { font-size: 0.9rem; font-weight: 700; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
     .settings-inline { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 8px; align-items: end; }
     .settings-inline .field { margin-bottom: 0; }
+
+    .settings-tabs { display: flex; gap: 8px; margin-bottom: 10px; flex-wrap: wrap; }
+    .settings-tab {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s ease-out;
+    }
+    .settings-tab.active {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(0,0,0,0.35);
+      transform: translateY(-1px);
+    }
+    .settings-panels { position: relative; }
+    .settings-panel { display: none; }
+    .settings-panel.active { display: block; }
+
+    .pong-card { position: relative; }
+    .pong-draggable { position: relative; }
+    .pong-draggable .drag-handle { cursor: move; display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--muted); }
+    .pong-draggable .resize-handle {
+      position: absolute;
+      right: 4px;
+      bottom: 4px;
+      width: 14px;
+      height: 14px;
+      border-radius: 4px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.25);
+      cursor: nwse-resize;
+    }
+    .pong-qr { width: 160px; height: 160px; background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; }
+    .pong-description { color: var(--muted); font-size: 0.9rem; }
+
+    .pong-tv-widget {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      min-width: 200px;
+      background: rgba(10,18,34,0.92);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      z-index: 20;
+    }
+    .pong-tv-widget .widget-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 6px; cursor: move; }
+    .pong-tv-widget .widget-title { font-weight: 700; font-size: 0.9rem; }
+    .pong-tv-widget .widget-body { display: grid; grid-template-columns: 80px 1fr; gap: 8px; align-items: center; }
+    .pong-tv-widget .widget-qr { width: 80px; height: 80px; background: rgba(255,255,255,0.06); border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+    .pong-tv-widget .widget-name { font-size: 0.8rem; color: var(--muted); }
+    .pong-tv-widget .widget-close { background: transparent; color: var(--text); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 2px 6px; cursor: pointer; font-size: 0.75rem; }
+
+    .app-bg-image::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      pointer-events: none;
+      z-index: -1;
+    }
 
     .club-theme-card { margin-top: 12px; }
 
@@ -1227,7 +1279,8 @@
       align-items:center;
       gap:12px;
     }#home-root .logo-wrapper,
-    #classic-root .logo-wrapper{
+    #classic-root .logo-wrapper,
+    #settings-root .logo-wrapper{
       width: 72px;
       height: 72px;
       border-radius: 16px;
@@ -1241,7 +1294,8 @@
       position:relative;
       cursor:pointer;
     }#home-root .logo-wrapper::after,
-    #classic-root .logo-wrapper::after{
+    #classic-root .logo-wrapper::after,
+    #settings-root .logo-wrapper::after{
       content:"Choisir un fichier";
       position:absolute;
       inset:0;
@@ -1256,19 +1310,27 @@
       opacity:0;
       transition:opacity 0.15s ease-in-out;
     }#home-root .logo-wrapper:hover::after,
-    #classic-root .logo-wrapper:hover::after{
+    #classic-root .logo-wrapper:hover::after,
+    #settings-root .logo-wrapper:hover::after{
       opacity:1;
     }#home-root .logo-wrapper input[type="file"],
-    #classic-root .logo-wrapper input[type="file"]{
+    #classic-root .logo-wrapper input[type="file"],
+    #settings-root .logo-wrapper input[type="file"]{
       position:absolute;
       inset:0;
       opacity:0;
       cursor:pointer;
     }#home-root .logo-wrapper img,
-    #classic-root .logo-wrapper img{
+    #classic-root .logo-wrapper img,
+    #settings-root .logo-wrapper img{
       max-width:100%;
       max-height:100%;
       object-fit:contain;
+    }
+
+    /* Nouveau : wrapper logo affichage simple (sans upload) */
+    .logo-wrapper.is-display { cursor: default; }
+    .logo-wrapper.is-display::after { display: none; }
     }#classic-root .app-header-text{
       display:flex;
       flex-direction:column;
@@ -2106,14 +2168,6 @@
     <section id="home-root">
       <div class="home-hero"></div>
 
-      <div class="home-logo" style="display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:10px;">
-        <label class="logo-wrapper">
-          <img id="home-logo-preview" alt="Logo centre" />
-          <input id="home-logo-upload" type="file" accept="image/*" />
-        </label>
-        <div class="small-muted" id="home-logo-helper">Upload ton logo pour l’ensemble de l’app.</div>
-      </div>
-
       <div class="home-grid">
         <!-- Bloc TOURNOIS -->
         <article class="home-card app-block-interactive">
@@ -2186,122 +2240,196 @@
           <button class="btn btn-secondary btn-small" id="btn-settings-home">🏠 Accueil</button>
         </div>
 
-        <div class="theme-grid">
-          <div class="field">
-            <label for="club-theme-name">Nom du club</label>
-            <input id="club-theme-name" type="text" placeholder="Nom complet du club" />
-          </div>
-          <div class="field">
-            <label for="club-theme-shortname">Nom court</label>
-            <input id="club-theme-shortname" type="text" placeholder="Nom court" />
-          </div>
-          <div class="field">
-            <label for="club-theme-primary">Couleur principale</label>
-            <input id="club-theme-primary" type="color" value="#004b9b" />
-          </div>
-          <div class="field">
-            <label for="club-theme-secondary">Couleur secondaire</label>
-            <input id="club-theme-secondary" type="color" value="#4d81b9" />
-          </div>
-          <div class="field">
-            <label for="club-theme-accent">Couleur accent</label>
-            <input id="club-theme-accent" type="color" value="#e5e339" />
-          </div>
-          <div class="field">
-            <label for="club-theme-bg">Fond principal</label>
-            <input id="club-theme-bg" type="color" value="#020617" />
-          </div>
-          <div class="field">
-            <label for="club-theme-card">Fond des cartes</label>
-            <input id="club-theme-card" type="color" value="#0b1220" />
-          </div>
-          <div class="field">
-            <label for="club-theme-text">Couleur du texte</label>
-            <input id="club-theme-text" type="color" value="#ffffff" />
-          </div>
+        <div class="settings-tabs" role="tablist">
+          <button class="settings-tab active" id="settings-tab-app" data-target="settings-panel-app" role="tab">🎨 Paramètres de l'application</button>
+          <button class="settings-tab" id="settings-tab-pong" data-target="settings-panel-pong" role="tab">🕹️ Mini-jeu Padel Pong</button>
         </div>
 
-        <div class="settings-section app-block-interactive" aria-label="Typographie">
-          <div class="settings-subtitle">✒️ Typographie</div>
-          <div class="field">
-            <label for="club-theme-font">Police globale</label>
-            <select id="club-theme-font">
-              <option value="system">Système</option>
-              <option value="inter">Inter</option>
-              <option value="poppins">Poppins</option>
-              <option value="montserrat">Montserrat</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
-          <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
-          <div class="settings-inline">
-            <div class="field">
-              <label for="app-sponsor-name">Nom du sponsor</label>
-              <input id="app-sponsor-name" type="text" placeholder="Nom du sponsor" />
+        <div class="settings-panels">
+          <div class="settings-panel active" id="settings-panel-app" role="tabpanel">
+            <div class="theme-grid">
+              <div class="field">
+                <label for="club-theme-name">Nom du club</label>
+                <input id="club-theme-name" type="text" placeholder="Nom complet du club" />
+              </div>
+              <div class="field">
+                <label for="club-theme-shortname">Nom court</label>
+                <input id="club-theme-shortname" type="text" placeholder="Nom court" />
+              </div>
+              <div class="field">
+                <label for="club-theme-primary">Couleur principale</label>
+                <input id="club-theme-primary" type="color" value="#004b9b" />
+              </div>
+              <div class="field">
+                <label for="club-theme-secondary">Couleur secondaire</label>
+                <input id="club-theme-secondary" type="color" value="#4d81b9" />
+              </div>
+              <div class="field">
+                <label for="club-theme-accent">Couleur accent</label>
+                <input id="club-theme-accent" type="color" value="#e5e339" />
+              </div>
+              <div class="field">
+                <label for="club-theme-bg">Fond principal</label>
+                <input id="club-theme-bg" type="color" value="#020617" />
+              </div>
+              <div class="field">
+                <label for="club-theme-card">Fond des cartes</label>
+                <input id="club-theme-card" type="color" value="#0b1220" />
+              </div>
+              <div class="field">
+                <label for="club-theme-text">Couleur du texte</label>
+                <input id="club-theme-text" type="color" value="#ffffff" />
+              </div>
+              <div class="field">
+                <label for="club-theme-title">Couleur des titres</label>
+                <input id="club-theme-title" type="color" value="#e5e339" />
+              </div>
             </div>
-            <div class="field">
-              <label for="app-sponsor-logo">Logo du sponsor</label>
-              <input id="app-sponsor-logo" type="file" accept="image/*" />
-              <div class="small-muted">Le logo sera affiché en vue TV s'il est défini.</div>
+
+            <div class="settings-section app-block-interactive" aria-label="Logo du club">
+              <div class="settings-subtitle">🖼️ Logo du club</div>
+              <div class="settings-inline" style="align-items:center;">
+                <label class="logo-wrapper" style="margin-right:12px;">
+                  <img id="settings-logo-preview" alt="Logo du club" />
+                  <input id="settings-logo-upload" type="file" accept="image/*" />
+                </label>
+                <div class="small-muted" id="settings-logo-helper">Le logo uploadé est utilisé sur toutes les vues (accueil, TV, ligue…).</div>
+              </div>
             </div>
-            <div class="field">
-              <label>Aperçu sponsor</label>
-              <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
+
+            <div class="settings-section app-block-interactive" aria-label="Typographie">
+              <div class="settings-subtitle">✒️ Typographie</div>
+              <div class="field">
+                <label for="club-theme-font">Police globale</label>
+                <select id="club-theme-font">
+                  <option value="system">Système</option>
+                  <option value="inter">Inter</option>
+                  <option value="poppins">Poppins</option>
+                  <option value="montserrat">Montserrat</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
+              <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
+              <div class="settings-inline">
+                <div class="field">
+                  <label for="app-sponsor-name">Nom du sponsor</label>
+                  <input id="app-sponsor-name" type="text" placeholder="Nom du sponsor" />
+                </div>
+                <div class="field">
+                  <label for="app-sponsor-logo">Logo du sponsor</label>
+                  <input id="app-sponsor-logo" type="file" accept="image/*" />
+                  <div class="small-muted">Le logo sera affiché en vue TV s'il est défini.</div>
+                </div>
+                <div class="field">
+                  <label>Aperçu sponsor</label>
+                  <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
+                </div>
+              </div>
+              <div class="settings-inline" style="gap:16px;">
+                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
+                  <input id="app-sponsor-md-toggle" type="checkbox" checked />
+                  Afficher en TV M/D
+                </label>
+                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
+                  <input id="app-sponsor-classic-toggle" type="checkbox" checked />
+                  Afficher en TV Tournoi
+                </label>
+              </div>
+              <div class="theme-actions" style="justify-content:flex-end; padding-top:6px;">
+                <button class="btn btn-secondary btn-small" id="btn-clear-sponsor" type="button">Supprimer le sponsor actuel</button>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive" aria-label="Style des boutons">
+              <div class="settings-subtitle">🎛️ Style des boutons</div>
+              <div class="field">
+                <label for="app-button-style">Apparence</label>
+                <select id="app-button-style">
+                  <option value="solid">Plein</option>
+                  <option value="outline">Contour</option>
+                  <option value="ghost">Transparent</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive" aria-label="Forme des cartes">
+              <div class="settings-subtitle">🧊 Forme des blocs</div>
+              <div class="field">
+                <label for="app-card-shape">Arrondis</label>
+                <select id="app-card-shape">
+                  <option value="rounded">Arrondi léger</option>
+                  <option value="square">Carré</option>
+                  <option value="pill">Très arrondi</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive" aria-label="Fond de l'application">
+              <div class="settings-subtitle">🌌 Fond de l'application</div>
+              <div class="settings-inline">
+                <div class="field">
+                  <label for="app-bg-style">Style de fond</label>
+                  <select id="app-bg-style">
+                    <option value="solid">Uni</option>
+                    <option value="gradient">Dégradé</option>
+                    <option value="pattern">Motif discret</option>
+                    <option value="image">Image personnalisée</option>
+                  </select>
+                </div>
+                <div class="field" id="app-bg-image-field">
+                  <label for="app-bg-image">Image de fond</label>
+                  <input id="app-bg-image" type="file" accept="image/*" />
+                  <div class="small-muted">Utilisée si le mode image est sélectionné.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="theme-actions">
+              <div class="small-muted">Le logo uploadé est partagé dans ce thème.</div>
+              <div class="theme-buttons">
+                <button class="btn btn-small" id="btn-save-club-theme">Enregistrer le thème</button>
+                <button class="btn btn-secondary btn-small" id="btn-reset-club-theme">Réinitialiser le thème</button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="settings-section app-block-interactive" aria-label="Style des boutons">
-          <div class="settings-subtitle">🎛️ Style des boutons</div>
-          <div class="field">
-            <label for="app-button-style">Apparence</label>
-            <select id="app-button-style">
-              <option value="solid">Plein</option>
-              <option value="outline">Contour</option>
-              <option value="ghost">Transparent</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="settings-section app-block-interactive" aria-label="Forme des cartes">
-          <div class="settings-subtitle">🧊 Forme des blocs</div>
-          <div class="field">
-            <label for="app-card-shape">Arrondis</label>
-            <select id="app-card-shape">
-              <option value="rounded">Arrondi léger</option>
-              <option value="square">Carré</option>
-              <option value="pill">Très arrondi</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="settings-section app-block-interactive" aria-label="Fond de l'application">
-          <div class="settings-subtitle">🌌 Fond de l'application</div>
-          <div class="settings-inline">
-            <div class="field">
-              <label for="app-bg-style">Style de fond</label>
-              <select id="app-bg-style">
-                <option value="solid">Uni</option>
-                <option value="gradient">Dégradé</option>
-                <option value="pattern">Motif discret</option>
-                <option value="image">Image personnalisée</option>
-              </select>
+          <div class="settings-panel" id="settings-panel-pong" role="tabpanel">
+            <div class="settings-section app-block-interactive" aria-label="Paramètres du mini-jeu">
+              <div class="settings-subtitle">⚡ Paramètres du mini-jeu Padel Pong</div>
+              <div class="settings-inline">
+                <div class="field">
+                  <label for="pp-sponsor-name">Nom du sponsor</label>
+                  <input id="pp-sponsor-name" type="text" placeholder="Nom du sponsor affiché" />
+                </div>
+                <div class="field">
+                  <label for="pp-sponsor-logo">URL du logo du sponsor</label>
+                  <input id="pp-sponsor-logo" type="text" placeholder="https://.../logo.png" />
+                </div>
+                <div class="field">
+                  <label for="pp-ai-name">Nom de l'IA</label>
+                  <input id="pp-ai-name" type="text" placeholder="PadelBot" />
+                </div>
+              </div>
+              <div class="theme-actions" style="justify-content: flex-end;">
+                <button class="btn btn-small" id="pp-save-settings">Enregistrer les paramètres du mini-jeu</button>
+              </div>
             </div>
-            <div class="field" id="app-bg-image-field">
-              <label for="app-bg-image">Image de fond</label>
-              <input id="app-bg-image" type="file" accept="image/*" />
-              <div class="small-muted">Utilisée si le mode image est sélectionné.</div>
-            </div>
-          </div>
-        </div>
 
-        <div class="theme-actions">
-          <div class="small-muted">Le logo uploadé est partagé dans ce thème.</div>
-          <div class="theme-buttons">
-            <button class="btn btn-small" id="btn-save-club-theme">Enregistrer le thème</button>
-            <button class="btn btn-secondary btn-small" id="btn-reset-club-theme">Réinitialiser le thème</button>
+            <div class="card app-block-interactive pong-card pong-draggable" id="pp-card-draggable">
+              <div class="drag-handle">⛓️ Déplacer le bloc Padel Pong</div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Padel Pong</h3>
+              <p class="pong-description">Mini-jeu rapide pour les pauses : scanne le QR code pour lancer <strong>padel-pong.html</strong> sur ton mobile ou ouvre-le directement.</p>
+              <div style="display:flex; gap:16px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+                <div class="pong-qr" id="pp-qr"></div>
+                <div style="display:flex; flex-direction:column; gap:8px; min-width:220px;">
+                  <div id="pp-meta" class="small-muted">Sponsor & IA visibles dans le mini-jeu.</div>
+                  <button class="btn btn-small" id="pp-open-game" type="button">Ouvrir le mini-jeu</button>
+                </div>
+              </div>
+              <div class="resize-handle" aria-hidden="true"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -2520,14 +2648,13 @@
         <div class="app">
     <header class="app-header">
       <div class="app-header-main">
-        <label class="logo-wrapper">
+        <div class="logo-wrapper is-display">
           <img id="logo-preview" alt="Logo centre" />
-          <input id="logo-upload" type="file" accept="image/*" />
-        </label>
+        </div>
         <div class="app-header-text">
           <h1>Tournoi classique</h1>
           <div class="subtitle" id="admin-subtitle">Poules + tableaux • … équipes</div>
-          <div class="small-muted" id="logo-helper">Upload ton logo et configure ton tournoi dans l’onglet “Configuration”.</div>
+          <div class="small-muted">Logo géré dans l’onglet ⚙️ Paramètres.</div>
         </div>
       </div>
       <div class="header-right">
@@ -2785,17 +2912,41 @@
 
   </div>
 
+  <!-- Générateur QR minimal pour Padel Pong -->
+  <script>
+    /*! QRCode.js v1.0.0 (minimal inline copy) */
+    (function(){function d(a){this.mode=c.MODE_8BIT_BYTE;this.data=a}function e(a,c){this.typeNumber=a;this.errorCorrectLevel=c;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[]}var c={};d.prototype={getLength:function(a){return this.data.length},write:function(a){for(var c=0;c<this.data.length;c++)a.put(this.data.charCodeAt(c),8)}};c.PAD0=236;c.PAD1=17;c.createData=function(a,b,d){for(var f=b.getRSBlocks(a,d),g=new b.Buffer,o=0;o<d.length;o++)b.dataList.push(d[o]);for(o=0;o<b.dataList.length;o++)d=b.dataList[o],g.put(d.mode,4),g.put(d.getLength(b.typeNumber),b._getLengthInBits(d.mode)),d.write(g);for(o=0;o<f.length;o++){d=f[o].dataCount;var h=f[o].totalCount-d;g.put(0,8*d)}for(;g.getLengthInBits()<=8*f.reduce(function(a,b){return a+b.totalCount},0);)g.put(0,1);return b.createBytes(g,f)};c._getErrorCorrectPolynomial=function(a){for(var b=new c.Polynomial([1],0),d=0;d<a;d++)b=b.multiply(new c.Polynomial([1,c.gexp(d)],0));return b};c.glog=function(a){if(1>a)throw"glog("+a+")";return c.LOG_TABLE[a]};c.gexp=function(a){for(;0>a;)a+=255;for(;256<=a;)a-=255;return c.EXP_TABLE[a]};c.stringToBytes=function(a){for(var c=[],b=0;b<a.length;b++){var d=a.charCodeAt(b);c.push(d)}return c};c.Polynomial=function(a,b){if(void 0==a.length)throw"not set rawPoly";for(var d=0;d<a.length&&0==a[d];)d++;this.num=new Array(a.length-d+b);for(var e=0;e<a.length-d;e++)this.num[e]=a[e+d]};c.Polynomial.prototype={get:function(a){return this.num[a]},getLength:function(){return this.num.length},multiply:function(a){for(var b=new Array(this.getLength()+a.getLength()-1),d=0;d<this.getLength();d++)for(var e=0;e<a.getLength();e++)b[d+e]^=c.gexp(c.glog(this.get(d))+c.glog(a.get(e)));return new c.Polynomial(b,0)},mod:function(a){if(0>this.getLength()-a.getLength())return this;for(var b=new Array(this.getLength()),d=0;d<this.getLength();d++)b[d]=this.get(d);for(;0<=b.length-a.getLength();){for(var e=c.glog(b[0])-c.glog(a.get(0)),f=0;f<a.getLength();f++)b[f]^=c.gexp(c.glog(a.get(f))+e);for(;0<b.length&&0==b[0];)b.shift()}return new c.Polynomial(b,0)}};c.Math={};c.Math.gcd=function(a,b){for(;0!=b;){var d=a% b;a=b;b=d}return a};e.prototype={addData:function(a){this.dataList.push(new d(a));this.dataCache=null},isDark:function(a,c){if(0>a||this.moduleCount<=a||0>c||this.moduleCount<=c)throw a+","+c;return this.modules[a][c]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(a,c){this.moduleCount=4*this.typeNumber+17;this.modules=new Array(this.moduleCount);for(var b=0;b<this.moduleCount;b++){this.modules[b]=new Array(this.moduleCount);for(var d=0;d<this.moduleCount;d++)this.modules[b][d]=null}this.setupPositionProbePattern(0,0);this.setupPositionProbePattern(this.moduleCount-7,0);this.setupPositionProbePattern(0,this.moduleCount-7);this.setupPositionAdjustPattern();this.setupTimingPattern();this.setupTypeInfo(a,c);7<=this.typeNumber&&this.setupTypeNumber(a);null==this.dataCache&&(this.dataCache=c.createData(this.typeNumber,this.errorCorrectLevel,this.dataList));this.mapData(this.dataCache,c)},setupPositionProbePattern:function(a,c){for(var b=-1;7>=b;b++)if(!(-1>=a+b||this.moduleCount<=a+b))for(var d=-1;7>=d;d++)-1>=c+d||this.moduleCount<=c+d||(this.modules[a+b][c+d]=0<=b&&b<=6&&(0==d||6==d)||0<=d&&d<=6&&(0==b||6==b)||2<=b&&b<=4&&2<=d&&d<=4)},getBestMaskPattern:function(){for(var a=0,b=0,d=0;8>d;d++){this.makeImpl(!0,d);var e=c.Util.getLostPoint(this);if(0==d||a>e)a=e,b=d}return b},createBytes:function(a,b){for(var d=0,e=0,f=0;f<b.length;f++)d+=b[f].dataCount,e+=b[f].totalCount;for(var g=new Array(e),h=0,n=0,f=0;f<b.length;f++){var k=b[f].dataCount,p=b[f].totalCount-k,r=new Array(k);for(n=0;n<r.length;n++)r[n]=255&a.buffer[n+h];h+=k;n=c.getErrorCorrectPolynomial(p);k=(new c.Polynomial(r,0)).mod(n).num;for(n=0;n<k.length;n++)g[n+p*f]=k[n];for(n=0;n<r.length;n++)g[n]=r[n]}return g},setupPositionAdjustPattern:function(){for(var a=c.Pattern.getPatternPosition(this.typeNumber),b=0;b<a.length;b++)for(var d=0;d<a.length;d++){var e=a[b],f=a[d];if(null==this.modules[e][f])for(var g=-2;2>=g;g++)for(var h=-2;2>=h;h++)this.modules[e+g][f+h]=-2==g||2==g||-2==h||2==h||0==g&&0==h}},setupTimingPattern:function(){for(var a=8;a<this.moduleCount-8;a++)null==this.modules[a][6]&&(this.modules[a][6]=0==a%2),null==this.modules[6][a]&&(this.modules[6][a]=0==a%2)},setupTypeNumber:function(a){for(var b=c.Util.getBCHTypeNumber(this.typeNumber),d=0;18>d;d++){var e=!a&&1==(b>>d&1);this.modules[Math.floor(d/3)][d%3+this.moduleCount-8-3]=e;this.modules[d%3+this.moduleCount-8-3][Math.floor(d/3)]=e}},setupTypeInfo:function(a,b){for(var d=c.Util.getBCHTypeInfo(this.errorCorrectLevel<<3|b),e=0;15>e;e++){var f=!a&&1==(d>>e&1);6>e?this.modules[e][8]=f:8>e?this.modules[e+1][8]=f:this.modules[this.moduleCount-15+e][8]=f}for(e=0;15>e;e++)f=!a&&1==(d>>e&1),this.modules[8][this.moduleCount-1-e]=f;this.modules[this.moduleCount-8][8]=!a},mapData:function(a,b){for(var d=-1,e=this.moduleCount-1,f=7,g=0,h=this.moduleCount-1;0<h;h-=2){6==h&&h--;for(var n=0;this.moduleCount>n;n++){var k=e>=0?this.moduleCount-1-n:n,p=h;for(g=0;2>g;g++)null==this.modules[k][p-g]&&(0<a.length?(n=a[a.length-1],this.modules[k][p-g]=!b.getMask(k,p-g)):this.modules[k][p-g]=!1),a.length&&(g+=1)}}},setupTypeInfo:function(a,b){for(var d=c.Util.getBCHTypeInfo(this.errorCorrectLevel<<3|b),e=0;15>e;e++){var f=!a&&1==(d>>e&1);6>e?this.modules[e][8]=f:8>e?this.modules[e+1][8]=f:this.modules[this.moduleCount-15+e][8]=f}for(e=0;15>e;e++)f=!a&&1==(d>>e&1),this.modules[8][this.moduleCount-1-e]=f;this.modules[this.moduleCount-8][8]=!a}};c.Util={PATTERN_POSITION_TABLE:[[],[6,18],[6,22],[6,26],[6,30],[6,34],[6,22,38],[6,24,42],[6,26,46],[6,28,50],[6,30,54],[6,32,58],[6,34,62],[6,26,46,66],[6,26,48,70],[6,26,50,74],[6,30,54,78],[6,30,56,82],[6,30,58,86],[6,34,62,90],[6,28,50,72,94],[6,26,50,74,98],[6,30,54,78,102],[6,28,54,80,106],[6,32,58,84,110],[6,30,58,86,114],[6,34,62,90,118],[6,26,50,74,98,122],[6,30,54,78,102,126],[6,26,52,78,104,130],[6,30,56,82,108,134],[6,34,60,86,112,138],[6,30,58,86,114,142],[6,34,62,90,118,146],[6,30,54,78,102,126,150],[6,24,50,76,102,128,154],[6,28,54,80,106,132,158],[6,32,58,84,110,136,162],[6,26,54,82,110,138,166],[6,30,58,86,114,142,170]],getPatternPosition:function(a){return c.Util.PATTERN_POSITION_TABLE[a-1]},getMask:function(a,b){switch((a+b)%8){case 0:return!0;case 1:return!1;case 2:return 0==a%3;case 3:return 0==(a+b)%3;case 4:return 0==(Math.floor(a/2)+Math.floor(b/3))%2;case 5:return 0==a*b%2+a*b%3;case 6:return 0==(a*b%2+a*b%3)%2;case 7:return 0==(a*b%3+(a+b)%2)%2}},getBCHTypeInfo:function(a){for(var b=a<<10;c.Util.getBCHDigit(b)-c.Util.getBCHDigit(1335)>=0;)b^=1335<<c.Util.getBCHDigit(b)-c.Util.getBCHDigit(1335);return 21522^a<<10^b},getBCHTypeNumber:function(a){for(var b=a<<12;c.Util.getBCHDigit(b)-c.Util.getBCHDigit(7973)>=0;)b^=7973<<c.Util.getBCHDigit(b)-c.Util.getBCHDigit(7973);return a<<12^b},getBCHDigit:function(a){for(var b=0;0!=a;)b++,a>>=1;return b},getLostPoint:function(a){for(var b=a.getModuleCount(),d=0,e=0;e<b;e++)for(var f=0;f<b;f++){for(var g=0,h=a.isDark(e,f),n=-1;1>=n;n++)if(!(0>e+n||e+n>=b))for(var k=-1;1>=k;k++)0>f+k||f+k>=b||0==n&&0==k||h==a.isDark(e+n,f+k)&&g++;5<g&&(d+=3+g-5)}for(e=0;e<b-1;e++)for(f=0;f<b-1;f++){g=0;a.isDark(e,f)&&g++;a.isDark(e+1,f)&&g++;a.isDark(e,f+1)&&g++;a.isDark(e+1,f+1)&&g++;0!=g&&4!=g||(d+=3)}for(e=0;e<b;e++)for(f=0;f<b-6;f++)a.isDark(e,f)&&!a.isDark(e,f+1)&&a.isDark(e,f+2)&&a.isDark(e,f+3)&&a.isDark(e,f+4)&&!a.isDark(e,f+5)&&a.isDark(e,f+6)&&(d+=40);for(f=0;f<b;f++)for(e=0;e<b-6;e++)a.isDark(e,f)&&!a.isDark(e+1,f)&&a.isDark(e+2,f)&&a.isDark(e+3,f)&&a.isDark(e+4,f)&&!a.isDark(e+5,f)&&a.isDark(e+6,f)&&(d+=40);for(f=0;f<b;f++)for(e=0;e<b;e++)a.isDark(e,f)&&(d+=Math.abs(100*a.getDarkCount()/a.getModuleCount()/a.getModuleCount()-50)/5);return d}};c.RSBlock=function(a,b){this.totalCount=a;this.dataCount=b};c.RSBlock.getRSBlocks=function(a,b){return[{totalCount:26,dataCount:19},{totalCount:48,dataCount:34},{totalCount:72,dataCount:55},{totalCount:88,dataCount:70},{totalCount:110,dataCount:84},{totalCount:132,dataCount:106},{totalCount:154,dataCount:122},{totalCount:180,dataCount:140},{totalCount:198,dataCount:158},{totalCount:216,dataCount:180}][a-1]?[{totalCount:26,dataCount:19}]:[{totalCount:26,dataCount:16}]};c.Buffer=function(){this.buffer=[];this.length=0};c.Buffer.prototype={get:function(a){return 1==(this.buffer[Math.floor(a/8)]>>>7-a%8&1)},put:function(a,c){for(var b=0;b<c;b++)this.putBit(1==(a>>>c-b-1&1))},getLengthInBits:function(){return this.length},putBit:function(a){var c=Math.floor(this.length/8);this.buffer.length<=c&&this.buffer.push(0);a&&(this.buffer[c]|=128>>>this.length%8);this.length++}};window.QRCode=e;window.QRCode.CorrectLevel={L:1,M:0,Q:3,H:2};})();
+  </script>
+
   <!-- VUE TV -->
   <div id="tv-overlay" class="tv-overlay">
-    <div class="tv-inner">
-      <div class="tv-logo-bar">
-        <img id="tv-logo" alt="Logo TV" />
-      </div>
-      <header class="tv-header">
-        <div class="tv-header-left">
-          <div class="tv-title" id="tv-title">TOURNOI</div>
-          <div class="tv-subtitle" id="tv-subtitle">Poules + tableaux • … équipes</div>
+      <div class="tv-inner">
+        <div class="tv-logo-bar">
+          <img id="tv-logo" alt="Logo TV" />
         </div>
+        <div id="classic-tv-sponsor-banner" class="tv-sponsor" style="right: 16px; top: 16px; bottom: auto;">
+          <img id="classic-tv-sponsor-logo" alt="Sponsor" />
+          <div class="tv-sponsor-name" id="classic-tv-sponsor-name"></div>
+        </div>
+        <div id="pong-tv-widget-classic" class="pong-tv-widget pong-draggable" style="display:none;">
+          <div class="widget-head" id="pong-tv-drag-classic">
+            <div class="widget-title">🕹️ Padel Pong</div>
+            <button class="widget-close" type="button" id="pong-tv-hide-classic">Masquer</button>
+          </div>
+          <div class="widget-body">
+            <div class="widget-qr" id="pong-tv-qr-classic"></div>
+            <div>
+              <div class="widget-name" id="pong-tv-name-classic">Scan & joue pendant la pause</div>
+              <div class="widget-name" id="pong-tv-meta-classic">Sponsor & IA du mini-jeu</div>
+            </div>
+          </div>
+          <div class="resize-handle" aria-hidden="true"></div>
+        </div>
+        <header class="tv-header">
+          <div class="tv-header-left">
+            <div class="tv-title" id="tv-title">TOURNOI</div>
+            <div class="tv-subtitle" id="tv-subtitle">Poules + tableaux • … équipes</div>
+          </div>
         <div class="tv-header-right">
           <div class="tv-tag-live" id="tv-phase-tag">POULES</div>
           <button id="btn-close-tv" class="btn btn-secondary btn-small">Quitter la vue TV</button>
@@ -2846,7 +2997,8 @@
     <section id="ligue-root" style="display:none;">
       <header class="tournaments-header">
         <div>
-          <h1 class="tournaments-title mb-6">Gestion de vos ligues internes de padel</h1>
+          <p class="tournaments-subtitle">Ligue interne</p>
+          <h1 class="tournaments-title">Gestion de vos ligues internes de padel</h1>
         </div>
         <div class="tournaments-actions">
           <button class="btn btn-secondary" id="btn-back-home-from-ligue">🏠 Accueil</button>
@@ -2858,6 +3010,7 @@
         <article class="tournament-type-card ligue-block-config app-block-interactive">
           <div class="tournament-type-card-header">
             <div>
+              <p class="tournaments-subtitle">Ligue interne</p>
               <h3 class="tournaments-title">Configurer une ligue</h3>
               <p class="tournament-type-description">Créer une nouvelle ligue : équipes, format, calendrier…</p>
             </div>
@@ -2870,6 +3023,7 @@
         <article class="tournament-type-card ligue-block-active app-block-interactive">
           <div class="tournament-type-card-header">
             <div>
+              <p class="tournaments-subtitle">Ligue interne</p>
               <h3 class="tournaments-title">Gestion des ligues en cours</h3>
               <p class="tournament-type-description">Voir et administrer les ligues actuellement actives.</p>
             </div>
@@ -2883,10 +3037,10 @@
       <section class="card ligue-section app-block-interactive">
         <div class="ligue-inline">
           <div>
-         
+            <p class="tournaments-subtitle">Historique</p>
             <h3 class="tournaments-title">Historique des ligues terminées</h3>
           </div>
-       
+          <div class="small-muted">Ligues clôturées et archivées.</div>
         </div>
         <div id="ligue-history-list" class="ligue-list">
           <div class="empty">Aucune ligue terminée pour l’instant.</div>
@@ -3267,6 +3421,21 @@
         <div class="tv-sponsor-name" id="tv-sponsor-name"></div>
       </div>
 
+      <div id="pong-tv-widget-md" class="pong-tv-widget pong-draggable" style="display:none;">
+        <div class="widget-head" id="pong-tv-drag-md">
+          <div class="widget-title">🕹️ Padel Pong</div>
+          <button class="widget-close" type="button" id="pong-tv-hide-md">Masquer</button>
+        </div>
+        <div class="widget-body">
+          <div class="widget-qr" id="pong-tv-qr-md"></div>
+          <div>
+            <div class="widget-name" id="pong-tv-name-md">Scan & joue pendant la pause</div>
+            <div class="widget-name" id="pong-tv-meta-md">Sponsor & IA du mini-jeu</div>
+          </div>
+        </div>
+        <div class="resize-handle" aria-hidden="true"></div>
+      </div>
+
       <main class="tv-main">
         <section class="tv-column">
           <div class="tv-block">
@@ -3336,6 +3505,26 @@
       </div>
     </div>
   </div>
+
+  <!-- Générateur QR minimal pour Padel Pong -->
+  <script>
+    (function() {
+      function QR8bitByte(data) { this.mode = QRMode.MODE_8BIT_BYTE; this.data = data; }
+      QR8bitByte.prototype={getLength:function(){return this.data.length;},write:function(buffer){for(var i=0;i<this.data.length;i++)buffer.put(this.data.charCodeAt(i),8);}};
+      var QRMode={MODE_8BIT_BYTE:1};
+      function QRPolynomial(num,shift){var offset=0;while(offset<num.length&&0==num[offset])offset++;this.num=new Array(num.length-offset+shift);for(var i=0;i<num.length-offset;i++)this.num[i]=num[i+offset];}
+      QRPolynomial.prototype={get:function(index){return this.num[index];},getLength:function(){return this.num.length;},multiply:function(e){for(var num=new Array(this.getLength()+e.getLength()-1),i=0;i<this.getLength();i++)for(var j=0;j<e.getLength();j++)num[i+j]^=QRMath.gexp(QRMath.glog(this.get(i))+QRMath.glog(e.get(j)));return new QRPolynomial(num,0)},mod:function(e){if(this.getLength()-e.getLength()<0)return this;var ratio=QRMath.glog(this.get(0))-QRMath.glog(e.get(0)),num=new Array(this.getLength());for(var i=0;i<this.getLength();i++)num[i]=this.get(i);for(i=0;i<e.getLength();i++)num[i]^=QRMath.gexp(QRMath.glog(e.get(i))+ratio);return new QRPolynomial(num,0).mod(e)}};
+      var QRMath={glog:function(n){if(n<1)throw new Error("glog"+n);return QRMath.LOG_TABLE[n];},gexp:function(n){for(;n<0;)n+=255;for(;n>=256;)n-=255;return QRMath.EXP_TABLE[n]},EXP_TABLE:new Array(256),LOG_TABLE:new Array(256)};for(var i=0;i<8;i++)QRMath.EXP_TABLE[i]=1<<i;for(i=8;i<256;i++)QRMath.EXP_TABLE[i]=QRMath.EXP_TABLE[i-4]^QRMath.EXP_TABLE[i-5]^QRMath.EXP_TABLE[i-6]^QRMath.EXP_TABLE[i-8];for(i=0;i<255;i++)QRMath.LOG_TABLE[QRMath.EXP_TABLE[i]]=i;
+      function QRRSBlock(totalCount,dataCount){this.totalCount=totalCount;this.dataCount=dataCount;}QRRSBlock.getRSBlocks=function(typeNumber){var rsBlock=new QRRSBlock(26,19);return new Array(typeNumber).fill(rsBlock)};
+      function QRBitBuffer(){this.buffer=[];this.length=0;}QRBitBuffer.prototype={get:function(index){return 1==(this.buffer[Math.floor(index/8)]>>>7-index%8&1)},put:function(num,length){for(var i=0;i<length;i++)this.putBit(1==(num>>>length-i-1&1));},getLengthInBits:function(){return this.length},putBit:function(bit){var bufIndex=Math.floor(this.length/8);this.buffer.length<=bufIndex&&this.buffer.push(0);bit&&(this.buffer[bufIndex]|=128>>>this.length%8);this.length++;}};
+      function QRCode(typeNumber,errorCorrectLevel){this.typeNumber=typeNumber;this.errorCorrectLevel=errorCorrectLevel;this.modules=null;this.moduleCount=0;this.dataCache=null;this.dataList=[];}
+      QRCode.prototype={addData:function(data){this.dataList.push(new QR8bitByte(data));this.dataCache=null;},isDark:function(row,col){return this.modules[row][col]},getModuleCount:function(){return this.moduleCount},make:function(){this.makeImpl(!1,this.getBestMaskPattern())},makeImpl:function(test,maskPattern){this.moduleCount=4*this.typeNumber+17;this.modules=new Array(this.moduleCount);for(var row=0;row<this.moduleCount;row++){this.modules[row]=new Array(this.moduleCount);for(var col=0;col<this.moduleCount;col++)this.modules[row][col]=null}this.setupPositionProbePattern(0,0);this.setupPositionProbePattern(this.moduleCount-7,0);this.setupPositionProbePattern(0,this.moduleCount-7);this.setupTimingPattern();this.mapData(this.createData(),maskPattern);},createData:function(){for(var buffer=new QRBitBuffer(),i=0;i<this.dataList.length;i++){var data=this.dataList[i];buffer.put(data.mode,4);buffer.put(data.getLength(),8);data.write(buffer)}for(i=0;i<buffer.buffer.length&&buffer.getLengthInBits()<=8*this.typeNumber*26;i++);for(;0!=buffer.getLengthInBits()%8;)buffer.putBit(!1);for(;buffer.getLengthInBits()<8*this.typeNumber*26;)buffer.put(0,8);return QRCode.createBytes(buffer,QRRSBlock.getRSBlocks(this.typeNumber))},setupPositionProbePattern:function(row,col){for(var r=-1;7>=r;r++)if(!(-1>=row+r||this.moduleCount<=row+r))for(var c=-1;7>=c;c++)-1>=col+c||this.moduleCount<=col+c||(this.modules[row+r][col+c]=0<=r&&r<=6&&(0==c||6==c)||0<=c&&c<=6&&(0==r||6==r)||2<=r&&r<=4&&2<=c&&c<=4)},setupTimingPattern:function(){for(var r=8;r<this.moduleCount-8;r++)null==this.modules[r][6]&&(this.modules[r][6]=0==r%2),null==this.modules[6][r]&&(this.modules[6][r]=0==r%2)},mapData:function(data,maskPattern){for(var inc=-1,row=this.moduleCount-1,bitIndex=7,byteIndex=0,col=this.moduleCount-1;0<col;col-=2){6==col&&col--;for(;;){for(var c=0;2>c;c++)if(null==this.modules[row][col-c]){var dark=!1;byteIndex<data.length&&(dark=1==(data[byteIndex]>>>bitIndex&1));maskPattern=maskPattern;dark=this.getMask(maskPattern,row,col-c)?!dark:dark;this.modules[row][col-c]=dark;bitIndex--;0>bitIndex&&(byteIndex++,bitIndex=7)}row+=inc;if(0>row||this.moduleCount<=row){row-=inc;inc=-inc;break}}}},getBestMaskPattern:function(){return 0},getMask:function(pattern,row,col){switch(pattern){case 0:return 0==(row+col)%2;default:return !1}},setupPositionAdjustPattern:function(){},setupTypeNumber:function(){},setupTypeInfo:function(){}};
+      QRCode.createBytes=function(buffer,rsBlocks){for(var offset=0,maxDcCount=0,maxEcCount=0,dcdata=new Array(rsBlocks.length),ecdata=new Array(rsBlocks.length),i=0;i<rsBlocks.length;i++){var dcCount=rsBlocks[i].dataCount,ecCount=rsBlocks[i].totalCount-dcCount;maxDcCount=Math.max(maxDcCount,dcCount);maxEcCount=Math.max(maxEcCount,ecCount);dcdata[i]=new Array(dcCount);for(var j=0;j<dcdata[i].length;j++)dcdata[i][j]=255&buffer.buffer[j+offset];offset+=dcCount;var rsPoly=QRCode.getErrorCorrectPolynomial(ecCount),rawPoly=new QRPolynomial(dcdata[i],0),modPoly=rawPoly.mod(rsPoly);ecdata[i]=new Array(rsPoly.getLength()-1);for(j=0;j<ecdata[i].length;j++){var modIndex=j+modPoly.getLength()-ecdata[i].length;ecdata[i][j]=0<=modIndex?modPoly.get(modIndex):0}}for(var totalCodeCount=0,i=0;i<rsBlocks.length;i++)totalCodeCount+=rsBlocks[i].totalCount;var data=new Array(totalCodeCount),index=0;for(j=0;j<maxDcCount;j++)for(i=0;i<rsBlocks.length;i++)j<dcdata[i].length&&(data[index++]=dcdata[i][j]);for(j=0;j<maxEcCount;j++)for(i=0;i<rsBlocks.length;i++)j<ecdata[i].length&&(data[index++]=ecdata[i][j]);return data};
+      QRCode.getErrorCorrectPolynomial=function(errorCorrectLength){for(var a=new QRPolynomial([1],0),i=0;i<errorCorrectLength;i++)a=a.multiply(new QRPolynomial([1,QRMath.gexp(i)],0));return a};
+      QRCode.stringToBytes=function(s){return QRMath.stringToBytes(s)};QRMath.stringToBytes=function(s){for(var bytes=[],i=0;i<s.length;i++)bytes.push(s.charCodeAt(i));return bytes};
+      window.QRCode=QRCode;
+    })();
+  </script>
 
   <!-- Début génération image réseaux ligue -->
   <script>
@@ -3647,6 +3836,7 @@
         backgroundColor: '#020617',
         cardBackground: '#0b1220',
         textColor: '#ffffff',
+        titleColor: '#e5e339',
         logoDataUrl: null,
         fontFamily: 'system',
         sponsorName: '',
@@ -3654,7 +3844,11 @@
         buttonStyle: 'solid',
         cardShape: 'rounded',
         backgroundStyle: 'gradient',
-        backgroundImageDataUrl: null
+        backgroundImageDataUrl: null,
+        tvSponsorMd: true,
+        tvSponsorClassic: true,
+        tvSponsorMdPos: null,
+        tvSponsorClassicPos: null
       };
 
       var currentClubProfile = null;
@@ -3711,7 +3905,7 @@
 
       function applyLogoVisual(src) {
         var logoSrc = src || '';
-        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview'];
+        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview', 'settings-logo-preview'];
         baseTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
@@ -3737,55 +3931,13 @@
           }
         });
 
-        var helperTargets = ['home-logo-helper', 'logo-helper'];
+        var helperTargets = ['settings-logo-helper'];
         helperTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
           el.style.display = logoSrc ? 'none' : 'block';
         });
       }
-	  function makeElementDraggable(el, handle) {
-  if (!el) return;
-
-  var dragHandle = handle || el;
-  var startX = 0;
-  var startY = 0;
-  var startLeft = 0;
-  var startTop = 0;
-
-  function onMouseDown(e) {
-    e.preventDefault();
-
-    var rect = el.getBoundingClientRect();
-    startLeft = rect.left;
-    startTop = rect.top;
-    startX = e.clientX;
-    startY = e.clientY;
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-    el.classList.add('dragging');
-    el.style.position = 'fixed';
-  }
-
-  function onMouseMove(e) {
-    var dx = e.clientX - startX;
-    var dy = e.clientY - startY;
-
-    el.style.left = (startLeft + dx) + 'px';
-    el.style.top = (startTop + dy) + 'px';
-    el.style.right = 'auto';
-    el.style.bottom = 'auto';
-  }
-
-  function onMouseUp() {
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-    el.classList.remove('dragging');
-  }
-
-  dragHandle.addEventListener('mousedown', onMouseDown);
-}
 
       function saveProfile() {
         try {
@@ -3824,48 +3976,104 @@
         }
       }
 
- function applySponsorBanner(profile) {
-  var banner = document.getElementById('tv-sponsor-banner');
-  var logo = document.getElementById('tv-sponsor-logo');
-  var nameEl = document.getElementById('tv-sponsor-name');
-  if (!banner) return;
+      // Nouveau : bloc sponsor déplaçable en vue TV
+      function applySponsorPosition(el, pos) {
+        if (!el || !pos) return;
+        el.style.right = 'auto';
+        el.style.bottom = 'auto';
+        el.style.left = (typeof pos.x === 'number' ? pos.x : 0) + '%';
+        el.style.top = (typeof pos.y === 'number' ? pos.y : 0) + '%';
+      }
 
-  var hasContent = !!(profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
-  if (!hasContent) {
-    banner.style.display = 'none';
-    if (logo) {
-      logo.removeAttribute('src');
-      logo.style.display = 'none';
-    }
-    if (nameEl) nameEl.textContent = '';
-    return;
-  }
+      function makeSponsorDraggable(bannerId, posKey, containerId) {
+        var banner = document.getElementById(bannerId);
+        if (!banner) return;
+        var activeProfile = currentClubProfile || DEFAULT_PROFILE;
+        if (activeProfile && activeProfile[posKey]) applySponsorPosition(banner, activeProfile[posKey]);
 
-  banner.style.display = 'inline-flex';
+        function onDragStart(e) {
+          e.preventDefault();
+          var rect = { left: 0, top: 0, width: window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth || 0, height: window.innerHeight || document.documentElement.clientHeight || document.body.clientHeight || 0 };
+          var start = { x: e.clientX, y: e.clientY };
+          var box = banner.getBoundingClientRect();
+          var offsetX = box.left - rect.left;
+          var offsetY = box.top - rect.top;
+          var currentPos = null;
 
-  if (logo) {
-    if (profile.sponsorLogoDataUrl) {
-      logo.src = profile.sponsorLogoDataUrl;
-      logo.style.display = 'block';
-    } else {
-      logo.removeAttribute('src');
-      logo.style.display = 'none';
-    }
-  }
-  if (nameEl) nameEl.textContent = profile.sponsorName || '';
+          function clampPercent(val, size, total) {
+            var maxPct = 100 - ((size / total) * 100);
+            var pct = (val / total) * 100;
+            if (maxPct < 0) maxPct = 0;
+            if (pct < 0) pct = 0;
+            if (pct > maxPct) pct = maxPct;
+            return pct;
+          }
 
-  // 🟡 Position par défaut
-  banner.style.position = 'fixed';
-  banner.style.bottom = banner.style.bottom || '1.5rem';
-  banner.style.right  = banner.style.right  || '1.5rem';
-  banner.style.zIndex = '50';
+          function onMove(ev) {
+            ev.preventDefault();
+            var deltaX = ev.clientX - start.x;
+            var deltaY = ev.clientY - start.y;
+            var newLeft = offsetX + deltaX;
+            var newTop = offsetY + deltaY;
+            var width = rect.width || window.innerWidth;
+            var height = rect.height || window.innerHeight;
+            var xPct = clampPercent(newLeft, banner.offsetWidth, width);
+            var yPct = clampPercent(newTop, banner.offsetHeight, height);
+            banner.style.left = xPct + '%';
+            banner.style.top = yPct + '%';
+            banner.style.right = 'auto';
+            banner.style.bottom = 'auto';
+            currentPos = { x: xPct, y: yPct };
+          }
 
-  // 🟡 Activer le drag une seule fois
-  if (!banner.dataset.draggableAttached) {
-    makeElementDraggable(banner);
-    banner.dataset.draggableAttached = '1';
-  }
-}
+          function onEnd() {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onEnd);
+            if (currentPos && currentClubProfile) {
+              currentClubProfile[posKey] = currentPos;
+              saveProfile();
+            }
+          }
+
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onEnd);
+        }
+
+        banner.addEventListener('mousedown', onDragStart);
+      }
+
+      function renderSponsorBanner(ids, profile, enabled) {
+        if (!ids || !ids.banner) return;
+        var banner = document.getElementById(ids.banner);
+        if (!banner) return;
+        var logo = ids.logo ? document.getElementById(ids.logo) : null;
+        var nameEl = ids.name ? document.getElementById(ids.name) : null;
+        var hasContent = !!(enabled && profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
+        if (!hasContent) {
+          banner.style.display = 'none';
+          if (logo) { logo.removeAttribute('src'); logo.style.display = 'none'; }
+          if (nameEl) nameEl.textContent = '';
+          return;
+        }
+        banner.style.display = 'inline-flex';
+        if (logo) {
+          if (profile.sponsorLogoDataUrl) {
+            logo.src = profile.sponsorLogoDataUrl;
+            logo.style.display = 'block';
+          } else {
+            logo.removeAttribute('src');
+            logo.style.display = 'none';
+          }
+        }
+        if (nameEl) nameEl.textContent = profile.sponsorName || '';
+        if (ids.posKey && (!profile || !profile[ids.posKey])) {
+          banner.style.left = '';
+          banner.style.top = '';
+          banner.style.right = '';
+          banner.style.bottom = '';
+        }
+        if (ids.posKey && profile && profile[ids.posKey]) applySponsorPosition(banner, profile[ids.posKey]);
+      }
 
       function updateSponsorPreview(src) {
         var preview = document.getElementById('app-sponsor-preview');
@@ -3900,6 +4108,7 @@
         root.style.setProperty('--brand-text', currentClubProfile.textColor);
         root.style.setProperty('--brand-accent-soft', accentSoft);
         root.style.setProperty('--brand-primary-glow', primaryGlow);
+        root.style.setProperty('--brand-title', currentClubProfile.titleColor || currentClubProfile.accentColor);
 
         root.style.setProperty('--blue-strong', currentClubProfile.primaryColor);
         root.style.setProperty('--blue-mid', currentClubProfile.secondaryColor);
@@ -3919,11 +4128,17 @@
         nameTargets.forEach(function(el) { el.textContent = currentClubProfile.name || DEFAULT_PROFILE.name; });
         var shortTargets = document.querySelectorAll('[data-club-shortname]');
         shortTargets.forEach(function(el) { el.textContent = currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName; });
-       document.title = 'Gestion – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
+        document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
-        applySponsorBanner(currentClubProfile);
+        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
+        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
+      }
+
+      function initSponsorDragBlocks() {
+        makeSponsorDraggable('tv-sponsor-banner', 'tvSponsorMdPos', 'tv-root');
+        makeSponsorDraggable('classic-tv-sponsor-banner', 'tvSponsorClassicPos', 'tv-overlay');
       }
 
       function syncThemeForm() {
@@ -3936,11 +4151,14 @@
         formInputs.bg.value = currentClubProfile.backgroundColor || DEFAULT_PROFILE.backgroundColor;
         formInputs.card.value = currentClubProfile.cardBackground || DEFAULT_PROFILE.cardBackground;
         formInputs.text.value = currentClubProfile.textColor || DEFAULT_PROFILE.textColor;
+        formInputs.title.value = currentClubProfile.titleColor || DEFAULT_PROFILE.titleColor;
         if (formInputs.font) formInputs.font.value = currentClubProfile.fontFamily || 'system';
         if (formInputs.sponsorName) formInputs.sponsorName.value = currentClubProfile.sponsorName || '';
         if (formInputs.buttonStyle) formInputs.buttonStyle.value = currentClubProfile.buttonStyle || 'solid';
         if (formInputs.cardShape) formInputs.cardShape.value = currentClubProfile.cardShape || 'rounded';
         if (formInputs.bgStyle) formInputs.bgStyle.value = currentClubProfile.backgroundStyle || 'gradient';
+        if (formInputs.sponsorMdToggle) formInputs.sponsorMdToggle.checked = currentClubProfile.tvSponsorMd !== false;
+        if (formInputs.sponsorClassicToggle) formInputs.sponsorClassicToggle.checked = currentClubProfile.tvSponsorClassic !== false;
         toggleBgImageField();
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
@@ -3961,9 +4179,12 @@
           bg: document.getElementById('club-theme-bg'),
           card: document.getElementById('club-theme-card'),
           text: document.getElementById('club-theme-text'),
+          title: document.getElementById('club-theme-title'),
           font: document.getElementById('club-theme-font'),
           sponsorName: document.getElementById('app-sponsor-name'),
           sponsorLogo: document.getElementById('app-sponsor-logo'),
+          sponsorMdToggle: document.getElementById('app-sponsor-md-toggle'),
+          sponsorClassicToggle: document.getElementById('app-sponsor-classic-toggle'),
           buttonStyle: document.getElementById('app-button-style'),
           cardShape: document.getElementById('app-card-shape'),
           bgStyle: document.getElementById('app-bg-style'),
@@ -3975,6 +4196,13 @@
         if (formInputs.font) {
           formInputs.font.addEventListener('change', function() {
             currentClubProfile.fontFamily = this.value || 'system';
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.title) {
+          formInputs.title.addEventListener('change', function() {
+            currentClubProfile.titleColor = this.value || DEFAULT_PROFILE.titleColor;
             persistAndApply();
           });
         }
@@ -4034,6 +4262,32 @@
           });
         }
 
+        var clearSponsorBtn = document.getElementById('btn-clear-sponsor');
+        if (clearSponsorBtn) {
+          clearSponsorBtn.addEventListener('click', function() {
+            currentClubProfile.sponsorName = '';
+            currentClubProfile.sponsorLogoDataUrl = null;
+            if (formInputs.sponsorName) formInputs.sponsorName.value = '';
+            if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
+            updateSponsorPreview(null);
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.sponsorMdToggle) {
+          formInputs.sponsorMdToggle.addEventListener('change', function() {
+            currentClubProfile.tvSponsorMd = !!this.checked;
+            persistAndApply();
+          });
+        }
+
+        if (formInputs.sponsorClassicToggle) {
+          formInputs.sponsorClassicToggle.addEventListener('change', function() {
+            currentClubProfile.tvSponsorClassic = !!this.checked;
+            persistAndApply();
+          });
+        }
+
         var saveBtn = document.getElementById('btn-save-club-theme');
         if (saveBtn) {
           saveBtn.addEventListener('click', function() {
@@ -4046,6 +4300,7 @@
               backgroundColor: formInputs.bg.value || DEFAULT_PROFILE.backgroundColor,
               cardBackground: formInputs.card.value || DEFAULT_PROFILE.cardBackground,
               textColor: formInputs.text.value || DEFAULT_PROFILE.textColor,
+              titleColor: formInputs.title.value || DEFAULT_PROFILE.titleColor,
               logoDataUrl: currentClubProfile.logoDataUrl,
               fontFamily: (formInputs.font && formInputs.font.value) || 'system',
               sponsorName: (formInputs.sponsorName && formInputs.sponsorName.value) || '',
@@ -4053,7 +4308,11 @@
               buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
               cardShape: (formInputs.cardShape && formInputs.cardShape.value) || 'rounded',
               backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
-              backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl
+              backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl,
+              tvSponsorMd: formInputs.sponsorMdToggle ? !!formInputs.sponsorMdToggle.checked : true,
+              tvSponsorClassic: formInputs.sponsorClassicToggle ? !!formInputs.sponsorClassicToggle.checked : true,
+              tvSponsorMdPos: currentClubProfile.tvSponsorMdPos,
+              tvSponsorClassicPos: currentClubProfile.tvSponsorClassicPos
             });
             persistAndApply();
           });
@@ -4064,7 +4323,9 @@
           resetBtn.addEventListener('click', function() {
             var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
             var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor });
+            var preservedMdPos = currentClubProfile && currentClubProfile.tvSponsorMdPos;
+            var preservedClassicPos = currentClubProfile && currentClubProfile.tvSponsorClassicPos;
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos });
             persistAndApply();
           });
         }
@@ -4080,6 +4341,7 @@
         currentClubProfile = loadProfile();
         applyClubTheme(currentClubProfile);
         bindThemeForm();
+        initSponsorDragBlocks();
       }
 
       if (document.readyState === 'loading') {
@@ -4113,7 +4375,7 @@
 
       function applyLogoToElements(src) {
         var logoSrc = src || '';
-        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview'];
+        var baseTargets = ['app-logo', 'home-logo-preview', 'logo-preview', 'settings-logo-preview'];
         baseTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
@@ -4139,7 +4401,7 @@
           }
         });
 
-        var helperTargets = ['home-logo-helper', 'logo-helper'];
+        var helperTargets = ['settings-logo-helper'];
         helperTargets.forEach(function(id) {
           var el = document.getElementById(id);
           if (!el) return;
@@ -4188,8 +4450,7 @@
         });
       }
 
-      bindLogoPersistence(document.getElementById('home-logo-upload'));
-      bindLogoPersistence(document.getElementById('logo-upload'));
+      bindLogoPersistence(document.getElementById('settings-logo-upload'));
 
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', loadPersistedLogo);
