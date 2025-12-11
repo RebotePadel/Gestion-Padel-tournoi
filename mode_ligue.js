@@ -1040,9 +1040,31 @@
       var status = document.createElement('div');
       status.className = 'small-muted';
       status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
+      // Nouveau : date personnalisée pour chaque match de la ligue interne
+      var dateRow = document.createElement('div');
+      dateRow.className = 'ligue-inline';
+      dateRow.style.justifyContent = 'space-between';
+      dateRow.style.marginTop = '6px';
+      var dateLabel = document.createElement('span');
+      dateLabel.className = 'small-muted';
+      dateLabel.textContent = '🗓️ Date du match';
+      var dateInput = document.createElement('input');
+      dateInput.type = 'date';
+      dateInput.value = m.date || '';
+      dateInput.className = 'btn-small';
+      dateInput.style.borderRadius = '10px';
+      dateInput.addEventListener('change', function() {
+        m.date = dateInput.value || '';
+        saveState();
+        renderManageCalendar(league);
+        renderPlayerManageCalendar(league);
+      });
+      dateRow.appendChild(dateLabel);
+      dateRow.appendChild(dateInput);
       card.appendChild(title);
       card.appendChild(vs);
       card.appendChild(status);
+      card.appendChild(dateRow);
       refs.manageCalendar.appendChild(card);
     });
   }
@@ -1328,6 +1350,28 @@
     refs.manageStandings.innerHTML = html;
   }
 
+  // Correction : bouton "Modifier les équipes" ligue interne
+  function handleTeamEdit(league, team) {
+    if (!league || !team) return;
+    var newName = window.prompt('Nom de l\'équipe', team.name || '');
+    if (newName === null) return;
+    var existingPlayers = (team.players || []).join('\n');
+    var newPlayers = window.prompt('Joueurs (un par ligne)', existingPlayers);
+    if (newPlayers === null) return;
+    var cleanedPlayers = newPlayers.split(/\n|,/).map(function(p) { return p.trim(); }).filter(Boolean);
+    team.name = (newName || team.name || '').trim() || team.name;
+    team.players = cleanedPlayers;
+    recomputeStandings(league);
+    saveState();
+    renderManageTeams(league);
+    renderManageStandings(league);
+    renderManageResults(league);
+    renderManageCalendar(league);
+    renderPlayerManageView(league);
+    renderActiveList();
+    renderPlayerList();
+  }
+
   function renderManageTeams(league) {
     if (!refs.manageTeams) return;
     refs.manageTeams.innerHTML = '';
@@ -1341,9 +1385,11 @@
       var title = document.createElement('div');
       title.className = 'tournaments-title';
       title.textContent = '👥 ' + t.name;
-      var edit = document.createElement('div');
+      var edit = document.createElement('button');
+      edit.type = 'button';
       edit.className = 'ligue-badge-accent';
       edit.textContent = '✏️ Modifier l\'équipe';
+      edit.addEventListener('click', function() { handleTeamEdit(league, t); });
       head.appendChild(title);
       head.appendChild(edit);
       var players = document.createElement('div');
