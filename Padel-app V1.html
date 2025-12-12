@@ -30,18 +30,27 @@
       --muted: #9ca3af;
       --success: #22c55e;
       --danger: #ef4444;
+      --app-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: var(--app-font-family);
       background: radial-gradient(circle at 0 0, var(--brand-accent-soft), transparent 55%),
                   radial-gradient(circle at 100% 100%, var(--brand-primary-glow), transparent 60%),
                   linear-gradient(135deg, var(--bg-dark), var(--bg-dark) 40%, #001428);
       color: var(--text);
       min-height: 100vh;
       padding: 16px;
+    }
+
+    h1, h2, h3, h4, h5, h6,
+    .card, .btn, .settings-shell, .settings-section,
+    input, select, textarea, label,
+    .tournaments-title, .small-muted, .chip, .tab,
+    .tv-overlay, .tv-match-card, .ranking-item, .team-chip {
+      font-family: var(--app-font-family);
     }
 
     .app {
@@ -696,6 +705,8 @@
 
     /* Social export visuels */
     .social-bg { width: 1080px; height: 1080px; padding: 40px; background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); display: flex; align-items: center; justify-content: center; }
+    /* Nouveau : fond dédié pour l'export de journée (ligue interne) */
+    .social-day-bg { background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); }
     .social-card { width: 980px; min-height: 980px; border-radius: 28px; padding: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 28px 70px rgba(0,0,0,0.55); color: #f9fafb; display: flex; flex-direction: column; gap: 16px; }
     .social-header { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
     .social-logo { width: 120px; height: 120px; border-radius: 24px; border: 2px solid rgba(255,255,255,0.18); object-fit: cover; background: rgba(0,0,0,0.35); }
@@ -2297,18 +2308,20 @@
               </div>
             </div>
 
-            <div class="settings-section app-block-interactive" aria-label="Typographie">
-              <div class="settings-subtitle">✒️ Typographie</div>
-              <div class="field">
-                <label for="club-theme-font">Police globale</label>
-                <select id="club-theme-font">
-                  <option value="system">Système</option>
-                  <option value="inter">Inter</option>
-                  <option value="poppins">Poppins</option>
-                  <option value="montserrat">Montserrat</option>
-                </select>
+              <div class="settings-section app-block-interactive" aria-label="Typographie">
+                <div class="settings-subtitle">✒️ Typographie</div>
+                <div class="field">
+                  <label for="club-theme-font">Police globale</label>
+                  <select id="club-theme-font">
+                  <option value="system">Police système (par défaut)</option>
+                  <option value="Inter">Inter</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Nunito">Nunito</option>
+                  </select>
+                </div>
               </div>
-            </div>
 
             <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
               <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
@@ -2339,6 +2352,16 @@
               </div>
               <div class="theme-actions" style="justify-content:flex-end; padding-top:6px;">
                 <button class="btn btn-secondary btn-small" id="btn-clear-sponsor" type="button">Supprimer le sponsor actuel</button>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive" aria-label="Fond export journée ligue">
+              <div class="settings-subtitle">🖼️ Fond export scores de journée (Ligue interne)</div>
+              <div class="field">
+                <label for="league-export-bg-upload">Fond pour l’export des scores de journée</label>
+                <input id="league-export-bg-upload" type="file" accept="image/*" class="settings-input" />
+                <p class="settings-hint">Téléverse une image (jpg ou png) qui servira de fond pour l’export graphique des scores de chaque journée.</p>
+                <img id="league-export-bg-preview" alt="Prévisualisation du fond d’export" style="max-width: 220px; display:none; margin-top:8px; border-radius:8px;" />
               </div>
             </div>
 
@@ -2465,6 +2488,8 @@
               <option value="8" selected>8</option>
               <option value="10">10</option>
               <option value="12">12</option>
+              <option value="14">14</option>
+              <option value="16">16</option>
             </select>
           </div>
 
@@ -3649,7 +3674,8 @@
           var root = prepareRoot();
           if (!root) return reject(new Error('Template introuvable'));
           var bg = document.createElement('div');
-          bg.className = 'social-bg';
+          // Nouveau : fond d'export de journée basé sur l'image fournie
+          bg.className = 'social-bg social-day-bg';
           var card = document.createElement('div');
           card.className = 'social-card';
           var header = document.createElement('div');
@@ -3691,79 +3717,158 @@
         });
       }
 
-      function buildSocialDayImage(league, roundNumber) {
+      function buildSocialDayImage(league, roundNumber, bgOverride) {
+        // Export journée avec fond utilisateur : mise en page proportionnelle sportive
         return new Promise(function(resolve, reject) {
           if (!league) return reject(new Error('Aucune ligue fournie'));
-          var root = prepareRoot();
-          if (!root) return reject(new Error('Template introuvable'));
+          var bgSrc = bgOverride || window.leagueExportBackgroundDataUrl || null;
+          if (!bgSrc) return reject(new Error('Aucun fond fourni'));
+
           var matches = (league.matches || []).filter(function(m) { return parseInt(m.round, 10) === parseInt(roundNumber, 10); });
-          var bg = document.createElement('div');
-          bg.className = 'social-bg';
-          var card = document.createElement('div');
-          card.className = 'social-card';
-          var header = document.createElement('div');
-          header.className = 'social-header';
-          var logoSrc = getStoredLogo();
-          if (logoSrc) { var logo = document.createElement('img'); logo.className = 'social-logo'; logo.src = logoSrc; header.appendChild(logo); }
-          var title = document.createElement('div'); title.className = 'social-title'; title.textContent = league.name || 'Ligue interne'; header.appendChild(title);
-          if (league.level) { var levelText = document.createElement('div'); levelText.style.opacity = '0.8'; levelText.textContent = league.level; header.appendChild(levelText); }
-          card.appendChild(header);
-          addLevelBand(card, league.level || 'Ligue');
+          var img = new Image();
+          img.onload = function() {
+            var W = img.naturalWidth || 1080;
+            var H = img.naturalHeight || 1920;
+            var canvas = document.createElement('canvas');
+            canvas.width = W;
+            canvas.height = H;
+            var ctx = canvas.getContext('2d');
 
-          var dayTitle = document.createElement('h3');
-          dayTitle.className = 'tournaments-title';
-          dayTitle.style.textAlign = 'center';
-          dayTitle.textContent = 'Résumé Journée ' + roundNumber;
-          card.appendChild(dayTitle);
+            // Fond plein écran
+            ctx.drawImage(img, 0, 0, W, H);
 
-          if (matches.length) {
-            var dates = matches.map(function(m) { return m.date; }).filter(Boolean);
-            var unique = Array.from(new Set(dates));
-            var dateLine = document.createElement('div');
-            dateLine.className = 'small-muted';
-            dateLine.style.textAlign = 'center';
-            dateLine.textContent = unique.length === 1 ? ('📅 ' + unique[0]) : ('📅 Période de la journée ' + roundNumber);
-            card.appendChild(dateLine);
-          }
+            // Palette et police
+            var accent = '#e5e339';
+            var softBlue = '#9fbff2';
+            var whiteBlue = '#f9fafb';
+            var darkBand = 'rgba(2, 6, 23, 0.85)';
+            var rowOdd = 'rgba(15, 23, 42, 0.85)';
+            var rowEven = 'rgba(30, 64, 175, 0.75)';
+            var fontFamily = (getComputedStyle(document.documentElement).getPropertyValue('--app-font-family') || '').trim() || "Poppins, Montserrat, system-ui, sans-serif";
 
-          var list = document.createElement('div');
-          list.className = 'social-day-list';
-          if (!matches.length) {
-            var empty = document.createElement('div');
-            empty.className = 'small-muted';
-            empty.textContent = 'Aucun match pour cette journée.';
-            list.appendChild(empty);
-          } else {
-            matches.forEach(function(m) {
-              var row = document.createElement('div');
-              row.className = 'social-day-match';
-              var score = formatSetsSocial(m);
-              var winner = resolveWinnerId(m);
-              var left = document.createElement('div');
-              left.innerHTML = '<div style="font-weight:700;">' + teamNameFromLeague(league, m.home) + ' vs ' + teamNameFromLeague(league, m.away) + '</div><div class="small-muted">' + (m.date || 'Date à définir') + '</div>';
-              var right = document.createElement('div');
-              right.style.fontWeight = '800';
-              right.textContent = score;
-              if (winner) row.classList.add('social-match-winner');
-              row.appendChild(left);
-              row.appendChild(right);
-              list.appendChild(row);
-            });
-          }
-          card.appendChild(list);
+            // Constantes de layout proportionnelles
+            var marginX = W * 0.12;
+            var tableWidth = W - marginX * 2;
+            var titleY = H * 0.17;
+            var subtitleY = titleY + H * 0.04;
+            var headerY = H * 0.30;
+            var rowHeight = H * 0.065;
+            var footerY = H * 0.88;
+            var colA = marginX + tableWidth * 0.03;
+            var colScore = W / 2;
+            var colB = marginX + tableWidth * 0.97;
 
-          var footer = document.createElement('div');
-          footer.className = 'social-footer';
-          footer.innerHTML = '🎾 Powered by Padel App';
-          card.appendChild(footer);
+            function px(percent) { return percent * H; }
+            function drawText(txt, size, color, x, y, align, weight) {
+              ctx.save();
+              ctx.font = (weight || '600') + ' ' + size + 'px ' + fontFamily;
+              ctx.fillStyle = color;
+              ctx.textAlign = align || 'center';
+              ctx.textBaseline = 'middle';
+              ctx.fillText(txt, x, y);
+              ctx.restore();
+            }
+            function fitText(ctx2, text, maxWidth, baseSize, minSize) {
+              var size = baseSize;
+              while (size > minSize) {
+                ctx2.font = '600 ' + size + 'px ' + fontFamily;
+                if (ctx2.measureText(text).width <= maxWidth) break;
+                size -= 1;
+              }
+              return size;
+            }
+            function drawRoundedRect(x, y, w, h, r, fill) {
+              ctx.save();
+              ctx.beginPath();
+              if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); }
+              else {
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+              }
+              ctx.closePath();
+              ctx.fillStyle = fill;
+              ctx.fill();
+              ctx.restore();
+            }
 
-          bg.appendChild(card);
-          root.appendChild(bg);
+            // Titre et sous-titre
+            drawText('Ligue Interne Journée ' + roundNumber, H * 0.038, accent, W / 2, titleY, 'center', '600');
+            drawText('Résultats officiels', H * 0.022, '#ffffff', W / 2, subtitleY, 'center', '700');
 
-          html2canvas(bg, { backgroundColor: null, useCORS: true, width: 1080, height: 1080, scale: 2 }).then(function(canvas) {
-            cleanupRoot(root);
+            // En-tête tableau
+            var headerTop = headerY - rowHeight * 0.5;
+            var headerH = rowHeight * 0.85;
+            drawRoundedRect(marginX, headerTop, tableWidth, headerH, rowHeight * 0.2, darkBand);
+
+            ctx.textBaseline = 'middle';
+            drawText('Équipe A', H * 0.026, whiteBlue, colA, headerY, 'left', '700');
+            drawText('Score', H * 0.026, softBlue, colScore, headerY, 'center', '700');
+            drawText('Équipe B', H * 0.026, whiteBlue, colB, headerY, 'right', '700');
+
+            // Séparateur
+            ctx.save();
+            ctx.strokeStyle = 'rgba(180,210,250,0.8)';
+            ctx.lineWidth = px(0.003);
+            ctx.beginPath();
+            ctx.moveTo(marginX, headerY + px(0.018));
+            ctx.lineTo(marginX + tableWidth, headerY + px(0.018));
+            ctx.stroke();
+            ctx.restore();
+
+            // Lignes de matchs
+            var rows = matches.slice(0, 8);
+            var firstRowY = headerY + rowHeight;
+            if (!rows.length) {
+              drawText('Aucun match pour cette journée.', px(0.03), whiteBlue, W / 2, firstRowY, 'center', '600');
+            } else {
+              rows.forEach(function(m, idx) {
+                var rowY = firstRowY + rowHeight * idx;
+                var blockY = rowY - rowHeight * 0.5;
+                var blockHeight = rowHeight * 0.85;
+                var bgRow = (idx % 2 === 0) ? rowOdd : rowEven;
+                drawRoundedRect(marginX, blockY, tableWidth, blockHeight, rowHeight * 0.18, bgRow);
+
+                var textY = blockY + blockHeight / 2;
+                var maxTeamWidth = tableWidth * 0.40;
+                var teamAName = teamNameFromLeague(league, m.home);
+                var teamBName = teamNameFromLeague(league, m.away);
+                var scoreLabel = formatSetsSocial(m) || '–';
+
+                var teamFontSizeA = fitText(ctx, teamAName, maxTeamWidth, H * 0.028, H * 0.020);
+                var teamFontSizeB = fitText(ctx, teamBName, maxTeamWidth, H * 0.028, H * 0.020);
+
+                ctx.textAlign = 'left';
+                ctx.font = '600 ' + teamFontSizeA + 'px ' + fontFamily;
+                ctx.fillStyle = whiteBlue;
+                ctx.textBaseline = 'middle';
+                ctx.fillText(teamAName, colA, textY);
+
+                ctx.textAlign = 'center';
+                ctx.font = '700 ' + (H * 0.024) + 'px ' + fontFamily;
+                ctx.fillStyle = accent;
+                ctx.fillText(scoreLabel, colScore, textY);
+
+                ctx.textAlign = 'right';
+                ctx.font = '600 ' + teamFontSizeB + 'px ' + fontFamily;
+                ctx.fillStyle = whiteBlue;
+                ctx.fillText(teamBName, colB, textY);
+              });
+            }
+
+            // Footer
+            drawText('Merci à tous les joueurs – Padel Parc', H * 0.022, softBlue, W / 2, footerY, 'center', '600');
+
             resolve(canvas);
-          }).catch(function(err) { cleanupRoot(root); reject(err); });
+          };
+          img.onerror = function() { reject(new Error('Fond journée introuvable')); };
+          img.src = bgSrc;
         });
       }
 
@@ -3853,6 +3958,26 @@
 
       var currentClubProfile = null;
       var formInputs = {};
+      var fontLinkEl = null;
+
+      var AVAILABLE_FONTS = [
+        { key: 'system', google: null, family: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+        { key: 'Inter', google: 'Inter:wght@400;600;700', family: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Poppins', google: 'Poppins:wght@400;600;700', family: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Montserrat', google: 'Montserrat:wght@400;600;700', family: "'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Roboto', google: 'Roboto:wght@400;500;700', family: "'Roboto', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+        { key: 'Nunito', google: 'Nunito:wght@400;600;800', family: "'Nunito', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" }
+      ];
+
+      function normalizeFontKey(key) {
+        var val = (key || 'system').toString().toLowerCase();
+        if (val === 'inter') return 'Inter';
+        if (val === 'poppins') return 'Poppins';
+        if (val === 'montserrat') return 'Montserrat';
+        if (val === 'roboto') return 'Roboto';
+        if (val === 'nunito') return 'Nunito';
+        return 'system';
+      }
 
       function cloneProfile(data) {
         return Object.assign({}, DEFAULT_PROFILE, data || {});
@@ -3976,6 +4101,34 @@
         }
       }
 
+      // Nouveau : chargement dynamique des Google Fonts sélectionnées
+      function ensureFontLink() {
+        if (!fontLinkEl) {
+          fontLinkEl = document.getElementById('dynamic-font-link');
+          if (!fontLinkEl) {
+            fontLinkEl = document.createElement('link');
+            fontLinkEl.id = 'dynamic-font-link';
+            fontLinkEl.rel = 'stylesheet';
+            document.head.appendChild(fontLinkEl);
+          }
+        }
+        return fontLinkEl;
+      }
+
+      function applyAppFont(fontKey) {
+        var key = normalizeFontKey(fontKey);
+        var cfg = AVAILABLE_FONTS.find(function(f) { return f.key.toLowerCase() === key.toLowerCase(); }) || AVAILABLE_FONTS[0];
+        var family = cfg.family || AVAILABLE_FONTS[0].family;
+        document.documentElement.style.setProperty('--app-font-family', family);
+        var link = ensureFontLink();
+        if (cfg && cfg.google) {
+          var baseUrl = 'https://fonts.googleapis.com/css2?family=';
+          link.href = baseUrl + encodeURIComponent(cfg.google) + '&display=swap';
+        } else {
+          link.href = '';
+        }
+      }
+
       // Nouveau : bloc sponsor déplaçable en vue TV
       function applySponsorPosition(el, pos) {
         if (!el || !pos) return;
@@ -4096,6 +4249,7 @@
 
       function applyClubTheme(profile) {
         currentClubProfile = cloneProfile(profile);
+        currentClubProfile.fontFamily = normalizeFontKey(currentClubProfile.fontFamily);
         var root = document.documentElement;
         var accentSoft = hexToRgba(currentClubProfile.accentColor, 0.25) || 'rgba(229,227,57,0.25)';
         var primaryGlow = hexToRgba(currentClubProfile.primaryColor, 0.55) || 'rgba(0,75,155,0.55)';
@@ -4119,7 +4273,7 @@
         root.style.setProperty('--text', currentClubProfile.textColor);
 
         var body = document.body;
-        applyClassGroup(body, FONT_CLASS_MAP, currentClubProfile.fontFamily || 'system');
+        applyAppFont(currentClubProfile.fontFamily || 'system');
         applyClassGroup(body, BUTTON_CLASS_MAP, currentClubProfile.buttonStyle || 'solid');
         applyClassGroup(body, CARD_CLASS_MAP, currentClubProfile.cardShape || 'rounded');
         applyBackgroundStyles(currentClubProfile);
@@ -4152,7 +4306,11 @@
         formInputs.card.value = currentClubProfile.cardBackground || DEFAULT_PROFILE.cardBackground;
         formInputs.text.value = currentClubProfile.textColor || DEFAULT_PROFILE.textColor;
         formInputs.title.value = currentClubProfile.titleColor || DEFAULT_PROFILE.titleColor;
-        if (formInputs.font) formInputs.font.value = currentClubProfile.fontFamily || 'system';
+        if (formInputs.font) {
+          var fontVal = normalizeFontKey(currentClubProfile.fontFamily);
+          var exists = AVAILABLE_FONTS.some(function(f) { return f.key === fontVal; });
+          formInputs.font.value = exists ? fontVal : 'system';
+        }
         if (formInputs.sponsorName) formInputs.sponsorName.value = currentClubProfile.sponsorName || '';
         if (formInputs.buttonStyle) formInputs.buttonStyle.value = currentClubProfile.buttonStyle || 'solid';
         if (formInputs.cardShape) formInputs.cardShape.value = currentClubProfile.cardShape || 'rounded';
@@ -4195,7 +4353,7 @@
 
         if (formInputs.font) {
           formInputs.font.addEventListener('change', function() {
-            currentClubProfile.fontFamily = this.value || 'system';
+            currentClubProfile.fontFamily = normalizeFontKey(this.value || 'system');
             persistAndApply();
           });
         }
@@ -4302,7 +4460,7 @@
               textColor: formInputs.text.value || DEFAULT_PROFILE.textColor,
               titleColor: formInputs.title.value || DEFAULT_PROFILE.titleColor,
               logoDataUrl: currentClubProfile.logoDataUrl,
-              fontFamily: (formInputs.font && formInputs.font.value) || 'system',
+              fontFamily: normalizeFontKey((formInputs.font && formInputs.font.value) || 'system'),
               sponsorName: (formInputs.sponsorName && formInputs.sponsorName.value) || '',
               sponsorLogoDataUrl: currentClubProfile.sponsorLogoDataUrl,
               buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
@@ -4367,6 +4525,66 @@
     })();
   </script>
   <!-- Fin système de thème club -->
+
+  <!-- Début fond export journée (Ligue interne) -->
+  <script>
+    (function() {
+      var BG_KEY = 'league_export_background';
+      window.leagueExportBackgroundDataUrl = null;
+
+      function applyPreview(src) {
+        var preview = document.getElementById('league-export-bg-preview');
+        if (!preview) return;
+        if (src) {
+          preview.src = src;
+          preview.style.display = 'block';
+        } else {
+          preview.removeAttribute('src');
+          preview.style.display = 'none';
+        }
+      }
+
+      function loadBg() {
+        try {
+          var saved = localStorage.getItem(BG_KEY);
+          if (saved) {
+            window.leagueExportBackgroundDataUrl = saved;
+            applyPreview(saved);
+          }
+        } catch (err) {
+          console.warn('Impossible de relire le fond de journée', err);
+        }
+      }
+
+      function bindUpload() {
+        var input = document.getElementById('league-export-bg-upload');
+        if (!input) return;
+        input.addEventListener('change', function() {
+          var file = this.files && this.files[0];
+          if (!file) return;
+          var reader = new FileReader();
+          reader.onload = function(e) {
+            window.leagueExportBackgroundDataUrl = e.target.result;
+            applyPreview(window.leagueExportBackgroundDataUrl);
+            try {
+              localStorage.setItem(BG_KEY, window.leagueExportBackgroundDataUrl);
+            } catch (err) {
+              console.warn('Impossible de sauvegarder le fond de journée dans localStorage', err);
+            }
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() { loadBg(); bindUpload(); });
+      } else {
+        loadBg();
+        bindUpload();
+      }
+    })();
+  </script>
+  <!-- Fin fond export journée (Ligue interne) -->
 
   <!-- Début logique persistance logo -->
   <script>
