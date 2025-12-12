@@ -2351,19 +2351,12 @@
                   <input id="app-sponsor-classic-toggle" type="checkbox" checked />
                   Afficher en TV Tournoi
                 </label>
+                <button class="btn btn-secondary btn-small" id="btn-add-sponsor" type="button">Ajouter le sponsor</button>
               </div>
               <div class="field" style="margin-top:8px;">
-                <label for="app-sponsor-select">Sponsors enregistrés</label>
-                <select id="app-sponsor-select" class="settings-input">
-                  <option value="">Aucun sponsor enregistré</option>
-                </select>
-                <div class="settings-inline" style="gap:10px; margin-top:8px;">
-                  <button class="btn btn-secondary btn-small" id="btn-add-sponsor" type="button">Ajouter / mettre à jour</button>
-                  <button class="btn btn-secondary btn-small" id="btn-activate-sponsor" type="button">Activer la sélection</button>
-                </div>
-              </div>
-              <div class="theme-actions" style="justify-content:flex-end; padding-top:6px;">
-                <button class="btn btn-secondary btn-small" id="btn-clear-sponsor" type="button">Supprimer le sponsor actuel</button>
+                <label>Liste des sponsors</label>
+                <div id="app-sponsor-list" class="settings-stack" style="display:flex; flex-direction:column; gap:8px;"></div>
+                <div class="small-muted" id="app-sponsor-empty" style="display:none;">Aucun sponsor enregistré.</div>
               </div>
             </div>
 
@@ -3999,15 +3992,17 @@
           return {
             id: s && s.id ? s.id : 's' + idx,
             name: (s && s.name) || '',
-            logoDataUrl: (s && s.logoDataUrl) || null
+            logoDataUrl: (s && s.logoDataUrl) || null,
+            enabledTv: s && typeof s.enabledTv === 'boolean' ? s.enabledTv : true
           };
         });
+        // Migration sponsor V1 → V2 : transformer l'ancien sponsor unique en entrée de liste
         if (!merged.sponsors.length && (merged.sponsorName || merged.sponsorLogoDataUrl)) {
-          merged.sponsors.push({ id: 'legacy', name: merged.sponsorName || '', logoDataUrl: merged.sponsorLogoDataUrl || null });
+          merged.sponsors.push({ id: 'legacy', name: merged.sponsorName || '', logoDataUrl: merged.sponsorLogoDataUrl || null, enabledTv: true });
         }
         if (!merged.activeSponsorId && merged.sponsors.length) merged.activeSponsorId = merged.sponsors[0].id;
         if (merged.activeSponsorId) {
-          var active = merged.sponsors.find(function(s) { return s.id === merged.activeSponsorId; }) || merged.sponsors[0];
+          var active = merged.sponsors.find(function(s) { return s.id === merged.activeSponsorId && s.enabledTv !== false; }) || merged.sponsors.find(function(s) { return s.enabledTv !== false; }) || merged.sponsors[0];
           if (active) {
             merged.sponsorName = active.name || '';
             merged.sponsorLogoDataUrl = active.logoDataUrl || null;
@@ -4152,42 +4147,31 @@
         if (!profile) return;
         if (!profile.sponsors) profile.sponsors = [];
         if (!profile.sponsors.length && (profile.sponsorName || profile.sponsorLogoDataUrl)) {
-          profile.sponsors.push({ id: 'legacy', name: profile.sponsorName || '', logoDataUrl: profile.sponsorLogoDataUrl || null });
+          profile.sponsors.push({ id: 'legacy', name: profile.sponsorName || '', logoDataUrl: profile.sponsorLogoDataUrl || null, enabledTv: true });
         }
+        profile.sponsors = profile.sponsors.map(function(s, idx) {
+          return {
+            id: s && s.id ? s.id : 's' + idx,
+            name: (s && s.name) || '',
+            logoDataUrl: (s && s.logoDataUrl) || null,
+            enabledTv: s && typeof s.enabledTv === 'boolean' ? s.enabledTv : true
+          };
+        });
         if (!profile.activeSponsorId && profile.sponsors.length) {
-          profile.activeSponsorId = profile.sponsors[0].id;
+          var firstEnabled = profile.sponsors.find(function(s) { return s.enabledTv !== false; });
+          profile.activeSponsorId = (firstEnabled || profile.sponsors[0]).id;
         }
       }
 
       function getActiveSponsor(profile) {
         if (!profile) return null;
         ensureSponsorState(profile);
-        var active = profile.sponsors.find(function(s) { return s.id === profile.activeSponsorId; });
-        if (!active && profile.sponsors.length) {
-          active = profile.sponsors[0];
-          profile.activeSponsorId = active.id;
+        var active = profile.sponsors.find(function(s) { return s.id === profile.activeSponsorId && s.enabledTv !== false; });
+        if (!active) {
+          active = profile.sponsors.find(function(s) { return s.enabledTv !== false; }) || profile.sponsors[0];
+          if (active) profile.activeSponsorId = active.id;
         }
         return active || null;
-      }
-
-      function renderSponsorSelect() {
-        var select = document.getElementById('app-sponsor-select');
-        if (!select) return;
-        while (select.firstChild) select.removeChild(select.firstChild);
-        var placeholder = document.createElement('option');
-        placeholder.value = '';
-        placeholder.textContent = 'Aucun sponsor enregistré';
-        select.appendChild(placeholder);
-        ensureSponsorState(currentClubProfile);
-        (currentClubProfile.sponsors || []).forEach(function(s) {
-          var opt = document.createElement('option');
-          opt.value = s.id;
-          opt.textContent = s.name || 'Sponsor';
-          select.appendChild(opt);
-        });
-        if (currentClubProfile.activeSponsorId) {
-          select.value = currentClubProfile.activeSponsorId;
-        }
       }
 
       function applyAppFont(fontKey) {
@@ -4316,30 +4300,188 @@
         }
       }
 
-      function setActiveSponsorData(name, logoDataUrl, sponsorId) {
+      // Nouveau : gestion multi-sponsors (ajout/suppression/toggle TV)
+      var pendingSponsorLogo = null;
+      var editingSponsorId = null;
+
+      function setActiveSponsorById(id) {
         ensureSponsorState(currentClubProfile);
-        var targetId = sponsorId || currentClubProfile.activeSponsorId || ('s' + Date.now());
-        var existing = currentClubProfile.sponsors.find(function(s) { return s.id === targetId; });
-        if (!existing) {
-          existing = { id: targetId, name: '', logoDataUrl: null };
-          currentClubProfile.sponsors.push(existing);
-        }
-        existing.name = name || '';
-        existing.logoDataUrl = logoDataUrl || null;
-        currentClubProfile.activeSponsorId = existing.id;
-        currentClubProfile.sponsorName = existing.name;
-        currentClubProfile.sponsorLogoDataUrl = existing.logoDataUrl;
+        var entry = (currentClubProfile.sponsors || []).find(function(s) { return s.id === id && s.enabledTv !== false; });
+        if (!entry) return;
+        currentClubProfile.activeSponsorId = entry.id;
+        currentClubProfile.sponsorName = entry.name || '';
+        currentClubProfile.sponsorLogoDataUrl = entry.logoDataUrl || null;
+        updateSponsorPreview(entry.logoDataUrl || null);
+        persistAndApply();
       }
 
-      function removeActiveSponsor() {
+      function toggleSponsorTv(id, enabled) {
         ensureSponsorState(currentClubProfile);
-        var activeId = currentClubProfile.activeSponsorId;
-        if (!activeId) return;
-        currentClubProfile.sponsors = (currentClubProfile.sponsors || []).filter(function(s) { return s.id !== activeId; });
-        currentClubProfile.activeSponsorId = currentClubProfile.sponsors.length ? currentClubProfile.sponsors[0].id : null;
-        var nextActive = getActiveSponsor(currentClubProfile);
-        currentClubProfile.sponsorName = nextActive ? nextActive.name : '';
-        currentClubProfile.sponsorLogoDataUrl = nextActive ? nextActive.logoDataUrl : null;
+        var entry = (currentClubProfile.sponsors || []).find(function(s) { return s.id === id; });
+        if (!entry) return;
+        entry.enabledTv = !!enabled;
+        // Si le sponsor actif est désactivé, basculer sur le premier sponsor autorisé
+        var active = getActiveSponsor(currentClubProfile);
+        if (active) {
+          currentClubProfile.activeSponsorId = active.id;
+          currentClubProfile.sponsorName = active.name || '';
+          currentClubProfile.sponsorLogoDataUrl = active.logoDataUrl || null;
+        } else {
+          currentClubProfile.activeSponsorId = null;
+          currentClubProfile.sponsorName = '';
+          currentClubProfile.sponsorLogoDataUrl = null;
+        }
+        persistAndApply();
+        renderSponsorsList();
+      }
+
+      function deleteSponsor(id) {
+        ensureSponsorState(currentClubProfile);
+        var before = (currentClubProfile.sponsors || []).length;
+        currentClubProfile.sponsors = (currentClubProfile.sponsors || []).filter(function(s) { return s.id !== id; });
+        if (currentClubProfile.activeSponsorId === id) {
+          var next = getActiveSponsor(currentClubProfile);
+          currentClubProfile.activeSponsorId = next ? next.id : null;
+          currentClubProfile.sponsorName = next ? next.name : '';
+          currentClubProfile.sponsorLogoDataUrl = next ? next.logoDataUrl : null;
+        }
+        if ((currentClubProfile.sponsors || []).length !== before) {
+          persistAndApply();
+          renderSponsorsList();
+        }
+      }
+
+      function addSponsorFromForm() {
+        if (!formInputs || !formInputs.sponsorName) return;
+        var nameVal = (formInputs.sponsorName.value || '').trim();
+        if (!nameVal) {
+          alert('Merci de saisir un nom de sponsor');
+          return;
+        }
+        ensureSponsorState(currentClubProfile);
+        var targetId = editingSponsorId || null;
+        var existing = targetId ? currentClubProfile.sponsors.find(function(s) { return s.id === targetId; }) : null;
+        var logoVal = pendingSponsorLogo;
+        if (!logoVal) {
+          logoVal = existing ? existing.logoDataUrl : currentClubProfile.sponsorLogoDataUrl;
+        }
+        logoVal = logoVal || null;
+        if (existing) {
+          existing.name = nameVal;
+          if (pendingSponsorLogo !== null) existing.logoDataUrl = logoVal;
+          existing.enabledTv = existing.enabledTv !== false;
+          currentClubProfile.activeSponsorId = existing.id;
+          currentClubProfile.sponsorName = existing.name;
+          currentClubProfile.sponsorLogoDataUrl = existing.logoDataUrl;
+        } else {
+          var newId = 's' + Date.now();
+          var entry = { id: newId, name: nameVal, logoDataUrl: logoVal, enabledTv: true };
+          currentClubProfile.sponsors.push(entry);
+          currentClubProfile.activeSponsorId = entry.id;
+          currentClubProfile.sponsorName = entry.name;
+          currentClubProfile.sponsorLogoDataUrl = entry.logoDataUrl;
+        }
+        pendingSponsorLogo = null;
+        editingSponsorId = null;
+        if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
+        if (formInputs.sponsorName) formInputs.sponsorName.value = '';
+        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
+        persistAndApply();
+        renderSponsorsList();
+      }
+
+      function renderSponsorsList() {
+        var list = document.getElementById('app-sponsor-list');
+        var empty = document.getElementById('app-sponsor-empty');
+        if (!list) return;
+        while (list.firstChild) list.removeChild(list.firstChild);
+        ensureSponsorState(currentClubProfile);
+        var sponsors = currentClubProfile.sponsors || [];
+        if (!sponsors.length) {
+          if (empty) empty.style.display = 'block';
+          return;
+        }
+        if (empty) empty.style.display = 'none';
+        sponsors.forEach(function(s) {
+          var row = document.createElement('div');
+          row.className = 'settings-inline';
+          row.style.justifyContent = 'space-between';
+          row.style.alignItems = 'center';
+
+          var left = document.createElement('div');
+          left.style.display = 'flex';
+          left.style.alignItems = 'center';
+          left.style.gap = '10px';
+
+          var img = document.createElement('img');
+          img.style.width = '40px';
+          img.style.height = '40px';
+          img.style.objectFit = 'contain';
+          img.style.background = 'rgba(255,255,255,0.04)';
+          img.style.borderRadius = '10px';
+          img.style.border = '1px solid rgba(255,255,255,0.08)';
+          if (s.logoDataUrl) {
+            img.src = s.logoDataUrl;
+          } else {
+            img.style.display = 'none';
+          }
+          left.appendChild(img);
+
+          var name = document.createElement('div');
+          name.textContent = s.name || 'Sponsor';
+          name.style.fontWeight = '600';
+          name.style.cursor = 'pointer';
+          if (s.id === currentClubProfile.activeSponsorId) {
+            var badge = document.createElement('span');
+            badge.textContent = 'Actif';
+            badge.style.marginLeft = '8px';
+            badge.style.fontSize = '0.8rem';
+            badge.style.color = 'var(--brand-accent, #e5e339)';
+            name.appendChild(badge);
+          }
+          name.addEventListener('click', function() {
+            editingSponsorId = s.id;
+            setActiveSponsorById(s.id);
+            if (formInputs.sponsorName) formInputs.sponsorName.value = s.name || '';
+            pendingSponsorLogo = s.logoDataUrl || null;
+            updateSponsorPreview(s.logoDataUrl || null);
+          });
+          left.appendChild(name);
+
+          var right = document.createElement('div');
+          right.style.display = 'flex';
+          right.style.alignItems = 'center';
+          right.style.gap = '10px';
+
+          var checkboxLabel = document.createElement('label');
+          checkboxLabel.className = 'small-muted';
+          checkboxLabel.style.display = 'flex';
+          checkboxLabel.style.alignItems = 'center';
+          checkboxLabel.style.gap = '6px';
+          var cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.checked = s.enabledTv !== false;
+          cb.addEventListener('change', function() { toggleSponsorTv(s.id, this.checked); });
+          checkboxLabel.appendChild(cb);
+          var lblText = document.createElement('span');
+          lblText.textContent = 'Afficher en TV';
+          checkboxLabel.appendChild(lblText);
+          right.appendChild(checkboxLabel);
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'btn btn-secondary btn-small';
+          deleteBtn.textContent = 'Supprimer';
+          deleteBtn.addEventListener('click', function() {
+            var ok = confirm('Supprimer ce sponsor ?');
+            if (ok) deleteSponsor(s.id);
+          });
+          right.appendChild(deleteBtn);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          list.appendChild(row);
+        });
       }
 
       function toggleBgImageField() {
@@ -4427,7 +4569,8 @@
         if (formInputs.sponsorClassicToggle) formInputs.sponsorClassicToggle.checked = currentClubProfile.tvSponsorClassic !== false;
         toggleBgImageField();
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
-        renderSponsorSelect();
+        pendingSponsorLogo = null;
+        renderSponsorsList();
       }
 
       function persistAndApply() {
@@ -4450,7 +4593,6 @@
           font: document.getElementById('club-theme-font'),
           sponsorName: document.getElementById('app-sponsor-name'),
           sponsorLogo: document.getElementById('app-sponsor-logo'),
-          sponsorSelect: document.getElementById('app-sponsor-select'),
           sponsorMdToggle: document.getElementById('app-sponsor-md-toggle'),
           sponsorClassicToggle: document.getElementById('app-sponsor-classic-toggle'),
           buttonStyle: document.getElementById('app-button-style'),
@@ -4510,12 +4652,9 @@
           });
         }
 
-        if (formInputs.sponsorName) {
-          formInputs.sponsorName.addEventListener('input', function() {
-            setActiveSponsorData(this.value || '', currentClubProfile.sponsorLogoDataUrl, currentClubProfile.activeSponsorId);
-            renderSponsorSelect();
-            persistAndApply();
-          });
+        var addSponsorBtn = document.getElementById('btn-add-sponsor');
+        if (addSponsorBtn) {
+          addSponsorBtn.addEventListener('click', function() { addSponsorFromForm(); });
         }
 
         if (formInputs.sponsorLogo) {
@@ -4524,52 +4663,10 @@
             if (!file) return;
             var reader = new FileReader();
             reader.onload = function(evt) {
-              setActiveSponsorData(currentClubProfile.sponsorName, evt.target.result, currentClubProfile.activeSponsorId);
-              persistAndApply();
+              pendingSponsorLogo = evt.target.result;
+              updateSponsorPreview(pendingSponsorLogo);
             };
             reader.readAsDataURL(file);
-          });
-        }
-
-        var clearSponsorBtn = document.getElementById('btn-clear-sponsor');
-        if (clearSponsorBtn) {
-          clearSponsorBtn.addEventListener('click', function() {
-            removeActiveSponsor();
-            if (formInputs.sponsorName) formInputs.sponsorName.value = '';
-            if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
-            renderSponsorSelect();
-            updateSponsorPreview(null);
-            persistAndApply();
-          });
-        }
-
-        var addSponsorBtn = document.getElementById('btn-add-sponsor');
-        if (addSponsorBtn) {
-          addSponsorBtn.addEventListener('click', function() {
-            var nameVal = (formInputs.sponsorName && formInputs.sponsorName.value) || '';
-            var logoVal = currentClubProfile.sponsorLogoDataUrl || null;
-            var targetId = (formInputs.sponsorSelect && formInputs.sponsorSelect.value) || currentClubProfile.activeSponsorId;
-            setActiveSponsorData(nameVal, logoVal, targetId);
-            renderSponsorSelect();
-            persistAndApply();
-          });
-        }
-
-        var activateSponsorBtn = document.getElementById('btn-activate-sponsor');
-        if (activateSponsorBtn && formInputs.sponsorSelect) {
-          activateSponsorBtn.addEventListener('click', function() {
-            var sel = formInputs.sponsorSelect.value;
-            ensureSponsorState(currentClubProfile);
-            var entry = (currentClubProfile.sponsors || []).find(function(s) { return s.id === sel; });
-            if (entry) {
-              currentClubProfile.activeSponsorId = entry.id;
-              currentClubProfile.sponsorName = entry.name || '';
-              currentClubProfile.sponsorLogoDataUrl = entry.logoDataUrl || null;
-              if (formInputs.sponsorName) formInputs.sponsorName.value = entry.name || '';
-              if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
-              updateSponsorPreview(entry.logoDataUrl || null);
-              persistAndApply();
-            }
           });
         }
 
@@ -4618,8 +4715,8 @@
               titleColor: formInputs.title.value || DEFAULT_PROFILE.titleColor,
               logoDataUrl: currentClubProfile.logoDataUrl,
               fontFamily: normalizeFontKey((formInputs.font && formInputs.font.value) || 'system'),
-              sponsorName: (formInputs.sponsorName && formInputs.sponsorName.value) || '',
-              sponsorLogoDataUrl: currentClubProfile.sponsorLogoDataUrl,
+              sponsorName: (getActiveSponsor(currentClubProfile) && getActiveSponsor(currentClubProfile).name) || (formInputs.sponsorName && formInputs.sponsorName.value) || '',
+              sponsorLogoDataUrl: (getActiveSponsor(currentClubProfile) && getActiveSponsor(currentClubProfile).logoDataUrl) || currentClubProfile.sponsorLogoDataUrl,
               buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
               cardShape: (formInputs.cardShape && formInputs.cardShape.value) || 'rounded',
                 backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
