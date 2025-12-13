@@ -13,7 +13,6 @@
     name: root.querySelector('#americano-name'),
     teamCount: root.querySelector('#americano-team-count'),
     games: root.querySelector('#americano-games'),
-    playerPool: root.querySelector('#americano-player-pool'),
     teamHint: root.querySelector('#americano-team-hint'),
     teamsList: root.querySelector('#americano-teams-list'),
     meta: root.querySelector('#americano-meta'),
@@ -104,45 +103,80 @@
     ensureTeams(state.teamCount);
     if (!refs.teamsList) return;
     refs.teamsList.innerHTML = '';
+    var header = document.createElement('div');
+    header.className = 'americano-team-row';
+    var h1 = document.createElement('div'); h1.className = 'americano-team-cell'; h1.textContent = 'Équipe';
+    var h2 = document.createElement('div'); h2.className = 'americano-team-cell'; h2.textContent = 'Joueur 1';
+    var h3 = document.createElement('div'); h3.className = 'americano-team-cell'; h3.textContent = 'Joueur 2';
+    header.appendChild(h1); header.appendChild(h2); header.appendChild(h3);
+    refs.teamsList.appendChild(header);
     state.teams.forEach(function(team, idx) {
-      var wrap = document.createElement('div');
-      wrap.className = 'ligue-field';
+      var row = document.createElement('div');
+      row.className = 'americano-team-row';
+
+      var colTeam = document.createElement('div');
+      colTeam.className = 'americano-team-cell';
       var label = document.createElement('label');
       label.textContent = 'Équipe ' + (idx + 1);
       var input = document.createElement('input');
       input.type = 'text';
       input.value = team.name || '';
-      input.setAttribute('data-team-id', team.id);
+      input.setAttribute('data-team-name', team.id);
       input.placeholder = 'Nom de l’équipe';
-      var players = document.createElement('input');
-      players.type = 'text';
-      players.value = (team.players && team.players.join(' / ')) || '';
-      players.placeholder = 'Joueurs (séparés par /)';
-      players.setAttribute('data-team-players', team.id);
-      wrap.appendChild(label);
-      wrap.appendChild(input);
-      wrap.appendChild(players);
-      refs.teamsList.appendChild(wrap);
+      colTeam.appendChild(label);
+      colTeam.appendChild(input);
+
+      var colP1 = document.createElement('div');
+      colP1.className = 'americano-team-cell';
+      var p1 = document.createElement('input');
+      p1.type = 'text';
+      p1.value = (team.players && team.players[0]) || '';
+      p1.placeholder = 'Joueur 1';
+      p1.setAttribute('data-team-player-a', team.id);
+      colP1.appendChild(p1);
+
+      var colP2 = document.createElement('div');
+      colP2.className = 'americano-team-cell';
+      var p2 = document.createElement('input');
+      p2.type = 'text';
+      p2.value = (team.players && team.players[1]) || '';
+      p2.placeholder = 'Joueur 2';
+      p2.setAttribute('data-team-player-b', team.id);
+      colP2.appendChild(p2);
+
+      row.appendChild(colTeam);
+      row.appendChild(colP1);
+      row.appendChild(colP2);
+      refs.teamsList.appendChild(row);
     });
   }
 
   function collectTeamsFromForm() {
     if (!refs.teamsList) return;
-    var nameInputs = refs.teamsList.querySelectorAll('[data-team-id]');
+    var nameInputs = refs.teamsList.querySelectorAll('[data-team-name]');
     nameInputs.forEach(function(inp) {
-      var id = inp.getAttribute('data-team-id');
+      var id = inp.getAttribute('data-team-name');
       var team = state.teams.find(function(t) { return t.id === id; });
       if (team) {
         team.name = inp.value.trim() || team.name;
       }
     });
-    var playerInputs = refs.teamsList.querySelectorAll('[data-team-players]');
-    playerInputs.forEach(function(inp) {
-      var id = inp.getAttribute('data-team-players');
+    var p1Inputs = refs.teamsList.querySelectorAll('[data-team-player-a]');
+    p1Inputs.forEach(function(inp) {
+      var id = inp.getAttribute('data-team-player-a');
       var team = state.teams.find(function(t) { return t.id === id; });
       if (team) {
-        var raw = inp.value || '';
-        team.players = raw ? raw.split('/') : [];
+        if (!team.players) team.players = [];
+        team.players[0] = inp.value.trim();
+      }
+    });
+    var p2Inputs = refs.teamsList.querySelectorAll('[data-team-player-b]');
+    p2Inputs.forEach(function(inp) {
+      var id = inp.getAttribute('data-team-player-b');
+      var team = state.teams.find(function(t) { return t.id === id; });
+      if (team) {
+        if (!team.players) team.players = [];
+        team.players[1] = inp.value.trim();
       }
     });
   }
@@ -156,21 +190,26 @@
   }
 
   function generateRandomTeams() {
-    if (!refs.playerPool) return;
-    var lines = (refs.playerPool.value || '').split(/\n+/).map(function(l) { return l.trim(); }).filter(Boolean);
-    if (lines.length < 2) {
-      if (refs.teamHint) refs.teamHint.textContent = 'Ajoute au moins 2 joueurs pour générer des équipes.';
-      return;
+    collectTeamsFromForm();
+    var pool = [];
+    state.teams.forEach(function(team) {
+      if (team.players && team.players.length) {
+        team.players.forEach(function(p) { if (p) pool.push(p.trim()); });
+      }
+    });
+    var needed = state.teamCount * 2;
+    var bank = ['Alex', 'Sam', 'Leo', 'Noa', 'Eli', 'Mila', 'Liam', 'Zoe', 'Nico', 'Maya', 'Rafa', 'Toma', 'Gabi', 'Luca', 'Nina', 'Sacha', 'Jo', 'Malo', 'Elio', 'Sofia', 'Ivy', 'Noah', 'Alma', 'Mira'];
+    var idx = 0;
+    while (pool.length < needed) {
+      pool.push(bank[idx % bank.length] + ' ' + (Math.floor(idx / bank.length) + 1));
+      idx += 1;
     }
-    var shuffled = shuffle(lines);
-    var teamCount = Math.min(state.teamCount, Math.floor(shuffled.length / 2));
-    ensureTeams(teamCount);
+    pool = shuffle(pool).slice(0, needed);
+    ensureTeams(state.teamCount);
     for (var i = 0; i < state.teamCount; i++) {
-      var p1 = shuffled[i * 2] || ('J' + (i * 2 + 1));
-      var p2 = shuffled[i * 2 + 1] || ('J' + (i * 2 + 2));
       var team = state.teams[i];
-      team.name = 'Équipe ' + (i + 1);
-      team.players = [p1, p2];
+      team.name = team.name || ('Équipe ' + (i + 1));
+      team.players = [pool[i * 2] || ('J' + (i * 2 + 1)), pool[i * 2 + 1] || ('J' + (i * 2 + 2))];
     }
     renderTeamsList();
     saveState();
@@ -668,6 +707,10 @@
     });
 
     if (refs.name) refs.name.addEventListener('input', function() { setName(this.value); });
+    if (refs.teamsList) refs.teamsList.addEventListener('input', function() {
+      collectTeamsFromForm();
+      saveState();
+    });
     var btnGenerate = document.getElementById('btn-americano-generate');
     if (btnGenerate) btnGenerate.addEventListener('click', function() { buildMatches(); renderAll(); });
 

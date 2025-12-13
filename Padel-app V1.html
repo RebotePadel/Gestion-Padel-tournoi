@@ -1254,7 +1254,7 @@
 
     /* AMERICANO */
     .americano-layout { display: flex; flex-direction: column; gap: 12px; }
-    .americano-top-row { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(260px, 1fr)); align-items: stretch; }
+    .americano-top-row { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(280px, 1fr)); align-items: start; }
     @media(max-width:1100px){ .americano-top-row{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); } }
     .americano-bottom-row { display: flex; flex-direction: column; gap: 12px; }
     .americano-card { border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.4); padding: 10px; min-width:0; box-shadow:0 12px 28px rgba(0,0,0,0.4); }
@@ -1262,8 +1262,8 @@
     .americano-card-body { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
     .americano-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
     .americano-section { margin-top: 10px; }
-    .americano-rounds { display: flex; flex-direction: column; gap: 8px; }
-    .americano-round-card { border: 1px solid #1f2937; padding: 10px; border-radius: 14px; background: rgba(2,6,23,0.4); }
+    .americano-rounds { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+    .americano-round-card { border: 1px solid #1f2937; padding: 10px; border-radius: 14px; background: rgba(2,6,23,0.4); min-width:0; }
     .americano-match-row { display: grid; grid-template-columns: minmax(0,1fr) 50px minmax(0,1fr); align-items: center; gap: 6px; padding: 2px 0; }
     .americano-score-inputs { display: flex; gap: 6px; align-items: center; }
     .americano-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid #1e293b; background: rgba(255,255,255,0.04); color: var(--text); font-size: 0.8rem; }
@@ -1273,6 +1273,11 @@
     .americano-vs { text-align: center; color: var(--muted); font-weight: 700; }
     .americano-score-row { grid-column: 1 / span 3; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .collapse-toggle.americano-collapse { margin-left: 8px; }
+    .americano-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
+    .americano-team-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; min-width:0; }
+    .americano-team-cell { min-width:0; display:flex; flex-direction:column; gap:4px; }
+    .americano-team-cell label { font-size:0.85rem; color: var(--muted); }
+    .americano-team-row input { width:100%; min-width:0; }
   </style>
 
   <!-- Styles du moteur tournoi classique -->
@@ -2723,30 +2728,8 @@
           <div class="card app-block-interactive americano-card">
             <div class="americano-card-header">
               <div>
-                <h3 class="tournaments-title">Timer Américano</h3>
-                <div class="small-muted">Synchronisé avec la vue TV</div>
-              </div>
-              <button class="collapse-toggle americano-collapse" data-target="americano-timer-body">−</button>
-            </div>
-            <div id="americano-timer-body" class="americano-card-body">
-              <div class="field">
-                <label for="americano-timer-minutes">Durée (minutes)</label>
-                <input type="number" id="americano-timer-minutes" min="1" value="12" />
-              </div>
-              <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
-                <div class="chip" id="americano-timer-display">12:00</div>
-                <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
-                <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
-                <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
-              </div>
-              <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
-            </div>
-          </div>
-
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title" style="margin-bottom:6px;">Configuration</h3>
+                <h3 class="tournaments-title" style="margin-bottom:6px;">Organisation & timer</h3>
+                <div class="small-muted">Paramètres, génération et timer synchronisé</div>
               </div>
               <button class="collapse-toggle americano-collapse" data-target="americano-config-body">−</button>
             </div>
@@ -2767,28 +2750,47 @@
                   <option value="9">9 jeux</option>
                 </select>
               </div>
-
-              <div class="field">
-                <label for="americano-player-pool">Joueurs (un par ligne) • Génération auto d’équipes</label>
-                <textarea id="americano-player-pool" rows="4" placeholder="Liste de joueurs..." style="width:100%;"></textarea>
+              <div class="americano-inline" style="justify-content:flex-start;">
+                <button class="btn" id="btn-americano-generate">Générer le planning</button>
+                <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
               </div>
+              <div class="americano-section">
+                <h4 class="tournaments-title" style="margin-bottom:6px;">Timer</h4>
+                <div class="field">
+                  <label for="americano-timer-minutes">Durée (minutes)</label>
+                  <input type="number" id="americano-timer-minutes" min="1" value="12" />
+                </div>
+                <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+                  <div class="chip" id="americano-timer-display">12:00</div>
+                  <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
+                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
+                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
+                </div>
+                <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card app-block-interactive americano-card">
+            <div class="americano-card-header">
+              <div>
+                <h3 class="tournaments-title" style="margin-bottom:6px;">Création des équipes</h3>
+                <div class="small-muted">2 joueurs par équipe • saisie directe</div>
+              </div>
+              <button class="collapse-toggle americano-collapse" data-target="americano-teams-body">−</button>
+            </div>
+            <div id="americano-teams-body" class="americano-card-body">
               <div class="americano-inline" style="justify-content:flex-start;">
                 <button class="btn btn-secondary btn-small" id="btn-americano-random-teams">Générer les équipes aléatoires</button>
                 <button class="btn btn-small" id="btn-americano-random-names">Noms aléatoires</button>
               </div>
               <div id="americano-team-hint" class="small-muted" style="margin-top:4px;"></div>
-
               <div class="americano-section">
                 <div class="americano-inline" style="margin-bottom:6px;">
                   <h4 class="tournaments-title">Équipes</h4>
-                  <div class="small-muted">2 joueurs par équipe</div>
+                  <div class="small-muted">Saisis directement les joueurs</div>
                 </div>
-                <div id="americano-teams-list" class="ligue-section"></div>
-              </div>
-
-              <div class="americano-inline" style="margin-top:10px;">
-                <button class="btn" id="btn-americano-generate">Générer le planning</button>
-                <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
+                <div id="americano-teams-list" class="americano-teams-grid"></div>
               </div>
             </div>
           </div>
