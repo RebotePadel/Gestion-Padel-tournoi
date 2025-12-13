@@ -607,9 +607,91 @@
       var profile = JSON.parse(localStorage.getItem('padel_theme_profile_v1') || '{}');
       if (profile && profile.logoDataUrl) {
         tvRefs.logo.src = profile.logoDataUrl;
+        tvRefs.logo.style.height = '48px';
+        tvRefs.logo.style.maxHeight = '48px';
+        tvRefs.logo.style.width = 'auto';
+        tvRefs.logo.style.maxWidth = '220px';
+        tvRefs.logo.style.objectFit = 'contain';
         tvRefs.logo.style.display = 'block';
+      } else {
+        tvRefs.logo.style.display = 'none';
+        tvRefs.logo.removeAttribute('src');
       }
     } catch (e) { /* noop */ }
+  }
+
+  // TIMER UI : popup temps restant (start/pause/reset + update tick)
+  var timerPopupEl = null;
+  var timerPopupValue = null;
+  var timerPopupStyleInjected = false;
+
+  function ensureTimerPopup() {
+    if (timerPopupEl) return timerPopupEl;
+    timerPopupEl = document.getElementById('americano-timer-popup');
+    if (!timerPopupEl) {
+      timerPopupEl = document.createElement('div');
+      timerPopupEl.id = 'americano-timer-popup';
+      timerPopupEl.className = 'americano-timer-popup';
+      timerPopupEl.style.display = 'none';
+
+      var panel = document.createElement('div');
+      panel.className = 'americano-timer-popup-panel';
+
+      var closeBtn = document.createElement('button');
+      closeBtn.id = 'americano-timer-popup-close';
+      closeBtn.className = 'americano-timer-popup-close';
+      closeBtn.type = 'button';
+      closeBtn.textContent = '×';
+
+      var title = document.createElement('div');
+      title.className = 'americano-timer-popup-title';
+      title.textContent = 'Temps restant';
+
+      timerPopupValue = document.createElement('div');
+      timerPopupValue.id = 'americano-timer-popup-value';
+      timerPopupValue.className = 'americano-timer-popup-value';
+      timerPopupValue.textContent = formatTimer();
+
+      panel.appendChild(closeBtn);
+      panel.appendChild(title);
+      panel.appendChild(timerPopupValue);
+      timerPopupEl.appendChild(panel);
+      document.body.appendChild(timerPopupEl);
+
+      closeBtn.addEventListener('click', closeTimerPopup);
+      timerPopupEl.addEventListener('click', function(evt) {
+        if (evt.target === timerPopupEl) closeTimerPopup();
+      });
+    }
+
+    if (!timerPopupStyleInjected) {
+      timerPopupStyleInjected = true;
+      var style = document.createElement('style');
+      style.textContent = '' +
+        '#americano-timer-popup{position:fixed;inset:0;background:rgba(0,0,0,0.55);display:none;align-items:center;justify-content:center;z-index:9999;}' +
+        '#americano-timer-popup .americano-timer-popup-panel{background:rgba(2,6,23,0.9);border:1px solid rgba(153,183,215,0.4);box-shadow:0 12px 32px rgba(0,0,0,0.4);border-radius:12px;padding:18px 22px;min-width:260px;max-width:90%;text-align:center;position:relative;}' +
+        '#americano-timer-popup .americano-timer-popup-title{font-size:18px;font-weight:700;color:#e5e339;margin-bottom:6px;}' +
+        '#americano-timer-popup .americano-timer-popup-value{font-size:64px;font-weight:800;color:#f9fafb;letter-spacing:1px;}' +
+        '#americano-timer-popup .americano-timer-popup-close{position:absolute;top:8px;right:10px;background:transparent;border:none;color:#f9fafb;font-size:20px;cursor:pointer;}' +
+        '#americano-timer-popup .americano-timer-popup-close:focus{outline:none;}';
+      document.head.appendChild(style);
+    }
+
+    return timerPopupEl;
+  }
+
+  function openTimerPopup() {
+    var el = ensureTimerPopup();
+    if (el) el.style.display = 'flex';
+  }
+
+  function closeTimerPopup() {
+    if (timerPopupEl) timerPopupEl.style.display = 'none';
+  }
+
+  function updateTimerPopup() {
+    if (!timerPopupEl) ensureTimerPopup();
+    if (timerPopupValue) timerPopupValue.textContent = formatTimer();
   }
 
   function getActiveSponsor(profile) {
@@ -666,6 +748,8 @@
     state.timer.remaining = Math.max(0, state.timer.remaining - delta);
     if (state.timer.remaining === 0) state.timer.running = false;
     updateTimerFromState();
+    updateTimerPopup();
+    if (!state.timer.running) closeTimerPopup();
     saveState();
   }
 
@@ -682,6 +766,8 @@
     state.timer.lastTick = Date.now();
     if (!timerInterval) timerInterval = setInterval(tickTimer, 1000);
     updateTimerFromState();
+    openTimerPopup();
+    updateTimerPopup();
     saveState();
   }
 
@@ -689,6 +775,7 @@
     state.timer.running = false;
     state.timer.lastTick = null;
     updateTimerFromState();
+    closeTimerPopup();
     saveState();
   }
 
@@ -699,6 +786,7 @@
     state.timer.running = false;
     state.timer.lastTick = null;
     updateTimerFromState();
+    closeTimerPopup();
     saveState();
   }
 
