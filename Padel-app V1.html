@@ -414,10 +414,23 @@
     /* Fin thèmes de fond */
 
     /* Bandeau sponsor TV */
-    .tv-sponsor { position: fixed; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
-    .tv-sponsor img { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
+    .tv-sponsor { position: fixed; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 8px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
+    .tv-sponsor .tv-sponsors-list { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .tv-sponsor .tv-sponsor-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; }
+    .tv-sponsor .tv-sponsor-logo { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
     .tv-sponsor .tv-sponsor-name { font-weight: 700; font-size: 0.8rem; }
     /* Fin bandeau sponsor TV */
+
+    /* Liste sponsors (paramètres) */
+    .sponsors-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+    .sponsor-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #1f2937; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 8px 10px; }
+    .sponsor-row-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .sponsor-thumb { width: 48px; height: 48px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
+    .sponsor-thumb img { width: 100%; height: 100%; object-fit: contain; }
+    .sponsor-placeholder { color: var(--muted); font-weight: 700; font-size: 0.9rem; }
+    .sponsor-name { font-weight: 700; color: var(--text); }
+    .sponsor-row-actions { display: flex; align-items: center; gap: 12px; }
+    .sponsor-row-actions label { display: flex; align-items: center; gap: 6px; }
 
     .theme-grid {
       display: grid;
@@ -2324,8 +2337,8 @@
               </div>
 
             <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
-              <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
-              <div class="settings-inline">
+              <div class="settings-subtitle">📺 Sponsors (Vue TV)</div>
+              <div class="settings-inline" style="align-items:flex-end; flex-wrap:wrap;">
                 <div class="field">
                   <label for="app-sponsor-name">Nom du sponsor</label>
                   <input id="app-sponsor-name" type="text" placeholder="Nom du sponsor" />
@@ -2333,11 +2346,14 @@
                 <div class="field">
                   <label for="app-sponsor-logo">Logo du sponsor</label>
                   <input id="app-sponsor-logo" type="file" accept="image/*" />
-                  <div class="small-muted">Le logo sera affiché en vue TV s'il est défini.</div>
+                  <div class="small-muted">Le logo est optionnel mais recommandé.</div>
                 </div>
                 <div class="field">
                   <label>Aperçu sponsor</label>
                   <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
+                </div>
+                <div class="field" style="display:flex; align-items:flex-end;">
+                  <button class="btn btn-small" id="btn-add-sponsor" type="button">Ajouter</button>
                 </div>
               </div>
               <div class="settings-inline" style="gap:16px;">
@@ -2350,9 +2366,8 @@
                   Afficher en TV Tournoi
                 </label>
               </div>
-              <div class="theme-actions" style="justify-content:flex-end; padding-top:6px;">
-                <button class="btn btn-secondary btn-small" id="btn-clear-sponsor" type="button">Supprimer le sponsor actuel</button>
-              </div>
+              <div class="settings-subtitle" style="margin-top:8px;">Liste des sponsors</div>
+              <div id="app-sponsors-list" class="sponsors-list"></div>
             </div>
 
             <div class="settings-section app-block-interactive" aria-label="Fond export journée ligue">
@@ -2950,8 +2965,7 @@
           <img id="tv-logo" alt="Logo TV" />
         </div>
         <div id="classic-tv-sponsor-banner" class="tv-sponsor" style="right: 16px; top: 16px; bottom: auto;">
-          <img id="classic-tv-sponsor-logo" alt="Sponsor" />
-          <div class="tv-sponsor-name" id="classic-tv-sponsor-name"></div>
+          <div id="classic-tv-sponsors-container" class="tv-sponsors-list"></div>
         </div>
         <div id="pong-tv-widget-classic" class="pong-tv-widget pong-draggable" style="display:none;">
           <div class="widget-head" id="pong-tv-drag-classic">
@@ -3442,8 +3456,7 @@
       </header>
 
       <div id="tv-sponsor-banner" class="tv-sponsor">
-        <img id="tv-sponsor-logo" alt="Sponsor" />
-        <div class="tv-sponsor-name" id="tv-sponsor-name"></div>
+        <div id="tv-sponsors-container" class="tv-sponsors-list"></div>
       </div>
 
       <div id="pong-tv-widget-md" class="pong-tv-widget pong-draggable" style="display:none;">
@@ -3946,6 +3959,7 @@
         fontFamily: 'system',
         sponsorName: '',
         sponsorLogoDataUrl: null,
+        sponsors: [],
         buttonStyle: 'solid',
         cardShape: 'rounded',
         backgroundStyle: 'gradient',
@@ -3959,6 +3973,7 @@
       var currentClubProfile = null;
       var formInputs = {};
       var fontLinkEl = null;
+      var selectedSponsorLogoDataUrl = null;
 
       var AVAILABLE_FONTS = [
         { key: 'system', google: null, family: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
@@ -3980,7 +3995,9 @@
       }
 
       function cloneProfile(data) {
-        return Object.assign({}, DEFAULT_PROFILE, data || {});
+        var base = Object.assign({}, DEFAULT_PROFILE, data || {});
+        base.sponsors = Array.isArray(base.sponsors) ? base.sponsors.map(function(sp) { return Object.assign({}, sp); }) : [];
+        return base;
       }
 
       var FONT_CLASS_MAP = {
@@ -4064,12 +4081,34 @@
         });
       }
 
+      var legacyMigrated = false;
+
       function saveProfile() {
         try {
           localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(currentClubProfile));
+          legacyMigrated = false;
         } catch (e) {
           console.warn('Impossible de sauvegarder le thème', e);
         }
+      }
+
+      // Migration sponsor V1 → multi-sponsors
+      function migrateLegacySponsor(profile) {
+        if (!profile) return profile;
+        if (!Array.isArray(profile.sponsors)) profile.sponsors = [];
+        var hasLegacy = (profile.sponsorName && profile.sponsorName.trim()) || profile.sponsorLogoDataUrl;
+        if (hasLegacy && profile.sponsors.length === 0) {
+          profile.sponsors.push({
+            id: 'legacy-' + Date.now(),
+            name: profile.sponsorName || 'Sponsor',
+            logoDataUrl: profile.sponsorLogoDataUrl || '',
+            enabledTv: true
+          });
+          profile.sponsorName = '';
+          profile.sponsorLogoDataUrl = null;
+          legacyMigrated = true;
+        }
+        return profile;
       }
 
       function loadProfile() {
@@ -4080,9 +4119,19 @@
           stored = null;
         }
         if (stored) {
-          try { return cloneProfile(JSON.parse(stored)); } catch (e) { /* fallback default */ }
+          try {
+            var parsed = JSON.parse(stored);
+            migrateLegacySponsor(parsed);
+            var profile = cloneProfile(parsed);
+            currentClubProfile = profile;
+            if (legacyMigrated) saveProfile();
+            return profile;
+          } catch (e) { /* fallback default */ }
         }
-        return cloneProfile();
+        var defaultProfile = cloneProfile();
+        migrateLegacySponsor(defaultProfile);
+        currentClubProfile = defaultProfile;
+        return defaultProfile;
       }
 
       function applyBackgroundStyles(profile) {
@@ -4195,37 +4244,81 @@
         banner.addEventListener('mousedown', onDragStart);
       }
 
-      function renderSponsorBanner(ids, profile, enabled) {
-        if (!ids || !ids.banner) return;
-        var banner = document.getElementById(ids.banner);
-        if (!banner) return;
-        var logo = ids.logo ? document.getElementById(ids.logo) : null;
-        var nameEl = ids.name ? document.getElementById(ids.name) : null;
-        var hasContent = !!(enabled && profile && (profile.sponsorLogoDataUrl || profile.sponsorName));
-        if (!hasContent) {
+      function ensureSponsorsArray(profile) {
+        if (!profile) return [];
+        if (!Array.isArray(profile.sponsors)) profile.sponsors = [];
+        profile.sponsors = profile.sponsors.map(function(sp, idx) {
+          var item = Object.assign({ id: 'sponsor-' + idx, name: '', logoDataUrl: '', enabledTv: true }, sp || {});
+          if (!item.id) item.id = 'sponsor-' + Date.now() + '-' + idx;
+          item.enabledTv = item.enabledTv !== false;
+          item.logoDataUrl = item.logoDataUrl || '';
+          item.name = item.name || '';
+          return item;
+        });
+        return profile.sponsors;
+      }
+
+      function loadSponsors() {
+        if (!currentClubProfile) currentClubProfile = loadProfile();
+        return ensureSponsorsArray(currentClubProfile);
+      }
+
+      function saveSponsors() {
+        saveProfile();
+      }
+
+      function renderTvSponsorContainer(opts, sponsors) {
+        if (!opts || !opts.banner || !opts.container) return;
+        var banner = document.getElementById(opts.banner);
+        var list = document.getElementById(opts.container);
+        if (!banner || !list) return;
+
+        list.innerHTML = '';
+        if (!opts.enabled || !sponsors.length) {
           banner.style.display = 'none';
-          if (logo) { logo.removeAttribute('src'); logo.style.display = 'none'; }
-          if (nameEl) nameEl.textContent = '';
           return;
         }
-        banner.style.display = 'inline-flex';
-        if (logo) {
-          if (profile.sponsorLogoDataUrl) {
-            logo.src = profile.sponsorLogoDataUrl;
-            logo.style.display = 'block';
-          } else {
-            logo.removeAttribute('src');
-            logo.style.display = 'none';
+
+        sponsors.forEach(function(sp) {
+          var displayName = sp.name || 'Sponsor';
+          var badge = document.createElement('div');
+          badge.className = 'tv-sponsor-badge';
+
+          if (sp.logoDataUrl) {
+            var logo = document.createElement('img');
+            logo.className = 'tv-sponsor-logo';
+            logo.alt = displayName;
+            logo.src = sp.logoDataUrl;
+            badge.appendChild(logo);
           }
-        }
-        if (nameEl) nameEl.textContent = profile.sponsorName || '';
-        if (ids.posKey && (!profile || !profile[ids.posKey])) {
+
+          if (displayName) {
+            var name = document.createElement('div');
+            name.className = 'tv-sponsor-name';
+            name.textContent = displayName;
+            badge.appendChild(name);
+          }
+
+          list.appendChild(badge);
+        });
+
+        banner.style.display = 'inline-flex';
+        if (opts.posKey && (!currentClubProfile || !currentClubProfile[opts.posKey])) {
           banner.style.left = '';
           banner.style.top = '';
           banner.style.right = '';
           banner.style.bottom = '';
         }
-        if (ids.posKey && profile && profile[ids.posKey]) applySponsorPosition(banner, profile[ids.posKey]);
+        if (opts.posKey && currentClubProfile && currentClubProfile[opts.posKey]) {
+          applySponsorPosition(banner, currentClubProfile[opts.posKey]);
+        }
+      }
+
+      // Nouveau : affichage multi-sponsors en vue TV (tous ceux cochés)
+      function renderTvSponsors() {
+        var activeSponsors = loadSponsors().filter(function(sp) { return sp && sp.enabledTv; });
+        renderTvSponsorContainer({ banner: 'tv-sponsor-banner', container: 'tv-sponsors-container', posKey: 'tvSponsorMdPos', enabled: currentClubProfile.tvSponsorMd !== false }, activeSponsors);
+        renderTvSponsorContainer({ banner: 'classic-tv-sponsor-banner', container: 'classic-tv-sponsors-container', posKey: 'tvSponsorClassicPos', enabled: currentClubProfile.tvSponsorClassic !== false }, activeSponsors);
       }
 
       function updateSponsorPreview(src) {
@@ -4238,6 +4331,125 @@
           preview.removeAttribute('src');
           preview.style.display = 'none';
         }
+      }
+
+      function resetSponsorForm() {
+        if (formInputs.sponsorName) formInputs.sponsorName.value = '';
+        if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
+        selectedSponsorLogoDataUrl = null;
+        updateSponsorPreview(null);
+      }
+
+      function renderSponsorsList() {
+        var container = document.getElementById('app-sponsors-list');
+        if (!container) return;
+        var sponsors = loadSponsors();
+        container.innerHTML = '';
+
+        if (!sponsors.length) {
+          var empty = document.createElement('div');
+          empty.className = 'small-muted';
+          empty.textContent = 'Ajoute tes sponsors puis coche ceux à afficher en TV.';
+          container.appendChild(empty);
+          return;
+        }
+
+        sponsors.forEach(function(sp) {
+          var row = document.createElement('div');
+          row.className = 'sponsor-row';
+
+          var left = document.createElement('div');
+          left.className = 'sponsor-row-left';
+
+          var thumb = document.createElement('div');
+          thumb.className = 'sponsor-thumb';
+          if (sp.logoDataUrl) {
+            var img = document.createElement('img');
+            img.alt = sp.name || 'Logo sponsor';
+            img.src = sp.logoDataUrl;
+            thumb.appendChild(img);
+          } else {
+            var placeholder = document.createElement('div');
+            placeholder.className = 'sponsor-placeholder';
+            placeholder.textContent = sp.name ? (sp.name[0] || '?') : '?';
+            thumb.appendChild(placeholder);
+          }
+
+          var name = document.createElement('div');
+          name.className = 'sponsor-name';
+          name.textContent = sp.name || 'Sponsor';
+
+          left.appendChild(thumb);
+          left.appendChild(name);
+
+          var actions = document.createElement('div');
+          actions.className = 'sponsor-row-actions';
+
+          var toggleLabel = document.createElement('label');
+          var checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = !!sp.enabledTv;
+          checkbox.addEventListener('change', function() { toggleSponsorTv(sp.id, this.checked); });
+          toggleLabel.appendChild(checkbox);
+          var toggleText = document.createElement('span');
+          toggleText.textContent = 'Afficher en TV';
+          toggleLabel.appendChild(toggleText);
+
+          var deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'btn btn-secondary btn-small';
+          deleteBtn.textContent = 'Supprimer';
+          deleteBtn.addEventListener('click', function() { deleteSponsor(sp.id); });
+
+          actions.appendChild(toggleLabel);
+          actions.appendChild(deleteBtn);
+
+          row.appendChild(left);
+          row.appendChild(actions);
+
+          container.appendChild(row);
+        });
+      }
+
+      function addSponsor() {
+        if (!formInputs.sponsorName) return;
+        var name = (formInputs.sponsorName.value || '').trim();
+        if (!name) {
+          alert('Le nom du sponsor est obligatoire.');
+          return;
+        }
+
+        var sponsors = loadSponsors();
+        sponsors.push({
+          id: 'sponsor-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
+          name: name,
+          logoDataUrl: selectedSponsorLogoDataUrl || '',
+          enabledTv: true
+        });
+        currentClubProfile.sponsors = sponsors;
+        saveSponsors();
+        renderSponsorsList();
+        renderTvSponsors();
+        resetSponsorForm();
+      }
+
+      function deleteSponsor(id) {
+        var sponsors = loadSponsors();
+        var filtered = sponsors.filter(function(sp) { return sp.id !== id; });
+        if (filtered.length === sponsors.length) return;
+        if (!confirm('Supprimer ce sponsor ?')) return;
+        currentClubProfile.sponsors = filtered;
+        saveSponsors();
+        renderSponsorsList();
+        renderTvSponsors();
+      }
+
+      function toggleSponsorTv(id, enabled) {
+        var sponsors = loadSponsors();
+        sponsors.forEach(function(sp) { if (sp.id === id) sp.enabledTv = !!enabled; });
+        currentClubProfile.sponsors = sponsors;
+        saveSponsors();
+        renderTvSponsors();
       }
 
       function toggleBgImageField() {
@@ -4285,9 +4497,9 @@
         document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
-        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
-        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
-        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
+        renderTvSponsors();
+        renderSponsorsList();
+        updateSponsorPreview(selectedSponsorLogoDataUrl);
       }
 
       function initSponsorDragBlocks() {
@@ -4311,14 +4523,14 @@
           var exists = AVAILABLE_FONTS.some(function(f) { return f.key === fontVal; });
           formInputs.font.value = exists ? fontVal : 'system';
         }
-        if (formInputs.sponsorName) formInputs.sponsorName.value = currentClubProfile.sponsorName || '';
         if (formInputs.buttonStyle) formInputs.buttonStyle.value = currentClubProfile.buttonStyle || 'solid';
         if (formInputs.cardShape) formInputs.cardShape.value = currentClubProfile.cardShape || 'rounded';
         if (formInputs.bgStyle) formInputs.bgStyle.value = currentClubProfile.backgroundStyle || 'gradient';
         if (formInputs.sponsorMdToggle) formInputs.sponsorMdToggle.checked = currentClubProfile.tvSponsorMd !== false;
         if (formInputs.sponsorClassicToggle) formInputs.sponsorClassicToggle.checked = currentClubProfile.tvSponsorClassic !== false;
         toggleBgImageField();
-        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
+        if (formInputs.sponsorName) formInputs.sponsorName.value = '';
+        updateSponsorPreview(selectedSponsorLogoDataUrl);
       }
 
       function persistAndApply() {
@@ -4401,35 +4613,27 @@
         }
 
         if (formInputs.sponsorName) {
-          formInputs.sponsorName.addEventListener('input', function() {
-            currentClubProfile.sponsorName = this.value || '';
-            persistAndApply();
+          formInputs.sponsorName.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') { e.preventDefault(); addSponsor(); }
           });
         }
 
         if (formInputs.sponsorLogo) {
           formInputs.sponsorLogo.addEventListener('change', function(e) {
             var file = e.target.files && e.target.files[0];
-            if (!file) return;
+            if (!file) { selectedSponsorLogoDataUrl = null; updateSponsorPreview(null); return; }
             var reader = new FileReader();
             reader.onload = function(evt) {
-              currentClubProfile.sponsorLogoDataUrl = evt.target.result;
-              persistAndApply();
+              selectedSponsorLogoDataUrl = evt.target.result;
+              updateSponsorPreview(selectedSponsorLogoDataUrl);
             };
             reader.readAsDataURL(file);
           });
         }
 
-        var clearSponsorBtn = document.getElementById('btn-clear-sponsor');
-        if (clearSponsorBtn) {
-          clearSponsorBtn.addEventListener('click', function() {
-            currentClubProfile.sponsorName = '';
-            currentClubProfile.sponsorLogoDataUrl = null;
-            if (formInputs.sponsorName) formInputs.sponsorName.value = '';
-            if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
-            updateSponsorPreview(null);
-            persistAndApply();
-          });
+        var addSponsorBtn = document.getElementById('btn-add-sponsor');
+        if (addSponsorBtn) {
+          addSponsorBtn.addEventListener('click', addSponsor);
         }
 
         if (formInputs.sponsorMdToggle) {
@@ -4461,8 +4665,9 @@
               titleColor: formInputs.title.value || DEFAULT_PROFILE.titleColor,
               logoDataUrl: currentClubProfile.logoDataUrl,
               fontFamily: normalizeFontKey((formInputs.font && formInputs.font.value) || 'system'),
-              sponsorName: (formInputs.sponsorName && formInputs.sponsorName.value) || '',
-              sponsorLogoDataUrl: currentClubProfile.sponsorLogoDataUrl,
+              sponsorName: '',
+              sponsorLogoDataUrl: null,
+              sponsors: ensureSponsorsArray(currentClubProfile),
               buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
               cardShape: (formInputs.cardShape && formInputs.cardShape.value) || 'rounded',
               backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
@@ -4483,7 +4688,8 @@
             var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
             var preservedMdPos = currentClubProfile && currentClubProfile.tvSponsorMdPos;
             var preservedClassicPos = currentClubProfile && currentClubProfile.tvSponsorClassicPos;
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos });
+            var preservedSponsors = ensureSponsorsArray(currentClubProfile);
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, sponsors: preservedSponsors, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos });
             persistAndApply();
           });
         }
@@ -4515,7 +4721,8 @@
           reset: function() {
             var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
             var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor });
+            var preservedSponsors = ensureSponsorsArray(currentClubProfile);
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, sponsors: preservedSponsors });
             persistAndApply();
           },
           syncForm: syncThemeForm
