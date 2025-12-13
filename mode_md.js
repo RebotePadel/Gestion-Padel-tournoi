@@ -16,7 +16,7 @@ function mdSel(selector) {
 var SKINS = {
   padelParc: {
     name: "Padel Parc",
-    subtitle: "Gestionnaire de tournois & M/D – moteur officiel Padel Parc",
+    subtitle: "moteur M/D officiel Padel Parc",
     placeholderTournamentName: "Soirée Padel Parc - Vendredi",
     logoUrl: "https://lh3.googleusercontent.com/p/AF1QipNpQrOfpCxdRelQ7dF2r-elyslV__xZz5mOazHu=s1360-w1360-h1020-rw",
     colors: {
