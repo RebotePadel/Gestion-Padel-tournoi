@@ -156,7 +156,7 @@
 
     /* ROOT SECTIONS */
     #home-root { display: block; }
-    #admin-root, #tv-root, #tournaments-root, #classic-root, #league-root { display: none; }
+    #admin-root, #tv-root, #tournaments-root, #classic-root, #league-root, #americano-root, #americano-tv-root { display: none; }
 
     .btn {
       display: inline-flex;
@@ -1251,6 +1251,16 @@
       background:#020617;
       color:var(--blue-soft);
     }
+
+    /* AMERICANO */
+    .americano-grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+    .americano-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+    .americano-section { margin-top: 10px; }
+    .americano-rounds { display: flex; flex-direction: column; gap: 8px; }
+    .americano-round-card { border: 1px solid #1f2937; padding: 10px; border-radius: 14px; background: rgba(2,6,23,0.4); }
+    .americano-match-row { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 6px; }
+    .americano-score-inputs { display: flex; gap: 6px; align-items: center; }
+    .americano-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid #1e293b; background: rgba(255,255,255,0.04); color: var(--text); font-size: 0.8rem; }
   </style>
 
   <!-- Styles du moteur tournoi classique -->
@@ -2644,16 +2654,16 @@
 
         <article class="tournament-type-card app-block-interactive">
           <div class="tournament-type-title">
-            <span>Round Robin complet</span>
+            <span>Américano</span>
             <span class="tournament-type-pill">Tous vs tous</span>
           </div>
           <p>
-            Chaque équipe rencontre toutes les autres. Classement final au
-            nombre de victoires et au goal-average.
+            Chaque équipe affronte toutes les autres une fois, classement en direct
+            et vue TV dédiée.
           </p>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-            <span class="small-muted">Disponible bientôt</span>
-            <button class="btn btn-small" disabled>🚧 En cours</button>
+            <span class="small-muted">Nouveau moteur complet</span>
+            <button class="btn btn-small" id="btn-open-americano">▶ Ouvrir</button>
           </div>
         </article>
 
@@ -2672,6 +2682,169 @@
           </div>
         </article>
       </div>
+    </section>
+
+    <!-- MODE AMERICANO -->
+    <section id="americano-root" style="display:none;">
+      <div class="mode-toggle" style="justify-content:flex-start; margin-bottom:8px;">
+        <button class="btn btn-secondary btn-small" id="btn-americano-home">🏠 Accueil</button>
+        <button class="btn btn-secondary btn-small" id="btn-americano-formats">🏆 Formats</button>
+        <button class="btn btn-secondary btn-small" id="btn-americano-open-tv">🎥 Vue TV</button>
+      </div>
+
+      <div class="card app-block-interactive" style="margin-bottom:10px;">
+        <div class="tournaments-header" style="margin-bottom:4px;">
+          <div>
+            <div class="tournaments-subtitle">Tournoi classique</div>
+            <h1 class="tournaments-title">Mode Américano</h1>
+          </div>
+          <div class="americano-inline" style="gap:6px;">
+            <div class="americano-chip" id="americano-meta">0 équipes • 0 matchs</div>
+            <div class="americano-chip" id="americano-round-meta">Planning non généré</div>
+          </div>
+        </div>
+        <div class="small-muted">Chaque équipe affronte toutes les autres une fois. Classement live et vue TV synchronisée.</div>
+      </div>
+
+      <div class="americano-grid">
+        <div class="card app-block-interactive">
+          <h3 class="tournaments-title" style="margin-bottom:6px;">Configuration</h3>
+          <div class="field">
+            <label for="americano-name">Nom du tournoi</label>
+            <input type="text" id="americano-name" placeholder="Américano du vendredi" />
+          </div>
+          <div class="field">
+            <label for="americano-team-count">Nombre d’équipes (8 à 24)</label>
+            <select id="americano-team-count"></select>
+          </div>
+          <div class="field">
+            <label for="americano-games">Jeux gagnants</label>
+            <select id="americano-games">
+              <option value="4">4 jeux</option>
+              <option value="6" selected>6 jeux</option>
+              <option value="9">9 jeux</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="americano-player-pool">Joueurs (un par ligne) • Génération auto d’équipes</label>
+            <textarea id="americano-player-pool" rows="4" placeholder="Liste de joueurs..." style="width:100%;"></textarea>
+          </div>
+          <div class="americano-inline" style="justify-content:flex-start;">
+            <button class="btn btn-secondary btn-small" id="btn-americano-random-teams">Générer les équipes aléatoires</button>
+            <button class="btn btn-small" id="btn-americano-random-names">Noms aléatoires</button>
+          </div>
+          <div id="americano-team-hint" class="small-muted" style="margin-top:4px;"></div>
+
+          <div class="americano-section">
+            <div class="americano-inline" style="margin-bottom:6px;">
+              <h4 class="tournaments-title">Équipes</h4>
+              <div class="small-muted">2 joueurs par équipe</div>
+            </div>
+            <div id="americano-teams-list" class="ligue-section"></div>
+          </div>
+
+          <div class="americano-inline" style="margin-top:10px;">
+            <button class="btn" id="btn-americano-generate">Générer le planning</button>
+            <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
+          </div>
+        </div>
+
+        <div class="card app-block-interactive">
+          <div class="americano-inline" style="margin-bottom:6px;">
+            <h3 class="tournaments-title">Matchs & scores</h3>
+            <div class="americano-chip" id="americano-status">Planning à générer</div>
+          </div>
+          <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>
+          <div class="americano-rounds" id="americano-rounds"></div>
+          <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
+            <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>
+          </div>
+        </div>
+
+        <div class="card app-block-interactive">
+          <div class="americano-inline" style="margin-bottom:6px;">
+            <h3 class="tournaments-title">Classement</h3>
+            <div class="small-muted">Victoires, goal-average, confrontations directes</div>
+          </div>
+          <table class="ligue-standings" id="americano-standings"></table>
+        </div>
+
+        <div class="card app-block-interactive">
+          <div class="americano-inline" style="margin-bottom:6px;">
+            <h3 class="tournaments-title">Timer Américano</h3>
+            <div class="small-muted">Synchronisé avec la vue TV</div>
+          </div>
+          <div class="field">
+            <label for="americano-timer-minutes">Durée (minutes)</label>
+            <input type="number" id="americano-timer-minutes" min="1" value="12" />
+          </div>
+          <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+            <div class="chip" id="americano-timer-display">12:00</div>
+            <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
+            <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
+            <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
+          </div>
+          <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VUE TV AMERICANO -->
+    <section id="americano-tv-root" style="display:none;">
+      <header class="tv-header">
+        <div class="tv-header-left">
+          <img id="americano-tv-logo" alt="Logo club TV" />
+          <div class="tv-title-block">
+            <div id="americano-tv-name">Américano</div>
+            <div id="americano-tv-meta">Matchs en direct</div>
+          </div>
+        </div>
+        <div class="tv-header-right">
+          <div class="tv-tag-live">🔴 LIVE</div>
+          <div class="tv-tag-live" id="americano-tv-timer">00:00</div>
+          <button id="btn-americano-tv-back" class="btn btn-secondary btn-small">↩ Mode admin</button>
+        </div>
+      </header>
+
+      <div id="americano-tv-sponsor-banner" class="tv-sponsor">
+        <img id="americano-tv-sponsor-logo" alt="Sponsor" />
+        <div class="tv-sponsor-name" id="americano-tv-sponsor-name"></div>
+      </div>
+
+      <main class="tv-main">
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs en cours</span>
+              <span>Roulement <span id="americano-tv-round">1</span></span>
+            </div>
+            <div id="americano-tv-current" class="tv-current-list">
+              <div class="tv-empty">Génère le planning puis lance les scores.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs à venir</span>
+              <span>Prochain roulement</span>
+            </div>
+            <div id="americano-tv-next" class="tv-next-list">
+              <div class="tv-empty">Les prochains matchs apparaîtront ici.</div>
+            </div>
+          </div>
+
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Classement</span>
+              <span>Live</span>
+            </div>
+            <div id="americano-tv-standings" class="tv-ranking-grid"></div>
+          </div>
+        </section>
+      </main>
     </section>
 
     <!-- TOURNOI CLASSIQUE COMPLET -->
@@ -3983,8 +4156,10 @@
         backgroundImageDataUrl: null,
         tvSponsorMd: true,
         tvSponsorClassic: true,
+        tvSponsorAmericano: true,
         tvSponsorMdPos: null,
-        tvSponsorClassicPos: null
+        tvSponsorClassicPos: null,
+        tvSponsorAmericanoPos: null
       };
 
       var currentClubProfile = null;
@@ -4560,12 +4735,14 @@
         }
         renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
         renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
+        renderSponsorBanner({ banner: 'americano-tv-sponsor-banner', logo: 'americano-tv-sponsor-logo', name: 'americano-tv-sponsor-name', posKey: 'tvSponsorAmericanoPos' }, currentClubProfile, currentClubProfile.tvSponsorAmericano !== false);
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
 
       function initSponsorDragBlocks() {
         makeSponsorDraggable('tv-sponsor-banner', 'tvSponsorMdPos', 'tv-root');
         makeSponsorDraggable('classic-tv-sponsor-banner', 'tvSponsorClassicPos', 'tv-overlay');
+        makeSponsorDraggable('americano-tv-sponsor-banner', 'tvSponsorAmericanoPos', 'americano-tv-root');
       }
 
       function syncThemeForm() {
@@ -4749,8 +4926,10 @@
                 activeSponsorId: currentClubProfile.activeSponsorId,
                 tvSponsorMd: formInputs.sponsorMdToggle ? !!formInputs.sponsorMdToggle.checked : true,
                 tvSponsorClassic: formInputs.sponsorClassicToggle ? !!formInputs.sponsorClassicToggle.checked : true,
+                tvSponsorAmericano: currentClubProfile.tvSponsorAmericano !== false,
                 tvSponsorMdPos: currentClubProfile.tvSponsorMdPos,
-                tvSponsorClassicPos: currentClubProfile.tvSponsorClassicPos
+                tvSponsorClassicPos: currentClubProfile.tvSponsorClassicPos,
+                tvSponsorAmericanoPos: currentClubProfile.tvSponsorAmericanoPos
               });
             persistAndApply();
           });
@@ -4763,7 +4942,8 @@
               var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
               var preservedMdPos = currentClubProfile && currentClubProfile.tvSponsorMdPos;
               var preservedClassicPos = currentClubProfile && currentClubProfile.tvSponsorClassicPos;
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, sponsors: currentClubProfile ? currentClubProfile.sponsors : [], activeSponsorId: currentClubProfile ? currentClubProfile.activeSponsorId : null, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos });
+              var preservedAmericanoPos = currentClubProfile && currentClubProfile.tvSponsorAmericanoPos;
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, sponsors: currentClubProfile ? currentClubProfile.sponsors : [], activeSponsorId: currentClubProfile ? currentClubProfile.activeSponsorId : null, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos, tvSponsorAmericanoPos: preservedAmericanoPos, tvSponsorAmericano: currentClubProfile ? currentClubProfile.tvSponsorAmericano !== false : true });
               persistAndApply();
             });
           }
@@ -5140,6 +5320,7 @@
   </script>
   <!-- Fin logique timer M/D -->
 
+  <script src="mode-americano.js"></script>
   <script src="core.js"></script>
   <script src="mode_classic.js"></script>
   <script src="mode_md.js"></script>
