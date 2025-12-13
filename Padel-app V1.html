@@ -1260,9 +1260,11 @@
     .americano-card { border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.4); padding: 10px; min-width:0; box-shadow:0 12px 28px rgba(0,0,0,0.4); }
     .americano-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
     .americano-card-body { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .americano-card-body.americano-collapsed { display: none; }
     .americano-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
     .americano-section { margin-top: 10px; }
     .americano-rounds { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+    .americano-rounds-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
     .americano-round-card { border: 1px solid #1f2937; padding: 10px; border-radius: 14px; background: rgba(2,6,23,0.4); min-width:0; }
     .americano-match-row { display: grid; grid-template-columns: minmax(0,1fr) 50px minmax(0,1fr); align-items: center; gap: 6px; padding: 2px 0; }
     .americano-score-inputs { display: flex; gap: 6px; align-items: center; }
@@ -2820,6 +2822,11 @@
             </div>
             <div id="americano-matches-body" class="americano-card-body">
               <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>
+              <div class="americano-rounds-nav">
+                <button class="btn btn-secondary btn-small" id="americano-rounds-prev">⟵ Précédent</button>
+                <div class="small-muted" id="americano-rounds-indicator">Roulements 0–0</div>
+                <button class="btn btn-secondary btn-small" id="americano-rounds-next">Suivant ⟶</button>
+              </div>
               <div class="americano-rounds" id="americano-rounds"></div>
               <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
                 <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>

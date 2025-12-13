@@ -6,6 +6,9 @@
 
   var tvRoot = document.getElementById('americano-tv-root');
   var STORAGE_KEY = 'padel_americano_state_v1';
+  var COLLAPSE_KEY = 'padel_americano_collapse_v1';
+  var ROUNDS_PER_PAGE = 2;
+  var roundsPageIndex = 0;
   var MAX_COURTS = 4;
   var timerInterval = null;
 
@@ -18,6 +21,9 @@
     meta: root.querySelector('#americano-meta'),
     roundMeta: root.querySelector('#americano-round-meta'),
     rounds: root.querySelector('#americano-rounds'),
+    roundsPrev: root.querySelector('#americano-rounds-prev'),
+    roundsNext: root.querySelector('#americano-rounds-next'),
+    roundsIndicator: root.querySelector('#americano-rounds-indicator'),
     standings: root.querySelector('#americano-standings'),
     status: root.querySelector('#americano-status'),
     timerMinutes: root.querySelector('#americano-timer-minutes'),
@@ -66,7 +72,20 @@
     return base;
   }
 
+  function loadCollapseState() {
+    try {
+      var raw = localStorage.getItem(COLLAPSE_KEY);
+      if (raw) return JSON.parse(raw) || {};
+    } catch (e) { /* ignore */ }
+    return {};
+  }
+
+  function saveCollapseState() {
+    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapseState)); } catch (e) { /* noop */ }
+  }
+
   var state = loadState();
+  var collapseState = loadCollapseState();
 
   function saveState() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* noop */ }
@@ -279,6 +298,7 @@
     state.matches = matches;
     state.rounds = rounds;
     state.currentRound = 1;
+    roundsPageIndex = 0;
     updateMetaChips();
     saveState();
   }
@@ -404,14 +424,23 @@
     return size;
   }
 
+  // UI FIX : pagination roulements (2 visibles)
   function renderRounds() {
     if (!refs.rounds) return;
     refs.rounds.innerHTML = '';
-    if (!state.rounds.length) {
+    var total = state.rounds.length;
+    if (!total) {
       refs.rounds.innerHTML = '<div class="empty">Génère le planning pour voir les roulements.</div>';
+      updateRoundsNav(total);
       return;
     }
-    state.rounds.forEach(function(r) {
+    var totalPages = Math.max(1, Math.ceil(total / ROUNDS_PER_PAGE));
+    if (roundsPageIndex >= totalPages) roundsPageIndex = totalPages - 1;
+    if (roundsPageIndex < 0) roundsPageIndex = 0;
+    var start = roundsPageIndex * ROUNDS_PER_PAGE;
+    var visible = state.rounds.slice(start, start + ROUNDS_PER_PAGE);
+
+    visible.forEach(function(r) {
       var card = document.createElement('div');
       card.className = 'americano-round-card';
       var title = document.createElement('div');
@@ -468,6 +497,32 @@
 
       refs.rounds.appendChild(card);
     });
+    updateRoundsNav(total);
+  }
+
+  function updateRoundsNav(total) {
+    var totalPages = Math.max(1, Math.ceil((total || 0) / ROUNDS_PER_PAGE));
+    if (refs.roundsIndicator) {
+      if (!total) refs.roundsIndicator.textContent = 'Aucun roulement';
+      else {
+        var start = roundsPageIndex * ROUNDS_PER_PAGE + 1;
+        var end = Math.min(total, start + ROUNDS_PER_PAGE - 1);
+        refs.roundsIndicator.textContent = 'Roulements ' + start + '–' + end + ' / ' + total;
+      }
+    }
+    if (refs.roundsPrev) refs.roundsPrev.disabled = roundsPageIndex <= 0 || !total;
+    if (refs.roundsNext) refs.roundsNext.disabled = roundsPageIndex >= totalPages - 1 || !total;
+  }
+
+  function changeRoundsPage(delta) {
+    roundsPageIndex += delta;
+    if (roundsPageIndex < 0) roundsPageIndex = 0;
+    renderRounds();
+  }
+
+  function bindRoundsPager() {
+    if (refs.roundsPrev) refs.roundsPrev.addEventListener('click', function() { changeRoundsPage(-1); });
+    if (refs.roundsNext) refs.roundsNext.addEventListener('click', function() { changeRoundsPage(1); });
   }
 
   function renderTvList(target, matches, isCurrent) {
@@ -496,6 +551,19 @@
     });
   }
 
+  function getCurrentRoundIndex() {
+    if (!state.rounds.length) return -1;
+    for (var i = 0; i < state.rounds.length; i++) {
+      var r = state.rounds[i];
+      var hasOpen = r.matches.some(function(id) {
+        var m = state.matches.find(function(x) { return x.id === id; });
+        return m && m.status !== 'done';
+      });
+      if (hasOpen) return i;
+    }
+    return state.rounds.length - 1;
+  }
+
   function renderTvStandings() {
     if (!tvRefs.standings) return;
     tvRefs.standings.innerHTML = '';
@@ -517,14 +585,12 @@
     if (tvRefs.round) tvRefs.round.textContent = state.currentRound || 1;
     if (tvRefs.timer) tvRefs.timer.textContent = formatTimer();
 
-    var current = state.rounds.find(function(r) {
-      return r.matches.some(function(id) { var m = state.matches.find(function(x) { return x.id === id; }); return m && m.status !== 'done'; });
-    }) || state.rounds[0];
+    var currentIdx = getCurrentRoundIndex();
+    var current = currentIdx >= 0 ? state.rounds[currentIdx] : null;
     var currentRoundNumber = current ? current.round : (state.rounds[0] ? state.rounds[0].round : 1);
     state.currentRound = currentRoundNumber;
     if (tvRefs.round) tvRefs.round.textContent = currentRoundNumber;
-    var nextIdx = current ? state.rounds.indexOf(current) + 1 : -1;
-    var next = nextIdx >= 0 ? state.rounds[nextIdx] : null;
+    var next = currentIdx >= 0 && currentIdx + 1 < state.rounds.length ? state.rounds[currentIdx + 1] : null;
 
     var currentMatches = current ? current.matches.map(function(id) { return state.matches.find(function(x) { return x.id === id; }); }).filter(Boolean) : [];
     var nextMatches = next ? next.matches.map(function(id) { return state.matches.find(function(x) { return x.id === id; }); }).filter(Boolean) : [];
@@ -664,19 +730,26 @@
   function setName(val) { state.name = val || 'Américano'; saveState(); renderTv(); }
 
   // UI ONLY : collapse/expand des blocs Américano
+  // UI FIX : boutons réduire (collapse) Américano
   function toggleAmericanoCard(targetId, btn) {
     var body = document.getElementById(targetId);
     if (!body) return;
-    var hidden = body.style.display === 'none';
-    body.style.display = hidden ? 'flex' : 'none';
-    if (btn) btn.textContent = hidden ? '−' : '+';
+    var collapsed = body.classList.toggle('americano-collapsed');
+    if (btn) btn.textContent = collapsed ? '+' : '−';
+    collapseState[targetId] = collapsed;
+    saveCollapseState();
   }
 
   function bindAmericanoCollapse() {
     var buttons = root ? root.querySelectorAll('.americano-collapse') : [];
     buttons.forEach(function(btn) {
+      var targetId = btn.getAttribute('data-target');
+      var body = document.getElementById(targetId);
+      if (body && collapseState[targetId]) {
+        body.classList.add('americano-collapsed');
+        btn.textContent = '+';
+      }
       btn.addEventListener('click', function() {
-        var targetId = btn.getAttribute('data-target');
         toggleAmericanoCard(targetId, btn);
       });
     });
@@ -715,7 +788,7 @@
     if (btnGenerate) btnGenerate.addEventListener('click', function() { buildMatches(); renderAll(); });
 
     var btnReset = document.getElementById('btn-americano-reset');
-    if (btnReset) btnReset.addEventListener('click', function() { state = defaultState(); saveState(); renderAll(); });
+    if (btnReset) btnReset.addEventListener('click', function() { roundsPageIndex = 0; state = defaultState(); saveState(); renderAll(); });
 
     var btnRandTeams = document.getElementById('btn-americano-random-teams');
     if (btnRandTeams) btnRandTeams.addEventListener('click', generateRandomTeams);
@@ -741,6 +814,7 @@
     renderTeamsList();
     renderAll();
     bindEvents();
+    bindRoundsPager();
     bindAmericanoCollapse();
     if (window.showAmericano && typeof window.showAmericano === 'function' && root && root.style.display !== 'none') {
       window.showAmericano();
