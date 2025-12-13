@@ -25,7 +25,6 @@
     roundsNext: root.querySelector('#americano-rounds-next'),
     roundsIndicator: root.querySelector('#americano-rounds-indicator'),
     standings: root.querySelector('#americano-standings'),
-    podium: root.querySelector('#americano-podium'),
     status: root.querySelector('#americano-status'),
     timerMinutes: root.querySelector('#americano-timer-minutes'),
     timerDisplay: root.querySelector('#americano-timer-display'),
@@ -39,6 +38,7 @@
     current: tvRoot.querySelector('#americano-tv-current'),
     next: tvRoot.querySelector('#americano-tv-next'),
     standings: tvRoot.querySelector('#americano-tv-standings'),
+    podium: tvRoot.querySelector('#americano-tv-podium'),
     timer: tvRoot.querySelector('#americano-tv-timer'),
     logo: tvRoot.querySelector('#americano-tv-logo'),
     banner: tvRoot.querySelector('#americano-tv-sponsor-banner'),
@@ -415,27 +415,6 @@
     });
   }
 
-  // UI : Podium actuel (top 3) à côté du classement
-  function renderPodium() {
-    if (!refs.podium) return;
-    refs.podium.innerHTML = '';
-    if (!state.standings || !state.standings.length) {
-      refs.podium.innerHTML = '<div class="small-muted">En attente de résultats.</div>';
-      return;
-    }
-    var top = state.standings.slice(0, 3);
-    top.forEach(function(line, idx) {
-      var row = document.createElement('div');
-      row.className = 'americano-podium-row';
-      var emoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
-      var em = document.createElement('div'); em.className = 'americano-podium-emoji'; em.textContent = emoji;
-      var name = document.createElement('div'); name.className = 'americano-podium-name'; name.textContent = line.name;
-      var ga = document.createElement('div'); ga.className = 'americano-podium-ga'; ga.textContent = line.diff >= 0 ? '+ ' + line.diff : line.diff;
-      row.appendChild(em); row.appendChild(name); row.appendChild(ga);
-      refs.podium.appendChild(row);
-    });
-  }
-
   function fitText(ctx, text, maxWidth, baseSize, minSize) {
     var size = baseSize;
     while (size > minSize) {
@@ -603,6 +582,27 @@
     });
   }
 
+  // TV UI : podium (top 3) uniquement en vue TV
+  function renderTvPodium() {
+    if (!tvRefs.podium) return;
+    tvRefs.podium.innerHTML = '';
+    if (!state.standings || !state.standings.length) {
+      tvRefs.podium.innerHTML = '<div class="tv-empty">Podium en attente.</div>';
+      return;
+    }
+    var podium = state.standings.slice(0, 3);
+    var emojis = ['🥇', '🥈', '🥉'];
+    podium.forEach(function(line, idx) {
+      var row = document.createElement('div');
+      row.className = 'tv-podium-row';
+      var em = document.createElement('span'); em.className = 'tv-podium-emoji'; em.textContent = emojis[idx] || '•';
+      var name = document.createElement('span'); name.className = 'tv-podium-name'; name.textContent = line.name;
+      row.appendChild(em);
+      row.appendChild(name);
+      tvRefs.podium.appendChild(row);
+    });
+  }
+
   function renderTv() {
     if (tvRefs.name) tvRefs.name.textContent = state.name || 'Américano';
     if (tvRefs.meta) tvRefs.meta.textContent = state.teamCount + ' équipes • ' + (state.rounds.length || 0) + ' roulements';
@@ -620,6 +620,7 @@
     var nextMatches = next ? next.matches.map(function(id) { return state.matches.find(function(x) { return x.id === id; }); }).filter(Boolean) : [];
     renderTvList(tvRefs.current, currentMatches, true);
     renderTvList(tvRefs.next, nextMatches, false);
+    renderTvPodium();
     renderTvStandings();
     applySponsorToTv();
     applyLogoToTv();
@@ -819,7 +820,6 @@
     renderTeamsList();
     renderRounds();
     renderStandings();
-    renderPodium();
     updateTimerFromState();
     renderTv();
     if (refs.name) refs.name.value = state.name || '';

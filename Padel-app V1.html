@@ -1106,6 +1106,29 @@
       gap: 4px;
       margin-top: 6px;
     }
+    .tv-podium {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .tv-podium-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: linear-gradient(120deg, rgba(15,23,42,0.9), rgba(15,23,42,0.95));
+      border: 1px solid rgba(51,65,85,0.9);
+      font-size: 0.9rem;
+    }
+    .tv-podium-emoji { font-size: 20px; }
+    .tv-podium-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     @media (max-width: 700px) {
       .tv-ranking-grid { grid-template-columns: minmax(0,1fr); }
     }
@@ -2819,19 +2842,6 @@
             </div>
           </div>
 
-          <!-- UI : Podium actuel (top 3) à côté du classement -->
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title">Podium actuel</h3>
-                <div class="small-muted">Top 3 basé sur le classement live</div>
-              </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-podium-body">−</button>
-            </div>
-            <div id="americano-podium-body" class="americano-card-body">
-              <div id="americano-podium" class="americano-podium"></div>
-            </div>
-          </div>
         </div>
 
         <div class="americano-bottom-row">
@@ -2911,6 +2921,8 @@
               <span>Classement</span>
               <span>Live</span>
             </div>
+            <!-- TV UI : podium (top 3) uniquement en vue TV -->
+            <div id="americano-tv-podium" class="tv-podium"></div>
             <div id="americano-tv-standings" class="tv-ranking-grid"></div>
           </div>
         </section>
