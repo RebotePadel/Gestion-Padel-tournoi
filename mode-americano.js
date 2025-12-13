@@ -388,23 +388,21 @@
         row.setAttribute('data-match-id', m.id);
 
         var teamA = document.createElement('div');
+        teamA.className = 'americano-team left';
         teamA.textContent = teamName(m.teamA);
-        teamA.style.textAlign = 'left';
         var vs = document.createElement('div');
+        vs.className = 'americano-vs';
         vs.textContent = 'vs';
-        vs.style.textAlign = 'center';
         var teamB = document.createElement('div');
+        teamB.className = 'americano-team right';
         teamB.textContent = teamName(m.teamB);
-        teamB.style.textAlign = 'right';
 
         var scoreWrap = document.createElement('div');
-        scoreWrap.className = 'americano-score-inputs';
-        scoreWrap.style.gridColumn = '1 / span 3';
-        scoreWrap.style.justifyContent = 'space-between';
+        scoreWrap.className = 'americano-score-row';
         var left = document.createElement('div'); left.style.flex = '1'; left.style.textAlign = 'left'; left.textContent = 'Terrain ' + m.court;
 
         var inputs = document.createElement('div');
-        inputs.style.display = 'flex'; inputs.style.gap = '6px'; inputs.style.alignItems = 'center';
+        inputs.className = 'americano-score-inputs';
         var inA = document.createElement('input'); inA.type = 'number'; inA.min = 0; inA.value = m.scoreA !== null ? m.scoreA : '';
         inA.setAttribute('data-score-a', m.id);
         var inB = document.createElement('input'); inB.type = 'number'; inB.min = 0; inB.value = m.scoreB !== null ? m.scoreB : '';
@@ -626,6 +624,25 @@
 
   function setName(val) { state.name = val || 'Américano'; saveState(); renderTv(); }
 
+  // UI ONLY : collapse/expand des blocs Américano
+  function toggleAmericanoCard(targetId, btn) {
+    var body = document.getElementById(targetId);
+    if (!body) return;
+    var hidden = body.style.display === 'none';
+    body.style.display = hidden ? 'flex' : 'none';
+    if (btn) btn.textContent = hidden ? '−' : '+';
+  }
+
+  function bindAmericanoCollapse() {
+    var buttons = root ? root.querySelectorAll('.americano-collapse') : [];
+    buttons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var targetId = btn.getAttribute('data-target');
+        toggleAmericanoCard(targetId, btn);
+      });
+    });
+  }
+
   function handleScoreClick(e) {
     var target = e.target;
     var matchId = target.getAttribute('data-validate');
@@ -681,6 +698,7 @@
     renderTeamsList();
     renderAll();
     bindEvents();
+    bindAmericanoCollapse();
     if (window.showAmericano && typeof window.showAmericano === 'function' && root && root.style.display !== 'none') {
       window.showAmericano();
     }
