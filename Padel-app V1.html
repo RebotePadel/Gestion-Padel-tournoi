@@ -646,6 +646,11 @@
     .ligue-match-card { border: 1px solid #111827; border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); }
     .ligue-match-validated { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.55); }
     .ligue-match-winner-card { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.55); }
+    /* PATCH: alignement "vs" au centre (grille 3 colonnes) */
+    .ligue-match-vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+    .ligue-match-vs-grid .vs-center { text-align: center; color: var(--muted); }
+    .ligue-match-vs-grid .team-left { text-align: left; }
+    .ligue-match-vs-grid .team-right { text-align: right; }
     .ligue-badge { padding: 4px 8px; border-radius: 999px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.12); }
     .ligue-badge-valid { background: rgba(16,185,129,0.15); color: #ecfdf3; border-color: rgba(16,185,129,0.45); }
     .winner-tag {

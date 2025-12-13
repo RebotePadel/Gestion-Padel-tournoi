@@ -827,7 +827,7 @@
       row.className = 'ligue-match-row';
       var date = document.createElement('div');
       date.className = 'ligue-match-title';
-      date.textContent = (m.date || 'Date à définir') + ' • Journée ' + m.round;
+      date.textContent = formatMatchDateTime(m) + ' • Journée ' + m.round;
       var vs = document.createElement('div');
       vs.className = 'ligue-inline';
       vs.style.justifyContent = 'space-between';
@@ -894,6 +894,13 @@
   function teamById(league, id) {
     if (!league || !league.teams) return null;
     return league.teams.find(function(t) { return t.id === id; }) || null;
+  }
+
+  // PATCH : format date + heure de match
+  function formatMatchDateTime(match) {
+    var base = match && match.date ? match.date : 'Date à définir';
+    if (match && match.matchTime) return base + ' • ' + match.matchTime;
+    return base;
   }
 
   function ensureMatchSets(match) {
@@ -1041,11 +1048,21 @@
       var title = document.createElement('div');
       title.className = 'ligue-inline';
       title.style.justifyContent = 'space-between';
-      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var vs = document.createElement('div');
-      vs.className = 'ligue-inline';
-      vs.style.justifyContent = 'space-between';
-      vs.innerHTML = '<span>🎾 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
+      vs.className = 'ligue-match-vs-grid';
+      var home = document.createElement('div');
+      home.className = 'team-left';
+      home.textContent = '🎾 ' + teamName(league, m.home);
+      var center = document.createElement('div');
+      center.className = 'vs-center';
+      center.textContent = 'vs';
+      var away = document.createElement('div');
+      away.className = 'team-right';
+      away.textContent = teamName(league, m.away);
+      vs.appendChild(home);
+      vs.appendChild(center);
+      vs.appendChild(away);
       var status = document.createElement('div');
       status.className = 'small-muted';
       status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
@@ -1056,7 +1073,10 @@
       dateRow.style.marginTop = '6px';
       var dateLabel = document.createElement('span');
       dateLabel.className = 'small-muted';
-      dateLabel.textContent = '🗓️ Date du match';
+      dateLabel.textContent = '🗓️ Date et heure du match';
+      var dateTimeWrap = document.createElement('div');
+      dateTimeWrap.className = 'ligue-inline';
+      dateTimeWrap.style.gap = '8px';
       var dateInput = document.createElement('input');
       dateInput.type = 'date';
       dateInput.value = m.date || '';
@@ -1068,8 +1088,21 @@
         renderManageCalendar(league);
         renderPlayerManageCalendar(league);
       });
+      var timeInput = document.createElement('input');
+      timeInput.type = 'time';
+      timeInput.value = m.matchTime || '';
+      timeInput.className = 'btn-small';
+      timeInput.style.borderRadius = '10px';
+      timeInput.addEventListener('change', function() {
+        m.matchTime = timeInput.value || '';
+        saveState();
+        renderManageCalendar(league);
+        renderPlayerManageCalendar(league);
+      });
+      dateTimeWrap.appendChild(dateInput);
+      dateTimeWrap.appendChild(timeInput);
       dateRow.appendChild(dateLabel);
-      dateRow.appendChild(dateInput);
+      dateRow.appendChild(dateTimeWrap);
       card.appendChild(title);
       card.appendChild(vs);
       card.appendChild(status);
@@ -1094,11 +1127,21 @@
       var title = document.createElement('div');
       title.className = 'ligue-inline';
       title.style.justifyContent = 'space-between';
-      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var vs = document.createElement('div');
-      vs.className = 'ligue-inline';
-      vs.style.justifyContent = 'space-between';
-      vs.innerHTML = '<span>🎾 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
+      vs.className = 'ligue-match-vs-grid';
+      var home = document.createElement('div');
+      home.className = 'team-left';
+      home.textContent = '🎾 ' + teamName(league, m.home);
+      var center = document.createElement('div');
+      center.className = 'vs-center';
+      center.textContent = 'vs';
+      var away = document.createElement('div');
+      away.className = 'team-right';
+      away.textContent = teamName(league, m.away);
+      vs.appendChild(home);
+      vs.appendChild(center);
+      vs.appendChild(away);
       var status = document.createElement('div');
       status.className = 'small-muted';
       status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
@@ -1554,12 +1597,24 @@
       var head = document.createElement('div');
       head.className = 'ligue-inline';
       head.style.justifyContent = 'space-between';
-      head.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      head.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var body = document.createElement('div');
       body.className = 'ligue-inline';
       body.style.justifyContent = 'space-between';
       var vs = document.createElement('div');
-      vs.textContent = '🎾 ' + teamName(league, m.home) + ' vs ' + teamName(league, m.away);
+      vs.className = 'ligue-match-vs-grid';
+      var home = document.createElement('div');
+      home.className = 'team-left';
+      home.textContent = '🎾 ' + teamName(league, m.home);
+      var center = document.createElement('div');
+      center.className = 'vs-center';
+      center.textContent = 'vs';
+      var away = document.createElement('div');
+      away.className = 'team-right';
+      away.textContent = teamName(league, m.away);
+      vs.appendChild(home);
+      vs.appendChild(center);
+      vs.appendChild(away);
       var status = document.createElement('div');
       status.className = 'small-muted';
       status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
@@ -1614,7 +1669,7 @@
       var head = document.createElement('div');
       head.className = 'ligue-inline';
       head.style.justifyContent = 'space-between';
-      head.innerHTML = '<span>🎾 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      head.innerHTML = '<span>🎾 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var body = document.createElement('div');
       body.className = 'ligue-inline ligue-result-row';
       body.style.justifyContent = 'space-between';
