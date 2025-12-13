@@ -3346,19 +3346,26 @@
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">📅 Prochains matchs</h4>
             <div class="ligue-inline" style="gap:8px; align-items:center;">
-              <button class="btn btn-secondary btn-small" id="btn-ligue-export-matches">Exporter la liste des matchs</button>
               <div class="ligue-badge-accent" id="ligue-calendar-note">Planification complète</div>
             </div>
           </div>
           <div class="card ligue-section app-block-interactive" style="margin:10px 0;">
             <div class="ligue-inline" style="justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
               <div>
-                <h5 class="tournaments-title" style="margin-bottom:4px;">Résumé réseaux par journée</h5>
-                <div class="small-muted">Choisis la journée à exporter au format carré 1080×1080.</div>
+                <h5 class="tournaments-title" style="margin-bottom:4px;">Exporter la liste des matchs</h5>
+                <div class="small-muted">Choisis le périmètre et lance l’export sans pop-up.</div>
               </div>
-              <div class="ligue-inline" style="gap:8px; align-items:center;">
-                <select id="ligue-day-export-select" class="btn-small" style="min-width:140px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;"></select>
-                <button class="btn btn-secondary btn-small" id="btn-ligue-day-export">Exporter la journée</button>
+              <div class="ligue-inline" style="gap:8px; align-items:center; flex-wrap:wrap;">
+                <select id="ligue-export-matches-mode" class="btn-small" style="min-width:170px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;">
+                  <option value="all">Tous les matchs (saison complète)</option>
+                  <option value="day">Matchs par journée</option>
+                </select>
+                <select id="ligue-export-matches-day" class="btn-small" style="min-width:140px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b; display:none;"></select>
+                <select id="ligue-export-matches-format" class="btn-small" style="min-width:130px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;">
+                  <option value="image">Image (PNG)</option>
+                  <option value="pdf">PDF</option>
+                </select>
+                <button class="btn btn-secondary btn-small" id="btn-ligue-export-matches">Exporter</button>
               </div>
             </div>
           </div>
@@ -3377,6 +3384,18 @@
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">🎾 Résultats</h4>
             <div class="small-muted">Saisie des scores (2 sets gagnants)</div>
+          </div>
+          <div class="card ligue-section app-block-interactive" style="margin:10px 0;">
+            <div class="ligue-inline" style="justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h5 class="tournaments-title" style="margin-bottom:4px;">Exporter les résultats par journée</h5>
+                <div class="small-muted">Sélectionne la journée puis génère l’image de résultats.</div>
+              </div>
+              <div class="ligue-inline" style="gap:8px; align-items:center;">
+                <select id="ligue-day-export-select" class="btn-small" style="min-width:140px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;"></select>
+                <button class="btn btn-secondary btn-small" id="btn-ligue-day-export">Exporter la journée</button>
+              </div>
+            </div>
           </div>
           <div id="ligue-manage-results" class="ligue-section"></div>
         </div>
