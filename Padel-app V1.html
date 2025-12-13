@@ -1254,8 +1254,8 @@
 
     /* AMERICANO */
     .americano-layout { display: flex; flex-direction: column; gap: 12px; }
-    .americano-top-row { display: grid; gap: 12px; grid-template-columns: repeat(3, minmax(280px, 1fr)); align-items: start; }
-    @media(max-width:1100px){ .americano-top-row{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); } }
+    .americano-top-row { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(260px, 1fr)); align-items: start; }
+    @media(max-width:1100px){ .americano-top-row{ grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
     .americano-bottom-row { display: flex; flex-direction: column; gap: 12px; }
     .americano-card { border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.4); padding: 10px; min-width:0; box-shadow:0 12px 28px rgba(0,0,0,0.4); }
     .americano-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
@@ -1275,11 +1275,20 @@
     .americano-vs { text-align: center; color: var(--muted); font-weight: 700; }
     .americano-score-row { grid-column: 1 / span 3; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .collapse-toggle.americano-collapse { margin-left: 8px; }
+    /* UI : style bouton réduire (– jaune, sans fond) */
+    .americano-collapse-btn { background: transparent !important; border: none !important; padding: 0 !important; line-height: 1; color: var(--brand-accent, #e5e339); font-weight: 800; font-size: 22px; cursor: pointer; }
+    .americano-collapse-btn:hover { opacity: 0.85; }
     .americano-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
     .americano-team-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; min-width:0; }
     .americano-team-cell { min-width:0; display:flex; flex-direction:column; gap:4px; }
     .americano-team-cell label { font-size:0.85rem; color: var(--muted); }
     .americano-team-row input { width:100%; min-width:0; }
+    /* UI : Podium actuel (top 3) à côté du classement */
+    .americano-podium { display: flex; flex-direction: column; gap: 6px; }
+    .americano-podium-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid rgba(30,41,59,0.8); border-radius: 10px; background: rgba(15,23,42,0.35); }
+    .americano-podium-emoji { font-size: 20px; }
+    .americano-podium-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .americano-podium-ga { color: var(--muted); font-size: 0.85rem; }
   </style>
 
   <!-- Styles du moteur tournoi classique -->
@@ -2733,7 +2742,7 @@
                 <h3 class="tournaments-title" style="margin-bottom:6px;">Organisation & timer</h3>
                 <div class="small-muted">Paramètres, génération et timer synchronisé</div>
               </div>
-              <button class="collapse-toggle americano-collapse" data-target="americano-config-body">−</button>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-config-body">−</button>
             </div>
             <div id="americano-config-body" class="americano-card-body">
               <div class="field">
@@ -2779,7 +2788,7 @@
                 <h3 class="tournaments-title" style="margin-bottom:6px;">Création des équipes</h3>
                 <div class="small-muted">2 joueurs par équipe • saisie directe</div>
               </div>
-              <button class="collapse-toggle americano-collapse" data-target="americano-teams-body">−</button>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-teams-body">−</button>
             </div>
             <div id="americano-teams-body" class="americano-card-body">
               <div class="americano-inline" style="justify-content:flex-start;">
@@ -2803,10 +2812,24 @@
                 <h3 class="tournaments-title">Classement</h3>
                 <div class="small-muted">Victoires, goal-average, confrontations directes</div>
               </div>
-              <button class="collapse-toggle americano-collapse" data-target="americano-standings-body">−</button>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-standings-body">−</button>
             </div>
             <div id="americano-standings-body" class="americano-card-body">
               <table class="ligue-standings" id="americano-standings"></table>
+            </div>
+          </div>
+
+          <!-- UI : Podium actuel (top 3) à côté du classement -->
+          <div class="card app-block-interactive americano-card">
+            <div class="americano-card-header">
+              <div>
+                <h3 class="tournaments-title">Podium actuel</h3>
+                <div class="small-muted">Top 3 basé sur le classement live</div>
+              </div>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-podium-body">−</button>
+            </div>
+            <div id="americano-podium-body" class="americano-card-body">
+              <div id="americano-podium" class="americano-podium"></div>
             </div>
           </div>
         </div>
@@ -2818,7 +2841,7 @@
                 <h3 class="tournaments-title">Matchs & scores</h3>
                 <div class="americano-chip" id="americano-status">Planning à générer</div>
               </div>
-              <button class="collapse-toggle americano-collapse" data-target="americano-matches-body">−</button>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-matches-body">−</button>
             </div>
             <div id="americano-matches-body" class="americano-card-body">
               <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>

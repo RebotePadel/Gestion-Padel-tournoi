@@ -25,6 +25,7 @@
     roundsNext: root.querySelector('#americano-rounds-next'),
     roundsIndicator: root.querySelector('#americano-rounds-indicator'),
     standings: root.querySelector('#americano-standings'),
+    podium: root.querySelector('#americano-podium'),
     status: root.querySelector('#americano-status'),
     timerMinutes: root.querySelector('#americano-timer-minutes'),
     timerDisplay: root.querySelector('#americano-timer-display'),
@@ -414,6 +415,27 @@
     });
   }
 
+  // UI : Podium actuel (top 3) à côté du classement
+  function renderPodium() {
+    if (!refs.podium) return;
+    refs.podium.innerHTML = '';
+    if (!state.standings || !state.standings.length) {
+      refs.podium.innerHTML = '<div class="small-muted">En attente de résultats.</div>';
+      return;
+    }
+    var top = state.standings.slice(0, 3);
+    top.forEach(function(line, idx) {
+      var row = document.createElement('div');
+      row.className = 'americano-podium-row';
+      var emoji = idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉';
+      var em = document.createElement('div'); em.className = 'americano-podium-emoji'; em.textContent = emoji;
+      var name = document.createElement('div'); name.className = 'americano-podium-name'; name.textContent = line.name;
+      var ga = document.createElement('div'); ga.className = 'americano-podium-ga'; ga.textContent = line.diff >= 0 ? '+ ' + line.diff : line.diff;
+      row.appendChild(em); row.appendChild(name); row.appendChild(ga);
+      refs.podium.appendChild(row);
+    });
+  }
+
   function fitText(ctx, text, maxWidth, baseSize, minSize) {
     var size = baseSize;
     while (size > minSize) {
@@ -571,10 +593,12 @@
       tvRefs.standings.innerHTML = '<div class="tv-empty">Classement en attente.</div>';
       return;
     }
-    state.standings.forEach(function(line, idx) {
+    // TV : classement simplifié (rang + nom uniquement)
+    var lines = state.standings.slice(0, 12);
+    lines.forEach(function(line, idx) {
       var row = document.createElement('div');
-      row.className = 'tv-ranking-row';
-      row.innerHTML = '<span>#' + (idx + 1) + '</span><span>' + line.name + '</span><span>' + line.wins + 'V / ' + line.losses + 'D</span><span>GA ' + line.diff + '</span>';
+      row.className = 'tv-ranking-item';
+      row.innerHTML = '<span class="tv-ranking-pos">#' + (idx + 1) + '</span><span class="tv-ranking-name">' + line.name + '</span>';
       tvRefs.standings.appendChild(row);
     });
   }
@@ -795,6 +819,7 @@
     renderTeamsList();
     renderRounds();
     renderStandings();
+    renderPodium();
     updateTimerFromState();
     renderTv();
     if (refs.name) refs.name.value = state.name || '';
