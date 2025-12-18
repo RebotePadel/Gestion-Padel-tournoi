@@ -340,7 +340,11 @@
   bind('btn-open-settings', showSettings);
   bind('btn-settings-home', showHome);
 
-  bind('btn-ligue-player-view', showLiguePlayer);
+  // Binding pour les boutons avec classe (plusieurs boutons "Vue joueur")
+  var liguePlayerBtns = document.querySelectorAll('.btn-ligue-player-view');
+  liguePlayerBtns.forEach(function(btn) {
+    btn.addEventListener('click', showLiguePlayer);
+  });
 
   bind('btn-back-home-from-md', showHome);
   bind('btn-go-tv', showTV);
