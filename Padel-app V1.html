@@ -1322,6 +1322,12 @@
     .americano-podium-emoji { font-size: 20px; }
     .americano-podium-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .americano-podium-ga { color: var(--muted); font-size: 0.85rem; }
+    .americano-history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+    .americano-history-item { display: flex; gap: 10px; justify-content: space-between; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid #1f2937; background: rgba(2,6,23,0.55); }
+    .americano-history-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .americano-history-name { font-weight: 700; color: #e5e7eb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .americano-history-date { font-size: 0.8rem; color: var(--muted); }
+    .americano-history-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
   </style>
 
   <!-- Styles du moteur tournoi classique -->
@@ -2772,6 +2778,7 @@
         <button class="americano-tab-btn" data-americano-tab="teams">Équipes</button>
         <button class="americano-tab-btn" data-americano-tab="standings">Classement</button>
         <button class="americano-tab-btn" data-americano-tab="matches">Matchs & Scores</button>
+        <button class="americano-tab-btn" data-americano-tab="history">Historique</button>
       </nav>
 
       <section id="americano-tab-organization" class="americano-tab-panel active" data-americano-tab-panel="organization">
@@ -2882,6 +2889,30 @@
             <div class="americano-rounds" id="americano-rounds"></div>
             <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
               <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="americano-tab-history" class="americano-tab-panel" data-americano-tab-panel="history">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Historique</h3>
+              <div class="small-muted">Sauvegarde et rechargement d’Américanos (local)</div>
+            </div>
+          </div>
+          <div class="americano-card-body">
+            <div class="field">
+              <label for="americano-history-name">Nom de la sauvegarde</label>
+              <input type="text" id="americano-history-name" placeholder="Américano + date/heure" />
+            </div>
+            <div class="americano-inline" style="justify-content:flex-start;">
+              <button class="btn" id="btn-americano-history-save">Sauvegarder cet Américano</button>
+            </div>
+            <div class="americano-section">
+              <h4 class="tournaments-title" style="margin-bottom:6px;">Sauvegardes</h4>
+              <div id="americano-history-list" class="americano-history-list"></div>
             </div>
           </div>
         </div>

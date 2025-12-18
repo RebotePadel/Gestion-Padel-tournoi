@@ -8,6 +8,7 @@
   var STORAGE_KEY = 'padel_americano_state_v1';
   var COLLAPSE_KEY = 'padel_americano_collapse_v1';
   var TAB_STORAGE_KEY = 'padel_americano_ui_tab_v1';
+  var HISTORY_KEY = 'padel_americano_history_v1';
   var ROUNDS_PER_PAGE = 2;
   var roundsPageIndex = 0;
   var MAX_COURTS = 4;
@@ -29,7 +30,10 @@
     status: root.querySelector('#americano-status'),
     timerMinutes: root.querySelector('#americano-timer-minutes'),
     timerDisplay: root.querySelector('#americano-timer-display'),
-    timerStatus: root.querySelector('#americano-timer-status')
+    timerStatus: root.querySelector('#americano-timer-status'),
+    historyName: root.querySelector('#americano-history-name'),
+    historyList: root.querySelector('#americano-history-list'),
+    historySave: root.querySelector('#btn-americano-history-save')
   };
 
   var tvRefs = tvRoot ? {
@@ -82,6 +86,18 @@
     return {};
   }
 
+  function loadAmericanoHistory() {
+    try {
+      var raw = localStorage.getItem(HISTORY_KEY);
+      if (raw) return JSON.parse(raw) || [];
+    } catch (e) { /* ignore */ }
+    return [];
+  }
+
+  function saveAmericanoHistory(list) {
+    try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list || [])); } catch (e) { /* noop */ }
+  }
+
   function loadAmericanoTab() {
     try {
       var tab = localStorage.getItem(TAB_STORAGE_KEY);
@@ -101,6 +117,7 @@
   var state = loadState();
   var collapseState = loadCollapseState();
   var activeTab = loadAmericanoTab();
+  var historyEntries = loadAmericanoHistory();
 
   function saveState() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* noop */ }
@@ -160,6 +177,89 @@
     activeTab = tab || 'organization';
     saveAmericanoTab(activeTab);
     renderAmericanoTabs();
+  }
+
+  function formatHistoryDate(ts) {
+    try {
+      return new Date(ts).toLocaleString();
+    } catch (e) { return ''; }
+  }
+
+  function addAmericanoToHistory(name) {
+    var entryName = (name && name.trim()) || ('Américano ' + new Date().toLocaleString());
+    var snapshot = JSON.parse(JSON.stringify(state));
+    var entry = { id: 'h_' + Date.now(), name: entryName, savedAt: Date.now(), snapshot: snapshot };
+    historyEntries.unshift(entry);
+    saveAmericanoHistory(historyEntries);
+    renderAmericanoHistory();
+    if (refs.historyName) refs.historyName.value = '';
+  }
+
+  function loadAmericanoFromHistory(id) {
+    var entry = historyEntries.find(function(item) { return item.id === id; });
+    if (!entry || !entry.snapshot) return;
+    state = JSON.parse(JSON.stringify(entry.snapshot));
+    ensureTeams(state.teamCount);
+    if (!state.timer) state.timer = { duration: 720, remaining: 720, running: false, lastTick: null };
+    state.currentRound = state.currentRound || 1;
+    if (state.timer.running) {
+      state.timer.lastTick = Date.now();
+      if (!timerInterval) timerInterval = setInterval(tickTimer, 1000);
+    }
+    saveState();
+    renderAll();
+    renderTv();
+    setAmericanoTab('history');
+  }
+
+  function deleteAmericanoFromHistory(id) {
+    var entry = historyEntries.find(function(item) { return item.id === id; });
+    var label = entry ? entry.name : 'cette sauvegarde';
+    if (!window.confirm('Confirmer la suppression de ' + label + ' ?')) return;
+    historyEntries = historyEntries.filter(function(item) { return item.id !== id; });
+    saveAmericanoHistory(historyEntries);
+    renderAmericanoHistory();
+  }
+
+  function renderAmericanoHistory() {
+    if (!refs.historyList) return;
+    refs.historyList.innerHTML = '';
+    if (!historyEntries.length) {
+      refs.historyList.innerHTML = '<div class="small-muted">Aucune sauvegarde pour le moment.</div>';
+      return;
+    }
+    historyEntries.forEach(function(entry) {
+      var row = document.createElement('div');
+      row.className = 'americano-history-item';
+
+      var meta = document.createElement('div');
+      meta.className = 'americano-history-meta';
+      var name = document.createElement('div');
+      name.className = 'americano-history-name';
+      name.textContent = entry.name;
+      var date = document.createElement('div');
+      date.className = 'americano-history-date';
+      date.textContent = formatHistoryDate(entry.savedAt);
+      meta.appendChild(name);
+      meta.appendChild(date);
+
+      var actions = document.createElement('div');
+      actions.className = 'americano-history-actions';
+      var btnLoad = document.createElement('button');
+      btnLoad.className = 'btn btn-small';
+      btnLoad.textContent = 'Charger';
+      btnLoad.setAttribute('data-history-load', entry.id);
+      var btnDelete = document.createElement('button');
+      btnDelete.className = 'btn btn-secondary btn-small';
+      btnDelete.textContent = 'Supprimer';
+      btnDelete.setAttribute('data-history-delete', entry.id);
+      actions.appendChild(btnLoad);
+      actions.appendChild(btnDelete);
+
+      row.appendChild(meta);
+      row.appendChild(actions);
+      refs.historyList.appendChild(row);
+    });
   }
 
   function renderTeamsList() {
@@ -814,6 +914,7 @@
     renderStandings();
     updateTimerFromState();
     renderTv();
+    renderAmericanoHistory();
     if (refs.name) refs.name.value = state.name || '';
     if (refs.games) refs.games.value = String(state.gamesTo || 6);
     if (refs.teamCount && refs.teamCount.value !== String(state.teamCount)) refs.teamCount.value = state.teamCount;
@@ -905,6 +1006,19 @@
     if (btnRandScores) btnRandScores.addEventListener('click', generateRandomScores);
 
     if (refs.rounds) refs.rounds.addEventListener('click', handleScoreClick);
+
+    if (refs.historySave) refs.historySave.addEventListener('click', function() {
+      addAmericanoToHistory(refs.historyName ? refs.historyName.value : '');
+    });
+    if (refs.historyList) refs.historyList.addEventListener('click', function(e) {
+      var loadId = e.target && e.target.getAttribute('data-history-load');
+      var deleteId = e.target && e.target.getAttribute('data-history-delete');
+      if (loadId) {
+        loadAmericanoFromHistory(loadId);
+      } else if (deleteId) {
+        deleteAmericanoFromHistory(deleteId);
+      }
+    });
 
     var start = document.getElementById('btn-americano-timer-start');
     var pause = document.getElementById('btn-americano-timer-pause');
