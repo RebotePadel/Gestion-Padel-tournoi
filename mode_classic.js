@@ -116,6 +116,10 @@
     const elTvOverlay     = document.querySelector("#tv-overlay");
     const elBtnOpenTv     = selClassic("#btn-open-tv");
     const elBtnCloseTv    = document.querySelector("#tv-overlay #btn-close-tv");
+
+    // Debug
+    if (!elBtnOpenTv) console.error("❌ Bouton Vue TV non trouvé dans #classic-root");
+    if (!elTvOverlay) console.error("❌ TV Overlay non trouvé");
     const elTvTitle       = document.querySelector("#tv-overlay #tv-title");
     const elTvSubtitle    = document.querySelector("#tv-overlay #tv-subtitle");
     const elTvPhaseTag    = document.querySelector("#tv-overlay #tv-phase-tag");
@@ -1730,14 +1734,22 @@
     }
 
     /* VUE TV */
-    elBtnOpenTv.addEventListener("click", () => {
-      elTvOverlay.style.display = "block";
-      updateTv();
-    });
+    if (elBtnOpenTv) {
+      elBtnOpenTv.addEventListener("click", () => {
+        if (elTvOverlay) {
+          elTvOverlay.style.display = "block";
+          updateTv();
+        }
+      });
+    }
 
-    elBtnCloseTv.addEventListener("click", () => {
-      elTvOverlay.style.display = "none";
-    });
+    if (elBtnCloseTv) {
+      elBtnCloseTv.addEventListener("click", () => {
+        if (elTvOverlay) {
+          elTvOverlay.style.display = "none";
+        }
+      });
+    }
 
     function updateTv() {
       const name = state.name || "Tournoi de padel";
