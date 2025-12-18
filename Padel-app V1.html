@@ -2,7 +2,9 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8" />
-  <title>Gestion – Padel Parc</title>
+  <title>Padel Parc - Gestion</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/Favicon/favicon-32.png?v=1" />
+  <link rel="shortcut icon" href="./assets/Favicon/favicon-32.png?v=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
@@ -154,7 +156,7 @@
 
     /* ROOT SECTIONS */
     #home-root { display: block; }
-    #admin-root, #tv-root, #tournaments-root, #classic-root, #league-root { display: none; }
+    #admin-root, #tv-root, #tournaments-root, #classic-root, #league-root, #americano-root, #americano-tv-root { display: none; }
 
     .btn {
       display: inline-flex;
@@ -414,23 +416,10 @@
     /* Fin thèmes de fond */
 
     /* Bandeau sponsor TV */
-    .tv-sponsor { position: fixed; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 8px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
-    .tv-sponsor .tv-sponsors-list { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
-    .tv-sponsor .tv-sponsor-badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; }
-    .tv-sponsor .tv-sponsor-logo { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
+    .tv-sponsor { position: fixed; right: 12px; bottom: 12px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 6px 10px; display: none; align-items: center; gap: 8px; box-shadow: 0 12px 30px rgba(0,0,0,0.45); cursor: grab; }
+    .tv-sponsor img { width: 42px; height: 42px; object-fit: contain; background: rgba(255,255,255,0.08); border-radius: 10px; }
     .tv-sponsor .tv-sponsor-name { font-weight: 700; font-size: 0.8rem; }
     /* Fin bandeau sponsor TV */
-
-    /* Liste sponsors (paramètres) */
-    .sponsors-list { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-    .sponsor-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; border: 1px solid #1f2937; background: rgba(255,255,255,0.02); border-radius: 12px; padding: 8px 10px; }
-    .sponsor-row-left { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .sponsor-thumb { width: 48px; height: 48px; border-radius: 10px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); display: inline-flex; align-items: center; justify-content: center; overflow: hidden; }
-    .sponsor-thumb img { width: 100%; height: 100%; object-fit: contain; }
-    .sponsor-placeholder { color: var(--muted); font-weight: 700; font-size: 0.9rem; }
-    .sponsor-name { font-weight: 700; color: var(--text); }
-    .sponsor-row-actions { display: flex; align-items: center; gap: 12px; }
-    .sponsor-row-actions label { display: flex; align-items: center; gap: 6px; }
 
     .theme-grid {
       display: grid;
@@ -657,6 +646,11 @@
     .ligue-match-card { border: 1px solid #111827; border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); }
     .ligue-match-validated { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.55); }
     .ligue-match-winner-card { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.55); }
+    /* PATCH: alignement "vs" au centre (grille 3 colonnes) */
+    .ligue-match-vs-grid { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; }
+    .ligue-match-vs-grid .vs-center { text-align: center; color: var(--muted); }
+    .ligue-match-vs-grid .team-left { text-align: left; }
+    .ligue-match-vs-grid .team-right { text-align: right; }
     .ligue-badge { padding: 4px 8px; border-radius: 999px; font-size: 0.85rem; border: 1px solid rgba(255,255,255,0.12); }
     .ligue-badge-valid { background: rgba(16,185,129,0.15); color: #ecfdf3; border-color: rgba(16,185,129,0.45); }
     .winner-tag {
@@ -1112,6 +1106,29 @@
       gap: 4px;
       margin-top: 6px;
     }
+    .tv-podium {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .tv-podium-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: linear-gradient(120deg, rgba(15,23,42,0.9), rgba(15,23,42,0.95));
+      border: 1px solid rgba(51,65,85,0.9);
+      font-size: 0.9rem;
+    }
+    .tv-podium-emoji { font-size: 20px; }
+    .tv-podium-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     @media (max-width: 700px) {
       .tv-ranking-grid { grid-template-columns: minmax(0,1fr); }
     }
@@ -1257,6 +1274,44 @@
       background:#020617;
       color:var(--blue-soft);
     }
+
+    /* AMERICANO */
+    .americano-layout { display: flex; flex-direction: column; gap: 12px; }
+    .americano-top-row { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(260px, 1fr)); align-items: start; }
+    @media(max-width:1100px){ .americano-top-row{ grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
+    .americano-bottom-row { display: flex; flex-direction: column; gap: 12px; }
+    .americano-card { border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.4); padding: 10px; min-width:0; box-shadow:0 12px 28px rgba(0,0,0,0.4); }
+    .americano-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+    .americano-card-body { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .americano-card-body.americano-collapsed { display: none; }
+    .americano-inline { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: space-between; }
+    .americano-section { margin-top: 10px; }
+    .americano-rounds { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 10px; }
+    .americano-rounds-nav { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .americano-round-card { border: 1px solid #1f2937; padding: 10px; border-radius: 14px; background: rgba(2,6,23,0.4); min-width:0; }
+    .americano-match-row { display: grid; grid-template-columns: minmax(0,1fr) 50px minmax(0,1fr); align-items: center; gap: 6px; padding: 2px 0; }
+    .americano-score-inputs { display: flex; gap: 6px; align-items: center; }
+    .americano-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid #1e293b; background: rgba(255,255,255,0.04); color: var(--text); font-size: 0.8rem; }
+    .americano-team { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    .americano-team.left { text-align: left; }
+    .americano-team.right { text-align: right; }
+    .americano-vs { text-align: center; color: var(--muted); font-weight: 700; }
+    .americano-score-row { grid-column: 1 / span 3; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+    .collapse-toggle.americano-collapse { margin-left: 8px; }
+    /* UI : style bouton réduire (– jaune, sans fond) */
+    .americano-collapse-btn { background: transparent !important; border: none !important; padding: 0 !important; line-height: 1; color: var(--brand-accent, #e5e339); font-weight: 800; font-size: 22px; cursor: pointer; }
+    .americano-collapse-btn:hover { opacity: 0.85; }
+    .americano-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
+    .americano-team-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; min-width:0; }
+    .americano-team-cell { min-width:0; display:flex; flex-direction:column; gap:4px; }
+    .americano-team-cell label { font-size:0.85rem; color: var(--muted); }
+    .americano-team-row input { width:100%; min-width:0; }
+    /* UI : Podium actuel (top 3) à côté du classement */
+    .americano-podium { display: flex; flex-direction: column; gap: 6px; }
+    .americano-podium-row { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border: 1px solid rgba(30,41,59,0.8); border-radius: 10px; background: rgba(15,23,42,0.35); }
+    .americano-podium-emoji { font-size: 20px; }
+    .americano-podium-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .americano-podium-ga { color: var(--muted); font-size: 0.85rem; }
   </style>
 
   <!-- Styles du moteur tournoi classique -->
@@ -2337,8 +2392,8 @@
               </div>
 
             <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
-              <div class="settings-subtitle">📺 Sponsors (Vue TV)</div>
-              <div class="settings-inline" style="align-items:flex-end; flex-wrap:wrap;">
+              <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
+              <div class="settings-inline">
                 <div class="field">
                   <label for="app-sponsor-name">Nom du sponsor</label>
                   <input id="app-sponsor-name" type="text" placeholder="Nom du sponsor" />
@@ -2346,14 +2401,11 @@
                 <div class="field">
                   <label for="app-sponsor-logo">Logo du sponsor</label>
                   <input id="app-sponsor-logo" type="file" accept="image/*" />
-                  <div class="small-muted">Le logo est optionnel mais recommandé.</div>
+                  <div class="small-muted">Le logo sera affiché en vue TV s'il est défini.</div>
                 </div>
                 <div class="field">
                   <label>Aperçu sponsor</label>
                   <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
-                </div>
-                <div class="field" style="display:flex; align-items:flex-end;">
-                  <button class="btn btn-small" id="btn-add-sponsor" type="button">Ajouter</button>
                 </div>
               </div>
               <div class="settings-inline" style="gap:16px;">
@@ -2365,9 +2417,13 @@
                   <input id="app-sponsor-classic-toggle" type="checkbox" checked />
                   Afficher en TV Tournoi
                 </label>
+                <button class="btn btn-secondary btn-small" id="btn-add-sponsor" type="button">Ajouter le sponsor</button>
               </div>
-              <div class="settings-subtitle" style="margin-top:8px;">Liste des sponsors</div>
-              <div id="app-sponsors-list" class="sponsors-list"></div>
+              <div class="field" style="margin-top:8px;">
+                <label>Liste des sponsors</label>
+                <div id="app-sponsor-list" class="settings-stack" style="display:flex; flex-direction:column; gap:8px;"></div>
+                <div class="small-muted" id="app-sponsor-empty" style="display:none;">Aucun sponsor enregistré.</div>
+              </div>
             </div>
 
             <div class="settings-section app-block-interactive" aria-label="Fond export journée ligue">
@@ -2649,16 +2705,16 @@
 
         <article class="tournament-type-card app-block-interactive">
           <div class="tournament-type-title">
-            <span>Round Robin complet</span>
+            <span>Américano</span>
             <span class="tournament-type-pill">Tous vs tous</span>
           </div>
           <p>
-            Chaque équipe rencontre toutes les autres. Classement final au
-            nombre de victoires et au goal-average.
+            Chaque équipe affronte toutes les autres une fois, classement en direct
+            et vue TV dédiée.
           </p>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-            <span class="small-muted">Disponible bientôt</span>
-            <button class="btn btn-small" disabled>🚧 En cours</button>
+            <span class="small-muted">Nouveau moteur complet</span>
+            <button class="btn btn-small" id="btn-open-americano">▶ Ouvrir</button>
           </div>
         </article>
 
@@ -2677,6 +2733,200 @@
           </div>
         </article>
       </div>
+    </section>
+
+    <!-- MODE AMERICANO -->
+    <section id="americano-root" style="display:none;">
+      <div class="mode-toggle" style="justify-content:flex-start; margin-bottom:8px;">
+        <button class="btn btn-secondary btn-small" id="btn-americano-home">🏠 Accueil</button>
+        <button class="btn btn-secondary btn-small" id="btn-americano-formats">🏆 Formats</button>
+        <button class="btn btn-secondary btn-small" id="btn-americano-open-tv">🎥 Vue TV</button>
+      </div>
+
+      <div class="card app-block-interactive" style="margin-bottom:10px;">
+        <div class="tournaments-header" style="margin-bottom:4px;">
+          <div>
+            <div class="tournaments-subtitle">Tournoi classique</div>
+            <h1 class="tournaments-title">Mode Américano</h1>
+          </div>
+          <div class="americano-inline" style="gap:6px;">
+            <div class="americano-chip" id="americano-meta">0 équipes • 0 matchs</div>
+            <div class="americano-chip" id="americano-round-meta">Planning non généré</div>
+          </div>
+        </div>
+        <div class="small-muted">Chaque équipe affronte toutes les autres une fois. Classement live et vue TV synchronisée.</div>
+      </div>
+
+      <div class="americano-layout">
+        <div class="americano-top-row">
+          <div class="card app-block-interactive americano-card">
+            <div class="americano-card-header">
+              <div>
+                <h3 class="tournaments-title" style="margin-bottom:6px;">Organisation & timer</h3>
+                <div class="small-muted">Paramètres, génération et timer synchronisé</div>
+              </div>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-config-body">−</button>
+            </div>
+            <div id="americano-config-body" class="americano-card-body">
+              <div class="field">
+                <label for="americano-name">Nom du tournoi</label>
+                <input type="text" id="americano-name" placeholder="Américano du vendredi" />
+              </div>
+              <div class="field">
+                <label for="americano-team-count">Nombre d’équipes (8 à 24)</label>
+                <select id="americano-team-count"></select>
+              </div>
+              <div class="field">
+                <label for="americano-games">Jeux gagnants</label>
+                <select id="americano-games">
+                  <option value="4">4 jeux</option>
+                  <option value="6" selected>6 jeux</option>
+                  <option value="9">9 jeux</option>
+                </select>
+              </div>
+              <div class="americano-inline" style="justify-content:flex-start;">
+                <button class="btn" id="btn-americano-generate">Générer le planning</button>
+                <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
+              </div>
+              <div class="americano-section">
+                <h4 class="tournaments-title" style="margin-bottom:6px;">Timer</h4>
+                <div class="field">
+                  <label for="americano-timer-minutes">Durée (minutes)</label>
+                  <input type="number" id="americano-timer-minutes" min="1" value="12" />
+                </div>
+                <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+                  <div class="chip" id="americano-timer-display">12:00</div>
+                  <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
+                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
+                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
+                </div>
+                <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card app-block-interactive americano-card">
+            <div class="americano-card-header">
+              <div>
+                <h3 class="tournaments-title" style="margin-bottom:6px;">Création des équipes</h3>
+                <div class="small-muted">2 joueurs par équipe • saisie directe</div>
+              </div>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-teams-body">−</button>
+            </div>
+            <div id="americano-teams-body" class="americano-card-body">
+              <div class="americano-inline" style="justify-content:flex-start;">
+                <button class="btn btn-secondary btn-small" id="btn-americano-random-teams">Générer les équipes aléatoires</button>
+                <button class="btn btn-small" id="btn-americano-random-names">Noms aléatoires</button>
+              </div>
+              <div id="americano-team-hint" class="small-muted" style="margin-top:4px;"></div>
+              <div class="americano-section">
+                <div class="americano-inline" style="margin-bottom:6px;">
+                  <h4 class="tournaments-title">Équipes</h4>
+                  <div class="small-muted">Saisis directement les joueurs</div>
+                </div>
+                <div id="americano-teams-list" class="americano-teams-grid"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card app-block-interactive americano-card">
+            <div class="americano-card-header">
+              <div>
+                <h3 class="tournaments-title">Classement</h3>
+                <div class="small-muted">Victoires, goal-average, confrontations directes</div>
+              </div>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-standings-body">−</button>
+            </div>
+            <div id="americano-standings-body" class="americano-card-body">
+              <table class="ligue-standings" id="americano-standings"></table>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="americano-bottom-row">
+          <div class="card app-block-interactive americano-card">
+            <div class="americano-card-header">
+              <div class="americano-inline" style="margin-bottom:6px;">
+                <h3 class="tournaments-title">Matchs & scores</h3>
+                <div class="americano-chip" id="americano-status">Planning à générer</div>
+              </div>
+              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-matches-body">−</button>
+            </div>
+            <div id="americano-matches-body" class="americano-card-body">
+              <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>
+              <div class="americano-rounds-nav">
+                <button class="btn btn-secondary btn-small" id="americano-rounds-prev">⟵ Précédent</button>
+                <div class="small-muted" id="americano-rounds-indicator">Roulements 0–0</div>
+                <button class="btn btn-secondary btn-small" id="americano-rounds-next">Suivant ⟶</button>
+              </div>
+              <div class="americano-rounds" id="americano-rounds"></div>
+              <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
+                <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VUE TV AMERICANO -->
+    <section id="americano-tv-root" style="display:none;">
+      <header class="tv-header">
+        <div class="tv-header-left">
+          <img id="americano-tv-logo" alt="Logo club TV" />
+          <div class="tv-title-block">
+            <div id="americano-tv-name">Américano</div>
+            <div id="americano-tv-meta">Matchs en direct</div>
+          </div>
+        </div>
+        <div class="tv-header-right">
+          <div class="tv-tag-live">🔴 LIVE</div>
+          <div class="tv-tag-live" id="americano-tv-timer">00:00</div>
+          <button id="btn-americano-tv-back" class="btn btn-secondary btn-small">↩ Mode admin</button>
+        </div>
+      </header>
+
+      <div id="americano-tv-sponsor-banner" class="tv-sponsor">
+        <img id="americano-tv-sponsor-logo" alt="Sponsor" />
+        <div class="tv-sponsor-name" id="americano-tv-sponsor-name"></div>
+      </div>
+
+      <main class="tv-main">
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs en cours</span>
+              <span>Roulement <span id="americano-tv-round">1</span></span>
+            </div>
+            <div id="americano-tv-current" class="tv-current-list">
+              <div class="tv-empty">Génère le planning puis lance les scores.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Matchs à venir</span>
+              <span>Prochain roulement</span>
+            </div>
+            <div id="americano-tv-next" class="tv-next-list">
+              <div class="tv-empty">Les prochains matchs apparaîtront ici.</div>
+            </div>
+          </div>
+
+          <div class="tv-block">
+            <div class="tv-block-title">
+              <span>Classement</span>
+              <span>Live</span>
+            </div>
+            <!-- TV UI : podium (top 3) uniquement en vue TV -->
+            <div id="americano-tv-podium" class="tv-podium"></div>
+            <div id="americano-tv-standings" class="tv-ranking-grid"></div>
+          </div>
+        </section>
+      </main>
     </section>
 
     <!-- TOURNOI CLASSIQUE COMPLET -->
@@ -2965,7 +3215,8 @@
           <img id="tv-logo" alt="Logo TV" />
         </div>
         <div id="classic-tv-sponsor-banner" class="tv-sponsor" style="right: 16px; top: 16px; bottom: auto;">
-          <div id="classic-tv-sponsors-container" class="tv-sponsors-list"></div>
+          <img id="classic-tv-sponsor-logo" alt="Sponsor" />
+          <div class="tv-sponsor-name" id="classic-tv-sponsor-name"></div>
         </div>
         <div id="pong-tv-widget-classic" class="pong-tv-widget pong-draggable" style="display:none;">
           <div class="widget-head" id="pong-tv-drag-classic">
@@ -3355,19 +3606,26 @@
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">📅 Prochains matchs</h4>
             <div class="ligue-inline" style="gap:8px; align-items:center;">
-              <button class="btn btn-secondary btn-small" id="btn-ligue-export-matches">Exporter la liste des matchs</button>
               <div class="ligue-badge-accent" id="ligue-calendar-note">Planification complète</div>
             </div>
           </div>
           <div class="card ligue-section app-block-interactive" style="margin:10px 0;">
             <div class="ligue-inline" style="justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
               <div>
-                <h5 class="tournaments-title" style="margin-bottom:4px;">Résumé réseaux par journée</h5>
-                <div class="small-muted">Choisis la journée à exporter au format carré 1080×1080.</div>
+                <h5 class="tournaments-title" style="margin-bottom:4px;">Exporter la liste des matchs</h5>
+                <div class="small-muted">Choisis le périmètre et lance l’export sans pop-up.</div>
               </div>
-              <div class="ligue-inline" style="gap:8px; align-items:center;">
-                <select id="ligue-day-export-select" class="btn-small" style="min-width:140px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;"></select>
-                <button class="btn btn-secondary btn-small" id="btn-ligue-day-export">Exporter la journée</button>
+              <div class="ligue-inline" style="gap:8px; align-items:center; flex-wrap:wrap;">
+                <select id="ligue-export-matches-mode" class="btn-small" style="min-width:170px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;">
+                  <option value="all">Tous les matchs (saison complète)</option>
+                  <option value="day">Matchs par journée</option>
+                </select>
+                <select id="ligue-export-matches-day" class="btn-small" style="min-width:140px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b; display:none;"></select>
+                <select id="ligue-export-matches-format" class="btn-small" style="min-width:130px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;">
+                  <option value="image">Image (PNG)</option>
+                  <option value="pdf">PDF</option>
+                </select>
+                <button class="btn btn-secondary btn-small" id="btn-ligue-export-matches">Exporter</button>
               </div>
             </div>
           </div>
@@ -3386,6 +3644,18 @@
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">🎾 Résultats</h4>
             <div class="small-muted">Saisie des scores (2 sets gagnants)</div>
+          </div>
+          <div class="card ligue-section app-block-interactive" style="margin:10px 0;">
+            <div class="ligue-inline" style="justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+              <div>
+                <h5 class="tournaments-title" style="margin-bottom:4px;">Exporter les résultats par journée</h5>
+                <div class="small-muted">Sélectionne la journée puis génère l’image de résultats.</div>
+              </div>
+              <div class="ligue-inline" style="gap:8px; align-items:center;">
+                <select id="ligue-day-export-select" class="btn-small" style="min-width:140px; border-radius:12px; background:#020617; color:var(--text); border:1px solid #1e293b;"></select>
+                <button class="btn btn-secondary btn-small" id="btn-ligue-day-export">Exporter la journée</button>
+              </div>
+            </div>
           </div>
           <div id="ligue-manage-results" class="ligue-section"></div>
         </div>
@@ -3456,7 +3726,8 @@
       </header>
 
       <div id="tv-sponsor-banner" class="tv-sponsor">
-        <div id="tv-sponsors-container" class="tv-sponsors-list"></div>
+        <img id="tv-sponsor-logo" alt="Sponsor" />
+        <div class="tv-sponsor-name" id="tv-sponsor-name"></div>
       </div>
 
       <div id="pong-tv-widget-md" class="pong-tv-widget pong-draggable" style="display:none;">
@@ -3960,20 +4231,22 @@
         sponsorName: '',
         sponsorLogoDataUrl: null,
         sponsors: [],
+        activeSponsorId: null,
         buttonStyle: 'solid',
         cardShape: 'rounded',
         backgroundStyle: 'gradient',
         backgroundImageDataUrl: null,
         tvSponsorMd: true,
         tvSponsorClassic: true,
+        tvSponsorAmericano: true,
         tvSponsorMdPos: null,
-        tvSponsorClassicPos: null
+        tvSponsorClassicPos: null,
+        tvSponsorAmericanoPos: null
       };
 
       var currentClubProfile = null;
       var formInputs = {};
       var fontLinkEl = null;
-      var selectedSponsorLogoDataUrl = null;
 
       var AVAILABLE_FONTS = [
         { key: 'system', google: null, family: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
@@ -3995,9 +4268,28 @@
       }
 
       function cloneProfile(data) {
-        var base = Object.assign({}, DEFAULT_PROFILE, data || {});
-        base.sponsors = Array.isArray(base.sponsors) ? base.sponsors.map(function(sp) { return Object.assign({}, sp); }) : [];
-        return base;
+        var merged = Object.assign({}, DEFAULT_PROFILE, data || {});
+        merged.sponsors = (data && data.sponsors ? data.sponsors : merged.sponsors || []).map(function(s, idx) {
+          return {
+            id: s && s.id ? s.id : 's' + idx,
+            name: (s && s.name) || '',
+            logoDataUrl: (s && s.logoDataUrl) || null,
+            enabledTv: s && typeof s.enabledTv === 'boolean' ? s.enabledTv : true
+          };
+        });
+        // Migration sponsor V1 → V2 : transformer l'ancien sponsor unique en entrée de liste
+        if (!merged.sponsors.length && (merged.sponsorName || merged.sponsorLogoDataUrl)) {
+          merged.sponsors.push({ id: 'legacy', name: merged.sponsorName || '', logoDataUrl: merged.sponsorLogoDataUrl || null, enabledTv: true });
+        }
+        if (!merged.activeSponsorId && merged.sponsors.length) merged.activeSponsorId = merged.sponsors[0].id;
+        if (merged.activeSponsorId) {
+          var active = merged.sponsors.find(function(s) { return s.id === merged.activeSponsorId && s.enabledTv !== false; }) || merged.sponsors.find(function(s) { return s.enabledTv !== false; }) || merged.sponsors[0];
+          if (active) {
+            merged.sponsorName = active.name || '';
+            merged.sponsorLogoDataUrl = active.logoDataUrl || null;
+          }
+        }
+        return merged;
       }
 
       var FONT_CLASS_MAP = {
@@ -4081,34 +4373,12 @@
         });
       }
 
-      var legacyMigrated = false;
-
       function saveProfile() {
         try {
           localStorage.setItem(THEME_STORAGE_KEY, JSON.stringify(currentClubProfile));
-          legacyMigrated = false;
         } catch (e) {
           console.warn('Impossible de sauvegarder le thème', e);
         }
-      }
-
-      // Migration sponsor V1 → multi-sponsors
-      function migrateLegacySponsor(profile) {
-        if (!profile) return profile;
-        if (!Array.isArray(profile.sponsors)) profile.sponsors = [];
-        var hasLegacy = (profile.sponsorName && profile.sponsorName.trim()) || profile.sponsorLogoDataUrl;
-        if (hasLegacy && profile.sponsors.length === 0) {
-          profile.sponsors.push({
-            id: 'legacy-' + Date.now(),
-            name: profile.sponsorName || 'Sponsor',
-            logoDataUrl: profile.sponsorLogoDataUrl || '',
-            enabledTv: true
-          });
-          profile.sponsorName = '';
-          profile.sponsorLogoDataUrl = null;
-          legacyMigrated = true;
-        }
-        return profile;
       }
 
       function loadProfile() {
@@ -4119,19 +4389,9 @@
           stored = null;
         }
         if (stored) {
-          try {
-            var parsed = JSON.parse(stored);
-            migrateLegacySponsor(parsed);
-            var profile = cloneProfile(parsed);
-            currentClubProfile = profile;
-            if (legacyMigrated) saveProfile();
-            return profile;
-          } catch (e) { /* fallback default */ }
+          try { return cloneProfile(JSON.parse(stored)); } catch (e) { /* fallback default */ }
         }
-        var defaultProfile = cloneProfile();
-        migrateLegacySponsor(defaultProfile);
-        currentClubProfile = defaultProfile;
-        return defaultProfile;
+        return cloneProfile();
       }
 
       function applyBackgroundStyles(profile) {
@@ -4162,6 +4422,37 @@
           }
         }
         return fontLinkEl;
+      }
+
+      function ensureSponsorState(profile) {
+        if (!profile) return;
+        if (!profile.sponsors) profile.sponsors = [];
+        if (!profile.sponsors.length && (profile.sponsorName || profile.sponsorLogoDataUrl)) {
+          profile.sponsors.push({ id: 'legacy', name: profile.sponsorName || '', logoDataUrl: profile.sponsorLogoDataUrl || null, enabledTv: true });
+        }
+        profile.sponsors = profile.sponsors.map(function(s, idx) {
+          return {
+            id: s && s.id ? s.id : 's' + idx,
+            name: (s && s.name) || '',
+            logoDataUrl: (s && s.logoDataUrl) || null,
+            enabledTv: s && typeof s.enabledTv === 'boolean' ? s.enabledTv : true
+          };
+        });
+        if (!profile.activeSponsorId && profile.sponsors.length) {
+          var firstEnabled = profile.sponsors.find(function(s) { return s.enabledTv !== false; });
+          profile.activeSponsorId = (firstEnabled || profile.sponsors[0]).id;
+        }
+      }
+
+      function getActiveSponsor(profile) {
+        if (!profile) return null;
+        ensureSponsorState(profile);
+        var active = profile.sponsors.find(function(s) { return s.id === profile.activeSponsorId && s.enabledTv !== false; });
+        if (!active) {
+          active = profile.sponsors.find(function(s) { return s.enabledTv !== false; }) || profile.sponsors[0];
+          if (active) profile.activeSponsorId = active.id;
+        }
+        return active || null;
       }
 
       function applyAppFont(fontKey) {
@@ -4244,81 +4535,38 @@
         banner.addEventListener('mousedown', onDragStart);
       }
 
-      function ensureSponsorsArray(profile) {
-        if (!profile) return [];
-        if (!Array.isArray(profile.sponsors)) profile.sponsors = [];
-        profile.sponsors = profile.sponsors.map(function(sp, idx) {
-          var item = Object.assign({ id: 'sponsor-' + idx, name: '', logoDataUrl: '', enabledTv: true }, sp || {});
-          if (!item.id) item.id = 'sponsor-' + Date.now() + '-' + idx;
-          item.enabledTv = item.enabledTv !== false;
-          item.logoDataUrl = item.logoDataUrl || '';
-          item.name = item.name || '';
-          return item;
-        });
-        return profile.sponsors;
-      }
-
-      function loadSponsors() {
-        if (!currentClubProfile) currentClubProfile = loadProfile();
-        return ensureSponsorsArray(currentClubProfile);
-      }
-
-      function saveSponsors() {
-        saveProfile();
-      }
-
-      function renderTvSponsorContainer(opts, sponsors) {
-        if (!opts || !opts.banner || !opts.container) return;
-        var banner = document.getElementById(opts.banner);
-        var list = document.getElementById(opts.container);
-        if (!banner || !list) return;
-
-        list.innerHTML = '';
-        if (!opts.enabled || !sponsors.length) {
+      function renderSponsorBanner(ids, profile, enabled) {
+        if (!ids || !ids.banner) return;
+        var banner = document.getElementById(ids.banner);
+        if (!banner) return;
+        var logo = ids.logo ? document.getElementById(ids.logo) : null;
+        var nameEl = ids.name ? document.getElementById(ids.name) : null;
+        var activeSponsor = getActiveSponsor(profile);
+        var hasContent = !!(enabled && activeSponsor && (activeSponsor.logoDataUrl || activeSponsor.name));
+        if (!hasContent) {
           banner.style.display = 'none';
+          if (logo) { logo.removeAttribute('src'); logo.style.display = 'none'; }
+          if (nameEl) nameEl.textContent = '';
           return;
         }
-
-        sponsors.forEach(function(sp) {
-          var displayName = sp.name || 'Sponsor';
-          var badge = document.createElement('div');
-          badge.className = 'tv-sponsor-badge';
-
-          if (sp.logoDataUrl) {
-            var logo = document.createElement('img');
-            logo.className = 'tv-sponsor-logo';
-            logo.alt = displayName;
-            logo.src = sp.logoDataUrl;
-            badge.appendChild(logo);
-          }
-
-          if (displayName) {
-            var name = document.createElement('div');
-            name.className = 'tv-sponsor-name';
-            name.textContent = displayName;
-            badge.appendChild(name);
-          }
-
-          list.appendChild(badge);
-        });
-
         banner.style.display = 'inline-flex';
-        if (opts.posKey && (!currentClubProfile || !currentClubProfile[opts.posKey])) {
+        if (logo) {
+          if (activeSponsor && activeSponsor.logoDataUrl) {
+            logo.src = activeSponsor.logoDataUrl;
+            logo.style.display = 'block';
+          } else {
+            logo.removeAttribute('src');
+            logo.style.display = 'none';
+          }
+        }
+        if (nameEl) nameEl.textContent = (activeSponsor && activeSponsor.name) || '';
+        if (ids.posKey && (!profile || !profile[ids.posKey])) {
           banner.style.left = '';
           banner.style.top = '';
           banner.style.right = '';
           banner.style.bottom = '';
         }
-        if (opts.posKey && currentClubProfile && currentClubProfile[opts.posKey]) {
-          applySponsorPosition(banner, currentClubProfile[opts.posKey]);
-        }
-      }
-
-      // Nouveau : affichage multi-sponsors en vue TV (tous ceux cochés)
-      function renderTvSponsors() {
-        var activeSponsors = loadSponsors().filter(function(sp) { return sp && sp.enabledTv; });
-        renderTvSponsorContainer({ banner: 'tv-sponsor-banner', container: 'tv-sponsors-container', posKey: 'tvSponsorMdPos', enabled: currentClubProfile.tvSponsorMd !== false }, activeSponsors);
-        renderTvSponsorContainer({ banner: 'classic-tv-sponsor-banner', container: 'classic-tv-sponsors-container', posKey: 'tvSponsorClassicPos', enabled: currentClubProfile.tvSponsorClassic !== false }, activeSponsors);
+        if (ids.posKey && profile && profile[ids.posKey]) applySponsorPosition(banner, profile[ids.posKey]);
       }
 
       function updateSponsorPreview(src) {
@@ -4333,123 +4581,188 @@
         }
       }
 
-      function resetSponsorForm() {
-        if (formInputs.sponsorName) formInputs.sponsorName.value = '';
+      // Nouveau : gestion multi-sponsors (ajout/suppression/toggle TV)
+      var pendingSponsorLogo = null;
+      var editingSponsorId = null;
+
+      function setActiveSponsorById(id) {
+        ensureSponsorState(currentClubProfile);
+        var entry = (currentClubProfile.sponsors || []).find(function(s) { return s.id === id && s.enabledTv !== false; });
+        if (!entry) return;
+        currentClubProfile.activeSponsorId = entry.id;
+        currentClubProfile.sponsorName = entry.name || '';
+        currentClubProfile.sponsorLogoDataUrl = entry.logoDataUrl || null;
+        updateSponsorPreview(entry.logoDataUrl || null);
+        persistAndApply();
+      }
+
+      function toggleSponsorTv(id, enabled) {
+        ensureSponsorState(currentClubProfile);
+        var entry = (currentClubProfile.sponsors || []).find(function(s) { return s.id === id; });
+        if (!entry) return;
+        entry.enabledTv = !!enabled;
+        // Si le sponsor actif est désactivé, basculer sur le premier sponsor autorisé
+        var active = getActiveSponsor(currentClubProfile);
+        if (active) {
+          currentClubProfile.activeSponsorId = active.id;
+          currentClubProfile.sponsorName = active.name || '';
+          currentClubProfile.sponsorLogoDataUrl = active.logoDataUrl || null;
+        } else {
+          currentClubProfile.activeSponsorId = null;
+          currentClubProfile.sponsorName = '';
+          currentClubProfile.sponsorLogoDataUrl = null;
+        }
+        persistAndApply();
+        renderSponsorsList();
+      }
+
+      function deleteSponsor(id) {
+        ensureSponsorState(currentClubProfile);
+        var before = (currentClubProfile.sponsors || []).length;
+        currentClubProfile.sponsors = (currentClubProfile.sponsors || []).filter(function(s) { return s.id !== id; });
+        if (currentClubProfile.activeSponsorId === id) {
+          var next = getActiveSponsor(currentClubProfile);
+          currentClubProfile.activeSponsorId = next ? next.id : null;
+          currentClubProfile.sponsorName = next ? next.name : '';
+          currentClubProfile.sponsorLogoDataUrl = next ? next.logoDataUrl : null;
+        }
+        if ((currentClubProfile.sponsors || []).length !== before) {
+          persistAndApply();
+          renderSponsorsList();
+        }
+      }
+
+      function addSponsorFromForm() {
+        if (!formInputs || !formInputs.sponsorName) return;
+        var nameVal = (formInputs.sponsorName.value || '').trim();
+        if (!nameVal) {
+          alert('Merci de saisir un nom de sponsor');
+          return;
+        }
+        ensureSponsorState(currentClubProfile);
+        var targetId = editingSponsorId || null;
+        var existing = targetId ? currentClubProfile.sponsors.find(function(s) { return s.id === targetId; }) : null;
+        var logoVal = pendingSponsorLogo;
+        if (!logoVal) {
+          logoVal = existing ? existing.logoDataUrl : currentClubProfile.sponsorLogoDataUrl;
+        }
+        logoVal = logoVal || null;
+        if (existing) {
+          existing.name = nameVal;
+          if (pendingSponsorLogo !== null) existing.logoDataUrl = logoVal;
+          existing.enabledTv = existing.enabledTv !== false;
+          currentClubProfile.activeSponsorId = existing.id;
+          currentClubProfile.sponsorName = existing.name;
+          currentClubProfile.sponsorLogoDataUrl = existing.logoDataUrl;
+        } else {
+          var newId = 's' + Date.now();
+          var entry = { id: newId, name: nameVal, logoDataUrl: logoVal, enabledTv: true };
+          currentClubProfile.sponsors.push(entry);
+          currentClubProfile.activeSponsorId = entry.id;
+          currentClubProfile.sponsorName = entry.name;
+          currentClubProfile.sponsorLogoDataUrl = entry.logoDataUrl;
+        }
+        pendingSponsorLogo = null;
+        editingSponsorId = null;
         if (formInputs.sponsorLogo) formInputs.sponsorLogo.value = '';
-        selectedSponsorLogoDataUrl = null;
-        updateSponsorPreview(null);
+        if (formInputs.sponsorName) formInputs.sponsorName.value = '';
+        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
+        persistAndApply();
+        renderSponsorsList();
       }
 
       function renderSponsorsList() {
-        var container = document.getElementById('app-sponsors-list');
-        if (!container) return;
-        var sponsors = loadSponsors();
-        container.innerHTML = '';
-
+        var list = document.getElementById('app-sponsor-list');
+        var empty = document.getElementById('app-sponsor-empty');
+        if (!list) return;
+        while (list.firstChild) list.removeChild(list.firstChild);
+        ensureSponsorState(currentClubProfile);
+        var sponsors = currentClubProfile.sponsors || [];
         if (!sponsors.length) {
-          var empty = document.createElement('div');
-          empty.className = 'small-muted';
-          empty.textContent = 'Ajoute tes sponsors puis coche ceux à afficher en TV.';
-          container.appendChild(empty);
+          if (empty) empty.style.display = 'block';
           return;
         }
-
-        sponsors.forEach(function(sp) {
+        if (empty) empty.style.display = 'none';
+        sponsors.forEach(function(s) {
           var row = document.createElement('div');
-          row.className = 'sponsor-row';
+          row.className = 'settings-inline';
+          row.style.justifyContent = 'space-between';
+          row.style.alignItems = 'center';
 
           var left = document.createElement('div');
-          left.className = 'sponsor-row-left';
+          left.style.display = 'flex';
+          left.style.alignItems = 'center';
+          left.style.gap = '10px';
 
-          var thumb = document.createElement('div');
-          thumb.className = 'sponsor-thumb';
-          if (sp.logoDataUrl) {
-            var img = document.createElement('img');
-            img.alt = sp.name || 'Logo sponsor';
-            img.src = sp.logoDataUrl;
-            thumb.appendChild(img);
+          var img = document.createElement('img');
+          img.style.width = '40px';
+          img.style.height = '40px';
+          img.style.objectFit = 'contain';
+          img.style.background = 'rgba(255,255,255,0.04)';
+          img.style.borderRadius = '10px';
+          img.style.border = '1px solid rgba(255,255,255,0.08)';
+          if (s.logoDataUrl) {
+            img.src = s.logoDataUrl;
           } else {
-            var placeholder = document.createElement('div');
-            placeholder.className = 'sponsor-placeholder';
-            placeholder.textContent = sp.name ? (sp.name[0] || '?') : '?';
-            thumb.appendChild(placeholder);
+            img.style.display = 'none';
           }
+          left.appendChild(img);
 
           var name = document.createElement('div');
-          name.className = 'sponsor-name';
-          name.textContent = sp.name || 'Sponsor';
-
-          left.appendChild(thumb);
+          name.textContent = s.name || 'Sponsor';
+          name.style.fontWeight = '600';
+          name.style.cursor = 'pointer';
+          if (s.id === currentClubProfile.activeSponsorId) {
+            var badge = document.createElement('span');
+            badge.textContent = 'Actif';
+            badge.style.marginLeft = '8px';
+            badge.style.fontSize = '0.8rem';
+            badge.style.color = 'var(--brand-accent, #e5e339)';
+            name.appendChild(badge);
+          }
+          name.addEventListener('click', function() {
+            editingSponsorId = s.id;
+            setActiveSponsorById(s.id);
+            if (formInputs.sponsorName) formInputs.sponsorName.value = s.name || '';
+            pendingSponsorLogo = s.logoDataUrl || null;
+            updateSponsorPreview(s.logoDataUrl || null);
+          });
           left.appendChild(name);
 
-          var actions = document.createElement('div');
-          actions.className = 'sponsor-row-actions';
+          var right = document.createElement('div');
+          right.style.display = 'flex';
+          right.style.alignItems = 'center';
+          right.style.gap = '10px';
 
-          var toggleLabel = document.createElement('label');
-          var checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.checked = !!sp.enabledTv;
-          checkbox.addEventListener('change', function() { toggleSponsorTv(sp.id, this.checked); });
-          toggleLabel.appendChild(checkbox);
-          var toggleText = document.createElement('span');
-          toggleText.textContent = 'Afficher en TV';
-          toggleLabel.appendChild(toggleText);
+          var checkboxLabel = document.createElement('label');
+          checkboxLabel.className = 'small-muted';
+          checkboxLabel.style.display = 'flex';
+          checkboxLabel.style.alignItems = 'center';
+          checkboxLabel.style.gap = '6px';
+          var cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.checked = s.enabledTv !== false;
+          cb.addEventListener('change', function() { toggleSponsorTv(s.id, this.checked); });
+          checkboxLabel.appendChild(cb);
+          var lblText = document.createElement('span');
+          lblText.textContent = 'Afficher en TV';
+          checkboxLabel.appendChild(lblText);
+          right.appendChild(checkboxLabel);
 
           var deleteBtn = document.createElement('button');
           deleteBtn.type = 'button';
           deleteBtn.className = 'btn btn-secondary btn-small';
           deleteBtn.textContent = 'Supprimer';
-          deleteBtn.addEventListener('click', function() { deleteSponsor(sp.id); });
-
-          actions.appendChild(toggleLabel);
-          actions.appendChild(deleteBtn);
+          deleteBtn.addEventListener('click', function() {
+            var ok = confirm('Supprimer ce sponsor ?');
+            if (ok) deleteSponsor(s.id);
+          });
+          right.appendChild(deleteBtn);
 
           row.appendChild(left);
-          row.appendChild(actions);
-
-          container.appendChild(row);
+          row.appendChild(right);
+          list.appendChild(row);
         });
-      }
-
-      function addSponsor() {
-        if (!formInputs.sponsorName) return;
-        var name = (formInputs.sponsorName.value || '').trim();
-        if (!name) {
-          alert('Le nom du sponsor est obligatoire.');
-          return;
-        }
-
-        var sponsors = loadSponsors();
-        sponsors.push({
-          id: 'sponsor-' + Date.now() + '-' + Math.floor(Math.random() * 10000),
-          name: name,
-          logoDataUrl: selectedSponsorLogoDataUrl || '',
-          enabledTv: true
-        });
-        currentClubProfile.sponsors = sponsors;
-        saveSponsors();
-        renderSponsorsList();
-        renderTvSponsors();
-        resetSponsorForm();
-      }
-
-      function deleteSponsor(id) {
-        var sponsors = loadSponsors();
-        var filtered = sponsors.filter(function(sp) { return sp.id !== id; });
-        if (filtered.length === sponsors.length) return;
-        if (!confirm('Supprimer ce sponsor ?')) return;
-        currentClubProfile.sponsors = filtered;
-        saveSponsors();
-        renderSponsorsList();
-        renderTvSponsors();
-      }
-
-      function toggleSponsorTv(id, enabled) {
-        var sponsors = loadSponsors();
-        sponsors.forEach(function(sp) { if (sp.id === id) sp.enabledTv = !!enabled; });
-        currentClubProfile.sponsors = sponsors;
-        saveSponsors();
-        renderTvSponsors();
       }
 
       function toggleBgImageField() {
@@ -4497,14 +4810,21 @@
         document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
-        renderTvSponsors();
-        renderSponsorsList();
-        updateSponsorPreview(selectedSponsorLogoDataUrl);
+        var activeSponsor = getActiveSponsor(currentClubProfile);
+        if (activeSponsor) {
+          currentClubProfile.sponsorName = activeSponsor.name || '';
+          currentClubProfile.sponsorLogoDataUrl = activeSponsor.logoDataUrl || null;
+        }
+        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
+        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
+        renderSponsorBanner({ banner: 'americano-tv-sponsor-banner', logo: 'americano-tv-sponsor-logo', name: 'americano-tv-sponsor-name', posKey: 'tvSponsorAmericanoPos' }, currentClubProfile, currentClubProfile.tvSponsorAmericano !== false);
+        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
 
       function initSponsorDragBlocks() {
         makeSponsorDraggable('tv-sponsor-banner', 'tvSponsorMdPos', 'tv-root');
         makeSponsorDraggable('classic-tv-sponsor-banner', 'tvSponsorClassicPos', 'tv-overlay');
+        makeSponsorDraggable('americano-tv-sponsor-banner', 'tvSponsorAmericanoPos', 'americano-tv-root');
       }
 
       function syncThemeForm() {
@@ -4523,14 +4843,17 @@
           var exists = AVAILABLE_FONTS.some(function(f) { return f.key === fontVal; });
           formInputs.font.value = exists ? fontVal : 'system';
         }
+        if (formInputs.sponsorName) formInputs.sponsorName.value = currentClubProfile.sponsorName || '';
         if (formInputs.buttonStyle) formInputs.buttonStyle.value = currentClubProfile.buttonStyle || 'solid';
         if (formInputs.cardShape) formInputs.cardShape.value = currentClubProfile.cardShape || 'rounded';
         if (formInputs.bgStyle) formInputs.bgStyle.value = currentClubProfile.backgroundStyle || 'gradient';
+        ensureSponsorState(currentClubProfile);
         if (formInputs.sponsorMdToggle) formInputs.sponsorMdToggle.checked = currentClubProfile.tvSponsorMd !== false;
         if (formInputs.sponsorClassicToggle) formInputs.sponsorClassicToggle.checked = currentClubProfile.tvSponsorClassic !== false;
         toggleBgImageField();
-        if (formInputs.sponsorName) formInputs.sponsorName.value = '';
-        updateSponsorPreview(selectedSponsorLogoDataUrl);
+        updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
+        pendingSponsorLogo = null;
+        renderSponsorsList();
       }
 
       function persistAndApply() {
@@ -4612,28 +4935,38 @@
           });
         }
 
-        if (formInputs.sponsorName) {
-          formInputs.sponsorName.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') { e.preventDefault(); addSponsor(); }
-          });
+        var addSponsorBtn = document.getElementById('btn-add-sponsor');
+        if (addSponsorBtn) {
+          addSponsorBtn.addEventListener('click', function() { addSponsorFromForm(); });
         }
 
         if (formInputs.sponsorLogo) {
           formInputs.sponsorLogo.addEventListener('change', function(e) {
             var file = e.target.files && e.target.files[0];
-            if (!file) { selectedSponsorLogoDataUrl = null; updateSponsorPreview(null); return; }
+            if (!file) return;
             var reader = new FileReader();
             reader.onload = function(evt) {
-              selectedSponsorLogoDataUrl = evt.target.result;
-              updateSponsorPreview(selectedSponsorLogoDataUrl);
+              pendingSponsorLogo = evt.target.result;
+              updateSponsorPreview(pendingSponsorLogo);
             };
             reader.readAsDataURL(file);
           });
         }
 
-        var addSponsorBtn = document.getElementById('btn-add-sponsor');
-        if (addSponsorBtn) {
-          addSponsorBtn.addEventListener('click', addSponsor);
+        if (formInputs.sponsorSelect) {
+          formInputs.sponsorSelect.addEventListener('change', function() {
+            var sel = this.value;
+            ensureSponsorState(currentClubProfile);
+            var entry = (currentClubProfile.sponsors || []).find(function(s) { return s.id === sel; });
+            if (entry) {
+              currentClubProfile.activeSponsorId = entry.id;
+              currentClubProfile.sponsorName = entry.name || '';
+              currentClubProfile.sponsorLogoDataUrl = entry.logoDataUrl || null;
+              if (formInputs.sponsorName) formInputs.sponsorName.value = entry.name || '';
+              updateSponsorPreview(entry.logoDataUrl || null);
+              persistAndApply();
+            }
+          });
         }
 
         if (formInputs.sponsorMdToggle) {
@@ -4651,11 +4984,11 @@
         }
 
         var saveBtn = document.getElementById('btn-save-club-theme');
-        if (saveBtn) {
-          saveBtn.addEventListener('click', function() {
-            currentClubProfile = cloneProfile({
-              name: formInputs.name.value || DEFAULT_PROFILE.name,
-              shortName: formInputs.shortName.value || formInputs.name.value || DEFAULT_PROFILE.shortName,
+          if (saveBtn) {
+            saveBtn.addEventListener('click', function() {
+              currentClubProfile = cloneProfile({
+                name: formInputs.name.value || DEFAULT_PROFILE.name,
+                shortName: formInputs.shortName.value || formInputs.name.value || DEFAULT_PROFILE.shortName,
               primaryColor: formInputs.primary.value || DEFAULT_PROFILE.primaryColor,
               secondaryColor: formInputs.secondary.value || DEFAULT_PROFILE.secondaryColor,
               accentColor: formInputs.accent.value || DEFAULT_PROFILE.accentColor,
@@ -4665,34 +4998,37 @@
               titleColor: formInputs.title.value || DEFAULT_PROFILE.titleColor,
               logoDataUrl: currentClubProfile.logoDataUrl,
               fontFamily: normalizeFontKey((formInputs.font && formInputs.font.value) || 'system'),
-              sponsorName: '',
-              sponsorLogoDataUrl: null,
-              sponsors: ensureSponsorsArray(currentClubProfile),
+              sponsorName: (getActiveSponsor(currentClubProfile) && getActiveSponsor(currentClubProfile).name) || (formInputs.sponsorName && formInputs.sponsorName.value) || '',
+              sponsorLogoDataUrl: (getActiveSponsor(currentClubProfile) && getActiveSponsor(currentClubProfile).logoDataUrl) || currentClubProfile.sponsorLogoDataUrl,
               buttonStyle: (formInputs.buttonStyle && formInputs.buttonStyle.value) || 'solid',
               cardShape: (formInputs.cardShape && formInputs.cardShape.value) || 'rounded',
-              backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
-              backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl,
-              tvSponsorMd: formInputs.sponsorMdToggle ? !!formInputs.sponsorMdToggle.checked : true,
-              tvSponsorClassic: formInputs.sponsorClassicToggle ? !!formInputs.sponsorClassicToggle.checked : true,
-              tvSponsorMdPos: currentClubProfile.tvSponsorMdPos,
-              tvSponsorClassicPos: currentClubProfile.tvSponsorClassicPos
-            });
+                backgroundStyle: (formInputs.bgStyle && formInputs.bgStyle.value) || 'gradient',
+                backgroundImageDataUrl: currentClubProfile.backgroundImageDataUrl,
+                sponsors: currentClubProfile.sponsors || [],
+                activeSponsorId: currentClubProfile.activeSponsorId,
+                tvSponsorMd: formInputs.sponsorMdToggle ? !!formInputs.sponsorMdToggle.checked : true,
+                tvSponsorClassic: formInputs.sponsorClassicToggle ? !!formInputs.sponsorClassicToggle.checked : true,
+                tvSponsorAmericano: currentClubProfile.tvSponsorAmericano !== false,
+                tvSponsorMdPos: currentClubProfile.tvSponsorMdPos,
+                tvSponsorClassicPos: currentClubProfile.tvSponsorClassicPos,
+                tvSponsorAmericanoPos: currentClubProfile.tvSponsorAmericanoPos
+              });
             persistAndApply();
           });
         }
 
         var resetBtn = document.getElementById('btn-reset-club-theme');
         if (resetBtn) {
-          resetBtn.addEventListener('click', function() {
-            var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
-            var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
-            var preservedMdPos = currentClubProfile && currentClubProfile.tvSponsorMdPos;
-            var preservedClassicPos = currentClubProfile && currentClubProfile.tvSponsorClassicPos;
-            var preservedSponsors = ensureSponsorsArray(currentClubProfile);
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, sponsors: preservedSponsors, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos });
-            persistAndApply();
-          });
-        }
+            resetBtn.addEventListener('click', function() {
+              var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
+              var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
+              var preservedMdPos = currentClubProfile && currentClubProfile.tvSponsorMdPos;
+              var preservedClassicPos = currentClubProfile && currentClubProfile.tvSponsorClassicPos;
+              var preservedAmericanoPos = currentClubProfile && currentClubProfile.tvSponsorAmericanoPos;
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, sponsors: currentClubProfile ? currentClubProfile.sponsors : [], activeSponsorId: currentClubProfile ? currentClubProfile.activeSponsorId : null, tvSponsorMdPos: preservedMdPos, tvSponsorClassicPos: preservedClassicPos, tvSponsorAmericanoPos: preservedAmericanoPos, tvSponsorAmericano: currentClubProfile ? currentClubProfile.tvSponsorAmericano !== false : true });
+              persistAndApply();
+            });
+          }
       }
 
       function updateLogo(dataUrl) {
@@ -4721,8 +5057,7 @@
           reset: function() {
             var preservedLogo = currentClubProfile && currentClubProfile.logoDataUrl;
             var preservedSponsor = currentClubProfile && currentClubProfile.sponsorLogoDataUrl;
-            var preservedSponsors = ensureSponsorsArray(currentClubProfile);
-            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor, sponsors: preservedSponsors });
+            currentClubProfile = cloneProfile({ logoDataUrl: preservedLogo, sponsorLogoDataUrl: preservedSponsor });
             persistAndApply();
           },
           syncForm: syncThemeForm
@@ -5067,6 +5402,7 @@
   </script>
   <!-- Fin logique timer M/D -->
 
+  <script src="mode-americano.js"></script>
   <script src="core.js"></script>
   <script src="mode_classic.js"></script>
   <script src="mode_md.js"></script>
