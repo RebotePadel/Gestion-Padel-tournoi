@@ -193,7 +193,8 @@ body.tv-mode .sidebar-toggle {
 }
 
 body.tv-mode .app {
-  margin-left: 0 !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
 }
 
 /* Mobile : Bottom sheet sidebar */
