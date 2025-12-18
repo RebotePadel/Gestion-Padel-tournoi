@@ -7,6 +7,7 @@
   var tvRoot = document.getElementById('americano-tv-root');
   var STORAGE_KEY = 'padel_americano_state_v1';
   var COLLAPSE_KEY = 'padel_americano_collapse_v1';
+  var TAB_STORAGE_KEY = 'padel_americano_ui_tab_v1';
   var ROUNDS_PER_PAGE = 2;
   var roundsPageIndex = 0;
   var MAX_COURTS = 4;
@@ -37,8 +38,8 @@
     round: tvRoot.querySelector('#americano-tv-round'),
     current: tvRoot.querySelector('#americano-tv-current'),
     next: tvRoot.querySelector('#americano-tv-next'),
-    standings: tvRoot.querySelector('#americano-tv-standings'),
     podium: tvRoot.querySelector('#americano-tv-podium'),
+    rankingRest: tvRoot.querySelector('#americano-tv-ranking-rest'),
     timer: tvRoot.querySelector('#americano-tv-timer'),
     logo: tvRoot.querySelector('#americano-tv-logo'),
     banner: tvRoot.querySelector('#americano-tv-sponsor-banner'),
@@ -81,12 +82,25 @@
     return {};
   }
 
+  function loadAmericanoTab() {
+    try {
+      var tab = localStorage.getItem(TAB_STORAGE_KEY);
+      if (tab) return tab;
+    } catch (e) { /* ignore */ }
+    return 'organization';
+  }
+
+  function saveAmericanoTab(tab) {
+    try { localStorage.setItem(TAB_STORAGE_KEY, tab); } catch (e) { /* noop */ }
+  }
+
   function saveCollapseState() {
     try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(collapseState)); } catch (e) { /* noop */ }
   }
 
   var state = loadState();
   var collapseState = loadCollapseState();
+  var activeTab = loadAmericanoTab();
 
   function saveState() {
     try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { /* noop */ }
@@ -98,7 +112,7 @@
     if (!obj.teams) obj.teams = [];
     while (obj.teams.length < obj.teamCount) {
       var idx = obj.teams.length + 1;
-      obj.teams.push({ id: 'A' + idx, name: 'Équipe ' + idx, players: ['Joueur 1', 'Joueur 2'] });
+      obj.teams.push({ id: 'A' + idx, name: 'Équipe ' + idx });
     }
     if (obj.teams.length > obj.teamCount) obj.teams.length = obj.teamCount;
   }
@@ -119,6 +133,35 @@
     return t ? t.name : id;
   }
 
+  function renderAmericanoTabs() {
+    if (!root) return;
+    var buttons = Array.prototype.slice.call(root.querySelectorAll('[data-americano-tab]'));
+    var availableTabs = buttons.map(function(btn) { return btn.getAttribute('data-americano-tab'); }).filter(Boolean);
+    if (availableTabs.length && availableTabs.indexOf(activeTab) === -1) {
+      activeTab = availableTabs[0];
+      saveAmericanoTab(activeTab);
+    }
+    buttons.forEach(function(btn) {
+      var tab = btn.getAttribute('data-americano-tab');
+      var isActive = tab === activeTab;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive);
+    });
+    var panels = root.querySelectorAll('[data-americano-tab-panel]');
+    panels.forEach(function(panel) {
+      var tab = panel.getAttribute('data-americano-tab-panel');
+      var show = tab === activeTab;
+      panel.classList.toggle('active', show);
+      panel.style.display = show ? '' : 'none';
+    });
+  }
+
+  function setAmericanoTab(tab) {
+    activeTab = tab || 'organization';
+    saveAmericanoTab(activeTab);
+    renderAmericanoTabs();
+  }
+
   function renderTeamsList() {
     ensureTeams(state.teamCount);
     if (!refs.teamsList) return;
@@ -126,9 +169,7 @@
     var header = document.createElement('div');
     header.className = 'americano-team-row';
     var h1 = document.createElement('div'); h1.className = 'americano-team-cell'; h1.textContent = 'Équipe';
-    var h2 = document.createElement('div'); h2.className = 'americano-team-cell'; h2.textContent = 'Joueur 1';
-    var h3 = document.createElement('div'); h3.className = 'americano-team-cell'; h3.textContent = 'Joueur 2';
-    header.appendChild(h1); header.appendChild(h2); header.appendChild(h3);
+    header.appendChild(h1);
     refs.teamsList.appendChild(header);
     state.teams.forEach(function(team, idx) {
       var row = document.createElement('div');
@@ -146,27 +187,7 @@
       colTeam.appendChild(label);
       colTeam.appendChild(input);
 
-      var colP1 = document.createElement('div');
-      colP1.className = 'americano-team-cell';
-      var p1 = document.createElement('input');
-      p1.type = 'text';
-      p1.value = (team.players && team.players[0]) || '';
-      p1.placeholder = 'Joueur 1';
-      p1.setAttribute('data-team-player-a', team.id);
-      colP1.appendChild(p1);
-
-      var colP2 = document.createElement('div');
-      colP2.className = 'americano-team-cell';
-      var p2 = document.createElement('input');
-      p2.type = 'text';
-      p2.value = (team.players && team.players[1]) || '';
-      p2.placeholder = 'Joueur 2';
-      p2.setAttribute('data-team-player-b', team.id);
-      colP2.appendChild(p2);
-
       row.appendChild(colTeam);
-      row.appendChild(colP1);
-      row.appendChild(colP2);
       refs.teamsList.appendChild(row);
     });
   }
@@ -181,24 +202,6 @@
         team.name = inp.value.trim() || team.name;
       }
     });
-    var p1Inputs = refs.teamsList.querySelectorAll('[data-team-player-a]');
-    p1Inputs.forEach(function(inp) {
-      var id = inp.getAttribute('data-team-player-a');
-      var team = state.teams.find(function(t) { return t.id === id; });
-      if (team) {
-        if (!team.players) team.players = [];
-        team.players[0] = inp.value.trim();
-      }
-    });
-    var p2Inputs = refs.teamsList.querySelectorAll('[data-team-player-b]');
-    p2Inputs.forEach(function(inp) {
-      var id = inp.getAttribute('data-team-player-b');
-      var team = state.teams.find(function(t) { return t.id === id; });
-      if (team) {
-        if (!team.players) team.players = [];
-        team.players[1] = inp.value.trim();
-      }
-    });
   }
 
   function generateRandomNames() {
@@ -211,29 +214,20 @@
 
   function generateRandomTeams() {
     collectTeamsFromForm();
-    var pool = [];
-    state.teams.forEach(function(team) {
-      if (team.players && team.players.length) {
-        team.players.forEach(function(p) { if (p) pool.push(p.trim()); });
-      }
-    });
-    var needed = state.teamCount * 2;
-    var bank = ['Alex', 'Sam', 'Leo', 'Noa', 'Eli', 'Mila', 'Liam', 'Zoe', 'Nico', 'Maya', 'Rafa', 'Toma', 'Gabi', 'Luca', 'Nina', 'Sacha', 'Jo', 'Malo', 'Elio', 'Sofia', 'Ivy', 'Noah', 'Alma', 'Mira'];
-    var idx = 0;
-    while (pool.length < needed) {
-      pool.push(bank[idx % bank.length] + ' ' + (Math.floor(idx / bank.length) + 1));
+    ensureTeams(state.teamCount);
+    var bank = ['Padel King', 'Blue Smash', 'Padel Crew', 'Les Volées', 'Backhand Bros', 'Padel Stars', 'Service Gagnant', 'Volley Flash', 'Padel Rise', 'Golden Point', 'Full Ace', 'Slice & Win', 'Padel City', 'Team Drive', 'Lift Squad', 'Padel Shock', 'Ace Makers', 'Spin Masters', 'Revers Titan', 'Padel Flash'];
+    var pool = shuffle(bank.slice());
+    var idx = 1;
+    while (pool.length < state.teamCount) {
+      pool.push('Équipe ' + (idx + bank.length));
       idx += 1;
     }
-    pool = shuffle(pool).slice(0, needed);
-    ensureTeams(state.teamCount);
     for (var i = 0; i < state.teamCount; i++) {
-      var team = state.teams[i];
-      team.name = team.name || ('Équipe ' + (i + 1));
-      team.players = [pool[i * 2] || ('J' + (i * 2 + 1)), pool[i * 2 + 1] || ('J' + (i * 2 + 2))];
+      state.teams[i].name = pool[i] || ('Équipe ' + (i + 1));
     }
     renderTeamsList();
     saveState();
-    if (refs.teamHint) refs.teamHint.textContent = 'Équipes générées aléatoirement.';
+    if (refs.teamHint) refs.teamHint.textContent = 'Noms d’équipes générés aléatoirement.';
   }
 
   function buildMatches() {
@@ -565,25 +559,7 @@
     return state.rounds.length - 1;
   }
 
-  function renderTvStandings() {
-    if (!tvRefs.standings) return;
-    tvRefs.standings.innerHTML = '';
-    if (!state.standings.length) {
-      tvRefs.standings.innerHTML = '<div class="tv-empty">Classement en attente.</div>';
-      return;
-    }
-    // TV : classement simplifié (rang + nom uniquement)
-    var lines = state.standings.slice(0, 12);
-    lines.forEach(function(line, idx) {
-      var row = document.createElement('div');
-      row.className = 'tv-ranking-item';
-      row.innerHTML = '<span class="tv-ranking-pos">#' + (idx + 1) + '</span><span class="tv-ranking-name">' + line.name + '</span>';
-      tvRefs.standings.appendChild(row);
-    });
-  }
-
-  // TV UI : podium (top 3) uniquement en vue TV
-  function renderTvPodium() {
+  function renderTvPodiumPremium() {
     if (!tvRefs.podium) return;
     tvRefs.podium.innerHTML = '';
     if (!state.standings || !state.standings.length) {
@@ -596,10 +572,26 @@
       var row = document.createElement('div');
       row.className = 'tv-podium-row';
       var em = document.createElement('span'); em.className = 'tv-podium-emoji'; em.textContent = emojis[idx] || '•';
-      var name = document.createElement('span'); name.className = 'tv-podium-name'; name.textContent = line.name;
+      var name = document.createElement('span'); name.className = 'tv-podium-name'; name.textContent = '#' + (idx + 1) + ' ' + line.name;
       row.appendChild(em);
       row.appendChild(name);
       tvRefs.podium.appendChild(row);
+    });
+  }
+
+  function renderTvRankingRest() {
+    if (!tvRefs.rankingRest) return;
+    tvRefs.rankingRest.innerHTML = '';
+    if (!state.standings || state.standings.length <= 3) {
+      tvRefs.rankingRest.innerHTML = '<div class="tv-empty">Classement en attente.</div>';
+      return;
+    }
+    var rest = state.standings.slice(3);
+    rest.forEach(function(line, idx) {
+      var row = document.createElement('div');
+      row.className = 'tv-ranking-item';
+      row.innerHTML = '<span class="tv-ranking-pos">#' + (idx + 4) + '</span><span class="tv-ranking-name">' + line.name + '</span>';
+      tvRefs.rankingRest.appendChild(row);
     });
   }
 
@@ -620,8 +612,8 @@
     var nextMatches = next ? next.matches.map(function(id) { return state.matches.find(function(x) { return x.id === id; }); }).filter(Boolean) : [];
     renderTvList(tvRefs.current, currentMatches, true);
     renderTvList(tvRefs.next, nextMatches, false);
-    renderTvPodium();
-    renderTvStandings();
+    renderTvPodiumPremium();
+    renderTvRankingRest();
     applySponsorToTv();
     applyLogoToTv();
   }
@@ -922,12 +914,23 @@
     if (reset) reset.addEventListener('click', resetTimer);
   }
 
+  function bindTabNavigation() {
+    var buttons = root ? root.querySelectorAll('[data-americano-tab]') : [];
+    buttons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        setAmericanoTab(btn.getAttribute('data-americano-tab'));
+      });
+    });
+  }
+
   function init() {
     setTeamCountOptions();
     renderTeamsList();
+    renderAmericanoTabs();
     renderAll();
     bindEvents();
     bindRoundsPager();
+    bindTabNavigation();
     bindAmericanoCollapse();
     if (window.showAmericano && typeof window.showAmericano === 'function' && root && root.style.display !== 'none') {
       window.showAmericano();

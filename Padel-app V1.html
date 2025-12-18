@@ -1130,6 +1130,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .tv-podium-premium .tv-podium-row {
+      background: linear-gradient(120deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+      border-color: rgba(255,255,255,0.2);
+      color: #0f172a;
+    }
+    .tv-podium-premium .tv-podium-emoji { font-size:22px; }
+    .tv-podium-premium .tv-podium-name { font-weight:700; color:#0f172a; }
     @media (max-width: 700px) {
       .tv-ranking-grid { grid-template-columns: minmax(0,1fr); }
     }
@@ -1277,10 +1284,12 @@
     }
 
     /* AMERICANO */
-    .americano-layout { display: flex; flex-direction: column; gap: 12px; }
-    .americano-top-row { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(260px, 1fr)); align-items: start; }
-    @media(max-width:1100px){ .americano-top-row{ grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
-    .americano-bottom-row { display: flex; flex-direction: column; gap: 12px; }
+    .americano-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .americano-tab-btn { border:1px solid #1f2937; background: rgba(15,23,42,0.7); color: var(--text); border-radius:999px; padding:8px 14px; cursor:pointer; font-weight:600; transition: all 0.15s ease; }
+    .americano-tab-btn:hover { border-color: #e5e339; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    .americano-tab-btn.active { background: linear-gradient(120deg, #e5e339, #a3e635); color: #0f172a; border-color: #d9f99d; }
+    .americano-tab-panel { display:none; }
+    .americano-tab-panel.active { display:block; }
     .americano-card { border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.4); padding: 10px; min-width:0; box-shadow:0 12px 28px rgba(0,0,0,0.4); }
     .americano-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
     .americano-card-body { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
@@ -1303,7 +1312,7 @@
     .americano-collapse-btn { background: transparent !important; border: none !important; padding: 0 !important; line-height: 1; color: var(--brand-accent, #e5e339); font-weight: 800; font-size: 22px; cursor: pointer; }
     .americano-collapse-btn:hover { opacity: 0.85; }
     .americano-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
-    .americano-team-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; min-width:0; }
+    .americano-team-row { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: center; min-width:0; }
     .americano-team-cell { min-width:0; display:flex; flex-direction:column; gap:4px; }
     .americano-team-cell label { font-size:0.85rem; color: var(--muted); }
     .americano-team-row input { width:100%; min-width:0; }
@@ -2758,117 +2767,125 @@
         <div class="small-muted">Chaque équipe affronte toutes les autres une fois. Classement live et vue TV synchronisée.</div>
       </div>
 
-      <div class="americano-layout">
-        <div class="americano-top-row">
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title" style="margin-bottom:6px;">Organisation & timer</h3>
-                <div class="small-muted">Paramètres, génération et timer synchronisé</div>
-              </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-config-body">−</button>
+      <nav class="americano-tabs">
+        <button class="americano-tab-btn active" data-americano-tab="organization">Organisation</button>
+        <button class="americano-tab-btn" data-americano-tab="teams">Équipes</button>
+        <button class="americano-tab-btn" data-americano-tab="standings">Classement</button>
+        <button class="americano-tab-btn" data-americano-tab="matches">Matchs & Scores</button>
+      </nav>
+
+      <section id="americano-tab-organization" class="americano-tab-panel active" data-americano-tab-panel="organization">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Organisation & timer</h3>
+              <div class="small-muted">Paramètres, génération et timer synchronisé</div>
             </div>
-            <div id="americano-config-body" class="americano-card-body">
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-config-body">−</button>
+          </div>
+          <div id="americano-config-body" class="americano-card-body">
+            <div class="field">
+              <label for="americano-name">Nom du tournoi</label>
+              <input type="text" id="americano-name" placeholder="Américano du vendredi" />
+            </div>
+            <div class="field">
+              <label for="americano-team-count">Nombre d’équipes (8 à 24)</label>
+              <select id="americano-team-count"></select>
+            </div>
+            <div class="field">
+              <label for="americano-games">Jeux gagnants</label>
+              <select id="americano-games">
+                <option value="4">4 jeux</option>
+                <option value="6" selected>6 jeux</option>
+                <option value="9">9 jeux</option>
+              </select>
+            </div>
+            <div class="americano-inline" style="justify-content:flex-start;">
+              <button class="btn" id="btn-americano-generate">Générer le planning</button>
+              <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
+            </div>
+            <div class="americano-section">
+              <h4 class="tournaments-title" style="margin-bottom:6px;">Timer</h4>
               <div class="field">
-                <label for="americano-name">Nom du tournoi</label>
-                <input type="text" id="americano-name" placeholder="Américano du vendredi" />
+                <label for="americano-timer-minutes">Durée (minutes)</label>
+                <input type="number" id="americano-timer-minutes" min="1" value="12" />
               </div>
-              <div class="field">
-                <label for="americano-team-count">Nombre d’équipes (8 à 24)</label>
-                <select id="americano-team-count"></select>
+              <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+                <div class="chip" id="americano-timer-display">12:00</div>
+                <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
+                <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
+                <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
               </div>
-              <div class="field">
-                <label for="americano-games">Jeux gagnants</label>
-                <select id="americano-games">
-                  <option value="4">4 jeux</option>
-                  <option value="6" selected>6 jeux</option>
-                  <option value="9">9 jeux</option>
-                </select>
-              </div>
-              <div class="americano-inline" style="justify-content:flex-start;">
-                <button class="btn" id="btn-americano-generate">Générer le planning</button>
-                <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
-              </div>
-              <div class="americano-section">
-                <h4 class="tournaments-title" style="margin-bottom:6px;">Timer</h4>
-                <div class="field">
-                  <label for="americano-timer-minutes">Durée (minutes)</label>
-                  <input type="number" id="americano-timer-minutes" min="1" value="12" />
-                </div>
-                <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
-                  <div class="chip" id="americano-timer-display">12:00</div>
-                  <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
-                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
-                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
-                </div>
-                <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
-              </div>
+              <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
             </div>
           </div>
-
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title" style="margin-bottom:6px;">Création des équipes</h3>
-                <div class="small-muted">2 joueurs par équipe • saisie directe</div>
-              </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-teams-body">−</button>
-            </div>
-            <div id="americano-teams-body" class="americano-card-body">
-              <div class="americano-inline" style="justify-content:flex-start;">
-                <button class="btn btn-secondary btn-small" id="btn-americano-random-teams">Générer les équipes aléatoires</button>
-                <button class="btn btn-small" id="btn-americano-random-names">Noms aléatoires</button>
-              </div>
-              <div id="americano-team-hint" class="small-muted" style="margin-top:4px;"></div>
-              <div class="americano-section">
-                <div class="americano-inline" style="margin-bottom:6px;">
-                  <h4 class="tournaments-title">Équipes</h4>
-                  <div class="small-muted">Saisis directement les joueurs</div>
-                </div>
-                <div id="americano-teams-list" class="americano-teams-grid"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title">Classement</h3>
-                <div class="small-muted">Victoires, goal-average, confrontations directes</div>
-              </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-standings-body">−</button>
-            </div>
-            <div id="americano-standings-body" class="americano-card-body">
-              <table class="ligue-standings" id="americano-standings"></table>
-            </div>
-          </div>
-
         </div>
+      </section>
 
-        <div class="americano-bottom-row">
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
+      <section id="americano-tab-teams" class="americano-tab-panel" data-americano-tab-panel="teams">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Création des équipes</h3>
+              <div class="small-muted">1 nom par équipe • saisie directe</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-teams-body">−</button>
+          </div>
+          <div id="americano-teams-body" class="americano-card-body">
+            <div class="americano-inline" style="justify-content:flex-start;">
+              <button class="btn btn-secondary btn-small" id="btn-americano-random-teams">Générer les équipes aléatoires</button>
+              <button class="btn btn-small" id="btn-americano-random-names">Noms aléatoires</button>
+            </div>
+            <div id="americano-team-hint" class="small-muted" style="margin-top:4px;"></div>
+            <div class="americano-section">
               <div class="americano-inline" style="margin-bottom:6px;">
-                <h3 class="tournaments-title">Matchs & scores</h3>
-                <div class="americano-chip" id="americano-status">Planning à générer</div>
+                <h4 class="tournaments-title">Équipes</h4>
+                <div class="small-muted">Saisis directement les noms</div>
               </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-matches-body">−</button>
-            </div>
-            <div id="americano-matches-body" class="americano-card-body">
-              <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>
-              <div class="americano-rounds-nav">
-                <button class="btn btn-secondary btn-small" id="americano-rounds-prev">⟵ Précédent</button>
-                <div class="small-muted" id="americano-rounds-indicator">Roulements 0–0</div>
-                <button class="btn btn-secondary btn-small" id="americano-rounds-next">Suivant ⟶</button>
-              </div>
-              <div class="americano-rounds" id="americano-rounds"></div>
-              <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
-                <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>
-              </div>
+              <div id="americano-teams-list" class="americano-teams-grid"></div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section id="americano-tab-standings" class="americano-tab-panel" data-americano-tab-panel="standings">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title">Classement</h3>
+              <div class="small-muted">Victoires, goal-average, confrontations directes</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-standings-body">−</button>
+          </div>
+          <div id="americano-standings-body" class="americano-card-body">
+            <table class="ligue-standings" id="americano-standings"></table>
+          </div>
+        </div>
+      </section>
+
+      <section id="americano-tab-matches" class="americano-tab-panel" data-americano-tab-panel="matches">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div class="americano-inline" style="margin-bottom:6px;">
+              <h3 class="tournaments-title">Matchs & scores</h3>
+              <div class="americano-chip" id="americano-status">Planning à générer</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-matches-body">−</button>
+          </div>
+          <div id="americano-matches-body" class="americano-card-body">
+            <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>
+            <div class="americano-rounds-nav">
+              <button class="btn btn-secondary btn-small" id="americano-rounds-prev">⟵ Précédent</button>
+              <div class="small-muted" id="americano-rounds-indicator">Roulements 0–0</div>
+              <button class="btn btn-secondary btn-small" id="americano-rounds-next">Suivant ⟶</button>
+            </div>
+            <div class="americano-rounds" id="americano-rounds"></div>
+            <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
+              <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
 
     <!-- VUE TV AMERICANO -->
@@ -2922,9 +2939,9 @@
               <span>Classement</span>
               <span>Live</span>
             </div>
-            <!-- TV UI : podium (top 3) uniquement en vue TV -->
-            <div id="americano-tv-podium" class="tv-podium"></div>
-            <div id="americano-tv-standings" class="tv-ranking-grid"></div>
+            <!-- TV UI : podium premium + reste du classement -->
+            <div id="americano-tv-podium" class="tv-podium tv-podium-premium"></div>
+            <div id="americano-tv-ranking-rest" class="tv-ranking-grid"></div>
           </div>
         </section>
       </main>
