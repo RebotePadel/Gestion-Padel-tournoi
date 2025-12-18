@@ -1,0 +1,149 @@
+/* ========================================
+   🆕 SIDEBAR NAVIGATION LOGIC
+   ======================================== */
+
+(function() {
+  // Références
+  const sidebar = document.getElementById('app-sidebar');
+  const sidebarLogo = document.getElementById('sidebar-logo');
+  const mobileHandle = document.getElementById('sidebar-mobile-handle');
+  const settingsBtn = document.getElementById('sidebar-settings-btn');
+  const navItems = document.querySelectorAll('.sidebar-item[data-nav]');
+
+  // Sync logo sidebar avec logo principal
+  function syncSidebarLogo() {
+    const mainLogo = document.getElementById('app-logo');
+    if (mainLogo && mainLogo.src) {
+      sidebarLogo.src = mainLogo.src;
+      sidebarLogo.style.display = 'block';
+    }
+  }
+
+  // Observer le logo principal
+  const logoObserver = new MutationObserver(syncSidebarLogo);
+  const mainLogo = document.getElementById('app-logo');
+  if (mainLogo) {
+    logoObserver.observe(mainLogo, { attributes: true, attributeFilter: ['src'] });
+    syncSidebarLogo();
+  }
+
+  // Toggle sidebar mobile
+  if (mobileHandle) {
+    mobileHandle.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+    });
+  }
+
+  // Fermer sidebar mobile après navigation
+  function closeMobileSidebar() {
+    if (window.innerWidth <= 900) {
+      sidebar.classList.remove('open');
+    }
+  }
+
+  // Map navigation
+  const navMap = {
+    'home': 'home-root',
+    'md': 'admin-root',
+    'tournaments': 'tournaments-root',
+    'americano': 'americano-root',
+    'ligue': 'ligue-root',
+    'ligue-config': 'ligue-config-root'
+  };
+
+  // Navigation handler
+  navItems.forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('data-nav');
+      const sectionId = navMap[target];
+
+      if (!sectionId) return;
+
+      // Hide all sections
+      document.querySelectorAll('[id$="-root"]').forEach(function(section) {
+        section.style.display = 'none';
+      });
+
+      // Show target section
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) {
+        targetSection.style.display = 'block';
+
+        // Update active state
+        navItems.forEach(function(nav) {
+          nav.classList.remove('active');
+        });
+        item.classList.add('active');
+
+        // Smooth scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+        // Close mobile sidebar
+        closeMobileSidebar();
+      }
+    });
+  });
+
+  // Settings button
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', function() {
+      // Hide all sections
+      document.querySelectorAll('[id$="-root"]').forEach(function(section) {
+        section.style.display = 'none';
+      });
+
+      // Show settings
+      const settingsSection = document.getElementById('settings-root');
+      if (settingsSection) {
+        settingsSection.style.display = 'block';
+
+        // Update active state
+        navItems.forEach(function(nav) {
+          nav.classList.remove('active');
+        });
+
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        closeMobileSidebar();
+      }
+    });
+  }
+
+  // Sync avec les boutons existants
+  const existingButtons = {
+    'btn-home-md': 'md',
+    'btn-home-tournaments': 'tournaments',
+    'btn-home-ligue': 'ligue',
+    'btn-open-settings': null, // settings handled separately
+    'btn-back-home-from-md': 'home',
+    'btn-back-home-from-tournaments': 'home',
+    'btn-back-home-from-classic': 'home',
+    'btn-back-home-from-ligue': 'home',
+    'btn-ligue-config': 'ligue-config',
+    'btn-home-americano': 'americano',
+    'btn-americano-home': 'home'
+  };
+
+  Object.keys(existingButtons).forEach(function(btnId) {
+    const btn = document.getElementById(btnId);
+    const navTarget = existingButtons[btnId];
+
+    if (btn && navTarget) {
+      btn.addEventListener('click', function() {
+        const targetNav = document.querySelector('.sidebar-item[data-nav="' + navTarget + '"]');
+        if (targetNav) {
+          navItems.forEach(function(nav) {
+            nav.classList.remove('active');
+          });
+          targetNav.classList.add('active');
+        }
+      });
+    }
+  });
+
+  // Init: set home as active
+  const homeNav = document.querySelector('.sidebar-item[data-nav="home"]');
+  if (homeNav) {
+    homeNav.classList.add('active');
+  }
+})();

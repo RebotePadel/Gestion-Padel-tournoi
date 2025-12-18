@@ -112,23 +112,23 @@
     const elHomeLogoPreview = selClassic("#home-logo-preview");
     const elHomeLogoHelper  = selClassic("#home-logo-helper");
 
-    // TV
-    const elTvOverlay     = selClassic("#tv-overlay");
+    // TV - éléments en dehors de #classic-root, donc on utilise document.querySelector
+    const elTvOverlay     = document.querySelector("#tv-overlay");
     const elBtnOpenTv     = selClassic("#btn-open-tv");
-    const elBtnCloseTv    = selClassic("#btn-close-tv");
-    const elTvTitle       = selClassic("#tv-title");
-    const elTvSubtitle    = selClassic("#tv-subtitle");
-    const elTvPhaseTag    = selClassic("#tv-phase-tag");
-    const elTvMain        = selClassic(".tv-main");
-    const elTvLeftTitle   = selClassic("#tv-left-title");
-    const elTvRightTitle  = selClassic("#tv-right-title");
-    const elTvLeftList    = selClassic("#tv-left-list");
-    const elTvRightList   = selClassic("#tv-right-list");
-    const elTvLogo        = selClassic("#tv-logo");
-    const elTvBracketRow  = selClassic("#tv-bracket-row");
-    const elTvMainTree    = selClassic("#tv-main-bracket-tree");
-    const elTvConsoTree   = selClassic("#tv-conso-bracket-tree");
-    const elTvFinalRanking= selClassic("#tv-final-ranking");
+    const elBtnCloseTv    = document.querySelector("#tv-overlay #btn-close-tv");
+    const elTvTitle       = document.querySelector("#tv-overlay #tv-title");
+    const elTvSubtitle    = document.querySelector("#tv-overlay #tv-subtitle");
+    const elTvPhaseTag    = document.querySelector("#tv-overlay #tv-phase-tag");
+    const elTvMain        = document.querySelector("#tv-overlay .tv-main");
+    const elTvLeftTitle   = document.querySelector("#tv-overlay #tv-left-title");
+    const elTvRightTitle  = document.querySelector("#tv-overlay #tv-right-title");
+    const elTvLeftList    = document.querySelector("#tv-overlay #tv-left-list");
+    const elTvRightList   = document.querySelector("#tv-overlay #tv-right-list");
+    const elTvLogo        = document.querySelector("#tv-overlay #tv-logo");
+    const elTvBracketRow  = document.querySelector("#tv-overlay #tv-bracket-row");
+    const elTvMainTree    = document.querySelector("#tv-overlay #tv-main-bracket-tree");
+    const elTvConsoTree   = document.querySelector("#tv-overlay #tv-conso-bracket-tree");
+    const elTvFinalRanking= document.querySelector("#tv-overlay #tv-final-ranking");
 
     /* INIT TEAMS INPUTS */
     function initTeamsInputs() {
