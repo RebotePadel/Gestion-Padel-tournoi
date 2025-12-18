@@ -61,6 +61,13 @@
     if (!fromBack && current && key !== current) {
       historyStack.push(current);
     }
+
+    // Retirer tv-mode sauf pour les vues TV
+    var tvSections = ['tv', 'americanoTv', 'liguePlayer'];
+    if (tvSections.indexOf(key) === -1) {
+      document.body.classList.remove('tv-mode');
+    }
+
     hideAllSections();
     sections[key].style.display = 'block';
     current = key;
@@ -81,6 +88,7 @@
   function showAdmin() { showSection('admin'); }
   function showTV() {
     showSection('tv');
+    document.body.classList.add('tv-mode'); // Masquer sidebar
     if (typeof window.mdRenderTvView === 'function') {
       try { window.mdRenderTvView(); } catch (e) { /* noop */ }
     }
@@ -94,13 +102,17 @@
   }
   function showAmericanoTv() {
     showSection('americanoTv');
+    document.body.classList.add('tv-mode'); // Masquer sidebar
     if (window.AMERICANO && typeof window.AMERICANO.renderTv === 'function') window.AMERICANO.renderTv();
   }
   function showLigue() { showSection('ligue'); }
   function showLigueConfig() { showSection('ligueConfig'); }
   function showLigueActive() { showSection('ligueActive'); }
   function showLigueManage() { showSection('ligueManage'); }
-  function showLiguePlayer() { showSection('liguePlayer'); }
+  function showLiguePlayer() {
+    showSection('liguePlayer');
+    document.body.classList.add('tv-mode'); // Masquer sidebar
+  }
   function showSettings() { showSection('settings'); }
 
   function goBack() {
