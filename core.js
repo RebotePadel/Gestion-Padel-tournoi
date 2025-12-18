@@ -63,7 +63,7 @@
     }
 
     // Retirer tv-mode sauf pour les vues TV
-    var tvSections = ['tv', 'americanoTv', 'liguePlayer'];
+    var tvSections = ['tv', 'americanoTv', 'liguePlayer', 'liguePlayerManage'];
     if (tvSections.indexOf(key) === -1) {
       document.body.classList.remove('tv-mode');
     }
