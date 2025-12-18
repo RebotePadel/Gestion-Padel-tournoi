@@ -1,3 +1,4 @@
+<!-- CODEX_RESET_OK -->
 <!doctype html>
 <html lang="fr">
 <head>
@@ -273,15 +274,64 @@
     }
 
     .home-card {
-      border-radius: 16px;
-      padding: 14px;
-      border: 1px solid rgba(15,23,42,0.8);
-      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.2), transparent 55%),
-                  linear-gradient(135deg,#020617,#020c1f);
-      box-shadow: 0 20px 45px rgba(0,0,0,0.9);
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+   .home-card {
+  border-radius: 20px;
+  padding: 20px;
+  border: 1px solid rgba(148, 163, 184, 0.1);
+  background: linear-gradient(145deg,
+    rgba(11, 18, 32, 0.8) 0%,
+    rgba(2, 6, 23, 0.9) 100%);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.home-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 0% 0%, 
+    rgba(229, 227, 57, 0.08) 0%,
+    transparent 50%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.home-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: rgba(229, 227, 57, 0.3);
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.8),
+    0 0 0 1px rgba(229, 227, 57, 0.2);
+}
+
+.home-card:hover::before {
+  opacity: 1;
+}
+
+.home-card-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  box-shadow: 0 8px 20px rgba(229, 227, 57, 0.3);
+  transition: all 0.3s ease;
+}
+
+.home-card:hover .home-card-icon {
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 0 12px 28px rgba(229, 227, 57, 0.5);
+}
     }
 
     .home-card-header {
@@ -1129,6 +1179,13 @@
       overflow: hidden;
       text-overflow: ellipsis;
     }
+    .tv-podium-premium .tv-podium-row {
+      background: linear-gradient(120deg, rgba(255,255,255,0.12), rgba(255,255,255,0.05));
+      border-color: rgba(255,255,255,0.2);
+      color: #0f172a;
+    }
+    .tv-podium-premium .tv-podium-emoji { font-size:22px; }
+    .tv-podium-premium .tv-podium-name { font-weight:700; color:#0f172a; }
     @media (max-width: 700px) {
       .tv-ranking-grid { grid-template-columns: minmax(0,1fr); }
     }
@@ -1276,10 +1333,12 @@
     }
 
     /* AMERICANO */
-    .americano-layout { display: flex; flex-direction: column; gap: 12px; }
-    .americano-top-row { display: grid; gap: 12px; grid-template-columns: repeat(4, minmax(260px, 1fr)); align-items: start; }
-    @media(max-width:1100px){ .americano-top-row{ grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); } }
-    .americano-bottom-row { display: flex; flex-direction: column; gap: 12px; }
+    .americano-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+    .americano-tab-btn { border:1px solid #1f2937; background: rgba(15,23,42,0.7); color: var(--text); border-radius:999px; padding:8px 14px; cursor:pointer; font-weight:600; transition: all 0.15s ease; }
+    .americano-tab-btn:hover { border-color: #e5e339; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    .americano-tab-btn.active { background: linear-gradient(120deg, #e5e339, #a3e635); color: #0f172a; border-color: #d9f99d; }
+    .americano-tab-panel { display:none; }
+    .americano-tab-panel.active { display:block; }
     .americano-card { border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.4); padding: 10px; min-width:0; box-shadow:0 12px 28px rgba(0,0,0,0.4); }
     .americano-card-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
     .americano-card-body { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
@@ -1302,7 +1361,7 @@
     .americano-collapse-btn { background: transparent !important; border: none !important; padding: 0 !important; line-height: 1; color: var(--brand-accent, #e5e339); font-weight: 800; font-size: 22px; cursor: pointer; }
     .americano-collapse-btn:hover { opacity: 0.85; }
     .americano-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
-    .americano-team-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; align-items: center; min-width:0; }
+    .americano-team-row { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: center; min-width:0; }
     .americano-team-cell { min-width:0; display:flex; flex-direction:column; gap:4px; }
     .americano-team-cell label { font-size:0.85rem; color: var(--muted); }
     .americano-team-row input { width:100%; min-width:0; }
@@ -1973,14 +2032,40 @@
       content:none;
     }#classic-root /* TV */
     .tv-overlay{
-      position:fixed;
-      inset:0;
-      background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
-                  radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
-                  #020617;
-      z-index:50;
-      display:none;
-      padding:24px;
+     .tv-overlay{
+  position:fixed;
+  inset:0;
+  background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
+              radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
+              #020617;
+  z-index:9999;
+  display:none;
+  padding:24px;
+  /* 🆕 Fix plein écran */
+  margin-left: 0 !important;
+  width: 100vw !important;
+  left: 0 !important;
+  right: 0 !important;
+}
+/* 🆕 Cacher sidebar en mode TV */
+body.tv-mode .app-sidebar {
+  transform: translateX(-280px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+body.tv-mode .sidebar-mobile-handle {
+  display: none !important;
+}
+
+body.tv-mode .sidebar-toggle {
+  display: none !important;
+}
+
+body.tv-mode .app {
+  margin-left: 0 !important;
+}
     }#classic-root .tv-inner{
       max-width:1700px;
       margin:0 auto;
@@ -2231,9 +2316,361 @@
     }#classic-root .tv-match-card.upcoming .tv-tag{
       background:rgba(255,255,255,0.08);
     }
+    /* ========================================
+   🆕 SIDEBAR MODERNE V2
+   ======================================== */
+
+.app-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg, 
+    rgba(2, 6, 23, 0.98) 0%,
+    rgba(11, 18, 32, 0.95) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 24px;
+}
+
+.sidebar-logo {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  object-fit: cover;
+  display: none;
+}
+
+.sidebar-logo[src] {
+  display: block;
+}
+
+.sidebar-club-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, 
+    rgba(229, 227, 57, 0.1), 
+    rgba(77, 129, 185, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(4px);
+}
+
+.sidebar-item:hover::before {
+  opacity: 1;
+}
+
+.sidebar-item.active {
+  color: #0f172a;
+  background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(229, 227, 57, 0.3);
+}
+
+.sidebar-item.active::before {
+  display: none;
+}
+
+.sidebar-icon {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-label {
+  flex: 1;
+}
+
+.sidebar-section {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-section-label {
+  padding: 8px 16px 4px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+}
+
+.sidebar-footer {
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  margin-top: auto;
+}
+
+/* Layout avec sidebar */
+body.sidebar-open .app {
+  margin-left: 280px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app {
+  margin-left: 280px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Mobile : Bottom sheet sidebar */
+.sidebar-mobile-handle {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .app-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    bottom: 0;
+    top: auto;
+    left: 0;
+    border-right: none;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 24px 24px 0 0;
+    transform: translateY(calc(100% - 70px));
+    padding-top: 32px;
+  }
+  
+  .app-sidebar.open {
+    transform: translateY(0);
+  }
+  
+  .sidebar-mobile-handle {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
+    border-radius: 50%;
+    box-shadow: 0 8px 24px rgba(229, 227, 57, 0.4);
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .sidebar-mobile-handle:active {
+    transform: translateX(-50%) scale(0.9);
+  }
+  
+  .handle-bar {
+    width: 24px;
+    height: 3px;
+    background: #0f172a;
+    border-radius: 999px;
+    position: relative;
+  }
+  
+  .handle-bar::before,
+  .handle-bar::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 3px;
+    background: #0f172a;
+    border-radius: 999px;
+    left: 0;
+  }
+  
+  .handle-bar::before {
+    top: -8px;
+  }
+  
+  .handle-bar::after {
+    bottom: -8px;
+  }
+  
+  .app {
+    margin-left: 0;
+    padding-bottom: 100px;
+  }
+  
+  body.sidebar-open .app {
+    margin-left: 0;
+  }
+}
+
+/* Adapter l'ancien header avec la sidebar */
+@media (min-width: 901px) {
+  /* Cacher uniquement le header de la page d'accueil et sections sans actions */
+  #home-root .app-header,
+  #settings-root .app-header,
+  #ligue-root .app-header,
+  #tournaments-root .app-header {
+    display: none !important;
+  }
+  
+  /* Garder le header pour les modes avec actions contextuelles */
+  #classic-root .app-header,
+  #admin-root .app-header,
+  #americano-root .app-header,
+  #ligue-manage-root .app-header,
+  #ligue-config-root .app-header {
+    display: flex !important;
+    margin-bottom: 16px;
+  }
+  
+  /* Cacher les boutons retour (remplacés par la sidebar) */
+  .header-back-btn {
+    display: none !important;
+  }
+  
+  /* Garder settings et actions spécifiques */
+  .header-settings-btn {
+    display: inline-flex !important;
+  }
+}
+}
+/* Sur mobile, garder le header compact */
+@media (max-width: 900px) {
+  .app-header {
+    padding: 12px 16px;
+  }
+  
+  .header-back-btn,
+  .header-settings-btn {
+    display: none !important;
+  }
+}
   </style>
 </head>
 <body>
+    <!-- 🆕 SIDEBAR MODERNE V2 -->
+<aside class="app-sidebar" id="app-sidebar">
+  <div class="sidebar-brand">
+    <img id="sidebar-logo" alt="Logo" class="sidebar-logo">
+    <span class="sidebar-club-name" data-club-name>Padel Parc</span>
+  </div>
+  
+  <nav class="sidebar-nav">
+    <a href="#" class="sidebar-item active" data-nav="home">
+      <span class="sidebar-icon">🏠</span>
+      <span class="sidebar-label">Accueil</span>
+    </a>
+    
+    <div class="sidebar-section">
+      <span class="sidebar-section-label">Tournois</span>
+      
+      <a href="#" class="sidebar-item" data-nav="md">
+        <span class="sidebar-icon">🔄</span>
+        <span class="sidebar-label">Montante/Descendante</span>
+      </a>
+      
+      <a href="#" class="sidebar-item" data-nav="tournaments">
+        <span class="sidebar-icon">🏆</span>
+        <span class="sidebar-label">Tournois classiques</span>
+      </a>
+      
+      <a href="#" class="sidebar-item" data-nav="americano">
+        <span class="sidebar-icon">🎯</span>
+        <span class="sidebar-label">Américano</span>
+      </a>
+    </div>
+    
+    <div class="sidebar-section">
+      <span class="sidebar-section-label">Ligue</span>
+      
+      <a href="#" class="sidebar-item" data-nav="ligue">
+        <span class="sidebar-icon">📅</span>
+        <span class="sidebar-label">Ligues actives</span>
+      </a>
+      
+      <a href="#" class="sidebar-item" data-nav="ligue-config">
+        <span class="sidebar-icon">➕</span>
+        <span class="sidebar-label">Nouvelle ligue</span>
+      </a>
+    </div>
+  </nav>
+  
+  <div class="sidebar-footer">
+    <button class="sidebar-item sidebar-settings" id="sidebar-settings-btn">
+      <span class="sidebar-icon">⚙️</span>
+      <span class="sidebar-label">Paramètres</span>
+    </button>
+  </div>
+</aside>
+
+<!-- Handle mobile sidebar toggle -->
+<div class="sidebar-mobile-handle" id="sidebar-mobile-handle">
+  <div class="handle-bar"></div>
+</div>
   <div class="app">
     <div class="app-header">
       <button id="btn-header-back" class="header-back-btn" aria-label="Retour">←</button>
@@ -2757,117 +3194,125 @@
         <div class="small-muted">Chaque équipe affronte toutes les autres une fois. Classement live et vue TV synchronisée.</div>
       </div>
 
-      <div class="americano-layout">
-        <div class="americano-top-row">
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title" style="margin-bottom:6px;">Organisation & timer</h3>
-                <div class="small-muted">Paramètres, génération et timer synchronisé</div>
-              </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-config-body">−</button>
+      <nav class="americano-tabs">
+        <button class="americano-tab-btn active" data-americano-tab="organization">Organisation</button>
+        <button class="americano-tab-btn" data-americano-tab="teams">Équipes</button>
+        <button class="americano-tab-btn" data-americano-tab="standings">Classement</button>
+        <button class="americano-tab-btn" data-americano-tab="matches">Matchs & Scores</button>
+      </nav>
+
+      <section id="americano-tab-organization" class="americano-tab-panel active" data-americano-tab-panel="organization">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Organisation & timer</h3>
+              <div class="small-muted">Paramètres, génération et timer synchronisé</div>
             </div>
-            <div id="americano-config-body" class="americano-card-body">
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-config-body">−</button>
+          </div>
+          <div id="americano-config-body" class="americano-card-body">
+            <div class="field">
+              <label for="americano-name">Nom du tournoi</label>
+              <input type="text" id="americano-name" placeholder="Américano du vendredi" />
+            </div>
+            <div class="field">
+              <label for="americano-team-count">Nombre d’équipes (8 à 24)</label>
+              <select id="americano-team-count"></select>
+            </div>
+            <div class="field">
+              <label for="americano-games">Jeux gagnants</label>
+              <select id="americano-games">
+                <option value="4">4 jeux</option>
+                <option value="6" selected>6 jeux</option>
+                <option value="9">9 jeux</option>
+              </select>
+            </div>
+            <div class="americano-inline" style="justify-content:flex-start;">
+              <button class="btn" id="btn-americano-generate">Générer le planning</button>
+              <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
+            </div>
+            <div class="americano-section">
+              <h4 class="tournaments-title" style="margin-bottom:6px;">Timer</h4>
               <div class="field">
-                <label for="americano-name">Nom du tournoi</label>
-                <input type="text" id="americano-name" placeholder="Américano du vendredi" />
+                <label for="americano-timer-minutes">Durée (minutes)</label>
+                <input type="number" id="americano-timer-minutes" min="1" value="12" />
               </div>
-              <div class="field">
-                <label for="americano-team-count">Nombre d’équipes (8 à 24)</label>
-                <select id="americano-team-count"></select>
+              <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+                <div class="chip" id="americano-timer-display">12:00</div>
+                <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
+                <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
+                <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
               </div>
-              <div class="field">
-                <label for="americano-games">Jeux gagnants</label>
-                <select id="americano-games">
-                  <option value="4">4 jeux</option>
-                  <option value="6" selected>6 jeux</option>
-                  <option value="9">9 jeux</option>
-                </select>
-              </div>
-              <div class="americano-inline" style="justify-content:flex-start;">
-                <button class="btn" id="btn-americano-generate">Générer le planning</button>
-                <button class="btn btn-secondary" id="btn-americano-reset">Réinitialiser</button>
-              </div>
-              <div class="americano-section">
-                <h4 class="tournaments-title" style="margin-bottom:6px;">Timer</h4>
-                <div class="field">
-                  <label for="americano-timer-minutes">Durée (minutes)</label>
-                  <input type="number" id="americano-timer-minutes" min="1" value="12" />
-                </div>
-                <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
-                  <div class="chip" id="americano-timer-display">12:00</div>
-                  <button class="btn btn-small" id="btn-americano-timer-start">Lancer</button>
-                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-pause">Pause</button>
-                  <button class="btn btn-secondary btn-small" id="btn-americano-timer-reset">Réinitialiser</button>
-                </div>
-                <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
-              </div>
+              <div class="small-muted" id="americano-timer-status" style="margin-top:4px;">Timer prêt</div>
             </div>
           </div>
-
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title" style="margin-bottom:6px;">Création des équipes</h3>
-                <div class="small-muted">2 joueurs par équipe • saisie directe</div>
-              </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-teams-body">−</button>
-            </div>
-            <div id="americano-teams-body" class="americano-card-body">
-              <div class="americano-inline" style="justify-content:flex-start;">
-                <button class="btn btn-secondary btn-small" id="btn-americano-random-teams">Générer les équipes aléatoires</button>
-                <button class="btn btn-small" id="btn-americano-random-names">Noms aléatoires</button>
-              </div>
-              <div id="americano-team-hint" class="small-muted" style="margin-top:4px;"></div>
-              <div class="americano-section">
-                <div class="americano-inline" style="margin-bottom:6px;">
-                  <h4 class="tournaments-title">Équipes</h4>
-                  <div class="small-muted">Saisis directement les joueurs</div>
-                </div>
-                <div id="americano-teams-list" class="americano-teams-grid"></div>
-              </div>
-            </div>
-          </div>
-
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
-              <div>
-                <h3 class="tournaments-title">Classement</h3>
-                <div class="small-muted">Victoires, goal-average, confrontations directes</div>
-              </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-standings-body">−</button>
-            </div>
-            <div id="americano-standings-body" class="americano-card-body">
-              <table class="ligue-standings" id="americano-standings"></table>
-            </div>
-          </div>
-
         </div>
+      </section>
 
-        <div class="americano-bottom-row">
-          <div class="card app-block-interactive americano-card">
-            <div class="americano-card-header">
+      <section id="americano-tab-teams" class="americano-tab-panel" data-americano-tab-panel="teams">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Création des équipes</h3>
+              <div class="small-muted">1 nom par équipe • saisie directe</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-teams-body">−</button>
+          </div>
+          <div id="americano-teams-body" class="americano-card-body">
+            <div class="americano-inline" style="justify-content:flex-start;">
+              <button class="btn btn-secondary btn-small" id="btn-americano-random-teams">Générer les équipes aléatoires</button>
+              <button class="btn btn-small" id="btn-americano-random-names">Noms aléatoires</button>
+            </div>
+            <div id="americano-team-hint" class="small-muted" style="margin-top:4px;"></div>
+            <div class="americano-section">
               <div class="americano-inline" style="margin-bottom:6px;">
-                <h3 class="tournaments-title">Matchs & scores</h3>
-                <div class="americano-chip" id="americano-status">Planning à générer</div>
+                <h4 class="tournaments-title">Équipes</h4>
+                <div class="small-muted">Saisis directement les noms</div>
               </div>
-              <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-matches-body">−</button>
-            </div>
-            <div id="americano-matches-body" class="americano-card-body">
-              <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>
-              <div class="americano-rounds-nav">
-                <button class="btn btn-secondary btn-small" id="americano-rounds-prev">⟵ Précédent</button>
-                <div class="small-muted" id="americano-rounds-indicator">Roulements 0–0</div>
-                <button class="btn btn-secondary btn-small" id="americano-rounds-next">Suivant ⟶</button>
-              </div>
-              <div class="americano-rounds" id="americano-rounds"></div>
-              <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
-                <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>
-              </div>
+              <div id="americano-teams-list" class="americano-teams-grid"></div>
             </div>
           </div>
         </div>
-      </div>
+      </section>
+
+      <section id="americano-tab-standings" class="americano-tab-panel" data-americano-tab-panel="standings">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title">Classement</h3>
+              <div class="small-muted">Victoires, goal-average, confrontations directes</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-standings-body">−</button>
+          </div>
+          <div id="americano-standings-body" class="americano-card-body">
+            <table class="ligue-standings" id="americano-standings"></table>
+          </div>
+        </div>
+      </section>
+
+      <section id="americano-tab-matches" class="americano-tab-panel" data-americano-tab-panel="matches">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div class="americano-inline" style="margin-bottom:6px;">
+              <h3 class="tournaments-title">Matchs & scores</h3>
+              <div class="americano-chip" id="americano-status">Planning à générer</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="americano-matches-body">−</button>
+          </div>
+          <div id="americano-matches-body" class="americano-card-body">
+            <div class="small-muted" style="margin-bottom:6px;">Scores validés = classement mis à jour instantanément. 4 terrains par roulement.</div>
+            <div class="americano-rounds-nav">
+              <button class="btn btn-secondary btn-small" id="americano-rounds-prev">⟵ Précédent</button>
+              <div class="small-muted" id="americano-rounds-indicator">Roulements 0–0</div>
+              <button class="btn btn-secondary btn-small" id="americano-rounds-next">Suivant ⟶</button>
+            </div>
+            <div class="americano-rounds" id="americano-rounds"></div>
+            <div class="americano-inline" style="margin-top:8px; justify-content:flex-end;">
+              <button class="btn btn-secondary btn-small" id="btn-americano-random-scores">Générer les scores aléatoires</button>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
 
     <!-- VUE TV AMERICANO -->
@@ -2921,9 +3366,9 @@
               <span>Classement</span>
               <span>Live</span>
             </div>
-            <!-- TV UI : podium (top 3) uniquement en vue TV -->
-            <div id="americano-tv-podium" class="tv-podium"></div>
-            <div id="americano-tv-standings" class="tv-ranking-grid"></div>
+            <!-- TV UI : podium premium + reste du classement -->
+            <div id="americano-tv-podium" class="tv-podium tv-podium-premium"></div>
+            <div id="americano-tv-ranking-rest" class="tv-ranking-grid"></div>
           </div>
         </section>
       </main>
@@ -5407,5 +5852,153 @@
   <script src="mode_classic.js"></script>
   <script src="mode_md.js"></script>
   <script src="mode_ligue.js"></script>
+  <!-- 🆕 SIDEBAR NAVIGATION LOGIC -->
+<script>
+(function() {
+  // Références
+  const sidebar = document.getElementById('app-sidebar');
+  const sidebarLogo = document.getElementById('sidebar-logo');
+  const mobileHandle = document.getElementById('sidebar-mobile-handle');
+  const settingsBtn = document.getElementById('sidebar-settings-btn');
+  const navItems = document.querySelectorAll('.sidebar-item[data-nav]');
+  
+  // Sync logo sidebar avec logo principal
+  function syncSidebarLogo() {
+    const mainLogo = document.getElementById('app-logo');
+    if (mainLogo && mainLogo.src) {
+      sidebarLogo.src = mainLogo.src;
+      sidebarLogo.style.display = 'block';
+    }
+  }
+  
+  // Observer le logo principal
+  const logoObserver = new MutationObserver(syncSidebarLogo);
+  const mainLogo = document.getElementById('app-logo');
+  if (mainLogo) {
+    logoObserver.observe(mainLogo, { attributes: true, attributeFilter: ['src'] });
+    syncSidebarLogo();
+  }
+  
+  // Toggle sidebar mobile
+  if (mobileHandle) {
+    mobileHandle.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+    });
+  }
+  
+  // Fermer sidebar mobile après navigation
+  function closeMobileSidebar() {
+    if (window.innerWidth <= 900) {
+      sidebar.classList.remove('open');
+    }
+  }
+  
+  // Map navigation
+  const navMap = {
+    'home': 'home-root',
+    'md': 'admin-root',
+    'tournaments': 'tournaments-root',
+    'americano': 'americano-root',
+    'ligue': 'ligue-root',
+    'ligue-config': 'ligue-config-root'
+  };
+  
+  // Navigation handler
+  navItems.forEach(function(item) {
+    item.addEventListener('click', function(e) {
+      e.preventDefault();
+      const target = this.getAttribute('data-nav');
+      const sectionId = navMap[target];
+      
+      if (!sectionId) return;
+      
+      // Hide all sections
+      document.querySelectorAll('[id$="-root"]').forEach(function(section) {
+        section.style.display = 'none';
+      });
+      
+      // Show target section
+      const targetSection = document.getElementById(sectionId);
+      if (targetSection) {
+        targetSection.style.display = 'block';
+        
+        // Update active state
+        navItems.forEach(function(nav) {
+          nav.classList.remove('active');
+        });
+        item.classList.add('active');
+        
+        // Smooth scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        
+        // Close mobile sidebar
+        closeMobileSidebar();
+      }
+    });
+  });
+  
+  // Settings button
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', function() {
+      // Hide all sections
+      document.querySelectorAll('[id$="-root"]').forEach(function(section) {
+        section.style.display = 'none';
+      });
+      
+      // Show settings
+      const settingsSection = document.getElementById('settings-root');
+      if (settingsSection) {
+        settingsSection.style.display = 'block';
+        
+        // Update active state
+        navItems.forEach(function(nav) {
+          nav.classList.remove('active');
+        });
+        
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        closeMobileSidebar();
+      }
+    });
+  }
+  
+  // Sync avec les boutons existants
+  const existingButtons = {
+    'btn-home-md': 'md',
+    'btn-home-tournaments': 'tournaments',
+    'btn-home-ligue': 'ligue',
+    'btn-open-settings': null, // settings handled separately
+    'btn-back-home-from-md': 'home',
+    'btn-back-home-from-tournaments': 'home',
+    'btn-back-home-from-classic': 'home',
+    'btn-back-home-from-ligue': 'home',
+    'btn-ligue-config': 'ligue-config',
+    'btn-home-americano': 'americano',
+    'btn-americano-home': 'home'
+  };
+  
+  Object.keys(existingButtons).forEach(function(btnId) {
+    const btn = document.getElementById(btnId);
+    const navTarget = existingButtons[btnId];
+    
+    if (btn && navTarget) {
+      btn.addEventListener('click', function() {
+        const targetNav = document.querySelector('.sidebar-item[data-nav="' + navTarget + '"]');
+        if (targetNav) {
+          navItems.forEach(function(nav) {
+            nav.classList.remove('active');
+          });
+          targetNav.classList.add('active');
+        }
+      });
+    }
+  });
+  
+  // Init: set home as active
+  const homeNav = document.querySelector('.sidebar-item[data-nav="home"]');
+  if (homeNav) {
+    homeNav.classList.add('active');
+  }
+})();
+</script>
 </body>
 </html>
