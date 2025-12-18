@@ -66,6 +66,9 @@
     dayExportSelect: document.getElementById('ligue-day-export-select'),
     dayExportBtn: document.getElementById('btn-ligue-day-export'),
     exportMatchesBtn: document.getElementById('btn-ligue-export-matches'),
+    exportMatchesMode: document.getElementById('ligue-export-matches-mode'),
+    exportMatchesDay: document.getElementById('ligue-export-matches-day'),
+    exportMatchesFormat: document.getElementById('ligue-export-matches-format'),
     managePanels: {
       calendar: document.getElementById('panel-ligue-calendar'),
       standings: document.getElementById('panel-ligue-standings'),
@@ -121,6 +124,7 @@
   var currentManageTab = 'calendar';
   var currentPlayerId = null;
   var currentPlayerTab = 'calendar';
+  var lastRoundOptionsCount = 0;
 
   function loadState() {
     var empty = { activeLeagues: [], finishedLeagues: [] };
@@ -328,6 +332,9 @@
   bind(refs.manageCloseBtn, handleCloseLeague);
   bind(refs.manageBackBtn, showLigueActive);
   bind(refs.exportMatchesBtn, handleExportMatches);
+  // PATCH : export matchs (tous / par journée) sans pop-up
+  bind(refs.exportMatchesMode, updateMatchesExportModeUI);
+  bind(refs.exportMatchesDay, updateMatchesExportModeUI);
   bind(refs.dayExportBtn, handleDayExport);
 
   if (refs.configLevel) refs.configLevel.addEventListener('change', function() { applyTheme(refs.configShell, refs.configLevel.value); });
@@ -338,6 +345,8 @@
     refs.configNbTeams.value = val;
     renderTeamInputs(val);
   });
+  if (refs.exportMatchesMode) refs.exportMatchesMode.addEventListener('change', updateMatchesExportModeUI);
+  if (refs.exportMatchesDay) refs.exportMatchesDay.addEventListener('change', updateMatchesExportModeUI);
 
   if (refs.reglementStart) refs.reglementStart.addEventListener('change', function(evt) { updateReglementDates(evt.target.value, refs.reglementEnd && refs.reglementEnd.value); });
   if (refs.reglementEnd) refs.reglementEnd.addEventListener('change', function(evt) { updateReglementDates(refs.reglementStart && refs.reglementStart.value, evt.target.value); });
@@ -818,7 +827,7 @@
       row.className = 'ligue-match-row';
       var date = document.createElement('div');
       date.className = 'ligue-match-title';
-      date.textContent = (m.date || 'Date à définir') + ' • Journée ' + m.round;
+      date.textContent = formatMatchDateTime(m) + ' • Journée ' + m.round;
       var vs = document.createElement('div');
       vs.className = 'ligue-inline';
       vs.style.justifyContent = 'space-between';
@@ -885,6 +894,13 @@
   function teamById(league, id) {
     if (!league || !league.teams) return null;
     return league.teams.find(function(t) { return t.id === id; }) || null;
+  }
+
+  // PATCH : format date + heure de match
+  function formatMatchDateTime(match) {
+    var base = match && match.date ? match.date : 'Date à définir';
+    if (match && match.matchTime) return base + ' • ' + match.matchTime;
+    return base;
   }
 
   function ensureMatchSets(match) {
@@ -1032,11 +1048,21 @@
       var title = document.createElement('div');
       title.className = 'ligue-inline';
       title.style.justifyContent = 'space-between';
-      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var vs = document.createElement('div');
-      vs.className = 'ligue-inline';
-      vs.style.justifyContent = 'space-between';
-      vs.innerHTML = '<span>🎾 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
+      vs.className = 'ligue-match-vs-grid';
+      var home = document.createElement('div');
+      home.className = 'team-left';
+      home.textContent = '🎾 ' + teamName(league, m.home);
+      var center = document.createElement('div');
+      center.className = 'vs-center';
+      center.textContent = 'vs';
+      var away = document.createElement('div');
+      away.className = 'team-right';
+      away.textContent = teamName(league, m.away);
+      vs.appendChild(home);
+      vs.appendChild(center);
+      vs.appendChild(away);
       var status = document.createElement('div');
       status.className = 'small-muted';
       status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
@@ -1047,7 +1073,10 @@
       dateRow.style.marginTop = '6px';
       var dateLabel = document.createElement('span');
       dateLabel.className = 'small-muted';
-      dateLabel.textContent = '🗓️ Date du match';
+      dateLabel.textContent = '🗓️ Date et heure du match';
+      var dateTimeWrap = document.createElement('div');
+      dateTimeWrap.className = 'ligue-inline';
+      dateTimeWrap.style.gap = '8px';
       var dateInput = document.createElement('input');
       dateInput.type = 'date';
       dateInput.value = m.date || '';
@@ -1059,8 +1088,21 @@
         renderManageCalendar(league);
         renderPlayerManageCalendar(league);
       });
+      var timeInput = document.createElement('input');
+      timeInput.type = 'time';
+      timeInput.value = m.matchTime || '';
+      timeInput.className = 'btn-small';
+      timeInput.style.borderRadius = '10px';
+      timeInput.addEventListener('change', function() {
+        m.matchTime = timeInput.value || '';
+        saveState();
+        renderManageCalendar(league);
+        renderPlayerManageCalendar(league);
+      });
+      dateTimeWrap.appendChild(dateInput);
+      dateTimeWrap.appendChild(timeInput);
       dateRow.appendChild(dateLabel);
-      dateRow.appendChild(dateInput);
+      dateRow.appendChild(dateTimeWrap);
       card.appendChild(title);
       card.appendChild(vs);
       card.appendChild(status);
@@ -1085,11 +1127,21 @@
       var title = document.createElement('div');
       title.className = 'ligue-inline';
       title.style.justifyContent = 'space-between';
-      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      title.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var vs = document.createElement('div');
-      vs.className = 'ligue-inline';
-      vs.style.justifyContent = 'space-between';
-      vs.innerHTML = '<span>🎾 ' + teamName(league, m.home) + '</span><span style="color:var(--muted);">vs</span><span>' + teamName(league, m.away) + '</span>';
+      vs.className = 'ligue-match-vs-grid';
+      var home = document.createElement('div');
+      home.className = 'team-left';
+      home.textContent = '🎾 ' + teamName(league, m.home);
+      var center = document.createElement('div');
+      center.className = 'vs-center';
+      center.textContent = 'vs';
+      var away = document.createElement('div');
+      away.className = 'team-right';
+      away.textContent = teamName(league, m.away);
+      vs.appendChild(home);
+      vs.appendChild(center);
+      vs.appendChild(away);
       var status = document.createElement('div');
       status.className = 'small-muted';
       status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
@@ -1101,25 +1153,53 @@
   }
 
   function renderDayExportOptions(league) {
-    if (!refs.dayExportSelect) return;
-    refs.dayExportSelect.innerHTML = '';
+    var selects = [];
+    if (refs.dayExportSelect) selects.push(refs.dayExportSelect);
+    if (refs.exportMatchesDay) selects.push(refs.exportMatchesDay);
+    selects.forEach(function(sel) { if (sel) sel.innerHTML = ''; });
     if (!league || !league.matches || !league.matches.length) {
-      var opt = document.createElement('option');
-      opt.value = '';
-      opt.textContent = 'Aucune journée';
-      refs.dayExportSelect.appendChild(opt);
+      selects.forEach(function(sel) {
+        if (!sel) return;
+        var opt = document.createElement('option');
+        opt.value = '';
+        opt.textContent = 'Aucune journée';
+        sel.appendChild(opt);
+      });
+      lastRoundOptionsCount = 0;
+      updateMatchesExportModeUI();
       return;
     }
     var rounds = Array.from(new Set(league.matches.map(function(m) { return m.round; }).filter(Boolean))).sort(function(a, b) {
       return parseInt(a, 10) - parseInt(b, 10);
     });
+    lastRoundOptionsCount = rounds.length;
     rounds.forEach(function(r, idx) {
-      var opt = document.createElement('option');
-      opt.value = r;
-      opt.textContent = 'Journée ' + r;
-      if (idx === 0) opt.selected = true;
-      refs.dayExportSelect.appendChild(opt);
+      selects.forEach(function(sel) {
+        if (!sel) return;
+        var opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = 'Journée ' + r;
+        if (idx === 0) opt.selected = true;
+        sel.appendChild(opt);
+      });
     });
+    updateMatchesExportModeUI();
+  }
+
+  function updateMatchesExportModeUI() {
+    var mode = (refs.exportMatchesMode && refs.exportMatchesMode.value) || 'all';
+    var showDay = mode === 'day';
+    var hasRounds = lastRoundOptionsCount > 0;
+    if (refs.exportMatchesDay) {
+      refs.exportMatchesDay.style.display = showDay ? '' : 'none';
+      refs.exportMatchesDay.disabled = !showDay || !hasRounds;
+      if (!hasRounds) refs.exportMatchesDay.value = '';
+    }
+    if (refs.exportMatchesBtn) {
+      var disable = false;
+      if (showDay && (!hasRounds || !refs.exportMatchesDay || !refs.exportMatchesDay.value)) disable = true;
+      refs.exportMatchesBtn.disabled = disable;
+    }
   }
 
   function renderManageResults(league) {
@@ -1411,43 +1491,20 @@
     var league = getActiveLeague(currentActiveId);
     if (!league) { alert('Sélectionne une ligue à exporter.'); return; }
     setActiveManageTab('calendar');
-    var mode = 1;
-    try {
-      var choice = window.prompt('Choix export : 1 = tous les matchs, 2 = par équipe', '1');
-      mode = (choice && choice.trim() === '2') ? 2 : 1;
-    } catch (e) { mode = 1; }
-    var useImage = false;
-    try { useImage = window.confirm('Exporter en image (PNG) ?\nOK pour PNG, Annuler pour PDF.'); } catch (e) { useImage = false; }
-    if (mode === 1) {
-      if (useImage) exportMatchesToImage(league); else exportMatchesToPrint(league);
-      return;
+    var mode = (refs.exportMatchesMode && refs.exportMatchesMode.value) || 'all';
+    var useImage = !(refs.exportMatchesFormat && refs.exportMatchesFormat.value === 'pdf');
+    var subset = null;
+    var suffix = '';
+
+    if (mode === 'day') {
+      var roundVal = refs.exportMatchesDay ? parseInt(refs.exportMatchesDay.value, 10) : NaN;
+      if (isNaN(roundVal)) { alert('Choisis une journée à exporter.'); return; }
+      subset = (league.matches || []).filter(function(m) { return parseInt(m.round, 10) === roundVal; });
+      if (!subset.length) { alert('Aucun match pour cette journée.'); return; }
+      suffix = '_journee_' + roundVal;
     }
 
-    var teams = league.teams || [];
-    if (!teams.length) { alert('Aucune équipe disponible pour filtrer.'); return; }
-    var listLabel = teams.map(function(t, idx) { return (idx + 1) + ' - ' + (t.name || t.id); }).join('\n');
-    var selection = null;
-    try {
-      selection = window.prompt('Sélectionne les équipes à exporter (ex: 1,3,4):\n' + listLabel, '1');
-    } catch (e) { selection = null; }
-    if (!selection) { alert('Merci de choisir au moins une équipe.'); return; }
-    var chosenIndexes = selection.split(/[ ,;]+/).map(function(val) { return parseInt(val, 10); }).filter(function(v) { return !isNaN(v); });
-    var chosenIds = [];
-    chosenIndexes.forEach(function(idx) {
-      if (idx >= 1 && idx <= teams.length) {
-        var team = teams[idx - 1];
-        if (team && chosenIds.indexOf(team.id) === -1) chosenIds.push(team.id);
-      }
-    });
-    if (!chosenIds.length) { alert('Merci de choisir au moins une équipe valide.'); return; }
-
-    chosenIds.forEach(function(teamId) {
-      var team = teams.find(function(t) { return t.id === teamId; }) || { id: teamId, name: teamId };
-      var subset = (league.matches || []).filter(function(m) { return m.home === teamId || m.away === teamId; });
-      if (!subset.length) return;
-      var suffix = '_equipe_' + slugifyName(team.name || team.id);
-      if (useImage) exportMatchesToImage(league, subset, suffix); else exportMatchesToPrint(league, subset, suffix);
-    });
+    if (useImage) exportMatchesToImage(league, subset, suffix); else exportMatchesToPrint(league, subset, suffix);
   }
 
   function handleDayExport() {
@@ -1455,8 +1512,9 @@
     if (!league) { alert('Sélectionne une ligue active.'); return; }
     var roundVal = refs.dayExportSelect ? parseInt(refs.dayExportSelect.value, 10) : NaN;
     if (isNaN(roundVal)) { alert('Choisis une journée à exporter.'); return; }
+    if (!window.leagueExportBackgroundDataUrl) { alert('Merci de choisir un fond d’export dans les paramètres de la Ligue interne avant de générer l’export.'); return; }
     if (typeof window.buildSocialDayImage !== 'function') { alert('Export image réseaux indisponible.'); return; }
-    window.buildSocialDayImage(league, roundVal).then(function(canvas) {
+    window.buildSocialDayImage(league, roundVal, window.leagueExportBackgroundDataUrl).then(function(canvas) {
       var filename = 'ligue_' + slugifyName(league.name || 'ligue') + '_journee_' + roundVal + '.png';
       if (window.socialModal && window.socialModal.preview) {
         window.socialModal.preview(canvas, 'Résumé journée ' + roundVal + ' – ' + (league.name || ''), filename);
@@ -1539,12 +1597,24 @@
       var head = document.createElement('div');
       head.className = 'ligue-inline';
       head.style.justifyContent = 'space-between';
-      head.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      head.innerHTML = '<span>📅 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var body = document.createElement('div');
       body.className = 'ligue-inline';
       body.style.justifyContent = 'space-between';
       var vs = document.createElement('div');
-      vs.textContent = '🎾 ' + teamName(league, m.home) + ' vs ' + teamName(league, m.away);
+      vs.className = 'ligue-match-vs-grid';
+      var home = document.createElement('div');
+      home.className = 'team-left';
+      home.textContent = '🎾 ' + teamName(league, m.home);
+      var center = document.createElement('div');
+      center.className = 'vs-center';
+      center.textContent = 'vs';
+      var away = document.createElement('div');
+      away.className = 'team-right';
+      away.textContent = teamName(league, m.away);
+      vs.appendChild(home);
+      vs.appendChild(center);
+      vs.appendChild(away);
       var status = document.createElement('div');
       status.className = 'small-muted';
       status.textContent = m.played ? '✅ Match joué' : '⏳ À jouer';
@@ -1599,7 +1669,7 @@
       var head = document.createElement('div');
       head.className = 'ligue-inline';
       head.style.justifyContent = 'space-between';
-      head.innerHTML = '<span>🎾 Journée ' + m.round + '</span><span class="small-muted">' + (m.date || 'Date à définir') + '</span>';
+      head.innerHTML = '<span>🎾 Journée ' + m.round + '</span><span class="small-muted">' + formatMatchDateTime(m) + '</span>';
       var body = document.createElement('div');
       body.className = 'ligue-inline ligue-result-row';
       body.style.justifyContent = 'space-between';
