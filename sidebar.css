@@ -178,10 +178,10 @@ body > .app {
 
 /* 🆕 Cacher sidebar en mode TV */
 body.tv-mode .app-sidebar {
-  transform: translateX(-280px);
+  display: none !important;
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  z-index: -1;
 }
 
 body.tv-mode .sidebar-mobile-handle {

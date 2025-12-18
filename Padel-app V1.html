@@ -2031,23 +2031,26 @@
     .bracket-match-row.stage-qf::after, #classic-root .bracket-match-row.stage-sf::before, #classic-root .bracket-match-row.stage-sf::after, #classic-root .bracket-match-row.stage-sf.sf-top::before, #classic-root .bracket-match-row.stage-sf.sf-bottom::before, #classic-root .bracket-match-row.stage-final.final-node::before, #classic-root .bracket-match-row.stage-final.final-node::after{
       display:none;
       content:none;
-    }#classic-root /* TV */
-    .tv-overlay{
-     .tv-overlay{
-  position:fixed;
-  inset:0;
-  background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
-              radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
-              #020617;
-  z-index:9999;
-  display:none;
-  padding:24px;
-  /* 🆕 Fix plein écran */
-  margin-left: 0 !important;
-  width: 100vw !important;
-  left: 0 !important;
-  right: 0 !important;
-}
+    }
+
+    /* TV OVERLAY - Plein écran */
+    #classic-root .tv-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
+                  #020617;
+      z-index: 10000;
+      display: none;
+      padding: 24px;
+      margin: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
     #classic-root .tv-inner{
       max-width:1700px;
       margin:0 auto;

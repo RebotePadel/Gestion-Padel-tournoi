@@ -1738,6 +1738,7 @@
       elBtnOpenTv.addEventListener("click", () => {
         if (elTvOverlay) {
           elTvOverlay.style.display = "block";
+          document.body.classList.add("tv-mode"); // Masquer sidebar
           updateTv();
         }
       });
@@ -1747,6 +1748,7 @@
       elBtnCloseTv.addEventListener("click", () => {
         if (elTvOverlay) {
           elTvOverlay.style.display = "none";
+          document.body.classList.remove("tv-mode"); // Réafficher sidebar
         }
       });
     }
