@@ -308,6 +308,60 @@ body.sidebar-collapsed .sidebar-toggle-btn:hover {
   text-overflow: ellipsis;
 }
 
+/* Pastilles de niveau de ligue */
+.sidebar-level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+  flex-shrink: 0;
+  border: 1px solid;
+  transition: all 0.2s ease;
+}
+
+/* Niveau 1 - Rouge */
+.sidebar-level-badge.level-n1 {
+  background: rgba(127, 29, 29, 0.2);
+  border-color: rgba(127, 29, 29, 0.6);
+  color: #fca5a5;
+}
+
+/* Niveau 2 - Orange */
+.sidebar-level-badge.level-n2 {
+  background: rgba(180, 83, 9, 0.2);
+  border-color: rgba(180, 83, 9, 0.6);
+  color: #fbbf24;
+}
+
+/* Niveau 3 - Jaune */
+.sidebar-level-badge.level-n3 {
+  background: rgba(202, 138, 4, 0.2);
+  border-color: rgba(202, 138, 4, 0.6);
+  color: #fcd34d;
+}
+
+/* Effet hover sur les items avec pastille */
+.sidebar-submenu-item:hover .sidebar-level-badge.level-n1 {
+  background: rgba(127, 29, 29, 0.3);
+  box-shadow: 0 0 8px rgba(252, 165, 165, 0.3);
+}
+
+.sidebar-submenu-item:hover .sidebar-level-badge.level-n2 {
+  background: rgba(180, 83, 9, 0.3);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+}
+
+.sidebar-submenu-item:hover .sidebar-level-badge.level-n3 {
+  background: rgba(202, 138, 4, 0.3);
+  box-shadow: 0 0 8px rgba(252, 211, 77, 0.3);
+}
+
 .sidebar-footer {
   padding-top: 16px;
   border-top: 1px solid rgba(148, 163, 184, 0.1);

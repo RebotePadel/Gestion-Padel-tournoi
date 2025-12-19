@@ -183,7 +183,30 @@
       var item = document.createElement('button');
       item.className = 'sidebar-submenu-item';
       item.dataset.ligueId = ligue.id;
-      item.innerHTML = '<span class="submenu-icon">📊</span><span class="submenu-label">' + (ligue.name || 'Ligue sans nom') + '</span>';
+
+      // Générer la pastille de niveau
+      var levelBadge = '';
+      if (ligue.level) {
+        var levelText = '';
+        var levelClass = '';
+
+        if (ligue.level.toLowerCase().indexOf('ligue 1') >= 0 || ligue.level.toLowerCase().indexOf('niveau 1') >= 0) {
+          levelText = 'N1';
+          levelClass = 'level-n1';
+        } else if (ligue.level.toLowerCase().indexOf('ligue 2') >= 0 || ligue.level.toLowerCase().indexOf('niveau 2') >= 0) {
+          levelText = 'N2';
+          levelClass = 'level-n2';
+        } else if (ligue.level.toLowerCase().indexOf('ligue 3') >= 0 || ligue.level.toLowerCase().indexOf('niveau 3') >= 0) {
+          levelText = 'N3';
+          levelClass = 'level-n3';
+        }
+
+        if (levelText) {
+          levelBadge = '<span class="sidebar-level-badge ' + levelClass + '">' + levelText + '</span>';
+        }
+      }
+
+      item.innerHTML = '<span class="submenu-icon">📊</span><span class="submenu-label">' + (ligue.name || 'Ligue sans nom') + '</span>' + levelBadge;
 
       item.addEventListener('click', function(e) {
         e.preventDefault();
