@@ -72,16 +72,21 @@
   transform: rotate(180deg);
 }
 
-/* When collapsed, move toggle button to the left edge */
+/* When collapsed, fix button to left edge of screen */
 .app-sidebar.collapsed .sidebar-toggle-btn {
+  position: fixed;
   right: auto;
   left: 0;
-  transform: translateY(-50%) translateX(-50%);
-  border-radius: 12px 0 0 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 0 12px 12px 0;
+  box-shadow: 2px 0 16px rgba(229, 227, 57, 0.6);
 }
 
 .app-sidebar.collapsed .sidebar-toggle-btn:hover {
-  transform: translateY(-50%) translateX(-50%) translateX(-4px);
+  transform: translateY(-50%) translateX(4px);
+  box-shadow: 2px 0 20px rgba(229, 227, 57, 0.8),
+              0 0 24px rgba(229, 227, 57, 0.4);
 }
 
 .sidebar-brand {
