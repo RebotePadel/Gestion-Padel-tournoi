@@ -146,4 +146,89 @@
   if (homeNav) {
     homeNav.classList.add('active');
   }
+
+  // ========================================
+  // MENU DÉROULANT LIGUES ACTIVES
+  // ========================================
+
+  const liguesToggle = document.getElementById('sidebar-ligues-toggle');
+  const liguesSubmenu = document.getElementById('sidebar-ligues-submenu');
+  const liguesMain = document.getElementById('sidebar-ligues-main');
+
+  // Charger les ligues actives depuis localStorage
+  function loadActiveLigues() {
+    try {
+      var raw = localStorage.getItem('padel_ligues_v1');
+      if (!raw) return [];
+      var data = JSON.parse(raw);
+      return data.activeLeagues || [];
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // Injecter les ligues dans le sous-menu
+  function renderLiguesSubmenu() {
+    var ligues = loadActiveLigues();
+
+    if (!liguesSubmenu) return;
+
+    liguesSubmenu.innerHTML = '';
+
+    if (ligues.length === 0) {
+      liguesSubmenu.innerHTML = '<div class="sidebar-submenu-item" style="opacity: 0.5; cursor: default;">Aucune ligue active</div>';
+      return;
+    }
+
+    ligues.forEach(function(ligue) {
+      var item = document.createElement('button');
+      item.className = 'sidebar-submenu-item';
+      item.dataset.ligueId = ligue.id;
+      item.innerHTML = '<span class="submenu-icon">📊</span><span class="submenu-label">' + (ligue.name || 'Ligue sans nom') + '</span>';
+
+      item.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        // Naviguer vers la page de gestion de cette ligue spécifique
+        if (typeof window.showLigueManage === 'function') {
+          window.showLigueManage(ligue.id);
+        }
+
+        closeMobileSidebar();
+      });
+
+      liguesSubmenu.appendChild(item);
+    });
+  }
+
+  // Toggle du sous-menu
+  if (liguesToggle && liguesSubmenu) {
+    liguesToggle.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+
+      liguesToggle.classList.toggle('open');
+      liguesSubmenu.classList.toggle('open');
+    });
+  }
+
+  // Clic sur "Ligues actives" (texte) = page globale
+  if (liguesMain) {
+    liguesMain.addEventListener('click', function(e) {
+      // Ne rien faire si on clique sur le toggle
+      if (e.target.closest('.sidebar-submenu-toggle')) {
+        return;
+      }
+    });
+  }
+
+  // Charger les ligues au démarrage
+  renderLiguesSubmenu();
+
+  // Recharger les ligues quand on revient sur la page
+  window.addEventListener('focus', renderLiguesSubmenu);
+
+  // Exposer pour recharger depuis l'extérieur si nécessaire
+  window.reloadSidebarLigues = renderLiguesSubmenu;
 })();

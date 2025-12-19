@@ -2319,30 +2319,34 @@
     
     <div class="sidebar-section">
       <span class="sidebar-section-label">Tournois</span>
-      
+
       <a href="#" class="sidebar-item" data-nav="md">
         <span class="sidebar-icon">🔄</span>
         <span class="sidebar-label">Montante/Descendante</span>
       </a>
-      
+
       <a href="#" class="sidebar-item" data-nav="tournaments">
         <span class="sidebar-icon">🏆</span>
         <span class="sidebar-label">Tournois classiques</span>
       </a>
-      
-      <a href="#" class="sidebar-item" data-nav="americano">
-        <span class="sidebar-icon">🎯</span>
-        <span class="sidebar-label">Américano</span>
-      </a>
     </div>
-    
+
     <div class="sidebar-section">
       <span class="sidebar-section-label">Ligue</span>
-      
-      <a href="#" class="sidebar-item" data-nav="ligue">
-        <span class="sidebar-icon">📅</span>
-        <span class="sidebar-label">Ligues actives</span>
-      </a>
+
+      <div class="sidebar-item-wrapper">
+        <a href="#" class="sidebar-item" data-nav="ligue" id="sidebar-ligues-main">
+          <span class="sidebar-icon">📅</span>
+          <span class="sidebar-label">Ligues actives</span>
+        </a>
+        <button class="sidebar-submenu-toggle" id="sidebar-ligues-toggle" aria-label="Toggle ligues">
+          <span class="chevron">▼</span>
+        </button>
+      </div>
+
+      <div class="sidebar-submenu" id="sidebar-ligues-submenu">
+        <!-- Les ligues actives seront injectées ici par JS -->
+      </div>
       
       <a href="#" class="sidebar-item" data-nav="ligue-config">
         <span class="sidebar-icon">➕</span>
