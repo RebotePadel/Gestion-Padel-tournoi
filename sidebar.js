@@ -282,7 +282,16 @@
 
   // Initialiser l'état au chargement
   var initialState = getSidebarState();
-  applySidebarState(initialState);
+
+  // Appliquer sans transition pour éviter le flash
+  if (sidebar) {
+    sidebar.style.transition = 'none';
+    applySidebarState(initialState);
+    // Réactiver les transitions après un court délai
+    setTimeout(function() {
+      sidebar.style.transition = '';
+    }, 50);
+  }
 
   // Écouter le clic sur le bouton toggle
   if (toggleBtn) {
@@ -291,7 +300,12 @@
       e.stopPropagation();
       toggleSidebar();
     });
+  } else {
+    console.warn('⚠️ Bouton toggle sidebar non trouvé');
   }
+
+  // Debug : afficher l'état initial
+  console.log('🔧 Sidebar - État initial:', initialState ? 'ouvert' : 'fermé');
 
   // Exposer pour utilisation externe si nécessaire
   window.toggleSidebar = toggleSidebar;

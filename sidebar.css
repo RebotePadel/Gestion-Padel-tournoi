@@ -81,6 +81,8 @@
   transform: translateY(-50%);
   border-radius: 0 12px 12px 0;
   box-shadow: 2px 0 16px rgba(229, 227, 57, 0.6);
+  display: flex !important; /* Force display even on mobile when collapsed */
+  z-index: 1000;
 }
 
 .app-sidebar.collapsed .sidebar-toggle-btn:hover {
