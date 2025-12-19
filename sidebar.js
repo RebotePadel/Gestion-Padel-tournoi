@@ -235,9 +235,8 @@
   // 🆕 TOGGLE SIDEBAR (COLLAPSE/EXPAND)
   // ========================================
 
-  var sidebar = document.getElementById('app-sidebar');
-  var toggleBtn = document.getElementById('sidebar-toggle-btn');
-  var STORAGE_KEY = 'sidebar_open';
+  const toggleBtn = document.getElementById('sidebar-toggle-btn');
+  const STORAGE_KEY = 'sidebar_open';
 
   // Charger l'état depuis localStorage
   function getSidebarState() {
