@@ -38,16 +38,6 @@
     }
   }
 
-  function renderSettingsButton() {
-    var btn = document.getElementById('btn-open-settings');
-    if (!btn) return;
-    if (current === 'home') {
-      btn.classList.add('is-visible');
-    } else {
-      btn.classList.remove('is-visible');
-    }
-  }
-
   function hideAllSections() {
     Object.keys(sections).forEach(function(key) {
       var el = sections[key];
@@ -75,7 +65,6 @@
       historyStack = [];
     }
     renderBackButton();
-    renderSettingsButton();
     window.scrollTo(0, 0);
 
     if (key === 'settings') {
@@ -337,7 +326,6 @@
   bind('btn-home-tournaments', showTournaments);
   bind('btn-home-md', showAdmin);
   bind('btn-home-ligue', showLigue);
-  bind('btn-open-settings', showSettings);
   bind('btn-settings-home', showHome);
 
   // Binding pour les boutons avec classe (plusieurs boutons "Vue joueur")
@@ -373,7 +361,6 @@
   initTvWidgets();
 
   renderBackButton();
-  renderSettingsButton();
 
   window.hideAllSections = hideAllSections;
   window.showHome = showHome;

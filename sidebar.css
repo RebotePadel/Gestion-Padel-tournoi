@@ -18,7 +18,70 @@
   flex-direction: column;
   z-index: 100;
   box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar collapsed state */
+.app-sidebar.collapsed {
+  transform: translateX(-280px);
+}
+
+/* Toggle button (encoche) */
+.sidebar-toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%) translateX(50%);
+  width: 20px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
+  border: none;
+  border-radius: 0 12px 12px 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 0 12px rgba(229, 227, 57, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 101;
+  padding: 0;
+}
+
+/* Show toggle button only on desktop */
+@media (min-width: 901px) {
+  .sidebar-toggle-btn {
+    display: flex;
+  }
+}
+
+.sidebar-toggle-btn:hover {
+  transform: translateY(-50%) translateX(50%) translateX(4px);
+  box-shadow: 2px 0 16px rgba(229, 227, 57, 0.6),
+              0 0 20px rgba(229, 227, 57, 0.3);
+}
+
+.toggle-chevron {
+  font-size: 0.8rem;
+  color: #0f172a;
+  font-weight: bold;
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Rotate chevron when collapsed */
+.app-sidebar.collapsed .toggle-chevron {
+  transform: rotate(180deg);
+}
+
+/* When collapsed, move toggle button to the left edge */
+.app-sidebar.collapsed .sidebar-toggle-btn {
+  right: auto;
+  left: 0;
+  transform: translateY(-50%) translateX(-50%);
+  border-radius: 12px 0 0 12px;
+}
+
+.app-sidebar.collapsed .sidebar-toggle-btn:hover {
+  transform: translateY(-50%) translateX(-50%) translateX(-4px);
 }
 
 .sidebar-brand {
@@ -273,6 +336,15 @@ section .app {
 /* Container principal avec sidebar */
 body > .app {
   margin-left: 280px !important;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Recentrer le contenu quand la sidebar est collapsed */
+body.sidebar-collapsed > .app {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* 🆕 Cacher sidebar en mode TV */

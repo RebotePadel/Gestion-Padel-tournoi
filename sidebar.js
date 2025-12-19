@@ -114,7 +114,6 @@
     'btn-home-md': 'md',
     'btn-home-tournaments': 'tournaments',
     'btn-home-ligue': 'ligue',
-    'btn-open-settings': null, // settings handled separately
     'btn-back-home-from-md': 'home',
     'btn-back-home-from-tournaments': 'home',
     'btn-back-home-from-classic': 'home',
@@ -231,4 +230,70 @@
 
   // Exposer pour recharger depuis l'extérieur si nécessaire
   window.reloadSidebarLigues = renderLiguesSubmenu;
+
+  // ========================================
+  // 🆕 TOGGLE SIDEBAR (COLLAPSE/EXPAND)
+  // ========================================
+
+  var sidebar = document.getElementById('app-sidebar');
+  var toggleBtn = document.getElementById('sidebar-toggle-btn');
+  var STORAGE_KEY = 'sidebar_open';
+
+  // Charger l'état depuis localStorage
+  function getSidebarState() {
+    try {
+      var stored = localStorage.getItem(STORAGE_KEY);
+      // Par défaut, la sidebar est ouverte (true)
+      return stored === null ? true : stored === 'true';
+    } catch (e) {
+      return true;
+    }
+  }
+
+  // Sauvegarder l'état dans localStorage
+  function setSidebarState(isOpen) {
+    try {
+      localStorage.setItem(STORAGE_KEY, isOpen.toString());
+    } catch (e) {
+      // noop
+    }
+  }
+
+  // Appliquer l'état de la sidebar
+  function applySidebarState(isOpen) {
+    if (!sidebar) return;
+
+    if (isOpen) {
+      sidebar.classList.remove('collapsed');
+      document.body.classList.remove('sidebar-collapsed');
+    } else {
+      sidebar.classList.add('collapsed');
+      document.body.classList.add('sidebar-collapsed');
+    }
+  }
+
+  // Toggle la sidebar
+  function toggleSidebar() {
+    var isCurrentlyOpen = !sidebar.classList.contains('collapsed');
+    var newState = !isCurrentlyOpen;
+
+    applySidebarState(newState);
+    setSidebarState(newState);
+  }
+
+  // Initialiser l'état au chargement
+  var initialState = getSidebarState();
+  applySidebarState(initialState);
+
+  // Écouter le clic sur le bouton toggle
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      toggleSidebar();
+    });
+  }
+
+  // Exposer pour utilisation externe si nécessaire
+  window.toggleSidebar = toggleSidebar;
 })();

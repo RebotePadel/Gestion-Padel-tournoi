@@ -79,30 +79,6 @@
       position: relative;
     }
 
-    .header-settings-btn {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      color: #0f172a;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-      cursor: pointer;
-      font-size: 0.95rem;
-      line-height: 1;
-      padding: 0;
-    }
-
-    .app-header .header-settings-btn.is-visible { display: inline-flex; }
-    .header-settings-btn:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
-
     .header-back-btn {
       position: absolute;
       left: 0;
@@ -324,7 +300,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   box-shadow: 0 8px 20px rgba(229, 227, 57, 0.3);
   transition: all 0.3s ease;
 }
@@ -363,7 +339,7 @@
     }
 
     .home-card-icon {
-      font-size: 1.3rem;
+      font-size: 0.87rem;
     }
 
     .home-card-body {
@@ -2306,6 +2282,10 @@
 <body>
     <!-- 🆕 SIDEBAR MODERNE V2 -->
 <aside class="app-sidebar" id="app-sidebar">
+  <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Rétracter/Déplier la sidebar">
+    <span class="toggle-chevron">◀</span>
+  </button>
+
   <div class="sidebar-brand">
     <img id="sidebar-logo" alt="Logo" class="sidebar-logo">
     <span class="sidebar-club-name" data-club-name>Padel Parc</span>
@@ -2372,7 +2352,6 @@
       <button id="btn-header-back" class="header-back-btn" aria-label="Retour">←</button>
       <img id="app-logo" alt="Logo club" />
       <h1 id="app-title" data-club-name>Padel Parc</h1>
-      <button id="btn-open-settings" class="header-settings-btn" aria-label="Paramètres">⚙️</button>
     </div>
     <div class="subtitle" id="app-subtitle" data-club-shortname></div>
 
