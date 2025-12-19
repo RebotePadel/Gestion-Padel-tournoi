@@ -280,18 +280,9 @@
     setSidebarState(newState);
   }
 
-  // Initialiser l'état au chargement
+  // L'état initial est déjà appliqué par le script inline anti-flash
+  // Pas besoin de réappliquer, juste vérifier la cohérence
   var initialState = getSidebarState();
-
-  // Appliquer sans transition pour éviter le flash
-  if (sidebar) {
-    sidebar.style.transition = 'none';
-    applySidebarState(initialState);
-    // Réactiver les transitions après un court délai
-    setTimeout(function() {
-      sidebar.style.transition = '';
-    }, 50);
-  }
 
   // Écouter le clic sur le bouton toggle
   if (toggleBtn) {

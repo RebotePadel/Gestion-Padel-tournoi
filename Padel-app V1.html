@@ -2282,10 +2282,6 @@
 <body>
     <!-- 🆕 SIDEBAR MODERNE V2 -->
 <aside class="app-sidebar" id="app-sidebar">
-  <button class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Rétracter/Déplier la sidebar">
-    <span class="toggle-chevron">◀</span>
-  </button>
-
   <div class="sidebar-brand">
     <img id="sidebar-logo" alt="Logo" class="sidebar-logo">
     <span class="sidebar-club-name" data-club-name>Padel Parc</span>
@@ -2342,6 +2338,31 @@
     </button>
   </div>
 </aside>
+
+<!-- 🔘 BOUTON TOGGLE SIDEBAR (hors de la sidebar pour rester visible) -->
+<button class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Rétracter/Déplier la sidebar">
+  <span class="toggle-chevron">◀</span>
+</button>
+
+<script>
+// ⚡ ANTI-FLASH : Applique l'état sidebar IMMÉDIATEMENT avant le rendu
+(function() {
+  try {
+    var stored = localStorage.getItem('sidebar_open');
+    var isOpen = stored === null ? true : stored === 'true';
+
+    if (!isOpen) {
+      var sidebar = document.getElementById('app-sidebar');
+      if (sidebar) {
+        sidebar.classList.add('collapsed');
+        document.body.classList.add('sidebar-collapsed');
+      }
+    }
+  } catch (e) {
+    // Si localStorage échoue, on laisse la sidebar ouverte par défaut
+  }
+})();
+</script>
 
 <!-- Handle mobile sidebar toggle -->
 <div class="sidebar-mobile-handle" id="sidebar-mobile-handle">
