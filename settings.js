@@ -118,8 +118,14 @@
   }
 
   function showNotification(message, type) {
-    // TODO: Implémenter système de notification
-    console.log('[' + type + '] ' + message);
+    // Notification simple avec alert pour l'instant
+    if (type === 'success') {
+      alert('✅ ' + message);
+    } else if (type === 'error') {
+      alert('❌ ' + message);
+    } else {
+      alert(message);
+    }
   }
 
   function debounce(func, wait) {
@@ -230,7 +236,7 @@
       currency: panel.querySelector('#club-currency'),
       dateFormat: panel.querySelector('#club-date-format'),
       language: panel.querySelector('#club-language'),
-      saveBtn: panel.querySelector('#save-club-settings')
+      saveBtn: panel.querySelector('#btn-save-club')
     };
 
     // Peupler les champs
@@ -349,18 +355,96 @@
       DEFAULT_SETTINGS.sponsors
     );
 
-    // TODO: Implémenter interface de gestion des sponsors
-    // - Formulaire d'ajout
-    // - Liste avec drag & drop
-    // - Édition/suppression
-    // - Zones d'affichage (toggles)
-    // - Durée et priorité (sliders)
+    // Références
+    refs.forms.sponsors = {
+      name: panel.querySelector('#sponsor-name'),
+      logoUpload: panel.querySelector('#sponsor-logo-upload'),
+      category: panel.querySelector('#sponsor-category'),
+      url: panel.querySelector('#sponsor-url'),
+      addBtn: panel.querySelector('#btn-add-new-sponsor'),
+      listContainer: panel.querySelector('#sponsors-list-container')
+    };
+
+    // Bouton ajouter
+    if (refs.forms.sponsors.addBtn) {
+      refs.forms.sponsors.addBtn.addEventListener('click', addSponsor);
+    }
+
+    // Upload logo sponsor
+    if (refs.forms.sponsors.logoUpload) {
+      refs.forms.sponsors.logoUpload.addEventListener('change', function(e) {
+        // Stocker temporairement pour utiliser lors de l'ajout
+        handleFileUpload(e, function(dataUrl) {
+          refs.forms.sponsors.logoUpload.dataset.logoData = dataUrl;
+        });
+      });
+    }
 
     renderSponsorsList();
   }
 
+  function addSponsor() {
+    var form = refs.forms.sponsors;
+    var name = form.name ? form.name.value.trim() : '';
+
+    if (!name) {
+      showNotification('Le nom du sponsor est requis', 'error');
+      return;
+    }
+
+    var newSponsor = {
+      id: 'sponsor_' + Date.now(),
+      name: name,
+      logoDataUrl: form.logoUpload && form.logoUpload.dataset.logoData ? form.logoUpload.dataset.logoData : null,
+      category: form.category ? form.category.value : 'principal',
+      url: form.url ? form.url.value : '',
+      zones: {
+        tvMd: true,
+        tvClassic: true,
+        tvAmericano: true,
+        playerView: false,
+        exports: false
+      },
+      duration: 10,
+      priority: 3
+    };
+
+    state.currentSettings.sponsors.push(newSponsor);
+
+    if (saveToStorage(STORAGE_KEYS.sponsors, state.currentSettings.sponsors)) {
+      showNotification('Sponsor ajouté avec succès', 'success');
+
+      // Reset form
+      if (form.name) form.name.value = '';
+      if (form.url) form.url.value = '';
+      if (form.logoUpload) {
+        form.logoUpload.value = '';
+        delete form.logoUpload.dataset.logoData;
+      }
+
+      renderSponsorsList();
+    } else {
+      showNotification('Erreur lors de l\'ajout du sponsor', 'error');
+    }
+  }
+
+  function deleteSponsor(sponsorId) {
+    if (!confirm('Supprimer ce sponsor ?')) return;
+
+    state.currentSettings.sponsors = state.currentSettings.sponsors.filter(function(s) {
+      return s.id !== sponsorId;
+    });
+
+    if (saveToStorage(STORAGE_KEYS.sponsors, state.currentSettings.sponsors)) {
+      showNotification('Sponsor supprimé', 'success');
+      renderSponsorsList();
+    } else {
+      showNotification('Erreur lors de la suppression', 'error');
+    }
+  }
+
   function renderSponsorsList() {
-    var container = document.getElementById('sponsors-list-container');
+    var container = refs.forms.sponsors.listContainer;
     if (!container) return;
 
     if (!state.currentSettings.sponsors || state.currentSettings.sponsors.length === 0) {
@@ -368,9 +452,51 @@
       return;
     }
 
-    // TODO: Générer HTML pour chaque sponsor
-    container.innerHTML = '<p style="color: var(--muted);">Liste des sponsors à implémenter...</p>';
+    var html = '<div class="sponsors-list">';
+    state.currentSettings.sponsors.forEach(function(sponsor) {
+      html += '<div class="sponsor-item" data-sponsor-id="' + sponsor.id + '">';
+      html += '  <div class="sponsor-header">';
+
+      if (sponsor.logoDataUrl) {
+        html += '    <img src="' + sponsor.logoDataUrl + '" alt="Logo" class="sponsor-logo">';
+      } else {
+        html += '    <div class="sponsor-logo" style="display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,0.1);">📢</div>';
+      }
+
+      html += '    <div class="sponsor-info">';
+      html += '      <div class="sponsor-name">' + sponsor.name + '</div>';
+      html += '      <div class="sponsor-category">' + (sponsor.category || 'Principal') + '</div>';
+      html += '    </div>';
+      html += '    <button class="custom-theme-btn" onclick="window.settingsDeleteSponsor(\'' + sponsor.id + '\')">🗑️ Supprimer</button>';
+      html += '  </div>';
+
+      // Zones actives
+      var zones = [];
+      if (sponsor.zones) {
+        if (sponsor.zones.tvMd) zones.push('TV M/D');
+        if (sponsor.zones.tvClassic) zones.push('TV Classic');
+        if (sponsor.zones.tvAmericano) zones.push('TV Americano');
+        if (sponsor.zones.playerView) zones.push('Vue Joueur');
+        if (sponsor.zones.exports) zones.push('Exports');
+      }
+
+      if (zones.length > 0) {
+        html += '  <div class="sponsor-zones">';
+        zones.forEach(function(zone) {
+          html += '<span class="sponsor-zone-tag">' + zone + '</span>';
+        });
+        html += '  </div>';
+      }
+
+      html += '</div>';
+    });
+    html += '</div>';
+
+    container.innerHTML = html;
   }
+
+  // Exposer la fonction de suppression globalement
+  window.settingsDeleteSponsor = deleteSponsor;
 
   // ========================================
   // ONGLET PONG
@@ -386,13 +512,87 @@
       DEFAULT_SETTINGS.pong
     );
 
-    // TODO: Implémenter interface Pong
-    // - Champs sponsor et IA
-    // - Toggle couleurs thème
-    // - Color pickers pour couleurs personnalisées
-    // - Toggles leaderboard et sons
-    // - Sélecteur difficulté
-    // - QR code taille et position
+    // Références
+    refs.forms.pong = {
+      sponsorName: panel.querySelector('#pong-sponsor-name'),
+      logoUrl: panel.querySelector('#pong-logo-url'),
+      aiName: panel.querySelector('#pong-ai-name'),
+      useThemeColors: panel.querySelector('#pong-use-theme-colors'),
+      ballColor: panel.querySelector('#pong-ball-color'),
+      playerPaddleColor: panel.querySelector('#pong-player-paddle-color'),
+      aiPaddleColor: panel.querySelector('#pong-ai-paddle-color'),
+      backgroundColor: panel.querySelector('#pong-background-color'),
+      showLeaderboard: panel.querySelector('#pong-show-leaderboard'),
+      enableSounds: panel.querySelector('#pong-enable-sounds'),
+      difficulty: panel.querySelector('#pong-difficulty'),
+      qrSize: panel.querySelector('#pong-qr-size'),
+      qrPosition: panel.querySelector('#pong-qr-position'),
+      saveBtn: panel.querySelector('#btn-save-pong')
+    };
+
+    // Peupler les champs
+    populatePongFields();
+
+    // Sauvegarder
+    if (refs.forms.pong.saveBtn) {
+      refs.forms.pong.saveBtn.addEventListener('click', savePongSettings);
+    }
+
+    // Toggle theme colors
+    if (refs.forms.pong.useThemeColors) {
+      refs.forms.pong.useThemeColors.addEventListener('change', function() {
+        var customColorsSection = panel.querySelector('.pong-custom-colors-section');
+        if (customColorsSection) {
+          customColorsSection.style.display = this.checked ? 'none' : 'block';
+        }
+      });
+    }
+  }
+
+  function populatePongFields() {
+    var data = state.currentSettings.pong;
+    var form = refs.forms.pong;
+
+    if (form.sponsorName) form.sponsorName.value = data.sponsorName || '';
+    if (form.logoUrl) form.logoUrl.value = data.logoUrl || '';
+    if (form.aiName) form.aiName.value = data.aiName || 'CPU';
+    if (form.useThemeColors) form.useThemeColors.checked = data.useThemeColors !== false;
+    if (form.ballColor) form.ballColor.value = data.ballColor || '#e5e339';
+    if (form.playerPaddleColor) form.playerPaddleColor.value = data.playerPaddleColor || '#004b9b';
+    if (form.aiPaddleColor) form.aiPaddleColor.value = data.aiPaddleColor || '#4d81b9';
+    if (form.backgroundColor) form.backgroundColor.value = data.backgroundColor || '#020617';
+    if (form.showLeaderboard) form.showLeaderboard.checked = data.showLeaderboard !== false;
+    if (form.enableSounds) form.enableSounds.checked = data.enableSounds !== false;
+    if (form.difficulty) form.difficulty.value = data.difficulty || 'medium';
+    if (form.qrSize) form.qrSize.value = data.qrSize || 'medium';
+    if (form.qrPosition) form.qrPosition.value = data.qrPosition || 'bottom-right';
+  }
+
+  function savePongSettings() {
+    var form = refs.forms.pong;
+
+    state.currentSettings.pong = {
+      sponsorName: form.sponsorName ? form.sponsorName.value : '',
+      logoUrl: form.logoUrl ? form.logoUrl.value : '',
+      aiName: form.aiName ? form.aiName.value : 'CPU',
+      useThemeColors: form.useThemeColors ? form.useThemeColors.checked : true,
+      ballColor: form.ballColor ? form.ballColor.value : '#e5e339',
+      playerPaddleColor: form.playerPaddleColor ? form.playerPaddleColor.value : '#004b9b',
+      aiPaddleColor: form.aiPaddleColor ? form.aiPaddleColor.value : '#4d81b9',
+      backgroundColor: form.backgroundColor ? form.backgroundColor.value : '#020617',
+      showLeaderboard: form.showLeaderboard ? form.showLeaderboard.checked : true,
+      enableSounds: form.enableSounds ? form.enableSounds.checked : true,
+      difficulty: form.difficulty ? form.difficulty.value : 'medium',
+      qrSize: form.qrSize ? form.qrSize.value : 'medium',
+      qrPosition: form.qrPosition ? form.qrPosition.value : 'bottom-right'
+    };
+
+    if (saveToStorage(STORAGE_KEYS.pong, state.currentSettings.pong)) {
+      showNotification('Configuration Pong sauvegardée', 'success');
+      clearUnsaved();
+    } else {
+      showNotification('Erreur lors de la sauvegarde', 'error');
+    }
   }
 
   // ========================================
@@ -409,13 +609,117 @@
       DEFAULT_SETTINGS.exports
     );
 
-    // TODO: Implémenter interface Exports
-    // - Sélection template avec preview
-    // - Upload background de ligue
-    // - Slider opacité
-    // - Toggle dark filter
-    // - Section branding
-    // - Formats et qualité
+    // Références
+    refs.forms.exports = {
+      templateModerne: panel.querySelector('#template-moderne'),
+      templateEpure: panel.querySelector('#template-epure'),
+      templateSombre: panel.querySelector('#template-sombre'),
+      templateSponsor: panel.querySelector('#template-sponsor'),
+      backgroundUpload: panel.querySelector('#export-background-upload'),
+      backgroundOpacity: panel.querySelector('#export-background-opacity'),
+      opacityValue: panel.querySelector('#export-opacity-value'),
+      darkFilter: panel.querySelector('#export-dark-filter'),
+      enableBranding: panel.querySelector('#export-enable-branding'),
+      brandingLogoUpload: panel.querySelector('#export-branding-logo-upload'),
+      footerText: panel.querySelector('#export-footer-text'),
+      showQrCode: panel.querySelector('#export-show-qr-code'),
+      qrPosition: panel.querySelector('#export-qr-position'),
+      formatPng: panel.querySelector('#export-format-png'),
+      formatPdf: panel.querySelector('#export-format-pdf'),
+      formatJpeg: panel.querySelector('#export-format-jpeg'),
+      quality: panel.querySelector('#export-quality'),
+      saveBtn: panel.querySelector('#btn-save-exports')
+    };
+
+    // Peupler les champs
+    populateExportsFields();
+
+    // Templates radio buttons
+    ['templateModerne', 'templateEpure', 'templateSombre', 'templateSponsor'].forEach(function(key) {
+      if (refs.forms.exports[key]) {
+        refs.forms.exports[key].addEventListener('change', function() {
+          // Retirer selected de tous
+          panel.querySelectorAll('.export-template-card').forEach(function(card) {
+            card.classList.remove('selected');
+          });
+          // Ajouter selected au parent du radio
+          this.closest('.export-template-card').classList.add('selected');
+        });
+      }
+    });
+
+    // Slider opacité
+    if (refs.forms.exports.backgroundOpacity && refs.forms.exports.opacityValue) {
+      refs.forms.exports.backgroundOpacity.addEventListener('input', function() {
+        refs.forms.exports.opacityValue.textContent = this.value;
+      });
+    }
+
+    // Sauvegarder
+    if (refs.forms.exports.saveBtn) {
+      refs.forms.exports.saveBtn.addEventListener('click', saveExportsSettings);
+    }
+  }
+
+  function populateExportsFields() {
+    var data = state.currentSettings.exports;
+    var form = refs.forms.exports;
+
+    // Template sélectionné
+    var templateKey = 'template' + (data.template || 'moderne').charAt(0).toUpperCase() + (data.template || 'moderne').slice(1);
+    if (form[templateKey]) {
+      form[templateKey].checked = true;
+      form[templateKey].closest('.export-template-card').classList.add('selected');
+    }
+
+    if (form.backgroundOpacity) {
+      form.backgroundOpacity.value = data.backgroundOpacity || 0.3;
+      if (form.opacityValue) form.opacityValue.textContent = data.backgroundOpacity || 0.3;
+    }
+    if (form.darkFilter) form.darkFilter.checked = data.darkFilter !== false;
+    if (form.enableBranding) form.enableBranding.checked = data.enableBranding !== false;
+    if (form.footerText) form.footerText.value = data.footerText || 'Padel Parc';
+    if (form.showQrCode) form.showQrCode.checked = data.showQrCode === true;
+    if (form.qrPosition) form.qrPosition.value = data.qrPosition || 'bottom-right';
+    if (form.formatPng) form.formatPng.checked = data.formats && data.formats.png !== false;
+    if (form.formatPdf) form.formatPdf.checked = data.formats && data.formats.pdf === true;
+    if (form.formatJpeg) form.formatJpeg.checked = data.formats && data.formats.jpeg === true;
+    if (form.quality) form.quality.value = data.quality || 150;
+  }
+
+  function saveExportsSettings() {
+    var form = refs.forms.exports;
+
+    // Déterminer template sélectionné
+    var template = 'moderne';
+    if (form.templateEpure && form.templateEpure.checked) template = 'epure';
+    else if (form.templateSombre && form.templateSombre.checked) template = 'sombre';
+    else if (form.templateSponsor && form.templateSponsor.checked) template = 'sponsor';
+
+    state.currentSettings.exports = {
+      template: template,
+      leagueBackgroundUrl: state.currentSettings.exports.leagueBackgroundUrl,
+      backgroundOpacity: form.backgroundOpacity ? parseFloat(form.backgroundOpacity.value) : 0.3,
+      darkFilter: form.darkFilter ? form.darkFilter.checked : true,
+      enableBranding: form.enableBranding ? form.enableBranding.checked : true,
+      brandingLogoUrl: state.currentSettings.exports.brandingLogoUrl,
+      footerText: form.footerText ? form.footerText.value : 'Padel Parc',
+      showQrCode: form.showQrCode ? form.showQrCode.checked : false,
+      qrPosition: form.qrPosition ? form.qrPosition.value : 'bottom-right',
+      formats: {
+        png: form.formatPng ? form.formatPng.checked : true,
+        pdf: form.formatPdf ? form.formatPdf.checked : false,
+        jpeg: form.formatJpeg ? form.formatJpeg.checked : false
+      },
+      quality: form.quality ? parseInt(form.quality.value) : 150
+    };
+
+    if (saveToStorage(STORAGE_KEYS.exports, state.currentSettings.exports)) {
+      showNotification('Préférences exports sauvegardées', 'success');
+      clearUnsaved();
+    } else {
+      showNotification('Erreur lors de la sauvegarde', 'error');
+    }
   }
 
   // ========================================
@@ -428,13 +732,6 @@
 
     // Charger bibliothèque de thèmes
     loadThemesLibrary();
-
-    // TODO: Implémenter interface Thème
-    // - Affichage grille de thèmes
-    // - Éditeur personnalisé avec sections collapsibles
-    // - Preview en temps réel
-    // - Gestion thèmes sauvegardés
-    // - Import/Export
   }
 
   function loadThemesLibrary() {
@@ -488,15 +785,23 @@
     var theme = state.themesLibrary.find(function(t) { return t.id === themeId; });
     if (!theme) return;
 
-    // TODO: Appliquer le thème à l'application
-    // - Mettre à jour les CSS variables
-    // - Sauvegarder dans localStorage
-    // - Confirmation utilisateur
+    if (confirm('Appliquer le thème "' + theme.name + '" à l\'application ?\n\nCela modifiera les couleurs de l\'interface.')) {
+      // Appliquer les CSS variables
+      var root = document.documentElement;
+      if (theme.colors.primary) root.style.setProperty('--brand-primary', theme.colors.primary);
+      if (theme.colors.secondary) root.style.setProperty('--brand-secondary', theme.colors.secondary);
+      if (theme.colors.accent) root.style.setProperty('--brand-accent', theme.colors.accent);
+      if (theme.colors.background) root.style.setProperty('--brand-bg', theme.colors.background);
+      if (theme.colors.card) root.style.setProperty('--brand-card-bg', theme.colors.card);
+      if (theme.colors.text) root.style.setProperty('--brand-text', theme.colors.text);
+      if (theme.colors.title) root.style.setProperty('--brand-title', theme.colors.title);
+      if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
+      if (theme.colors.muted) root.style.setProperty('--muted', theme.colors.muted);
 
-    if (confirm('Appliquer le thème "' + theme.name + '" ?')) {
+      // Sauvegarder dans localStorage
       saveToStorage(STORAGE_KEYS.activeTheme, theme);
-      showNotification('Thème "' + theme.name + '" appliqué', 'success');
-      // Recharger ou appliquer les couleurs dynamiquement
+
+      showNotification('Thème "' + theme.name + '" appliqué avec succès!', 'success');
     }
   }
 
@@ -529,12 +834,10 @@
 
   function markUnsaved() {
     state.unsavedChanges = true;
-    // TODO: Afficher indicateur visuel
   }
 
   function clearUnsaved() {
     state.unsavedChanges = false;
-    // TODO: Masquer indicateur visuel
   }
 
   // ========================================
