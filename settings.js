@@ -932,8 +932,8 @@
     var theme = state.themesLibrary.find(function(t) { return t.id === themeId; });
     if (!theme) return;
 
-    if (confirm('Appliquer le thème "' + theme.name + '" à l\'application ?\n\nCela modifiera les couleurs de l\'interface.')) {
-      // Appliquer les CSS variables
+    if (confirm('Appliquer le thème "' + theme.name + '" à l\'application ?\n\nCela modifiera les couleurs de l\'interface et des modes de jeu.')) {
+      // Appliquer les CSS variables principales
       var root = document.documentElement;
       if (theme.colors.primary) root.style.setProperty('--brand-primary', theme.colors.primary);
       if (theme.colors.secondary) root.style.setProperty('--brand-secondary', theme.colors.secondary);
@@ -945,11 +945,64 @@
       if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
       if (theme.colors.muted) root.style.setProperty('--muted', theme.colors.muted);
 
-      // Sauvegarder dans localStorage
+      // Appliquer aussi aux variables utilisées par les modes de jeu
+      // Variables du moteur tournoi classique et autres modes
+      if (theme.colors.primary) root.style.setProperty('--blue-strong', theme.colors.primary);
+      if (theme.colors.secondary) root.style.setProperty('--blue-mid', theme.colors.secondary);
+      if (theme.colors.accent) {
+        root.style.setProperty('--accent', theme.colors.accent);
+        root.style.setProperty('--blue-soft', theme.colors.accent);
+      }
+      if (theme.colors.background) root.style.setProperty('--bg-dark', theme.colors.background);
+      if (theme.colors.card) root.style.setProperty('--card', theme.colors.card);
+      if (theme.colors.text) root.style.setProperty('--text', theme.colors.text);
+
+      // Variables de succès et danger (garder les mêmes pour cohérence)
+      root.style.setProperty('--success', '#22c55e');
+      root.style.setProperty('--danger', '#ef4444');
+
+      // Sauvegarder dans localStorage pour persistance
       saveToStorage(STORAGE_KEYS.activeTheme, theme);
 
-      showNotification('Thème "' + theme.name + '" appliqué avec succès!', 'success');
+      showNotification('Thème "' + theme.name + '" appliqué avec succès!\n\nLes couleurs sont maintenant appliquées à toute l\'application.', 'success');
     }
+  }
+
+  // ========================================
+  // RESTAURATION DU THÈME AU CHARGEMENT
+  // ========================================
+
+  function restoreSavedTheme() {
+    var savedTheme = loadFromStorage(STORAGE_KEYS.activeTheme, null);
+    if (!savedTheme || !savedTheme.colors) return;
+
+    console.log('[Settings] Restauration du thème:', savedTheme.name);
+
+    // Appliquer les CSS variables sans confirmation
+    var root = document.documentElement;
+    if (savedTheme.colors.primary) root.style.setProperty('--brand-primary', savedTheme.colors.primary);
+    if (savedTheme.colors.secondary) root.style.setProperty('--brand-secondary', savedTheme.colors.secondary);
+    if (savedTheme.colors.accent) root.style.setProperty('--brand-accent', savedTheme.colors.accent);
+    if (savedTheme.colors.background) root.style.setProperty('--brand-bg', savedTheme.colors.background);
+    if (savedTheme.colors.card) root.style.setProperty('--brand-card-bg', savedTheme.colors.card);
+    if (savedTheme.colors.text) root.style.setProperty('--brand-text', savedTheme.colors.text);
+    if (savedTheme.colors.title) root.style.setProperty('--brand-title', savedTheme.colors.title);
+    if (savedTheme.colors.border) root.style.setProperty('--border', savedTheme.colors.border);
+    if (savedTheme.colors.muted) root.style.setProperty('--muted', savedTheme.colors.muted);
+
+    // Variables des modes de jeu
+    if (savedTheme.colors.primary) root.style.setProperty('--blue-strong', savedTheme.colors.primary);
+    if (savedTheme.colors.secondary) root.style.setProperty('--blue-mid', savedTheme.colors.secondary);
+    if (savedTheme.colors.accent) {
+      root.style.setProperty('--accent', savedTheme.colors.accent);
+      root.style.setProperty('--blue-soft', savedTheme.colors.accent);
+    }
+    if (savedTheme.colors.background) root.style.setProperty('--bg-dark', savedTheme.colors.background);
+    if (savedTheme.colors.card) root.style.setProperty('--card', savedTheme.colors.card);
+    if (savedTheme.colors.text) root.style.setProperty('--text', savedTheme.colors.text);
+
+    root.style.setProperty('--success', '#22c55e');
+    root.style.setProperty('--danger', '#ef4444');
   }
 
   // ========================================
@@ -992,11 +1045,18 @@
   // ========================================
 
   function init() {
+    console.log('[Settings] Initialisation...');
+
+    // Restaurer le thème sauvegardé immédiatement (avant même de vérifier settings-root)
+    // Cela permet d'appliquer le thème à toute l'application, pas seulement aux paramètres
+    restoreSavedTheme();
+
     // Vérifier que nous sommes sur la page settings
     var settingsRoot = document.getElementById('settings-root');
-    if (!settingsRoot) return;
-
-    console.log('[Settings] Initialisation...');
+    if (!settingsRoot) {
+      console.log('[Settings] Page settings non trouvée, mais thème restauré');
+      return;
+    }
 
     // Initialiser navigation
     initTabs();
