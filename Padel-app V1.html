@@ -1348,6 +1348,833 @@
     .americano-podium-emoji { font-size: 20px; }
     .americano-podium-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .americano-podium-ga { color: var(--muted); font-size: 0.85rem; }
+
+    /* ======================================
+       STYLES PARAMÈTRES - NOUVELLE INTERFACE
+       ====================================== */
+
+    /* Container principal des paramètres */
+    .settings-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* En-tête principal */
+    .settings-main-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .settings-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .settings-main-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--brand-title);
+      margin: 0;
+    }
+
+    .home-btn-settings {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 75, 155, 0.3);
+    }
+
+    .home-btn-settings:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 75, 155, 0.5);
+    }
+
+    /* Navigation par onglets */
+    .settings-tabs-nav {
+      display: flex;
+      gap: 0;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 2px solid var(--border);
+      padding: 0;
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+
+    .settings-tab {
+      flex: 1;
+      min-width: fit-content;
+      padding: 14px 20px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .settings-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .settings-tab.active {
+      background: rgba(229, 227, 57, 0.1);
+      border-bottom-color: var(--brand-accent);
+      color: var(--brand-accent);
+    }
+
+    /* Panneaux */
+    .settings-panels {
+      padding: 24px;
+    }
+
+    .settings-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .settings-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Sections de paramètres */
+    .settings-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .settings-section:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(229, 227, 57, 0.3);
+    }
+
+    .settings-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings-section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Grilles de champs */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .settings-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .settings-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    /* Champs de formulaire */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field-label .required {
+      color: var(--danger);
+      font-size: 0.85rem;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      font-family: var(--app-font-family);
+    }
+
+    .field-input:focus,
+    .field-select:focus,
+    .field-textarea:focus {
+      outline: none;
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 3px rgba(229, 227, 57, 0.1);
+    }
+
+    .field-input::placeholder,
+    .field-textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    .field-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .field-color {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .field-color input[type="color"] {
+      width: 50px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .field-color-value {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: monospace;
+    }
+
+    .field-range {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-range-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-range-value {
+      background: rgba(229, 227, 57, 0.15);
+      color: var(--brand-accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    .field-range input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .field-range input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--brand-accent);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .field-range input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 6px rgba(229, 227, 57, 0.2);
+    }
+
+    .field-range input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--brand-accent);
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .field-range input[type="range"]::-moz-range-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 6px rgba(229, 227, 57, 0.2);
+    }
+
+    /* Checkbox personnalisé */
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .checkbox-label:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--brand-accent);
+    }
+
+    /* Upload de fichier avec preview */
+    .field-file-upload {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .file-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .file-upload-area:hover {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.05);
+    }
+
+    .file-upload-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .file-upload-text {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .file-preview {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      object-fit: contain;
+    }
+
+    /* Templates d'export */
+    .export-templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .export-template-card {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.02);
+      text-align: center;
+    }
+
+    .export-template-card:hover {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .export-template-card.selected {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.1);
+      box-shadow: 0 0 0 4px rgba(229, 227, 57, 0.2);
+    }
+
+    .template-preview {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .template-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    /* Bibliothèque de thèmes */
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .theme-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .theme-card:hover {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .theme-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .theme-card-icon {
+      font-size: 1.5rem;
+    }
+
+    .theme-card-name {
+      flex: 1;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .theme-palette {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .theme-color-swatch {
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .theme-apply-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-apply-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 75, 155, 0.4);
+    }
+
+    /* Éditeur de thème personnalisé */
+    .theme-editor-group {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .theme-editor-summary {
+      padding: 14px 18px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s ease;
+      list-style: none;
+    }
+
+    .theme-editor-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .theme-editor-summary:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-editor-summary::after {
+      content: '▼';
+      font-size: 0.8rem;
+      color: var(--muted);
+      transition: transform 0.2s ease;
+    }
+
+    .theme-editor-group[open] .theme-editor-summary::after {
+      transform: rotate(-180deg);
+    }
+
+    .theme-editor-content {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Preview du thème */
+    .theme-preview-container {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .theme-preview-header {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .theme-preview-iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      display: block;
+    }
+
+    /* Gestion des thèmes personnalisés */
+    .custom-themes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .custom-theme-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .custom-theme-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .custom-theme-name {
+      flex: 1;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .custom-theme-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .custom-theme-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .custom-theme-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--brand-accent);
+    }
+
+    /* État vide */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-state-text {
+      font-size: 0.95rem;
+    }
+
+    /* Actions des paramètres */
+    .settings-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+    }
+
+    .settings-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .settings-btn-primary {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 75, 155, 0.3);
+    }
+
+    .settings-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 75, 155, 0.5);
+    }
+
+    .settings-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .settings-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .settings-btn-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .settings-btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Indicateur de modifications non sauvegardées */
+    .unsaved-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+      margin-left: 6px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* Liste des sponsors */
+    .sponsors-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sponsor-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s ease;
+      cursor: grab;
+    }
+
+    .sponsor-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(229, 227, 57, 0.3);
+    }
+
+    .sponsor-item.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    .sponsor-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .sponsor-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+    }
+
+    .sponsor-info {
+      flex: 1;
+    }
+
+    .sponsor-name {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .sponsor-category {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .sponsor-zones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .sponsor-zone-tag {
+      background: rgba(229, 227, 57, 0.15);
+      color: var(--brand-accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .sponsor-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .sponsor-priority {
+      display: flex;
+      gap: 4px;
+    }
+
+    .priority-star {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .priority-star.filled {
+      color: var(--brand-accent);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .settings-tabs-nav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+      }
+
+      .settings-tab {
+        font-size: 0.85rem;
+        padding: 12px 16px;
+      }
+
+      .settings-panels {
+        padding: 16px;
+      }
+
+      .settings-grid-2,
+      .settings-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .export-templates-grid,
+      .themes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
   </style>
 
   <!-- Styles du moteur tournoi classique -->
@@ -2442,224 +3269,664 @@
     </section>
 
     <!-- PAGE PARAMÈTRES CLUB -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         NOUVELLE STRUCTURE PARAMÈTRES - 5 ONGLETS MODULAIRES
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <section id="settings-root" style="display:none;">
-      <div class="settings-shell card">
-        <div class="settings-header">
+      <div class="settings-shell">
+
+        <!-- HEADER -->
+        <div class="settings-main-header">
           <div>
-            <p class="small-muted">Personnalisation</p>
-            <h2>⚙️ Paramètres du club</h2>
+            <p class="settings-breadcrumb">Personnalisation</p>
+            <h1 class="settings-title">⚙️ Paramètres</h1>
           </div>
           <button class="btn btn-secondary btn-small" id="btn-settings-home">🏠 Accueil</button>
         </div>
 
-        <div class="settings-tabs" role="tablist">
-          <button class="settings-tab active" id="settings-tab-app" data-target="settings-panel-app" role="tab">🎨 Paramètres de l'application</button>
-          <button class="settings-tab" id="settings-tab-pong" data-target="settings-panel-pong" role="tab">🕹️ Mini-jeu Padel Pong</button>
+        <!-- NAVIGATION ONGLETS (STICKY) -->
+        <div class="settings-tabs-nav" role="tablist">
+          <button class="settings-tab active" data-panel="club" role="tab" aria-selected="true">
+            <span class="tab-icon">🏢</span>
+            <span class="tab-text">Club</span>
+          </button>
+          <button class="settings-tab" data-panel="sponsors" role="tab">
+            <span class="tab-icon">💼</span>
+            <span class="tab-text">Sponsors</span>
+          </button>
+          <button class="settings-tab" data-panel="pong" role="tab">
+            <span class="tab-icon">🕹️</span>
+            <span class="tab-text">Mini-Jeu</span>
+          </button>
+          <button class="settings-tab" data-panel="exports" role="tab">
+            <span class="tab-icon">📤</span>
+            <span class="tab-text">Exports</span>
+          </button>
+          <button class="settings-tab" data-panel="theme" role="tab">
+            <span class="tab-icon">🎨</span>
+            <span class="tab-text">Thème</span>
+          </button>
         </div>
 
+        <!-- PANELS CONTAINER -->
         <div class="settings-panels">
-          <div class="settings-panel active" id="settings-panel-app" role="tabpanel">
-            <div class="theme-grid">
-              <div class="field">
-                <label for="club-theme-name">Nom du club</label>
-                <input id="club-theme-name" type="text" placeholder="Nom complet du club" />
-              </div>
-              <div class="field">
-                <label for="club-theme-shortname">Nom court</label>
-                <input id="club-theme-shortname" type="text" placeholder="Nom court" />
-              </div>
-              <div class="field">
-                <label for="club-theme-primary">Couleur principale</label>
-                <input id="club-theme-primary" type="color" value="#004b9b" />
-              </div>
-              <div class="field">
-                <label for="club-theme-secondary">Couleur secondaire</label>
-                <input id="club-theme-secondary" type="color" value="#4d81b9" />
-              </div>
-              <div class="field">
-                <label for="club-theme-accent">Couleur accent</label>
-                <input id="club-theme-accent" type="color" value="#e5e339" />
-              </div>
-              <div class="field">
-                <label for="club-theme-bg">Fond principal</label>
-                <input id="club-theme-bg" type="color" value="#020617" />
-              </div>
-              <div class="field">
-                <label for="club-theme-card">Fond des cartes</label>
-                <input id="club-theme-card" type="color" value="#0b1220" />
-              </div>
-              <div class="field">
-                <label for="club-theme-text">Couleur du texte</label>
-                <input id="club-theme-text" type="color" value="#ffffff" />
-              </div>
-              <div class="field">
-                <label for="club-theme-title">Couleur des titres</label>
-                <input id="club-theme-title" type="color" value="#e5e339" />
-              </div>
-            </div>
 
-            <div class="settings-section app-block-interactive" aria-label="Logo du club">
-              <div class="settings-subtitle">🖼️ Logo du club</div>
-              <div class="settings-inline" style="align-items:center;">
-                <label class="logo-wrapper" style="margin-right:12px;">
-                  <img id="settings-logo-preview" alt="Logo du club" />
-                  <input id="settings-logo-upload" type="file" accept="image/*" />
-                </label>
-                <div class="small-muted" id="settings-logo-helper">Le logo uploadé est utilisé sur toutes les vues (accueil, TV, ligue…).</div>
-              </div>
-            </div>
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 1 : 🏢 CLUB
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel active" id="panel-club" role="tabpanel">
 
-              <div class="settings-section app-block-interactive" aria-label="Typographie">
-                <div class="settings-subtitle">✒️ Typographie</div>
+            <!-- Identité du club -->
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🏷️ Identité du club</h3>
+
+              <div class="settings-grid">
+                <div class="field full-width">
+                  <label for="club-logo-upload" class="field-label">Logo principal</label>
+                  <div class="logo-upload-container">
+                    <label class="logo-wrapper">
+                      <img id="club-logo-preview" alt="Logo" />
+                      <input id="club-logo-upload" type="file" accept="image/*" />
+                    </label>
+                    <p class="field-hint">Image carrée ou rectangulaire, max 2MB</p>
+                  </div>
+                </div>
+
                 <div class="field">
-                  <label for="club-theme-font">Police globale</label>
-                  <select id="club-theme-font">
-                  <option value="system">Police système (par défaut)</option>
-                  <option value="Inter">Inter</option>
-                  <option value="Poppins">Poppins</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Nunito">Nunito</option>
+                  <label for="club-name" class="field-label">Nom complet du club</label>
+                  <input id="club-name" type="text" class="field-input" placeholder="Padel Parc" />
+                </div>
+
+                <div class="field">
+                  <label for="club-shortname" class="field-label">Nom court / Acronyme</label>
+                  <input id="club-shortname" type="text" class="field-input" placeholder="PP" />
+                </div>
+
+                <div class="field full-width">
+                  <label for="club-slogan" class="field-label">Slogan (optionnel)</label>
+                  <input id="club-slogan" type="text" class="field-input" placeholder="Le padel à votre portée" />
+                </div>
+
+                <div class="field">
+                  <label for="club-signature-color" class="field-label">Couleur signature</label>
+                  <input id="club-signature-color" type="color" class="field-color" value="#e5e339" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📞 Informations de contact</h3>
+
+              <div class="settings-grid">
+                <div class="field full-width">
+                  <label for="club-address" class="field-label">Adresse complète</label>
+                  <textarea id="club-address" class="field-textarea" rows="3" placeholder="123 Rue du Padel, 75000 Paris"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="club-phone" class="field-label">Téléphone</label>
+                  <input id="club-phone" type="tel" class="field-input" placeholder="+33 1 23 45 67 89" />
+                </div>
+
+                <div class="field">
+                  <label for="club-email" class="field-label">Email</label>
+                  <input id="club-email" type="email" class="field-input" placeholder="contact@club.fr" />
+                </div>
+
+                <div class="field full-width">
+                  <label for="club-website" class="field-label">Site web</label>
+                  <input id="club-website" type="url" class="field-input" placeholder="https://www.club.fr" />
+                </div>
+
+                <div class="field">
+                  <label for="club-instagram" class="field-label">Instagram</label>
+                  <input id="club-instagram" type="text" class="field-input" placeholder="@club" />
+                </div>
+
+                <div class="field">
+                  <label for="club-facebook" class="field-label">Facebook</label>
+                  <input id="club-facebook" type="text" class="field-input" placeholder="Club Officiel" />
+                </div>
+
+                <div class="field">
+                  <label for="club-twitter" class="field-label">Twitter / X</label>
+                  <input id="club-twitter" type="text" class="field-input" placeholder="@club" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">⚙️ Configuration événements</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label for="club-timezone" class="field-label">Fuseau horaire</label>
+                  <select id="club-timezone" class="field-select">
+                    <option value="Europe/Paris">Europe/Paris (GMT+1)</option>
+                    <option value="Europe/London">Europe/London (GMT+0)</option>
+                    <option value="America/New_York">America/New_York (GMT-5)</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="club-currency" class="field-label">Devise par défaut</label>
+                  <select id="club-currency" class="field-select">
+                    <option value="EUR">€ Euro</option>
+                    <option value="USD">$ Dollar US</option>
+                    <option value="GBP">£ Livre Sterling</option>
+                    <option value="CHF">CHF Franc Suisse</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="club-date-format" class="field-label">Format de date</label>
+                  <select id="club-date-format" class="field-select">
+                    <option value="DD/MM/YYYY">JJ/MM/AAAA</option>
+                    <option value="MM/DD/YYYY">MM/JJ/AAAA</option>
+                    <option value="YYYY-MM-DD">AAAA-MM-JJ</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="club-language" class="field-label">Langue</label>
+                  <select id="club-language" class="field-select">
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="es">🇪🇸 Español</option>
                   </select>
                 </div>
               </div>
+            </div>
 
-            <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
-              <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
-              <div class="settings-inline">
+            <!-- Actions -->
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="btn-save-club">💾 Sauvegarder</button>
+              <button class="btn btn-secondary" id="btn-reset-club">↩️ Réinitialiser</button>
+            </div>
+          </div>
+
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 2 : 💼 SPONSORS
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-sponsors" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">➕ Ajouter un sponsor</h3>
+
+              <div class="settings-grid">
                 <div class="field">
-                  <label for="app-sponsor-name">Nom du sponsor</label>
-                  <input id="app-sponsor-name" type="text" placeholder="Nom du sponsor" />
+                  <label for="sponsor-name-input" class="field-label">Nom du sponsor</label>
+                  <input id="sponsor-name-input" type="text" class="field-input" placeholder="Entreprise XYZ" />
                 </div>
+
                 <div class="field">
-                  <label for="app-sponsor-logo">Logo du sponsor</label>
-                  <input id="app-sponsor-logo" type="file" accept="image/*" />
-                  <div class="small-muted">Le logo sera affiché en vue TV s'il est défini.</div>
-                </div>
-                <div class="field">
-                  <label>Aperçu sponsor</label>
-                  <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
-                </div>
-              </div>
-              <div class="settings-inline" style="gap:16px;">
-                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
-                  <input id="app-sponsor-md-toggle" type="checkbox" checked />
-                  Afficher en TV M/D
-                </label>
-                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
-                  <input id="app-sponsor-classic-toggle" type="checkbox" checked />
-                  Afficher en TV Tournoi
-                </label>
-                <button class="btn btn-secondary btn-small" id="btn-add-sponsor" type="button">Ajouter le sponsor</button>
-              </div>
-              <div class="field" style="margin-top:8px;">
-                <label>Liste des sponsors</label>
-                <div id="app-sponsor-list" class="settings-stack" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <div class="small-muted" id="app-sponsor-empty" style="display:none;">Aucun sponsor enregistré.</div>
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Fond export journée ligue">
-              <div class="settings-subtitle">🖼️ Fond export scores de journée (Ligue interne)</div>
-              <div class="field">
-                <label for="league-export-bg-upload">Fond pour l’export des scores de journée</label>
-                <input id="league-export-bg-upload" type="file" accept="image/*" class="settings-input" />
-                <p class="settings-hint">Téléverse une image (jpg ou png) qui servira de fond pour l’export graphique des scores de chaque journée.</p>
-                <img id="league-export-bg-preview" alt="Prévisualisation du fond d’export" style="max-width: 220px; display:none; margin-top:8px; border-radius:8px;" />
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Style des boutons">
-              <div class="settings-subtitle">🎛️ Style des boutons</div>
-              <div class="field">
-                <label for="app-button-style">Apparence</label>
-                <select id="app-button-style">
-                  <option value="solid">Plein</option>
-                  <option value="outline">Contour</option>
-                  <option value="ghost">Transparent</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Forme des cartes">
-              <div class="settings-subtitle">🧊 Forme des blocs</div>
-              <div class="field">
-                <label for="app-card-shape">Arrondis</label>
-                <select id="app-card-shape">
-                  <option value="rounded">Arrondi léger</option>
-                  <option value="square">Carré</option>
-                  <option value="pill">Très arrondi</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Fond de l'application">
-              <div class="settings-subtitle">🌌 Fond de l'application</div>
-              <div class="settings-inline">
-                <div class="field">
-                  <label for="app-bg-style">Style de fond</label>
-                  <select id="app-bg-style">
-                    <option value="solid">Uni</option>
-                    <option value="gradient">Dégradé</option>
-                    <option value="pattern">Motif discret</option>
-                    <option value="image">Image personnalisée</option>
+                  <label for="sponsor-category-input" class="field-label">Catégorie</label>
+                  <select id="sponsor-category-input" class="field-select">
+                    <option value="sport">Sport</option>
+                    <option value="alimentation">Alimentation</option>
+                    <option value="automobile">Automobile</option>
+                    <option value="tech">Tech</option>
+                    <option value="autre">Autre</option>
                   </select>
                 </div>
-                <div class="field" id="app-bg-image-field">
-                  <label for="app-bg-image">Image de fond</label>
-                  <input id="app-bg-image" type="file" accept="image/*" />
-                  <div class="small-muted">Utilisée si le mode image est sélectionné.</div>
+
+                <div class="field full-width">
+                  <label for="sponsor-logo-input" class="field-label">Logo</label>
+                  <input id="sponsor-logo-input" type="file" class="field-input" accept="image/*" />
+                  <div id="sponsor-logo-preview-wrapper" style="display:none; margin-top:8px;">
+                    <img id="sponsor-logo-preview-img" alt="Preview" style="max-width:100px; border-radius:8px;" />
+                  </div>
                 </div>
+
+                <div class="field full-width">
+                  <label for="sponsor-url-input" class="field-label">Site web (optionnel)</label>
+                  <input id="sponsor-url-input" type="url" class="field-input" placeholder="https://..." />
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="btn-add-new-sponsor">➕ Ajouter le sponsor</button>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📋 Sponsors actifs</h3>
+              <div id="sponsors-active-list"></div>
+              <div id="sponsors-empty" class="empty-state" style="display:none;">
+                <p>💼</p>
+                <p>Aucun sponsor enregistré</p>
               </div>
             </div>
 
-            <div class="theme-actions">
-              <div class="small-muted">Le logo uploadé est partagé dans ce thème.</div>
-              <div class="theme-buttons">
-                <button class="btn btn-small" id="btn-save-club-theme">Enregistrer le thème</button>
-                <button class="btn btn-secondary btn-small" id="btn-reset-club-theme">Réinitialiser le thème</button>
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎛️ Options avancées</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-rotation-toggle" type="checkbox" />
+                    <span>Rotation automatique</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="sponsor-rotation-duration" class="field-label">Durée rotation (sec)</label>
+                  <input id="sponsor-rotation-duration" type="number" class="field-input" min="5" max="60" value="10" />
+                </div>
+
+                <div class="field">
+                  <label for="sponsor-position" class="field-label">Position bannière TV</label>
+                  <select id="sponsor-position" class="field-select">
+                    <option value="top-right">Haut droite</option>
+                    <option value="bottom-right" selected>Bas droite</option>
+                    <option value="bottom-left">Bas gauche</option>
+                    <option value="top-left">Haut gauche</option>
+                  </select>
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="settings-panel" id="settings-panel-pong" role="tabpanel">
-            <div class="settings-section app-block-interactive" aria-label="Paramètres du mini-jeu">
-              <div class="settings-subtitle">⚡ Paramètres du mini-jeu Padel Pong</div>
-              <div class="settings-inline">
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 3 : 🕹️ PONG
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-pong" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎮 Configuration de base</h3>
+
+              <div class="settings-grid">
                 <div class="field">
-                  <label for="pp-sponsor-name">Nom du sponsor</label>
-                  <input id="pp-sponsor-name" type="text" placeholder="Nom du sponsor affiché" />
+                  <label for="pong-sponsor-name" class="field-label">Nom du sponsor Pong</label>
+                  <input id="pong-sponsor-name" type="text" class="field-input" />
                 </div>
+
                 <div class="field">
-                  <label for="pp-sponsor-logo">URL du logo du sponsor</label>
-                  <input id="pp-sponsor-logo" type="text" placeholder="https://.../logo.png" />
+                  <label for="pong-sponsor-logo" class="field-label">URL logo sponsor</label>
+                  <input id="pong-sponsor-logo" type="text" class="field-input" placeholder="https://...logo.png" />
                 </div>
+
                 <div class="field">
-                  <label for="pp-ai-name">Nom de l'IA</label>
-                  <input id="pp-ai-name" type="text" placeholder="PadelBot" />
+                  <label for="pong-ai-name" class="field-label">Nom de l'IA</label>
+                  <input id="pong-ai-name" type="text" class="field-input" placeholder="PadelBot" />
                 </div>
-              </div>
-              <div class="theme-actions" style="justify-content: flex-end;">
-                <button class="btn btn-small" id="pp-save-settings">Enregistrer les paramètres du mini-jeu</button>
               </div>
             </div>
 
-            <div class="card app-block-interactive pong-card pong-draggable" id="pp-card-draggable">
-              <div class="drag-handle">⛓️ Déplacer le bloc Padel Pong</div>
-              <h3 class="tournaments-title" style="margin-bottom:6px;">Padel Pong</h3>
-              <p class="pong-description">Mini-jeu rapide pour les pauses : scanne le QR code pour lancer <strong>padel-pong.html</strong> sur ton mobile ou ouvre-le directement.</p>
-              <div style="display:flex; gap:16px; align-items:center; margin-top:10px; flex-wrap:wrap;">
-                <div class="pong-qr" id="pp-qr"></div>
-                <div style="display:flex; flex-direction:column; gap:8px; min-width:220px;">
-                  <div id="pp-meta" class="small-muted">Sponsor & IA visibles dans le mini-jeu.</div>
-                  <button class="btn btn-small" id="pp-open-game" type="button">Ouvrir le mini-jeu</button>
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎨 Apparence du jeu</h3>
+
+              <div class="field">
+                <label class="checkbox-label">
+                  <input id="pong-use-theme" type="checkbox" checked />
+                  <span>Utiliser les couleurs du thème</span>
+                </label>
+              </div>
+
+              <div id="pong-custom-colors-section" class="settings-grid" style="display:none;">
+                <div class="field">
+                  <label for="pong-color-ball" class="field-label">Couleur balle</label>
+                  <input id="pong-color-ball" type="color" class="field-color" value="#e5e339" />
+                </div>
+                <div class="field">
+                  <label for="pong-color-player" class="field-label">Raquette joueur</label>
+                  <input id="pong-color-player" type="color" class="field-color" value="#004b9b" />
+                </div>
+                <div class="field">
+                  <label for="pong-color-ai" class="field-label">Raquette IA</label>
+                  <input id="pong-color-ai" type="color" class="field-color" value="#ff5252" />
+                </div>
+                <div class="field">
+                  <label for="pong-color-bg" class="field-label">Fond terrain</label>
+                  <input id="pong-color-bg" type="color" class="field-color" value="#020617" />
                 </div>
               </div>
-              <div class="resize-handle" aria-hidden="true"></div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">⚙️ Gameplay</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-leaderboard" type="checkbox" checked />
+                    <span>Activer le leaderboard</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-sounds" type="checkbox" checked />
+                    <span>Activer les sons</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="pong-difficulty" class="field-label">Difficulté par défaut</label>
+                  <select id="pong-difficulty" class="field-select">
+                    <option value="easy">Facile</option>
+                    <option value="medium" selected>Moyen</option>
+                    <option value="hard">Difficile</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📱 QR Code</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label for="pong-qr-size" class="field-label">Taille QR Code</label>
+                  <select id="pong-qr-size" class="field-select">
+                    <option value="120">Petit (120px)</option>
+                    <option value="160" selected>Moyen (160px)</option>
+                    <option value="200">Grand (200px)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="btn-save-pong">💾 Enregistrer config mini-jeu</button>
             </div>
           </div>
-        </div>
-      </div>
+
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 4 : 📤 EXPORTS
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-exports" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎨 Templates d'export</h3>
+
+              <div class="export-templates">
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="moderne" checked />
+                  <div class="template-preview moderne">
+                    <span class="template-emoji">🎨</span>
+                    <span class="template-name">Moderne</span>
+                  </div>
+                </label>
+
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="epure" />
+                  <div class="template-preview epure">
+                    <span class="template-emoji">📄</span>
+                    <span class="template-name">Épuré</span>
+                  </div>
+                </label>
+
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="sombre" />
+                  <div class="template-preview sombre">
+                    <span class="template-emoji">🌙</span>
+                    <span class="template-name">Sombre</span>
+                  </div>
+                </label>
+
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="sponsor" />
+                  <div class="template-preview sponsor">
+                    <span class="template-emoji">💼</span>
+                    <span class="template-name">Sponsor</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🖼️ Fond d'export journée ligue</h3>
+
+              <div class="settings-grid">
+                <div class="field full-width">
+                  <label for="export-league-bg" class="field-label">Image de fond</label>
+                  <input id="export-league-bg" type="file" class="field-input" accept="image/*" />
+                  <div id="export-league-bg-preview-wrapper" style="display:none; margin-top:8px;">
+                    <img id="export-league-bg-preview" alt="Preview" style="max-width:300px; border-radius:8px;" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="export-overlay-opacity" class="field-label">Opacité overlay</label>
+                  <input id="export-overlay-opacity" type="range" class="field-range" min="0" max="100" value="50" />
+                  <span id="export-overlay-value">50%</span>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-dark-filter" type="checkbox" checked />
+                    <span>Appliquer filtre sombre</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🏷️ Branding automatique</h3>
+
+              <div class="field">
+                <label class="checkbox-label">
+                  <input id="export-branding-enabled" type="checkbox" checked />
+                  <span>Ajouter branding aux exports</span>
+                </label>
+              </div>
+
+              <div id="export-branding-options" class="settings-grid">
+                <div class="field full-width">
+                  <label for="export-branding-logo" class="field-label">Logo pour exports</label>
+                  <input id="export-branding-logo" type="file" class="field-input" accept="image/*" />
+                </div>
+
+                <div class="field full-width">
+                  <label for="export-branding-text" class="field-label">Texte footer</label>
+                  <input id="export-branding-text" type="text" class="field-input" placeholder="Généré par..." />
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-qr-enabled" type="checkbox" />
+                    <span>Ajouter QR code vers site</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="export-qr-position" class="field-label">Position QR</label>
+                  <select id="export-qr-position" class="field-select">
+                    <option value="bottom-left">Bas gauche</option>
+                    <option value="bottom-right" selected>Bas droite</option>
+                    <option value="none">Aucun</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📁 Formats d'export</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-format-png" type="checkbox" checked />
+                    <span>PNG (réseaux sociaux)</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-format-pdf" type="checkbox" checked />
+                    <span>PDF (impression)</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-format-jpeg" type="checkbox" checked />
+                    <span>JPEG (compatibilité)</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="export-quality" class="field-label">Qualité image</label>
+                  <select id="export-quality" class="field-select">
+                    <option value="72">Normale (72 dpi)</option>
+                    <option value="150" selected>Haute (150 dpi)</option>
+                    <option value="300">Impression (300 dpi)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="btn-save-exports">💾 Sauvegarder préférences exports</button>
+            </div>
+          </div>
+
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 5 : 🎨 THÈME
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-theme" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📚 Bibliothèque de thèmes</h3>
+
+              <div id="themes-library-grid" class="themes-grid">
+                <!-- Themes will be loaded dynamically -->
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎨 Éditeur de thème personnalisé</h3>
+
+              <!-- Couleurs -->
+              <details class="theme-editor-group" open>
+                <summary class="theme-editor-summary">🎨 Couleurs</summary>
+                <div class="settings-grid-3">
+                  <div class="field">
+                    <label for="theme-primary" class="field-label">Principale</label>
+                    <input id="theme-primary" type="color" class="field-color" value="#004b9b" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-secondary" class="field-label">Secondaire</label>
+                    <input id="theme-secondary" type="color" class="field-color" value="#4d81b9" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-accent" class="field-label">Accent</label>
+                    <input id="theme-accent" type="color" class="field-color" value="#e5e339" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-bg" class="field-label">Fond</label>
+                    <input id="theme-bg" type="color" class="field-color" value="#020617" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-card" class="field-label">Cartes</label>
+                    <input id="theme-card" type="color" class="field-color" value="#0b1220" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-text" class="field-label">Texte</label>
+                    <input id="theme-text" type="color" class="field-color" value="#ffffff" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-title" class="field-label">Titres</label>
+                    <input id="theme-title" type="color" class="field-color" value="#e5e339" />
+                  </div>
+                </div>
+              </details>
+
+              <!-- Typographie -->
+              <details class="theme-editor-group">
+                <summary class="theme-editor-summary">✒️ Typographie</summary>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="theme-font" class="field-label">Police principale</label>
+                    <select id="theme-font" class="field-select">
+                      <option value="system" selected>System</option>
+                      <option value="Inter">Inter</option>
+                      <option value="Poppins">Poppins</option>
+                      <option value="Montserrat">Montserrat</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Nunito">Nunito</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Formes -->
+              <details class="theme-editor-group">
+                <summary class="theme-editor-summary">🔲 Formes & Espacements</summary>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="theme-border-radius" class="field-label">Arrondis</label>
+                    <select id="theme-border-radius" class="field-select">
+                      <option value="square">Carré</option>
+                      <option value="rounded" selected>Arrondi léger</option>
+                      <option value="pill">Très arrondi</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="theme-button-style" class="field-label">Style boutons</label>
+                    <select id="theme-button-style" class="field-select">
+                      <option value="solid" selected>Plein</option>
+                      <option value="outline">Contour</option>
+                      <option value="ghost">Transparent</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Fond -->
+              <details class="theme-editor-group">
+                <summary class="theme-editor-summary">🌌 Fond de page</summary>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="theme-bg-style" class="field-label">Type de fond</label>
+                    <select id="theme-bg-style" class="field-select">
+                      <option value="solid">Uni</option>
+                      <option value="gradient" selected>Dégradé</option>
+                      <option value="pattern">Motif</option>
+                      <option value="image">Image</option>
+                    </select>
+                  </div>
+
+                  <div class="field" id="theme-bg-image-field" style="display:none;">
+                    <label for="theme-bg-image" class="field-label">Image</label>
+                    <input id="theme-bg-image" type="file" class="field-input" accept="image/*" />
+                  </div>
+                </div>
+              </details>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">💾 Mes thèmes sauvegardés</h3>
+
+              <div id="custom-themes-list">
+                <div class="empty-state">
+                  <p>🎨</p>
+                  <p>Aucun thème personnalisé</p>
+                </div>
+              </div>
+
+              <div class="theme-management-btns">
+                <button class="btn btn-primary" id="btn-save-custom-theme">💾 Sauvegarder comme nouveau thème</button>
+                <button class="btn btn-secondary" id="btn-import-theme">📥 Importer</button>
+                <button class="btn btn-secondary" id="btn-export-theme">📤 Exporter</button>
+              </div>
+            </div>
+
+            <div class="settings-actions theme-actions">
+              <div class="unsaved-indicator" id="theme-unsaved" style="display:none;">
+                <span class="dot">●</span>
+                <span>Modifications non sauvegardées</span>
+              </div>
+              <button class="btn btn-primary" id="btn-apply-theme">✅ Appliquer les modifications</button>
+              <button class="btn btn-secondary" id="btn-cancel-theme">↩️ Annuler</button>
+              <button class="btn btn-danger" id="btn-reset-theme">🔄 Réinitialiser par défaut</button>
+            </div>
+          </div>
+
+        </div><!-- End panels -->
+      </div><!-- End shell -->
     </section>
 
     <!-- PAGE ADMIN M/D -->
@@ -5549,5 +6816,6 @@
   <script src="mode_md.js"></script>
   <script src="mode_ligue.js"></script>
   <script src="sidebar.js"></script>
+  <script src="settings.js"></script>
 </body>
 </html>

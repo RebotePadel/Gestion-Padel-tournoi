@@ -1,0 +1,140 @@
+{
+  "themes": [
+    {
+      "id": "ocean-blue",
+      "name": "Ocean Blue",
+      "icon": "🌊",
+      "colors": {
+        "primary": "#0077be",
+        "secondary": "#4d9fd9",
+        "accent": "#00d4ff",
+        "background": "#001a2e",
+        "card": "#003152",
+        "text": "#e0f2ff",
+        "title": "#00d4ff",
+        "border": "#004d73",
+        "muted": "#7fb3d5"
+      },
+      "palette": ["#0077be", "#4d9fd9", "#00d4ff", "#003152"]
+    },
+    {
+      "id": "fire-red",
+      "name": "Fire Red",
+      "icon": "🔥",
+      "colors": {
+        "primary": "#c41e3a",
+        "secondary": "#e74c3c",
+        "accent": "#ff6b6b",
+        "background": "#1a0000",
+        "card": "#2d0a0a",
+        "text": "#ffe5e5",
+        "title": "#ff6b6b",
+        "border": "#5c0f0f",
+        "muted": "#cc8888"
+      },
+      "palette": ["#c41e3a", "#e74c3c", "#ff6b6b", "#2d0a0a"]
+    },
+    {
+      "id": "forest-green",
+      "name": "Forest Green",
+      "icon": "🌿",
+      "colors": {
+        "primary": "#2d7a3e",
+        "secondary": "#4caf50",
+        "accent": "#81c784",
+        "background": "#0a1f0f",
+        "card": "#1a3a24",
+        "text": "#e8f5e9",
+        "title": "#81c784",
+        "border": "#2e5c3a",
+        "muted": "#90c49a"
+      },
+      "palette": ["#2d7a3e", "#4caf50", "#81c784", "#1a3a24"]
+    },
+    {
+      "id": "royal-purple",
+      "name": "Royal Purple",
+      "icon": "👑",
+      "colors": {
+        "primary": "#6a1b9a",
+        "secondary": "#8e24aa",
+        "accent": "#ce93d8",
+        "background": "#1a0a29",
+        "card": "#2d1540",
+        "text": "#f3e5f5",
+        "title": "#ce93d8",
+        "border": "#4a2663",
+        "muted": "#b084cc"
+      },
+      "palette": ["#6a1b9a", "#8e24aa", "#ce93d8", "#2d1540"]
+    },
+    {
+      "id": "electric-yellow",
+      "name": "Electric Yellow",
+      "icon": "⚡",
+      "colors": {
+        "primary": "#f9a825",
+        "secondary": "#fdd835",
+        "accent": "#ffeb3b",
+        "background": "#1a1500",
+        "card": "#2d2400",
+        "text": "#fffde7",
+        "title": "#ffeb3b",
+        "border": "#5c4a00",
+        "muted": "#d4c36a"
+      },
+      "palette": ["#f9a825", "#fdd835", "#ffeb3b", "#2d2400"]
+    },
+    {
+      "id": "midnight",
+      "name": "Midnight",
+      "icon": "🌙",
+      "colors": {
+        "primary": "#1e3a5f",
+        "secondary": "#2c5282",
+        "accent": "#90cdf4",
+        "background": "#0a0e1a",
+        "card": "#1a202c",
+        "text": "#e2e8f0",
+        "title": "#90cdf4",
+        "border": "#2d3748",
+        "muted": "#718096"
+      },
+      "palette": ["#1e3a5f", "#2c5282", "#90cdf4", "#1a202c"]
+    },
+    {
+      "id": "sakura-pink",
+      "name": "Sakura Pink",
+      "icon": "🌸",
+      "colors": {
+        "primary": "#d81b60",
+        "secondary": "#ec407a",
+        "accent": "#f8bbd0",
+        "background": "#1f0a14",
+        "card": "#3a1528",
+        "text": "#fce4ec",
+        "title": "#f8bbd0",
+        "border": "#5c2642",
+        "muted": "#d4849b"
+      },
+      "palette": ["#d81b60", "#ec407a", "#f8bbd0", "#3a1528"]
+    },
+    {
+      "id": "arctic-white",
+      "name": "Arctic White",
+      "icon": "🏔️",
+      "colors": {
+        "primary": "#455a64",
+        "secondary": "#607d8b",
+        "accent": "#b0bec5",
+        "background": "#0f1419",
+        "card": "#1e2730",
+        "text": "#eceff1",
+        "title": "#b0bec5",
+        "border": "#37474f",
+        "muted": "#90a4ae"
+      },
+      "palette": ["#455a64", "#607d8b", "#b0bec5", "#1e2730"]
+    }
+  ]
+}
