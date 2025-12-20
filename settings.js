@@ -733,7 +733,371 @@
 
     // Charger bibliothèque de thèmes
     loadThemesLibrary();
+
+    // Initialiser l'éditeur de thème personnalisé
+    initThemeEditor();
   }
+
+  // ========================================
+  // ÉDITEUR DE THÈME PERSONNALISÉ
+  // ========================================
+
+  var themeEditorRefs = {};
+  var currentEditorTheme = null;
+
+  function initThemeEditor() {
+    // Références aux champs
+    themeEditorRefs = {
+      primary: document.getElementById('theme-primary'),
+      secondary: document.getElementById('theme-secondary'),
+      accent: document.getElementById('theme-accent'),
+      bg: document.getElementById('theme-bg'),
+      card: document.getElementById('theme-card'),
+      text: document.getElementById('theme-text'),
+      title: document.getElementById('theme-title'),
+      font: document.getElementById('theme-font'),
+      borderRadius: document.getElementById('theme-border-radius'),
+      buttonStyle: document.getElementById('theme-button-style'),
+      bgStyle: document.getElementById('theme-bg-style'),
+      bgImage: document.getElementById('theme-bg-image'),
+
+      // Boutons d'action
+      applyBtn: document.getElementById('btn-apply-theme'),
+      saveBtn: document.getElementById('btn-save-custom-theme'),
+      cancelBtn: document.getElementById('btn-cancel-theme'),
+      resetBtn: document.getElementById('btn-reset-theme'),
+      importBtn: document.getElementById('btn-import-theme'),
+      exportBtn: document.getElementById('btn-export-theme'),
+
+      // Liste des thèmes personnalisés
+      customThemesList: document.getElementById('custom-themes-list'),
+      unsavedIndicator: document.getElementById('theme-unsaved')
+    };
+
+    // Charger les valeurs actuelles
+    loadCurrentThemeIntoEditor();
+
+    // Event listeners
+    if (themeEditorRefs.applyBtn) {
+      themeEditorRefs.applyBtn.addEventListener('click', applyEditorTheme);
+    }
+
+    if (themeEditorRefs.saveBtn) {
+      themeEditorRefs.saveBtn.addEventListener('click', saveCustomTheme);
+    }
+
+    if (themeEditorRefs.cancelBtn) {
+      themeEditorRefs.cancelBtn.addEventListener('click', cancelThemeEdit);
+    }
+
+    if (themeEditorRefs.resetBtn) {
+      themeEditorRefs.resetBtn.addEventListener('click', resetThemeToDefault);
+    }
+
+    if (themeEditorRefs.importBtn) {
+      themeEditorRefs.importBtn.addEventListener('click', importTheme);
+    }
+
+    if (themeEditorRefs.exportBtn) {
+      themeEditorRefs.exportBtn.addEventListener('click', exportCurrentTheme);
+    }
+
+    // Détecter les changements
+    Object.keys(themeEditorRefs).forEach(function(key) {
+      var field = themeEditorRefs[key];
+      if (field && field.tagName && (field.tagName === 'INPUT' || field.tagName === 'SELECT')) {
+        field.addEventListener('input', showUnsavedIndicator);
+      }
+    });
+
+    // Charger et afficher les thèmes personnalisés
+    renderCustomThemesList();
+  }
+
+  function loadCurrentThemeIntoEditor() {
+    // Charger le thème actif ou utiliser les valeurs par défaut
+    var savedTheme = loadFromStorage(STORAGE_KEYS.activeTheme, null);
+
+    if (savedTheme && savedTheme.colors) {
+      if (themeEditorRefs.primary) themeEditorRefs.primary.value = savedTheme.colors.primary || '#004b9b';
+      if (themeEditorRefs.secondary) themeEditorRefs.secondary.value = savedTheme.colors.secondary || '#4d81b9';
+      if (themeEditorRefs.accent) themeEditorRefs.accent.value = savedTheme.colors.accent || '#e5e339';
+      if (themeEditorRefs.bg) themeEditorRefs.bg.value = savedTheme.colors.background || '#020617';
+      if (themeEditorRefs.card) themeEditorRefs.card.value = savedTheme.colors.card || '#0b1220';
+      if (themeEditorRefs.text) themeEditorRefs.text.value = savedTheme.colors.text || '#ffffff';
+      if (themeEditorRefs.title) themeEditorRefs.title.value = savedTheme.colors.title || '#e5e339';
+    } else {
+      // Valeurs par défaut
+      if (themeEditorRefs.primary) themeEditorRefs.primary.value = '#004b9b';
+      if (themeEditorRefs.secondary) themeEditorRefs.secondary.value = '#4d81b9';
+      if (themeEditorRefs.accent) themeEditorRefs.accent.value = '#e5e339';
+      if (themeEditorRefs.bg) themeEditorRefs.bg.value = '#020617';
+      if (themeEditorRefs.card) themeEditorRefs.card.value = '#0b1220';
+      if (themeEditorRefs.text) themeEditorRefs.text.value = '#ffffff';
+      if (themeEditorRefs.title) themeEditorRefs.title.value = '#e5e339';
+    }
+  }
+
+  function applyEditorTheme() {
+    if (!confirm('Appliquer ce thème personnalisé à l\'application ?')) return;
+
+    var theme = {
+      id: 'custom-' + Date.now(),
+      name: 'Thème personnalisé',
+      icon: '🎨',
+      colors: {
+        primary: themeEditorRefs.primary.value,
+        secondary: themeEditorRefs.secondary.value,
+        accent: themeEditorRefs.accent.value,
+        background: themeEditorRefs.bg.value,
+        card: themeEditorRefs.card.value,
+        text: themeEditorRefs.text.value,
+        title: themeEditorRefs.title.value,
+        border: '#1e293b',
+        muted: '#9ca3af'
+      }
+    };
+
+    // Appliquer le thème
+    var root = document.documentElement;
+    if (theme.colors.primary) root.style.setProperty('--brand-primary', theme.colors.primary);
+    if (theme.colors.secondary) root.style.setProperty('--brand-secondary', theme.colors.secondary);
+    if (theme.colors.accent) root.style.setProperty('--brand-accent', theme.colors.accent);
+    if (theme.colors.background) root.style.setProperty('--brand-bg', theme.colors.background);
+    if (theme.colors.card) root.style.setProperty('--brand-card-bg', theme.colors.card);
+    if (theme.colors.text) root.style.setProperty('--brand-text', theme.colors.text);
+    if (theme.colors.title) root.style.setProperty('--brand-title', theme.colors.title);
+    if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
+    if (theme.colors.muted) root.style.setProperty('--muted', theme.colors.muted);
+
+    // Variables des modes de jeu
+    if (theme.colors.primary) root.style.setProperty('--blue-strong', theme.colors.primary);
+    if (theme.colors.secondary) root.style.setProperty('--blue-mid', theme.colors.secondary);
+    if (theme.colors.accent) {
+      root.style.setProperty('--accent', theme.colors.accent);
+      root.style.setProperty('--blue-soft', theme.colors.accent);
+    }
+    if (theme.colors.background) root.style.setProperty('--bg-dark', theme.colors.background);
+    if (theme.colors.card) root.style.setProperty('--card', theme.colors.card);
+    if (theme.colors.text) root.style.setProperty('--text', theme.colors.text);
+
+    root.style.setProperty('--success', '#22c55e');
+    root.style.setProperty('--danger', '#ef4444');
+
+    // Sauvegarder comme thème actif
+    saveToStorage(STORAGE_KEYS.activeTheme, theme);
+
+    hideUnsavedIndicator();
+    showNotification('Thème personnalisé appliqué!', 'success');
+  }
+
+  function saveCustomTheme() {
+    var themeName = prompt('Nom de ce thème personnalisé:', 'Mon thème');
+    if (!themeName) return;
+
+    var newTheme = {
+      id: 'custom-' + Date.now(),
+      name: themeName,
+      icon: '🎨',
+      colors: {
+        primary: themeEditorRefs.primary.value,
+        secondary: themeEditorRefs.secondary.value,
+        accent: themeEditorRefs.accent.value,
+        background: themeEditorRefs.bg.value,
+        card: themeEditorRefs.card.value,
+        text: themeEditorRefs.text.value,
+        title: themeEditorRefs.title.value,
+        border: '#1e293b',
+        muted: '#9ca3af'
+      },
+      createdAt: new Date().toISOString()
+    };
+
+    // Charger les thèmes existants
+    var customThemes = loadFromStorage(STORAGE_KEYS.customThemes, []);
+    customThemes.push(newTheme);
+
+    // Sauvegarder
+    if (saveToStorage(STORAGE_KEYS.customThemes, customThemes)) {
+      showNotification('Thème "' + themeName + '" sauvegardé!', 'success');
+      renderCustomThemesList();
+      hideUnsavedIndicator();
+    } else {
+      showNotification('Erreur lors de la sauvegarde', 'error');
+    }
+  }
+
+  function cancelThemeEdit() {
+    if (confirm('Annuler les modifications ?')) {
+      loadCurrentThemeIntoEditor();
+      hideUnsavedIndicator();
+    }
+  }
+
+  function resetThemeToDefault() {
+    if (!confirm('Réinitialiser au thème par défaut (Ocean Blue) ?')) return;
+
+    // Trouver le thème Ocean Blue dans la bibliothèque
+    var defaultTheme = state.themesLibrary.find(function(t) { return t.id === 'ocean-blue'; });
+
+    if (defaultTheme) {
+      // Charger dans l'éditeur
+      if (themeEditorRefs.primary) themeEditorRefs.primary.value = defaultTheme.colors.primary;
+      if (themeEditorRefs.secondary) themeEditorRefs.secondary.value = defaultTheme.colors.secondary;
+      if (themeEditorRefs.accent) themeEditorRefs.accent.value = defaultTheme.colors.accent;
+      if (themeEditorRefs.bg) themeEditorRefs.bg.value = defaultTheme.colors.background;
+      if (themeEditorRefs.card) themeEditorRefs.card.value = defaultTheme.colors.card;
+      if (themeEditorRefs.text) themeEditorRefs.text.value = defaultTheme.colors.text;
+      if (themeEditorRefs.title) themeEditorRefs.title.value = defaultTheme.colors.title;
+
+      showUnsavedIndicator();
+      showNotification('Thème réinitialisé! Cliquez sur "Appliquer" pour confirmer.', 'success');
+    }
+  }
+
+  function importTheme() {
+    var input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+
+    input.addEventListener('change', function(e) {
+      var file = e.target.files[0];
+      if (!file) return;
+
+      var reader = new FileReader();
+      reader.onload = function(event) {
+        try {
+          var theme = JSON.parse(event.target.result);
+
+          // Valider le thème
+          if (!theme.colors || !theme.name) {
+            throw new Error('Format invalide');
+          }
+
+          // Charger dans l'éditeur
+          if (theme.colors.primary && themeEditorRefs.primary) themeEditorRefs.primary.value = theme.colors.primary;
+          if (theme.colors.secondary && themeEditorRefs.secondary) themeEditorRefs.secondary.value = theme.colors.secondary;
+          if (theme.colors.accent && themeEditorRefs.accent) themeEditorRefs.accent.value = theme.colors.accent;
+          if (theme.colors.background && themeEditorRefs.bg) themeEditorRefs.bg.value = theme.colors.background;
+          if (theme.colors.card && themeEditorRefs.card) themeEditorRefs.card.value = theme.colors.card;
+          if (theme.colors.text && themeEditorRefs.text) themeEditorRefs.text.value = theme.colors.text;
+          if (theme.colors.title && themeEditorRefs.title) themeEditorRefs.title.value = theme.colors.title;
+
+          showNotification('Thème "' + theme.name + '" importé!', 'success');
+          showUnsavedIndicator();
+        } catch (error) {
+          showNotification('Erreur: fichier invalide', 'error');
+        }
+      };
+      reader.readAsText(file);
+    });
+
+    input.click();
+  }
+
+  function exportCurrentTheme() {
+    var themeName = prompt('Nom du thème à exporter:', 'Mon thème');
+    if (!themeName) return;
+
+    var theme = {
+      name: themeName,
+      icon: '🎨',
+      colors: {
+        primary: themeEditorRefs.primary.value,
+        secondary: themeEditorRefs.secondary.value,
+        accent: themeEditorRefs.accent.value,
+        background: themeEditorRefs.bg.value,
+        card: themeEditorRefs.card.value,
+        text: themeEditorRefs.text.value,
+        title: themeEditorRefs.title.value
+      },
+      exportedAt: new Date().toISOString()
+    };
+
+    var dataStr = JSON.stringify(theme, null, 2);
+    var dataBlob = new Blob([dataStr], {type: 'application/json'});
+    var url = URL.createObjectURL(dataBlob);
+
+    var link = document.createElement('a');
+    link.href = url;
+    link.download = themeName.toLowerCase().replace(/\s+/g, '-') + '-theme.json';
+    link.click();
+
+    URL.revokeObjectURL(url);
+    showNotification('Thème exporté!', 'success');
+  }
+
+  function renderCustomThemesList() {
+    if (!themeEditorRefs.customThemesList) return;
+
+    var customThemes = loadFromStorage(STORAGE_KEYS.customThemes, []);
+
+    if (customThemes.length === 0) {
+      themeEditorRefs.customThemesList.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🎨</div><div class="empty-state-text">Aucun thème personnalisé</div></div>';
+      return;
+    }
+
+    var html = '<div class="custom-themes-list">';
+    customThemes.forEach(function(theme) {
+      html += '<div class="custom-theme-item">';
+      html += '  <span class="custom-theme-name">' + theme.icon + ' ' + theme.name + '</span>';
+      html += '  <div class="custom-theme-actions">';
+      html += '    <button class="custom-theme-btn" onclick="window.loadCustomTheme(\'' + theme.id + '\')">📥 Charger</button>';
+      html += '    <button class="custom-theme-btn" onclick="window.deleteCustomTheme(\'' + theme.id + '\')">🗑️ Supprimer</button>';
+      html += '  </div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    themeEditorRefs.customThemesList.innerHTML = html;
+  }
+
+  function loadCustomThemeById(themeId) {
+    var customThemes = loadFromStorage(STORAGE_KEYS.customThemes, []);
+    var theme = customThemes.find(function(t) { return t.id === themeId; });
+
+    if (!theme) return;
+
+    // Charger dans l'éditeur
+    if (theme.colors.primary && themeEditorRefs.primary) themeEditorRefs.primary.value = theme.colors.primary;
+    if (theme.colors.secondary && themeEditorRefs.secondary) themeEditorRefs.secondary.value = theme.colors.secondary;
+    if (theme.colors.accent && themeEditorRefs.accent) themeEditorRefs.accent.value = theme.colors.accent;
+    if (theme.colors.background && themeEditorRefs.bg) themeEditorRefs.bg.value = theme.colors.background;
+    if (theme.colors.card && themeEditorRefs.card) themeEditorRefs.card.value = theme.colors.card;
+    if (theme.colors.text && themeEditorRefs.text) themeEditorRefs.text.value = theme.colors.text;
+    if (theme.colors.title && themeEditorRefs.title) themeEditorRefs.title.value = theme.colors.title;
+
+    showNotification('Thème "' + theme.name + '" chargé dans l\'éditeur', 'success');
+    showUnsavedIndicator();
+  }
+
+  function deleteCustomThemeById(themeId) {
+    if (!confirm('Supprimer ce thème personnalisé ?')) return;
+
+    var customThemes = loadFromStorage(STORAGE_KEYS.customThemes, []);
+    customThemes = customThemes.filter(function(t) { return t.id !== themeId; });
+
+    if (saveToStorage(STORAGE_KEYS.customThemes, customThemes)) {
+      showNotification('Thème supprimé', 'success');
+      renderCustomThemesList();
+    }
+  }
+
+  function showUnsavedIndicator() {
+    if (themeEditorRefs.unsavedIndicator) {
+      themeEditorRefs.unsavedIndicator.style.display = 'flex';
+    }
+  }
+
+  function hideUnsavedIndicator() {
+    if (themeEditorRefs.unsavedIndicator) {
+      themeEditorRefs.unsavedIndicator.style.display = 'none';
+    }
+  }
+
+  // Exposer les fonctions globalement pour les boutons onclick
+  window.loadCustomTheme = loadCustomThemeById;
+  window.deleteCustomTheme = deleteCustomThemeById;
 
   function loadThemesLibrary() {
     // Bibliothèque de thèmes intégrée (fallback si le fetch échoue)
