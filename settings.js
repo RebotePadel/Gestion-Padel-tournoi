@@ -357,10 +357,10 @@
 
     // Références
     refs.forms.sponsors = {
-      name: panel.querySelector('#sponsor-name'),
-      logoUpload: panel.querySelector('#sponsor-logo-upload'),
-      category: panel.querySelector('#sponsor-category'),
-      url: panel.querySelector('#sponsor-url'),
+      name: panel.querySelector('#sponsor-name-input'),
+      logoUpload: panel.querySelector('#sponsor-logo-input'),
+      category: panel.querySelector('#sponsor-category-input'),
+      url: panel.querySelector('#sponsor-url-input'),
       addBtn: panel.querySelector('#btn-add-new-sponsor'),
       listContainer: panel.querySelector('#sponsors-list-container')
     };
@@ -611,10 +611,7 @@
 
     // Références
     refs.forms.exports = {
-      templateModerne: panel.querySelector('#template-moderne'),
-      templateEpure: panel.querySelector('#template-epure'),
-      templateSombre: panel.querySelector('#template-sombre'),
-      templateSponsor: panel.querySelector('#template-sponsor'),
+      templateRadios: panel.querySelectorAll('input[name="export-template"]'),
       backgroundUpload: panel.querySelector('#export-background-upload'),
       backgroundOpacity: panel.querySelector('#export-background-opacity'),
       opacityValue: panel.querySelector('#export-opacity-value'),
@@ -634,18 +631,18 @@
     // Peupler les champs
     populateExportsFields();
 
-    // Templates radio buttons
-    ['templateModerne', 'templateEpure', 'templateSombre', 'templateSponsor'].forEach(function(key) {
-      if (refs.forms.exports[key]) {
-        refs.forms.exports[key].addEventListener('change', function() {
-          // Retirer selected de tous
-          panel.querySelectorAll('.export-template-card').forEach(function(card) {
-            card.classList.remove('selected');
-          });
-          // Ajouter selected au parent du radio
-          this.closest('.export-template-card').classList.add('selected');
+    // Templates radio buttons - gérer la classe selected sur le label
+    refs.forms.exports.templateRadios.forEach(function(radio) {
+      radio.addEventListener('change', function() {
+        // Retirer selected de tous les labels
+        panel.querySelectorAll('.export-template-card').forEach(function(card) {
+          card.classList.remove('selected');
         });
-      }
+        // Ajouter selected au label parent du radio sélectionné
+        if (this.checked) {
+          this.closest('.export-template-card').classList.add('selected');
+        }
+      });
     });
 
     // Slider opacité
@@ -666,11 +663,13 @@
     var form = refs.forms.exports;
 
     // Template sélectionné
-    var templateKey = 'template' + (data.template || 'moderne').charAt(0).toUpperCase() + (data.template || 'moderne').slice(1);
-    if (form[templateKey]) {
-      form[templateKey].checked = true;
-      form[templateKey].closest('.export-template-card').classList.add('selected');
-    }
+    var templateValue = data.template || 'moderne';
+    form.templateRadios.forEach(function(radio) {
+      if (radio.value === templateValue) {
+        radio.checked = true;
+        radio.closest('.export-template-card').classList.add('selected');
+      }
+    });
 
     if (form.backgroundOpacity) {
       form.backgroundOpacity.value = data.backgroundOpacity || 0.3;
@@ -690,11 +689,13 @@
   function saveExportsSettings() {
     var form = refs.forms.exports;
 
-    // Déterminer template sélectionné
+    // Déterminer template sélectionné depuis les radio buttons
     var template = 'moderne';
-    if (form.templateEpure && form.templateEpure.checked) template = 'epure';
-    else if (form.templateSombre && form.templateSombre.checked) template = 'sombre';
-    else if (form.templateSponsor && form.templateSponsor.checked) template = 'sponsor';
+    form.templateRadios.forEach(function(radio) {
+      if (radio.checked) {
+        template = radio.value;
+      }
+    });
 
     state.currentSettings.exports = {
       template: template,
@@ -735,18 +736,164 @@
   }
 
   function loadThemesLibrary() {
-    fetch('themes-library.json')
+    // Bibliothèque de thèmes intégrée (fallback si le fetch échoue)
+    var themesData = [
+      {
+        id: "ocean-blue",
+        name: "Ocean Blue",
+        icon: "🌊",
+        colors: {
+          primary: "#0077be",
+          secondary: "#4d9fd9",
+          accent: "#00d4ff",
+          background: "#001a2e",
+          card: "#003152",
+          text: "#e0f2ff",
+          title: "#00d4ff",
+          border: "#004d73",
+          muted: "#7fb3d5"
+        },
+        palette: ["#0077be", "#4d9fd9", "#00d4ff", "#003152"]
+      },
+      {
+        id: "fire-red",
+        name: "Fire Red",
+        icon: "🔥",
+        colors: {
+          primary: "#c41e3a",
+          secondary: "#e74c3c",
+          accent: "#ff6b6b",
+          background: "#1a0000",
+          card: "#2d0a0a",
+          text: "#ffe5e5",
+          title: "#ff6b6b",
+          border: "#5c0f0f",
+          muted: "#cc8888"
+        },
+        palette: ["#c41e3a", "#e74c3c", "#ff6b6b", "#2d0a0a"]
+      },
+      {
+        id: "forest-green",
+        name: "Forest Green",
+        icon: "🌿",
+        colors: {
+          primary: "#2d7a3e",
+          secondary: "#4caf50",
+          accent: "#81c784",
+          background: "#0a1f0f",
+          card: "#1a3a24",
+          text: "#e8f5e9",
+          title: "#81c784",
+          border: "#2e5c3a",
+          muted: "#90c49a"
+        },
+        palette: ["#2d7a3e", "#4caf50", "#81c784", "#1a3a24"]
+      },
+      {
+        id: "royal-purple",
+        name: "Royal Purple",
+        icon: "👑",
+        colors: {
+          primary: "#6a1b9a",
+          secondary: "#8e24aa",
+          accent: "#ce93d8",
+          background: "#1a0a29",
+          card: "#2d1540",
+          text: "#f3e5f5",
+          title: "#ce93d8",
+          border: "#4a2663",
+          muted: "#b084cc"
+        },
+        palette: ["#6a1b9a", "#8e24aa", "#ce93d8", "#2d1540"]
+      },
+      {
+        id: "electric-yellow",
+        name: "Electric Yellow",
+        icon: "⚡",
+        colors: {
+          primary: "#f9a825",
+          secondary: "#fdd835",
+          accent: "#ffeb3b",
+          background: "#1a1500",
+          card: "#2d2400",
+          text: "#fffde7",
+          title: "#ffeb3b",
+          border: "#5c4a00",
+          muted: "#d4c36a"
+        },
+        palette: ["#f9a825", "#fdd835", "#ffeb3b", "#2d2400"]
+      },
+      {
+        id: "midnight",
+        name: "Midnight",
+        icon: "🌙",
+        colors: {
+          primary: "#1e3a5f",
+          secondary: "#2c5282",
+          accent: "#90cdf4",
+          background: "#0a0e1a",
+          card: "#1a202c",
+          text: "#e2e8f0",
+          title: "#90cdf4",
+          border: "#2d3748",
+          muted: "#718096"
+        },
+        palette: ["#1e3a5f", "#2c5282", "#90cdf4", "#1a202c"]
+      },
+      {
+        id: "sakura-pink",
+        name: "Sakura Pink",
+        icon: "🌸",
+        colors: {
+          primary: "#d81b60",
+          secondary: "#ec407a",
+          accent: "#f8bbd0",
+          background: "#1f0a14",
+          card: "#3a1528",
+          text: "#fce4ec",
+          title: "#f8bbd0",
+          border: "#5c2642",
+          muted: "#d4849b"
+        },
+        palette: ["#d81b60", "#ec407a", "#f8bbd0", "#3a1528"]
+      },
+      {
+        id: "arctic-white",
+        name: "Arctic White",
+        icon: "🏔️",
+        colors: {
+          primary: "#455a64",
+          secondary: "#607d8b",
+          accent: "#b0bec5",
+          background: "#0f1419",
+          card: "#1e2730",
+          text: "#eceff1",
+          title: "#b0bec5",
+          border: "#37474f",
+          muted: "#90a4ae"
+        },
+        palette: ["#455a64", "#607d8b", "#b0bec5", "#1e2730"]
+      }
+    ];
+
+    state.themesLibrary = themesData;
+    renderThemesLibrary();
+
+    // Essayer de charger depuis le fichier JSON en parallèle (optionnel)
+    fetch('./themes-library.json')
       .then(function(response) {
-        if (!response.ok) throw new Error('Erreur chargement thèmes');
-        return response.json();
+        if (response.ok) return response.json();
+        throw new Error('Fichier non trouvé');
       })
       .then(function(data) {
-        state.themesLibrary = data.themes || [];
-        renderThemesLibrary();
+        if (data.themes && data.themes.length > 0) {
+          state.themesLibrary = data.themes;
+          renderThemesLibrary();
+          console.log('[Settings] Thèmes chargés depuis le fichier JSON');
+        }
       })
       .catch(function(error) {
-        console.error('Erreur chargement bibliothèque thèmes:', error);
-        showNotification('Erreur chargement des thèmes', 'error');
+        console.log('[Settings] Utilisation des thèmes intégrés (fichier JSON non disponible)');
       });
   }
 
