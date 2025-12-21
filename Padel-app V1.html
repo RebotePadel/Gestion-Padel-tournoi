@@ -969,9 +969,12 @@
     #tv-root,
     #americano-tv-root {
       position: relative;
-      width: 100vw;
+      width: 100%;
+      max-width: 100vw;
       min-height: 100vh;
       padding: 16px;
+      box-sizing: border-box;
+      overflow-x: hidden;
     }
     .tv-header {
       display: flex;
@@ -4401,7 +4404,7 @@
 
                 <div class="tvview-blocks-list">
                   <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-current" checked />
+                    <input type="checkbox" id="md-block-current-matches" checked />
                     <span class="block-label">
                       <span class="block-icon">🏓</span>
                       <span class="block-name">Matchs en cours</span>
@@ -4417,7 +4420,7 @@
                   </label>
 
                   <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-next" checked />
+                    <input type="checkbox" id="md-block-next-matches" checked />
                     <span class="block-label">
                       <span class="block-icon">⏭️</span>
                       <span class="block-name">Prochains matchs</span>
@@ -4425,7 +4428,7 @@
                   </label>
 
                   <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-resting" />
+                    <input type="checkbox" id="md-block-resting-teams" />
                     <span class="block-label">
                       <span class="block-icon">💤</span>
                       <span class="block-name">Équipes au repos</span>
@@ -4468,7 +4471,7 @@
                     <div class="duration-item">
                       <label class="field-label">Matchs en cours</label>
                       <div class="slider-group">
-                        <input type="range" id="md-duration-current" min="2" max="30" value="10" class="duration-slider" />
+                        <input type="range" id="md-duration-current-matches" min="2" max="30" value="10" class="duration-slider" />
                         <span class="duration-value">10s</span>
                       </div>
                     </div>
@@ -4484,7 +4487,7 @@
                     <div class="duration-item">
                       <label class="field-label">Prochains matchs</label>
                       <div class="slider-group">
-                        <input type="range" id="md-duration-next" min="2" max="30" value="6" class="duration-slider" />
+                        <input type="range" id="md-duration-next-matches" min="2" max="30" value="6" class="duration-slider" />
                         <span class="duration-value">6s</span>
                       </div>
                     </div>
@@ -4498,25 +4501,25 @@
                     </div>
 
                     <div class="duration-item">
-                      <label class="field-label">Sponsors</label>
+                      <label class="field-label">Équipes au repos</label>
                       <div class="slider-group">
-                        <input type="range" id="md-duration-sponsors" min="2" max="30" value="3" class="duration-slider" />
-                        <span class="duration-value">3s</span>
+                        <input type="range" id="md-duration-resting-teams" min="2" max="30" value="5" class="duration-slider" />
+                        <span class="duration-value">5s</span>
                       </div>
                     </div>
 
                     <div class="duration-item">
-                      <label class="field-label">Padel Pong QR</label>
+                      <label class="field-label">Statistiques</label>
                       <div class="slider-group">
-                        <input type="range" id="md-duration-pong" min="2" max="30" value="2" class="duration-slider" />
-                        <span class="duration-value">2s</span>
+                        <input type="range" id="md-duration-stats" min="2" max="30" value="5" class="duration-slider" />
+                        <span class="duration-value">5s</span>
                       </div>
                     </div>
                   </div>
 
                   <h4 class="subsection-title">📋 Ordre de rotation</h4>
                   <div class="tvview-rotation-order" id="md-rotation-order">
-                    <div class="rotation-item" draggable="true" data-block="current">
+                    <div class="rotation-item" draggable="true" data-block="current_matches">
                       <span class="drag-handle">⋮⋮</span>
                       <span class="rotation-number">1.</span>
                       <span class="rotation-icon">🏓</span>
@@ -4528,7 +4531,7 @@
                       <span class="rotation-icon">📊</span>
                       <span class="rotation-name">Classement</span>
                     </div>
-                    <div class="rotation-item" draggable="true" data-block="next">
+                    <div class="rotation-item" draggable="true" data-block="next_matches">
                       <span class="drag-handle">⋮⋮</span>
                       <span class="rotation-number">3.</span>
                       <span class="rotation-icon">⏭️</span>
