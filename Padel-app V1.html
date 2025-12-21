@@ -1085,6 +1085,12 @@
     /* Split Vertical: 2 blocs côte à côte */
     .tv-main.layout-split-vertical {
       grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    /* Aplatir la structure des colonnes pour split-vertical */
+    .tv-main.layout-split-vertical .tv-column,
+    .tv-main.layout-split-vertical .tv-col {
+      display: contents;
     }
     .tv-main.layout-split-vertical .tv-block {
       display: none;
@@ -1097,6 +1103,12 @@
     .tv-main.layout-split-horizontal {
       grid-template-columns: 1fr;
       grid-template-rows: 1fr 1fr;
+      gap: 12px;
+    }
+    /* Aplatir la structure des colonnes pour split-horizontal */
+    .tv-main.layout-split-horizontal .tv-column,
+    .tv-main.layout-split-horizontal .tv-col {
+      display: contents;
     }
     .tv-main.layout-split-horizontal .tv-block {
       display: none;
