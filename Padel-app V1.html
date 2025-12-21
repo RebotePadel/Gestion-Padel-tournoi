@@ -7,19 +7,27 @@
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/Favicon/favicon-32.png?v=1" />
   <link rel="shortcut icon" href="./assets/Favicon/favicon-32.png?v=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="sidebar.css">
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
     :root {
       --brand-primary: #004b9b;
+      --brand-primary-rgb: 0, 75, 155;
       --brand-secondary: #4d81b9;
+      --brand-secondary-rgb: 77, 129, 185;
       --brand-accent: #e5e339;
+      --brand-accent-rgb: 229, 227, 57;
       --brand-bg: #020617;
+      --brand-bg-rgb: 2, 6, 23;
       --brand-card-bg: #0b1220;
+      --brand-card-bg-rgb: 11, 18, 32;
       --brand-text: #f9fafb;
+      --brand-text-rgb: 249, 250, 251;
       --brand-title: #e5e339;
-      --brand-accent-soft: rgba(229, 227, 57, 0.25);
-      --brand-primary-glow: rgba(0, 75, 155, 0.55);
+      --brand-title-rgb: 229, 227, 57;
+      --brand-accent-soft: rgba(var(--brand-accent-rgb), 0.25);
+      --brand-primary-glow: rgba(var(--brand-primary-rgb), 0.55);
 
       --blue-strong: var(--brand-primary);
       --blue-mid: var(--brand-secondary);
@@ -46,6 +54,12 @@
       color: var(--text);
       min-height: 100vh;
       padding: 16px;
+    }
+
+    /* TV mode: full screen without sidebar */
+    body.tv-mode {
+      padding: 0;
+      overflow-x: hidden;
     }
 
     h1, h2, h3, h4, h5, h6,
@@ -77,30 +91,6 @@
       margin-bottom: 4px;
       position: relative;
     }
-
-    .header-settings-btn {
-      position: absolute;
-      right: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 34px;
-      height: 34px;
-      border-radius: 999px;
-      border: 1px solid #e5e7eb;
-      background: #fff;
-      color: #0f172a;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 30px rgba(0,0,0,0.4);
-      cursor: pointer;
-      font-size: 0.95rem;
-      line-height: 1;
-      padding: 0;
-    }
-
-    .app-header .header-settings-btn.is-visible { display: inline-flex; }
-    .header-settings-btn:focus-visible { outline: 2px solid var(--brand-accent); outline-offset: 2px; }
 
     .header-back-btn {
       position: absolute;
@@ -227,7 +217,7 @@
       overflow: hidden;
       position: relative;
     }
-    .md-timer-pop .md-timer-shell.pulse { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(229,227,57,0.35), 0 22px 50px rgba(0,0,0,0.7); }
+    .md-timer-pop .md-timer-shell.pulse { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(var(--brand-accent-rgb), 0.35), 0 22px 50px rgba(0,0,0,0.7); }
     .md-timer-pop header {
       cursor: move;
       background: linear-gradient(135deg, #0f172a, #0b1220);
@@ -319,11 +309,11 @@
   width: 56px;
   height: 56px;
   border-radius: 16px;
-  background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-title));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.8rem;
+  font-size: 1.2rem;
   box-shadow: 0 8px 20px rgba(229, 227, 57, 0.3);
   transition: all 0.3s ease;
 }
@@ -362,7 +352,7 @@
     }
 
     .home-card-icon {
-      font-size: 1.3rem;
+      font-size: 0.87rem;
     }
 
     .home-card-body {
@@ -648,7 +638,7 @@
     .ligue-field input[type="number"]:focus,
     .ligue-field input[type="date"]:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(229,227,57,0.5);
+      box-shadow: 0 0 0 1px rgba(var(--brand-accent-rgb), 0.5);
     }
 
     .ligue-field label { display: block; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--blue-soft); margin-bottom: 4px; }
@@ -660,7 +650,7 @@
     .ligue-match-row { display: grid; grid-template-columns: 140px 1fr 140px; gap: 8px; align-items: center; padding: 8px; border: 1px solid #111827; border-radius: 10px; background: rgba(255,255,255,0.02); }
     @media (max-width: 800px) { .ligue-match-row { grid-template-columns: 1fr; } }
     .ligue-match-row input { width: 100%; padding: 6px 10px; border-radius: 10px; border: 1px solid #1e293b; background: #020617; color: var(--text); }
-    .ligue-match-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(229,227,57,0.4); }
+    .ligue-match-row input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px rgba(var(--brand-accent-rgb), 0.4); }
     .ligue-match-title { font-size: 0.85rem; color: var(--muted); }
     .ligue-standings { width: 100%; border-collapse: collapse; }
     .ligue-standings th, .ligue-standings td { padding: 6px 8px; border-bottom: 1px solid #111827; text-align: left; font-size: 0.85rem; }
@@ -761,9 +751,9 @@
     .social-preview-img img { width: 100%; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
 
     /* Social export visuels */
-    .social-bg { width: 1080px; height: 1080px; padding: 40px; background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); display: flex; align-items: center; justify-content: center; }
+    .social-bg { width: 1080px; height: 1080px; padding: 40px; background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(var(--brand-secondary-rgb),0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); display: flex; align-items: center; justify-content: center; }
     /* Nouveau : fond dédié pour l'export de journée (ligue interne) */
-    .social-day-bg { background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(77,129,185,0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); }
+    .social-day-bg { background: radial-gradient(circle at 20% 20%, rgba(153,183,215,0.18), transparent 35%), radial-gradient(circle at 80% 80%, rgba(var(--brand-secondary-rgb),0.25), transparent 40%), linear-gradient(145deg, #0b1220, #050914 55%, #01030a); }
     .social-card { width: 980px; min-height: 980px; border-radius: 28px; padding: 28px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); box-shadow: 0 28px 70px rgba(0,0,0,0.55); color: #f9fafb; display: flex; flex-direction: column; gap: 16px; }
     .social-header { display: flex; flex-direction: column; align-items: center; gap: 6px; text-align: center; }
     .social-logo { width: 120px; height: 120px; border-radius: 24px; border: 2px solid rgba(255,255,255,0.18); object-fit: cover; background: rgba(0,0,0,0.35); }
@@ -808,7 +798,7 @@
 
     input[type="text"]:focus, select:focus {
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(229,227,57,0.5);
+      box-shadow: 0 0 0 1px rgba(var(--brand-accent-rgb), 0.5);
     }
 
     /* ADMIN M/D */
@@ -976,7 +966,16 @@
     }
 
     /* VUE TV */
-    #tv-root { position: relative; }
+    #tv-root,
+    #americano-tv-root {
+      position: relative;
+      width: 100%;
+      max-width: 100vw;
+      min-height: 100vh;
+      padding: 16px;
+      box-sizing: border-box;
+      overflow-x: hidden;
+    }
     .tv-header {
       display: flex;
       justify-content: space-between;
@@ -987,9 +986,9 @@
       border-radius: 16px;
       border: 1px solid rgba(148,163,184,0.4);
       background: linear-gradient(90deg,
-                rgba(0,75,155,0.95) 0%,
-                rgba(0,75,155,0.80) 55%,
-                rgba(229,227,57,0.85) 100%);
+                rgba(var(--brand-primary-rgb), 0.95) 0%,
+                rgba(var(--brand-primary-rgb), 0.80) 55%,
+                rgba(var(--brand-accent-rgb), 0.85) 100%);
       box-shadow: 0 18px 40px rgba(0,0,0,0.9);
     }
 
@@ -1071,6 +1070,82 @@
       box-shadow: 0 20px 45px rgba(0,0,0,0.9);
     }
 
+    /* TV Layouts */
+    /* Fullscreen: un seul bloc visible (défaut avec rotation) */
+    .tv-main.layout-fullscreen .tv-block {
+      display: none;
+    }
+    .tv-main.layout-fullscreen .tv-block.tv-block-active {
+      display: block;
+    }
+
+    /* Split Vertical: 2 blocs côte à côte */
+    .tv-main.layout-split-vertical {
+      grid-template-columns: 1fr 1fr;
+    }
+    .tv-main.layout-split-vertical .tv-block {
+      display: none;
+    }
+    .tv-main.layout-split-vertical .tv-block:nth-child(1),
+    .tv-main.layout-split-vertical .tv-block:nth-child(2) {
+      display: block;
+    }
+
+    /* Split Horizontal: 2 blocs empilés */
+    .tv-main.layout-split-horizontal {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+    .tv-main.layout-split-horizontal .tv-block {
+      display: none;
+    }
+    .tv-main.layout-split-horizontal .tv-block:nth-child(1),
+    .tv-main.layout-split-horizontal .tv-block:nth-child(2) {
+      display: block;
+    }
+
+    /* Grid 2x2: 4 blocs en grille */
+    .tv-main.layout-grid-2x2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+    }
+    /* Aplatir la structure des colonnes pour grid-2x2 */
+    .tv-main.layout-grid-2x2 .tv-column,
+    .tv-main.layout-grid-2x2 .tv-col {
+      display: contents; /* Les colonnes deviennent transparentes, les blocs deviennent des grid items directs */
+    }
+    .tv-main.layout-grid-2x2 .tv-block {
+      display: none;
+    }
+    .tv-main.layout-grid-2x2 .tv-block.tv-block-active {
+      display: block;
+    }
+
+    /* PiP (Picture in Picture): bloc principal + petit bloc en coin */
+    .tv-main.layout-pip {
+      position: relative;
+      grid-template-columns: 1fr;
+    }
+    .tv-main.layout-pip .tv-block {
+      display: none;
+    }
+    .tv-main.layout-pip .tv-block:nth-child(1) {
+      display: block;
+    }
+    .tv-main.layout-pip .tv-block:nth-child(2) {
+      display: block;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 30%;
+      min-width: 280px;
+      max-width: 400px;
+      z-index: 10;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
     .tv-block-title {
       display: flex;
       align-items: center;
@@ -1097,9 +1172,9 @@
       border-radius: 12px;
       padding: 8px 10px;
       background: linear-gradient(120deg,
-              rgba(0,75,155,0.95) 0%,
-              rgba(46,118,196,0.9) 55%,
-              rgba(229,227,57,0.8) 100%);
+              rgba(var(--brand-primary-rgb), 0.95) 0%,
+              rgba(var(--brand-secondary-rgb), 0.9) 55%,
+              rgba(var(--brand-accent-rgb), 0.8) 100%);
       color: #020617;
       display: flex;
       flex-direction: column;
@@ -1239,7 +1314,7 @@
       border-radius: 12px;
       padding: 6px 8px;
       background: linear-gradient(135deg,
-              rgba(229,227,57,0.95),
+              rgba(var(--brand-accent-rgb), 0.95),
               rgba(129,140,248,0.9));
       color: #111827;
       text-align: center;
@@ -1335,8 +1410,8 @@
     /* AMERICANO */
     .americano-tabs { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
     .americano-tab-btn { border:1px solid #1f2937; background: rgba(15,23,42,0.7); color: var(--text); border-radius:999px; padding:8px 14px; cursor:pointer; font-weight:600; transition: all 0.15s ease; }
-    .americano-tab-btn:hover { border-color: #e5e339; box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
-    .americano-tab-btn.active { background: linear-gradient(120deg, #e5e339, #a3e635); color: #0f172a; border-color: #d9f99d; }
+    .americano-tab-btn:hover { border-color: var(--brand-accent); box-shadow: 0 4px 12px rgba(0,0,0,0.25); }
+    .americano-tab-btn.active { background: linear-gradient(120deg, var(--brand-accent), #a3e635); color: #0f172a; border-color: #d9f99d; }
     .americano-tab-panel { display:none; }
     .americano-tab-panel.active { display:block; }
     .americano-card { border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.4); padding: 10px; min-width:0; box-shadow:0 12px 28px rgba(0,0,0,0.4); }
@@ -1358,7 +1433,7 @@
     .americano-score-row { grid-column: 1 / span 3; display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
     .collapse-toggle.americano-collapse { margin-left: 8px; }
     /* UI : style bouton réduire (– jaune, sans fond) */
-    .americano-collapse-btn { background: transparent !important; border: none !important; padding: 0 !important; line-height: 1; color: var(--brand-accent, #e5e339); font-weight: 800; font-size: 22px; cursor: pointer; }
+    .americano-collapse-btn { background: transparent !important; border: none !important; padding: 0 !important; line-height: 1; color: var(--brand-accent); font-weight: 800; font-size: 22px; cursor: pointer; }
     .americano-collapse-btn:hover { opacity: 0.85; }
     .americano-teams-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 8px; }
     .americano-team-row { display: grid; grid-template-columns: 1fr; gap: 8px; align-items: center; min-width:0; }
@@ -1371,6 +1446,1254 @@
     .americano-podium-emoji { font-size: 20px; }
     .americano-podium-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .americano-podium-ga { color: var(--muted); font-size: 0.85rem; }
+
+    /* ======================================
+       STYLES PARAMÈTRES - NOUVELLE INTERFACE
+       ====================================== */
+
+    /* Container principal des paramètres */
+    .settings-shell {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    /* En-tête principal */
+    .settings-main-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .settings-breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .settings-main-title {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--brand-title);
+      margin: 0;
+    }
+
+    .home-btn-settings {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      border: none;
+      color: white;
+      padding: 10px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 12px rgba(0, 75, 155, 0.3);
+    }
+
+    .home-btn-settings:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 75, 155, 0.5);
+    }
+
+    /* Navigation par onglets */
+    .settings-tabs-nav {
+      display: flex;
+      gap: 0;
+      background: rgba(0, 0, 0, 0.2);
+      border-bottom: 2px solid var(--border);
+      padding: 0;
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(10px);
+    }
+
+    .settings-tab {
+      flex: 1;
+      min-width: fit-content;
+      padding: 14px 20px;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
+      color: var(--muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+    }
+
+    .settings-tab:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .settings-tab.active {
+      background: rgba(229, 227, 57, 0.1);
+      border-bottom-color: var(--brand-accent);
+      color: var(--brand-accent);
+    }
+
+    /* Panneaux */
+    .settings-panels {
+      padding: 24px;
+    }
+
+    .settings-panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .settings-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Sections de paramètres */
+    .settings-section {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .settings-section:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(229, 227, 57, 0.3);
+    }
+
+    .settings-section:last-child {
+      margin-bottom: 0;
+    }
+
+    .settings-section-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin: 0 0 16px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Grilles de champs */
+    .settings-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .settings-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 16px;
+    }
+
+    .settings-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    /* Champs de formulaire */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .field-label .required {
+      color: var(--danger);
+      font-size: 0.85rem;
+    }
+
+    .field-input,
+    .field-select,
+    .field-textarea {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.95rem;
+      transition: all 0.2s ease;
+      font-family: var(--app-font-family);
+    }
+
+    .field-input:focus,
+    .field-select:focus,
+    .field-textarea:focus {
+      outline: none;
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 3px rgba(229, 227, 57, 0.1);
+    }
+
+    .field-input::placeholder,
+    .field-textarea::placeholder {
+      color: var(--muted);
+      opacity: 0.6;
+    }
+
+    .field-textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .field-color {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .field-color input[type="color"] {
+      width: 50px;
+      height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+    }
+
+    .field-color-value {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: monospace;
+    }
+
+    .field-range {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field-range-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .field-range-value {
+      background: rgba(229, 227, 57, 0.15);
+      color: var(--brand-accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      font-family: monospace;
+    }
+
+    .field-range input[type="range"] {
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+      -webkit-appearance: none;
+    }
+
+    .field-range input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--brand-accent);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .field-range input[type="range"]::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 6px rgba(229, 227, 57, 0.2);
+    }
+
+    .field-range input[type="range"]::-moz-range-thumb {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--brand-accent);
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+
+    .field-range input[type="range"]::-moz-range-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 0 6px rgba(229, 227, 57, 0.2);
+    }
+
+    /* Checkbox personnalisé */
+    .checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      font-size: 0.95rem;
+      color: var(--text);
+      padding: 10px;
+      border-radius: 8px;
+      transition: background 0.2s ease;
+    }
+
+    .checkbox-label:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .checkbox-label input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      accent-color: var(--brand-accent);
+    }
+
+    /* Upload de fichier avec preview */
+    .field-file-upload {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .file-upload-area {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .file-upload-area:hover {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.05);
+    }
+
+    .file-upload-icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .file-upload-text {
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .file-preview {
+      max-width: 200px;
+      max-height: 200px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      object-fit: contain;
+    }
+
+    /* Templates d'export */
+    .export-templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .export-template-card {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: rgba(255, 255, 255, 0.02);
+      text-align: center;
+    }
+
+    .export-template-card:hover {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.05);
+      transform: translateY(-2px);
+    }
+
+    .export-template-card.selected {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.1);
+      box-shadow: 0 0 0 4px rgba(229, 227, 57, 0.2);
+    }
+
+    .template-preview {
+      width: 100%;
+      height: 120px;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      border-radius: 8px;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+    }
+
+    .template-name {
+      font-weight: 600;
+      color: var(--text);
+      font-size: 0.9rem;
+    }
+
+    /* Bibliothèque de thèmes */
+    .themes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .theme-card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .theme-card:hover {
+      border-color: var(--brand-accent);
+      background: rgba(229, 227, 57, 0.05);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    }
+
+    .theme-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .theme-card-icon {
+      font-size: 1.5rem;
+    }
+
+    .theme-card-name {
+      flex: 1;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .theme-palette {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .theme-color-swatch {
+      height: 36px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .theme-apply-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      border: none;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+    }
+
+    .theme-apply-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 75, 155, 0.4);
+    }
+
+    /* Éditeur de thème personnalisé */
+    .theme-editor-group {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .theme-editor-summary {
+      padding: 14px 18px;
+      cursor: pointer;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.2s ease;
+      list-style: none;
+    }
+
+    .theme-editor-summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .theme-editor-summary:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .theme-editor-summary::after {
+      content: '▼';
+      font-size: 0.8rem;
+      color: var(--muted);
+      transition: transform 0.2s ease;
+    }
+
+    .theme-editor-group[open] .theme-editor-summary::after {
+      transform: rotate(-180deg);
+    }
+
+    .theme-editor-content {
+      padding: 16px 18px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Preview du thème */
+    .theme-preview-container {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.3);
+    }
+
+    .theme-preview-header {
+      padding: 12px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-bottom: 1px solid var(--border);
+      font-weight: 600;
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    .theme-preview-iframe {
+      width: 100%;
+      height: 400px;
+      border: none;
+      display: block;
+    }
+
+    /* Gestion des thèmes personnalisés */
+    .custom-themes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .custom-theme-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .custom-theme-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .custom-theme-name {
+      flex: 1;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .custom-theme-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .custom-theme-btn {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s ease;
+    }
+
+    .custom-theme-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--brand-accent);
+    }
+
+    /* État vide */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--muted);
+    }
+
+    .empty-state-icon {
+      font-size: 3rem;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .empty-state-text {
+      font-size: 0.95rem;
+    }
+
+    /* Actions des paramètres */
+    .settings-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      justify-content: flex-end;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      margin-top: 20px;
+    }
+
+    .settings-btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: none;
+    }
+
+    .settings-btn-primary {
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+      color: white;
+      box-shadow: 0 4px 12px rgba(0, 75, 155, 0.3);
+    }
+
+    .settings-btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 75, 155, 0.5);
+    }
+
+    .settings-btn-secondary {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .settings-btn-secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .settings-btn-danger {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border: 1px solid var(--danger);
+    }
+
+    .settings-btn-danger:hover {
+      background: rgba(239, 68, 68, 0.2);
+    }
+
+    /* Indicateur de modifications non sauvegardées */
+    .unsaved-indicator {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--danger);
+      border-radius: 50%;
+      margin-left: 6px;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* Liste des sponsors */
+    .sponsors-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sponsor-item {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      background: rgba(255, 255, 255, 0.02);
+      transition: all 0.2s ease;
+      cursor: grab;
+    }
+
+    .sponsor-item:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(229, 227, 57, 0.3);
+    }
+
+    .sponsor-item.dragging {
+      opacity: 0.5;
+      cursor: grabbing;
+    }
+
+    .sponsor-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .sponsor-logo {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+    }
+
+    .sponsor-info {
+      flex: 1;
+    }
+
+    .sponsor-name {
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .sponsor-category {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .sponsor-zones {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .sponsor-zone-tag {
+      background: rgba(229, 227, 57, 0.15);
+      color: var(--brand-accent);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .sponsor-controls {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .sponsor-priority {
+      display: flex;
+      gap: 4px;
+    }
+
+    .priority-star {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .priority-star.filled {
+      color: var(--brand-accent);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .settings-tabs-nav {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+      }
+
+      .settings-tab {
+        font-size: 0.85rem;
+        padding: 12px 16px;
+      }
+
+      .settings-panels {
+        padding: 16px;
+      }
+
+      .settings-grid-2,
+      .settings-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .export-templates-grid,
+      .themes-grid {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
+
+    /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+       📺 VUE TV - STYLES
+       ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+    /* Sub-tabs pour modes */
+    .tvview-mode-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+
+    .tvview-mode-tab {
+      flex: 1;
+      min-width: 140px;
+      padding: 10px 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tvview-mode-tab:hover {
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-1px);
+    }
+
+    .tvview-mode-tab.active {
+      background: linear-gradient(135deg, var(--brand-accent), var(--brand-title));
+      color: #0f172a;
+      border-color: var(--brand-accent);
+    }
+
+    .tvview-mode-panel {
+      display: none;
+    }
+
+    .tvview-mode-panel.active {
+      display: block;
+    }
+
+    /* Blocs list */
+    .tvview-blocks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tvview-block-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tvview-block-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(var(--brand-accent-rgb), 0.3);
+    }
+
+    .tvview-block-item input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+
+    .block-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+    }
+
+    .block-icon {
+      font-size: 1.2rem;
+    }
+
+    .block-name {
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Rotation settings */
+    .tvview-rotation-settings {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+    }
+
+    .subsection-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: var(--brand-accent);
+      margin: 16px 0 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .tvview-duration-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .duration-item {
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .slider-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .duration-slider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 6px;
+      border-radius: 3px;
+      background: rgba(255, 255, 255, 0.1);
+      outline: none;
+    }
+
+    .duration-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--brand-accent);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .duration-slider::-webkit-slider-thumb:hover {
+      transform: scale(1.2);
+      box-shadow: 0 0 8px rgba(var(--brand-accent-rgb), 0.6);
+    }
+
+    .duration-slider::-moz-range-thumb {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--brand-accent);
+      cursor: pointer;
+      border: none;
+    }
+
+    .duration-value {
+      min-width: 40px;
+      text-align: right;
+      font-weight: 600;
+      color: var(--brand-accent);
+      font-size: 0.9rem;
+    }
+
+    /* Rotation order (drag & drop) */
+    .tvview-rotation-order {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .rotation-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: move;
+      transition: all 0.2s ease;
+    }
+
+    .rotation-item:hover {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: var(--brand-accent);
+      transform: translateX(4px);
+    }
+
+    .rotation-item.dragging {
+      opacity: 0.5;
+      transform: scale(1.02);
+    }
+
+    .drag-handle {
+      color: var(--muted);
+      font-size: 1.2rem;
+      line-height: 1;
+    }
+
+    .rotation-number {
+      font-weight: 700;
+      color: var(--brand-accent);
+      min-width: 24px;
+    }
+
+    .rotation-icon {
+      font-size: 1.1rem;
+    }
+
+    .rotation-name {
+      flex: 1;
+      font-weight: 500;
+    }
+
+    /* Layout options */
+    .tvview-layout-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .layout-option {
+      cursor: pointer;
+    }
+
+    .layout-option input[type="radio"] {
+      display: none;
+    }
+
+    .layout-card {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      transition: all 0.2s ease;
+    }
+
+    .layout-option:hover .layout-card {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(var(--brand-accent-rgb), 0.5);
+    }
+
+    .layout-option input[type="radio"]:checked + .layout-card {
+      background: rgba(var(--brand-accent-rgb), 0.1);
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 12px rgba(var(--brand-accent-rgb), 0.3);
+    }
+
+    .layout-preview {
+      width: 100%;
+      height: 80px;
+      border-radius: 8px;
+      background: rgba(0, 0, 0, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      padding: 4px;
+    }
+
+    .preview-block {
+      background: rgba(var(--brand-accent-rgb), 0.3);
+      border: 1px solid rgba(var(--brand-accent-rgb), 0.6);
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .fullscreen-preview .preview-block {
+      width: 100%;
+      height: 100%;
+    }
+
+    .split-v-preview {
+      flex-direction: row;
+    }
+
+    .split-v-preview .preview-block {
+      flex: 1;
+      height: 100%;
+    }
+
+    .split-h-preview {
+      flex-direction: column;
+    }
+
+    .split-h-preview .preview-block {
+      width: 100%;
+      flex: 1;
+    }
+
+    .grid-preview {
+      flex-wrap: wrap;
+    }
+
+    .grid-preview .preview-block {
+      width: calc(50% - 2px);
+      height: calc(50% - 2px);
+    }
+
+    .pip-preview {
+      position: relative;
+    }
+
+    .pip-preview .preview-block.main {
+      width: 100%;
+      height: 100%;
+    }
+
+    .pip-preview .preview-block.mini {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 30%;
+      height: 30%;
+      background: rgba(var(--brand-primary-rgb), 0.4);
+      border-color: rgba(var(--brand-primary-rgb), 0.8);
+    }
+
+    .layout-name {
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text);
+    }
+
+    .layout-desc {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .tvview-layout-extras {
+      margin-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* Config actions */
+    .tvview-config-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 12px 0;
+    }
+
+    .tvview-saved-configs {
+      border: 1px dashed var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin: 12px 0;
+      min-height: 100px;
+    }
+
+    .tvview-apply-modes {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 10px;
+      border: 1px solid var(--border);
+    }
+
+    .tvview-import-export {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tvview-permanent-note {
+      margin-top: 12px;
+      padding: 10px;
+      background: rgba(var(--brand-accent-rgb), 0.05);
+      border-left: 3px solid var(--brand-accent);
+      border-radius: 6px;
+    }
+
+    /* Settings grid 3 columns */
+    .settings-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    @media (max-width: 900px) {
+      .settings-grid-3 {
+        grid-template-columns: 1fr;
+      }
+
+      .tvview-mode-tab {
+        min-width: 100%;
+      }
+
+      .tvview-layout-options {
+        grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      }
+    }
   </style>
 
   <!-- Styles du moteur tournoi classique -->
@@ -1387,11 +2710,11 @@
       --muted: #9ca3af;
       --success: #22c55e;
       --danger: #ef4444;
-      --hover-glow: rgba(229,227,57,0.18);
+      --hover-glow: rgba(var(--brand-accent-rgb), 0.18);
     }#classic-root *{ box-sizing: border-box; margin: 0; padding: 0; }#classic-root{
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at 0 0, rgba(229,227,57,0.25), transparent 55%),
-                  radial-gradient(circle at 100% 100%, rgba(0,75,155,0.55), transparent 60%),
+      background: radial-gradient(circle at 0 0, rgba(var(--brand-accent-rgb), 0.25), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(var(--brand-primary-rgb), 0.55), transparent 60%),
                   linear-gradient(135deg, #020617, #020617 40%, #001428);
       color: var(--text);
       min-height: 100vh;
@@ -1593,7 +2916,7 @@
       padding: 16px;
       margin-bottom:14px;
     }#classic-root .card:hover, #classic-root .pool-card:hover, #classic-root .bracket-card:hover, #classic-root .tv-block:hover, #classic-root .tv-match-card:hover, #classic-root .final-ranking-row:hover{
-      box-shadow:0 0 0 1px rgba(229,227,57,0.5), 0 18px 40px rgba(0,0,0,0.9);
+      box-shadow:0 0 0 1px rgba(var(--brand-accent-rgb), 0.5), 0 18px 40px rgba(0,0,0,0.9);
       background-image: radial-gradient(circle at 0 0, var(--hover-glow), transparent 55%),
                         linear-gradient(145deg, #020617, #020617 40%, #020c1f);
     }#classic-root .card-header{
@@ -1660,7 +2983,7 @@
       outline: none;
     }#classic-root input[type="text"]::placeholder{ color:#4b5563; }#classic-root input[type="text"]:focus, #classic-root select:focus, #classic-root input[type="number"]:focus{
       border-color: var(--accent);
-      box-shadow: 0 0 0 1px rgba(229,227,57,0.5);
+      box-shadow: 0 0 0 1px rgba(var(--brand-accent-rgb), 0.5);
     }#classic-root .teams-grid{
       display:grid;
       grid-template-columns: repeat(2, minmax(0,1fr));
@@ -1699,16 +3022,16 @@
       border:1px solid #1f2937;
       padding:10px;
     }#classic-root .pool-card.theme-A{
-      background: radial-gradient(circle at 0 0, rgba(77,129,185,0.18), transparent 55%),
+      background: radial-gradient(circle at 0 0, rgba(var(--brand-secondary-rgb),0.18), transparent 55%),
                   linear-gradient(145deg,#020617,#02111f);
     }#classic-root .pool-card.theme-B{
       background: radial-gradient(circle at 100% 0, rgba(153,183,215,0.18), transparent 55%),
                   linear-gradient(145deg,#020617,#071322);
     }#classic-root .pool-card.theme-C{
-      background: radial-gradient(circle at 0 100%, rgba(0,75,155,0.25), transparent 60%),
+      background: radial-gradient(circle at 0 100%, rgba(var(--brand-primary-rgb), 0.25), transparent 60%),
                   linear-gradient(145deg,#020617,#040f20);
     }#classic-root .pool-card.theme-D{
-      background: radial-gradient(circle at 100% 100%, rgba(229,227,57,0.15), transparent 60%),
+      background: radial-gradient(circle at 100% 100%, rgba(var(--brand-accent-rgb), 0.15), transparent 60%),
                   linear-gradient(145deg,#020617,#050f1f);
     }#classic-root .pool-card-header{
       display:flex;
@@ -1906,11 +3229,11 @@
       flex-direction:column;
       justify-content:space-between;
     }#classic-root .bracket-match-row.stage-qf{
-      background:linear-gradient(145deg,rgba(0,75,155,0.45),#020617);
+      background:linear-gradient(145deg,rgba(var(--brand-primary-rgb),0.45),#020617);
     }#classic-root .bracket-match-row.stage-sf{
-      background:linear-gradient(145deg,rgba(77,129,185,0.45),#020617);
+      background:linear-gradient(145deg,rgba(var(--brand-secondary-rgb),0.45),#020617);
     }#classic-root .bracket-match-row.stage-final{
-      background:linear-gradient(145deg,rgba(229,227,57,0.5),#020617);
+      background:linear-gradient(145deg,rgba(var(--brand-accent-rgb),0.5),#020617);
     }#classic-root .bracket-match-row.stage-placement{
       background:linear-gradient(145deg,rgba(148,163,184,0.35),#020617);
     }#classic-root .bracket-match-row.played{
@@ -2003,8 +3326,8 @@
       box-shadow:0 18px 40px rgba(0,0,0,0.9);
     }#classic-root .podium-col--first{
       min-height:160px;
-      background:linear-gradient(145deg,rgba(229,227,57,0.25),rgba(15,23,42,0.95));
-      border-color:rgba(229,227,57,0.7);
+      background:linear-gradient(145deg,rgba(var(--brand-accent-rgb),0.25),rgba(15,23,42,0.95));
+      border-color:rgba(var(--brand-accent-rgb),0.7);
     }#classic-root .podium-col--second, #classic-root .podium-col--third{
       min-height:130px;
     }#classic-root .podium-emoji{
@@ -2030,43 +3353,27 @@
     .bracket-match-row.stage-qf::after, #classic-root .bracket-match-row.stage-sf::before, #classic-root .bracket-match-row.stage-sf::after, #classic-root .bracket-match-row.stage-sf.sf-top::before, #classic-root .bracket-match-row.stage-sf.sf-bottom::before, #classic-root .bracket-match-row.stage-final.final-node::before, #classic-root .bracket-match-row.stage-final.final-node::after{
       display:none;
       content:none;
-    }#classic-root /* TV */
-    .tv-overlay{
-     .tv-overlay{
-  position:fixed;
-  inset:0;
-  background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
-              radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
-              #020617;
-  z-index:9999;
-  display:none;
-  padding:24px;
-  /* 🆕 Fix plein écran */
-  margin-left: 0 !important;
-  width: 100vw !important;
-  left: 0 !important;
-  right: 0 !important;
-}
-/* 🆕 Cacher sidebar en mode TV */
-body.tv-mode .app-sidebar {
-  transform: translateX(-280px);
-  opacity: 0;
-  pointer-events: none;
-  transition: transform 0.3s ease, opacity 0.3s ease;
-}
+    }
 
-body.tv-mode .sidebar-mobile-handle {
-  display: none !important;
-}
-
-body.tv-mode .sidebar-toggle {
-  display: none !important;
-}
-
-body.tv-mode .app {
-  margin-left: 0 !important;
-}
-    }#classic-root .tv-inner{
+    /* TV OVERLAY - Plein écran */
+    #classic-root .tv-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 0 0, rgba(10,40,80,0.55), transparent 55%),
+                  radial-gradient(circle at 100% 100%, rgba(4,75,155,0.7), transparent 60%),
+                  #020617;
+      z-index: 10000;
+      display: none;
+      padding: 24px;
+      margin: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+    }
+    #classic-root .tv-inner{
       max-width:1700px;
       margin:0 auto;
       height:100%;
@@ -2092,7 +3399,7 @@ body.tv-mode .app {
       border:1px solid rgba(148,163,184,0.4);
       background:linear-gradient(120deg,
         rgba(0,48,112,0.95) 0%,
-        rgba(0,75,155,0.90) 45%,
+        rgba(var(--brand-primary-rgb),0.90) 45%,
         rgba(13,98,190,0.85) 100%);
       box-shadow:0 24px 60px rgba(0,0,0,0.95);
     }#classic-root .tv-header-left{
@@ -2165,7 +3472,7 @@ body.tv-mode .app {
       padding:8px 10px;
       background: linear-gradient(120deg,
               rgba(0,48,112,0.98) 0%,
-              rgba(0,75,155,0.95) 55%,
+              rgba(var(--brand-primary-rgb),0.95) 55%,
               rgba(13,98,190,0.92) 100%);
       color:#f8fafc;
       margin-bottom:6px;
@@ -2271,7 +3578,7 @@ body.tv-mode .app {
     }#classic-root .tv-stage-card{
       flex:1 1 150px;
       max-width:210px;
-      background: linear-gradient(120deg, rgba(0,48,112,0.96) 0%, rgba(0,75,155,0.94) 55%, rgba(13,98,190,0.9) 100%);
+      background: linear-gradient(120deg, rgba(0,48,112,0.96) 0%, rgba(var(--brand-primary-rgb),0.94) 55%, rgba(13,98,190,0.9) 100%);
       color:#f8fafc;
       border-radius:12px;
       padding:8px 10px;
@@ -2316,299 +3623,6 @@ body.tv-mode .app {
     }#classic-root .tv-match-card.upcoming .tv-tag{
       background:rgba(255,255,255,0.08);
     }
-    /* ========================================
-   🆕 SIDEBAR MODERNE V2
-   ======================================== */
-
-.app-sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
-  width: 280px;
-  height: 100vh;
-  background: linear-gradient(180deg, 
-    rgba(2, 6, 23, 0.98) 0%,
-    rgba(11, 18, 32, 0.95) 100%);
-  backdrop-filter: blur(20px) saturate(180%);
-  border-right: 1px solid rgba(148, 163, 184, 0.1);
-  padding: 24px 16px;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.sidebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 12px 24px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-  margin-bottom: 24px;
-}
-
-.sidebar-logo {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  object-fit: cover;
-  display: none;
-}
-
-.sidebar-logo[src] {
-  display: block;
-}
-
-.sidebar-club-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.sidebar-nav {
-  flex: 1;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.sidebar-nav::-webkit-scrollbar {
-  width: 4px;
-}
-
-.sidebar-nav::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-}
-
-.sidebar-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 12px;
-  color: rgba(255, 255, 255, 0.7);
-  text-decoration: none;
-  font-size: 0.9rem;
-  font-weight: 500;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-  overflow: hidden;
-  cursor: pointer;
-  border: none;
-  background: transparent;
-  width: 100%;
-  text-align: left;
-}
-
-.sidebar-item::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, 
-    rgba(229, 227, 57, 0.1), 
-    rgba(77, 129, 185, 0.1));
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.sidebar-item:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.05);
-  transform: translateX(4px);
-}
-
-.sidebar-item:hover::before {
-  opacity: 1;
-}
-
-.sidebar-item.active {
-  color: #0f172a;
-  background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(229, 227, 57, 0.3);
-}
-
-.sidebar-item.active::before {
-  display: none;
-}
-
-.sidebar-icon {
-  font-size: 1.2rem;
-  width: 24px;
-  text-align: center;
-  flex-shrink: 0;
-}
-
-.sidebar-label {
-  flex: 1;
-}
-
-.sidebar-section {
-  margin-top: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.sidebar-section-label {
-  padding: 8px 16px 4px;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 600;
-}
-
-.sidebar-footer {
-  padding-top: 16px;
-  border-top: 1px solid rgba(148, 163, 184, 0.1);
-  margin-top: auto;
-}
-
-/* Layout avec sidebar */
-body.sidebar-open .app {
-  margin-left: 280px;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.app {
-  margin-left: 280px;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Mobile : Bottom sheet sidebar */
-.sidebar-mobile-handle {
-  display: none;
-}
-
-@media (max-width: 900px) {
-  .app-sidebar {
-    width: 100%;
-    height: auto;
-    max-height: 70vh;
-    bottom: 0;
-    top: auto;
-    left: 0;
-    border-right: none;
-    border-top: 1px solid rgba(148, 163, 184, 0.1);
-    border-radius: 24px 24px 0 0;
-    transform: translateY(calc(100% - 70px));
-    padding-top: 32px;
-  }
-  
-  .app-sidebar.open {
-    transform: translateY(0);
-  }
-  
-  .sidebar-mobile-handle {
-    display: block;
-    position: fixed;
-    bottom: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--brand-accent, #e5e339), #ffd700);
-    border-radius: 50%;
-    box-shadow: 0 8px 24px rgba(229, 227, 57, 0.4);
-    z-index: 99;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .sidebar-mobile-handle:active {
-    transform: translateX(-50%) scale(0.9);
-  }
-  
-  .handle-bar {
-    width: 24px;
-    height: 3px;
-    background: #0f172a;
-    border-radius: 999px;
-    position: relative;
-  }
-  
-  .handle-bar::before,
-  .handle-bar::after {
-    content: '';
-    position: absolute;
-    width: 24px;
-    height: 3px;
-    background: #0f172a;
-    border-radius: 999px;
-    left: 0;
-  }
-  
-  .handle-bar::before {
-    top: -8px;
-  }
-  
-  .handle-bar::after {
-    bottom: -8px;
-  }
-  
-  .app {
-    margin-left: 0;
-    padding-bottom: 100px;
-  }
-  
-  body.sidebar-open .app {
-    margin-left: 0;
-  }
-}
-
-/* Adapter l'ancien header avec la sidebar */
-@media (min-width: 901px) {
-  /* Cacher uniquement le header de la page d'accueil et sections sans actions */
-  #home-root .app-header,
-  #settings-root .app-header,
-  #ligue-root .app-header,
-  #tournaments-root .app-header {
-    display: none !important;
-  }
-  
-  /* Garder le header pour les modes avec actions contextuelles */
-  #classic-root .app-header,
-  #admin-root .app-header,
-  #americano-root .app-header,
-  #ligue-manage-root .app-header,
-  #ligue-config-root .app-header {
-    display: flex !important;
-    margin-bottom: 16px;
-  }
-  
-  /* Cacher les boutons retour (remplacés par la sidebar) */
-  .header-back-btn {
-    display: none !important;
-  }
-  
-  /* Garder settings et actions spécifiques */
-  .header-settings-btn {
-    display: inline-flex !important;
-  }
-}
-}
-/* Sur mobile, garder le header compact */
-@media (max-width: 900px) {
-  .app-header {
-    padding: 12px 16px;
-  }
-  
-  .header-back-btn,
-  .header-settings-btn {
-    display: none !important;
-  }
-}
   </style>
 </head>
 <body>
@@ -2627,30 +3641,34 @@ body.sidebar-open .app {
     
     <div class="sidebar-section">
       <span class="sidebar-section-label">Tournois</span>
-      
+
       <a href="#" class="sidebar-item" data-nav="md">
         <span class="sidebar-icon">🔄</span>
         <span class="sidebar-label">Montante/Descendante</span>
       </a>
-      
+
       <a href="#" class="sidebar-item" data-nav="tournaments">
         <span class="sidebar-icon">🏆</span>
         <span class="sidebar-label">Tournois classiques</span>
       </a>
-      
-      <a href="#" class="sidebar-item" data-nav="americano">
-        <span class="sidebar-icon">🎯</span>
-        <span class="sidebar-label">Américano</span>
-      </a>
     </div>
-    
+
     <div class="sidebar-section">
       <span class="sidebar-section-label">Ligue</span>
-      
-      <a href="#" class="sidebar-item" data-nav="ligue">
-        <span class="sidebar-icon">📅</span>
-        <span class="sidebar-label">Ligues actives</span>
-      </a>
+
+      <div class="sidebar-item-wrapper">
+        <a href="#" class="sidebar-item" data-nav="ligue" id="sidebar-ligues-main">
+          <span class="sidebar-icon">📅</span>
+          <span class="sidebar-label">Ligues actives</span>
+        </a>
+        <button class="sidebar-submenu-toggle" id="sidebar-ligues-toggle" aria-label="Toggle ligues">
+          <span class="chevron">▼</span>
+        </button>
+      </div>
+
+      <div class="sidebar-submenu" id="sidebar-ligues-submenu">
+        <!-- Les ligues actives seront injectées ici par JS -->
+      </div>
       
       <a href="#" class="sidebar-item" data-nav="ligue-config">
         <span class="sidebar-icon">➕</span>
@@ -2667,6 +3685,31 @@ body.sidebar-open .app {
   </div>
 </aside>
 
+<!-- 🔘 BOUTON TOGGLE SIDEBAR (hors de la sidebar pour rester visible) -->
+<button class="sidebar-toggle-btn" id="sidebar-toggle-btn" aria-label="Rétracter/Déplier la sidebar">
+  <span class="toggle-chevron">◀</span>
+</button>
+
+<script>
+// ⚡ ANTI-FLASH : Applique l'état sidebar IMMÉDIATEMENT avant le rendu
+(function() {
+  try {
+    var stored = localStorage.getItem('sidebar_open');
+    var isOpen = stored === null ? true : stored === 'true';
+
+    if (!isOpen) {
+      var sidebar = document.getElementById('app-sidebar');
+      if (sidebar) {
+        sidebar.classList.add('collapsed');
+        document.body.classList.add('sidebar-collapsed');
+      }
+    }
+  } catch (e) {
+    // Si localStorage échoue, on laisse la sidebar ouverte par défaut
+  }
+})();
+</script>
+
 <!-- Handle mobile sidebar toggle -->
 <div class="sidebar-mobile-handle" id="sidebar-mobile-handle">
   <div class="handle-bar"></div>
@@ -2676,7 +3719,6 @@ body.sidebar-open .app {
       <button id="btn-header-back" class="header-back-btn" aria-label="Retour">←</button>
       <img id="app-logo" alt="Logo club" />
       <h1 id="app-title" data-club-name>Padel Parc</h1>
-      <button id="btn-open-settings" class="header-settings-btn" aria-label="Paramètres">⚙️</button>
     </div>
     <div class="subtitle" id="app-subtitle" data-club-shortname></div>
 
@@ -2746,224 +3788,1259 @@ body.sidebar-open .app {
     </section>
 
     <!-- PAGE PARAMÈTRES CLUB -->
+    <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+         NOUVELLE STRUCTURE PARAMÈTRES - 5 ONGLETS MODULAIRES
+         ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
     <section id="settings-root" style="display:none;">
-      <div class="settings-shell card">
-        <div class="settings-header">
+      <div class="settings-shell">
+
+        <!-- HEADER -->
+        <div class="settings-main-header">
           <div>
-            <p class="small-muted">Personnalisation</p>
-            <h2>⚙️ Paramètres du club</h2>
+            <p class="settings-breadcrumb">Personnalisation</p>
+            <h1 class="settings-title">⚙️ Paramètres</h1>
           </div>
           <button class="btn btn-secondary btn-small" id="btn-settings-home">🏠 Accueil</button>
         </div>
 
-        <div class="settings-tabs" role="tablist">
-          <button class="settings-tab active" id="settings-tab-app" data-target="settings-panel-app" role="tab">🎨 Paramètres de l'application</button>
-          <button class="settings-tab" id="settings-tab-pong" data-target="settings-panel-pong" role="tab">🕹️ Mini-jeu Padel Pong</button>
+        <!-- NAVIGATION ONGLETS (STICKY) -->
+        <div class="settings-tabs-nav" role="tablist">
+          <button class="settings-tab active" data-panel="club" role="tab" aria-selected="true">
+            <span class="tab-icon">🏢</span>
+            <span class="tab-text">Club</span>
+          </button>
+          <button class="settings-tab" data-panel="sponsors" role="tab">
+            <span class="tab-icon">💼</span>
+            <span class="tab-text">Sponsors</span>
+          </button>
+          <button class="settings-tab" data-panel="pong" role="tab">
+            <span class="tab-icon">🕹️</span>
+            <span class="tab-text">Mini-Jeu</span>
+          </button>
+          <button class="settings-tab" data-panel="exports" role="tab">
+            <span class="tab-icon">📤</span>
+            <span class="tab-text">Exports</span>
+          </button>
+          <button class="settings-tab" data-panel="theme" role="tab">
+            <span class="tab-icon">🎨</span>
+            <span class="tab-text">Thème</span>
+          </button>
+          <button class="settings-tab" data-panel="tvview" role="tab">
+            <span class="tab-icon">📺</span>
+            <span class="tab-text">Vue TV</span>
+          </button>
         </div>
 
+        <!-- PANELS CONTAINER -->
         <div class="settings-panels">
-          <div class="settings-panel active" id="settings-panel-app" role="tabpanel">
-            <div class="theme-grid">
-              <div class="field">
-                <label for="club-theme-name">Nom du club</label>
-                <input id="club-theme-name" type="text" placeholder="Nom complet du club" />
-              </div>
-              <div class="field">
-                <label for="club-theme-shortname">Nom court</label>
-                <input id="club-theme-shortname" type="text" placeholder="Nom court" />
-              </div>
-              <div class="field">
-                <label for="club-theme-primary">Couleur principale</label>
-                <input id="club-theme-primary" type="color" value="#004b9b" />
-              </div>
-              <div class="field">
-                <label for="club-theme-secondary">Couleur secondaire</label>
-                <input id="club-theme-secondary" type="color" value="#4d81b9" />
-              </div>
-              <div class="field">
-                <label for="club-theme-accent">Couleur accent</label>
-                <input id="club-theme-accent" type="color" value="#e5e339" />
-              </div>
-              <div class="field">
-                <label for="club-theme-bg">Fond principal</label>
-                <input id="club-theme-bg" type="color" value="#020617" />
-              </div>
-              <div class="field">
-                <label for="club-theme-card">Fond des cartes</label>
-                <input id="club-theme-card" type="color" value="#0b1220" />
-              </div>
-              <div class="field">
-                <label for="club-theme-text">Couleur du texte</label>
-                <input id="club-theme-text" type="color" value="#ffffff" />
-              </div>
-              <div class="field">
-                <label for="club-theme-title">Couleur des titres</label>
-                <input id="club-theme-title" type="color" value="#e5e339" />
-              </div>
-            </div>
 
-            <div class="settings-section app-block-interactive" aria-label="Logo du club">
-              <div class="settings-subtitle">🖼️ Logo du club</div>
-              <div class="settings-inline" style="align-items:center;">
-                <label class="logo-wrapper" style="margin-right:12px;">
-                  <img id="settings-logo-preview" alt="Logo du club" />
-                  <input id="settings-logo-upload" type="file" accept="image/*" />
-                </label>
-                <div class="small-muted" id="settings-logo-helper">Le logo uploadé est utilisé sur toutes les vues (accueil, TV, ligue…).</div>
-              </div>
-            </div>
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 1 : 🏢 CLUB
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel active" id="panel-club" role="tabpanel">
 
-              <div class="settings-section app-block-interactive" aria-label="Typographie">
-                <div class="settings-subtitle">✒️ Typographie</div>
+            <!-- Identité du club -->
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🏷️ Identité du club</h3>
+
+              <div class="settings-grid">
+                <div class="field full-width">
+                  <label for="club-logo-upload" class="field-label">Logo principal</label>
+                  <div class="logo-upload-container">
+                    <label class="logo-wrapper">
+                      <img id="club-logo-preview" alt="Logo" />
+                      <input id="club-logo-upload" type="file" accept="image/*" />
+                    </label>
+                    <p class="field-hint">Image carrée ou rectangulaire, max 2MB</p>
+                  </div>
+                </div>
+
                 <div class="field">
-                  <label for="club-theme-font">Police globale</label>
-                  <select id="club-theme-font">
-                  <option value="system">Police système (par défaut)</option>
-                  <option value="Inter">Inter</option>
-                  <option value="Poppins">Poppins</option>
-                  <option value="Montserrat">Montserrat</option>
-                  <option value="Roboto">Roboto</option>
-                  <option value="Nunito">Nunito</option>
+                  <label for="club-name" class="field-label">Nom complet du club</label>
+                  <input id="club-name" type="text" class="field-input" placeholder="Padel Parc" />
+                </div>
+
+                <div class="field">
+                  <label for="club-shortname" class="field-label">Nom court / Acronyme</label>
+                  <input id="club-shortname" type="text" class="field-input" placeholder="PP" />
+                </div>
+
+                <div class="field full-width">
+                  <label for="club-slogan" class="field-label">Slogan (optionnel)</label>
+                  <input id="club-slogan" type="text" class="field-input" placeholder="Le padel à votre portée" />
+                </div>
+
+                <div class="field">
+                  <label for="club-signature-color" class="field-label">Couleur signature</label>
+                  <input id="club-signature-color" type="color" class="field-color" value="#e5e339" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Contact -->
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📞 Informations de contact</h3>
+
+              <div class="settings-grid">
+                <div class="field full-width">
+                  <label for="club-address" class="field-label">Adresse complète</label>
+                  <textarea id="club-address" class="field-textarea" rows="3" placeholder="123 Rue du Padel, 75000 Paris"></textarea>
+                </div>
+
+                <div class="field">
+                  <label for="club-phone" class="field-label">Téléphone</label>
+                  <input id="club-phone" type="tel" class="field-input" placeholder="+33 1 23 45 67 89" />
+                </div>
+
+                <div class="field">
+                  <label for="club-email" class="field-label">Email</label>
+                  <input id="club-email" type="email" class="field-input" placeholder="contact@club.fr" />
+                </div>
+
+                <div class="field full-width">
+                  <label for="club-website" class="field-label">Site web</label>
+                  <input id="club-website" type="url" class="field-input" placeholder="https://www.club.fr" />
+                </div>
+
+                <div class="field">
+                  <label for="club-instagram" class="field-label">Instagram</label>
+                  <input id="club-instagram" type="text" class="field-input" placeholder="@club" />
+                </div>
+
+                <div class="field">
+                  <label for="club-facebook" class="field-label">Facebook</label>
+                  <input id="club-facebook" type="text" class="field-input" placeholder="Club Officiel" />
+                </div>
+
+                <div class="field">
+                  <label for="club-twitter" class="field-label">Twitter / X</label>
+                  <input id="club-twitter" type="text" class="field-input" placeholder="@club" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Configuration -->
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">⚙️ Configuration événements</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label for="club-timezone" class="field-label">Fuseau horaire</label>
+                  <select id="club-timezone" class="field-select">
+                    <option value="Europe/Paris">Europe/Paris (GMT+1)</option>
+                    <option value="Europe/London">Europe/London (GMT+0)</option>
+                    <option value="America/New_York">America/New_York (GMT-5)</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="club-currency" class="field-label">Devise par défaut</label>
+                  <select id="club-currency" class="field-select">
+                    <option value="EUR">€ Euro</option>
+                    <option value="USD">$ Dollar US</option>
+                    <option value="GBP">£ Livre Sterling</option>
+                    <option value="CHF">CHF Franc Suisse</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="club-date-format" class="field-label">Format de date</label>
+                  <select id="club-date-format" class="field-select">
+                    <option value="DD/MM/YYYY">JJ/MM/AAAA</option>
+                    <option value="MM/DD/YYYY">MM/JJ/AAAA</option>
+                    <option value="YYYY-MM-DD">AAAA-MM-JJ</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label for="club-language" class="field-label">Langue</label>
+                  <select id="club-language" class="field-select">
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="es">🇪🇸 Español</option>
                   </select>
                 </div>
               </div>
+            </div>
 
-            <div class="settings-section app-block-interactive" aria-label="Sponsor vue TV">
-              <div class="settings-subtitle">📺 Sponsor (Vue TV)</div>
-              <div class="settings-inline">
+            <!-- Actions -->
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="btn-save-club">💾 Sauvegarder</button>
+              <button class="btn btn-secondary" id="btn-reset-club">↩️ Réinitialiser</button>
+            </div>
+          </div>
+
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 2 : 💼 SPONSORS
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-sponsors" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">➕ Ajouter un sponsor</h3>
+
+              <div class="settings-grid">
                 <div class="field">
-                  <label for="app-sponsor-name">Nom du sponsor</label>
-                  <input id="app-sponsor-name" type="text" placeholder="Nom du sponsor" />
+                  <label for="sponsor-name-input" class="field-label">Nom du sponsor</label>
+                  <input id="sponsor-name-input" type="text" class="field-input" placeholder="Entreprise XYZ" />
                 </div>
+
                 <div class="field">
-                  <label for="app-sponsor-logo">Logo du sponsor</label>
-                  <input id="app-sponsor-logo" type="file" accept="image/*" />
-                  <div class="small-muted">Le logo sera affiché en vue TV s'il est défini.</div>
-                </div>
-                <div class="field">
-                  <label>Aperçu sponsor</label>
-                  <img id="app-sponsor-preview" alt="Sponsor" style="width:72px; height:72px; object-fit:contain; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.08); display:none;" />
-                </div>
-              </div>
-              <div class="settings-inline" style="gap:16px;">
-                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
-                  <input id="app-sponsor-md-toggle" type="checkbox" checked />
-                  Afficher en TV M/D
-                </label>
-                <label class="small-muted" style="display:flex; align-items:center; gap:6px;">
-                  <input id="app-sponsor-classic-toggle" type="checkbox" checked />
-                  Afficher en TV Tournoi
-                </label>
-                <button class="btn btn-secondary btn-small" id="btn-add-sponsor" type="button">Ajouter le sponsor</button>
-              </div>
-              <div class="field" style="margin-top:8px;">
-                <label>Liste des sponsors</label>
-                <div id="app-sponsor-list" class="settings-stack" style="display:flex; flex-direction:column; gap:8px;"></div>
-                <div class="small-muted" id="app-sponsor-empty" style="display:none;">Aucun sponsor enregistré.</div>
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Fond export journée ligue">
-              <div class="settings-subtitle">🖼️ Fond export scores de journée (Ligue interne)</div>
-              <div class="field">
-                <label for="league-export-bg-upload">Fond pour l’export des scores de journée</label>
-                <input id="league-export-bg-upload" type="file" accept="image/*" class="settings-input" />
-                <p class="settings-hint">Téléverse une image (jpg ou png) qui servira de fond pour l’export graphique des scores de chaque journée.</p>
-                <img id="league-export-bg-preview" alt="Prévisualisation du fond d’export" style="max-width: 220px; display:none; margin-top:8px; border-radius:8px;" />
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Style des boutons">
-              <div class="settings-subtitle">🎛️ Style des boutons</div>
-              <div class="field">
-                <label for="app-button-style">Apparence</label>
-                <select id="app-button-style">
-                  <option value="solid">Plein</option>
-                  <option value="outline">Contour</option>
-                  <option value="ghost">Transparent</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Forme des cartes">
-              <div class="settings-subtitle">🧊 Forme des blocs</div>
-              <div class="field">
-                <label for="app-card-shape">Arrondis</label>
-                <select id="app-card-shape">
-                  <option value="rounded">Arrondi léger</option>
-                  <option value="square">Carré</option>
-                  <option value="pill">Très arrondi</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="settings-section app-block-interactive" aria-label="Fond de l'application">
-              <div class="settings-subtitle">🌌 Fond de l'application</div>
-              <div class="settings-inline">
-                <div class="field">
-                  <label for="app-bg-style">Style de fond</label>
-                  <select id="app-bg-style">
-                    <option value="solid">Uni</option>
-                    <option value="gradient">Dégradé</option>
-                    <option value="pattern">Motif discret</option>
-                    <option value="image">Image personnalisée</option>
+                  <label for="sponsor-category-input" class="field-label">Catégorie</label>
+                  <select id="sponsor-category-input" class="field-select">
+                    <option value="sport">Sport</option>
+                    <option value="alimentation">Alimentation</option>
+                    <option value="automobile">Automobile</option>
+                    <option value="tech">Tech</option>
+                    <option value="autre">Autre</option>
                   </select>
                 </div>
-                <div class="field" id="app-bg-image-field">
-                  <label for="app-bg-image">Image de fond</label>
-                  <input id="app-bg-image" type="file" accept="image/*" />
-                  <div class="small-muted">Utilisée si le mode image est sélectionné.</div>
+
+                <div class="field full-width">
+                  <label for="sponsor-logo-input" class="field-label">Logo</label>
+                  <input id="sponsor-logo-input" type="file" class="field-input" accept="image/*" />
+                  <div id="sponsor-logo-preview-wrapper" style="display:none; margin-top:8px;">
+                    <img id="sponsor-logo-preview-img" alt="Preview" style="max-width:100px; border-radius:8px;" />
+                  </div>
+                </div>
+
+                <div class="field full-width">
+                  <label for="sponsor-url-input" class="field-label">Site web (optionnel)</label>
+                  <input id="sponsor-url-input" type="url" class="field-input" placeholder="https://..." />
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="btn-add-new-sponsor">➕ Ajouter le sponsor</button>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📋 Sponsors actifs</h3>
+              <div id="sponsors-active-list"></div>
+              <div id="sponsors-empty" class="empty-state" style="display:none;">
+                <p>💼</p>
+                <p>Aucun sponsor enregistré</p>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎛️ Options avancées</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-rotation-toggle" type="checkbox" />
+                    <span>Rotation automatique</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="sponsor-rotation-duration" class="field-label">Durée rotation (sec)</label>
+                  <input id="sponsor-rotation-duration" type="number" class="field-input" min="5" max="60" value="10" />
+                </div>
+
+                <div class="field">
+                  <label for="sponsor-position" class="field-label">Position bannière TV</label>
+                  <select id="sponsor-position" class="field-select">
+                    <option value="top-right">Haut droite</option>
+                    <option value="bottom-right" selected>Bas droite</option>
+                    <option value="bottom-left">Bas gauche</option>
+                    <option value="top-left">Haut gauche</option>
+                  </select>
                 </div>
               </div>
             </div>
 
-            <div class="theme-actions">
-              <div class="small-muted">Le logo uploadé est partagé dans ce thème.</div>
-              <div class="theme-buttons">
-                <button class="btn btn-small" id="btn-save-club-theme">Enregistrer le thème</button>
-                <button class="btn btn-secondary btn-small" id="btn-reset-club-theme">Réinitialiser le thème</button>
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📺 Affichage dans les vues TV</h3>
+              <p class="field-hint">Contrôlez l'affichage automatique des sponsors et widgets dans chaque mode TV</p>
+
+              <h4 style="font-size: 0.9rem; font-weight: 600; margin: 16px 0 8px 0; color: var(--text);">Sponsors TV</h4>
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-tv-md-toggle" type="checkbox" checked />
+                    <span>Afficher dans M/D TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-tv-classic-toggle" type="checkbox" checked />
+                    <span>Afficher dans Tournoi Classique TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-tv-americano-toggle" type="checkbox" checked />
+                    <span>Afficher dans Américano TV</span>
+                  </label>
+                </div>
               </div>
+
+              <h4 style="font-size: 0.9rem; font-weight: 600; margin: 16px 0 8px 0; color: var(--text);">Widget Padel Pong</h4>
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-tv-md-toggle" type="checkbox" checked />
+                    <span>Afficher dans M/D TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-tv-classic-toggle" type="checkbox" checked />
+                    <span>Afficher dans Tournoi Classique TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-tv-americano-toggle" type="checkbox" />
+                    <span>Afficher dans Américano TV</span>
+                  </label>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="btn-save-tv-widgets" style="margin-top: 12px;">💾 Enregistrer les paramètres TV</button>
             </div>
           </div>
 
-          <div class="settings-panel" id="settings-panel-pong" role="tabpanel">
-            <div class="settings-section app-block-interactive" aria-label="Paramètres du mini-jeu">
-              <div class="settings-subtitle">⚡ Paramètres du mini-jeu Padel Pong</div>
-              <div class="settings-inline">
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 3 : 🕹️ PONG
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-pong" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎮 Configuration de base</h3>
+
+              <div class="settings-grid">
                 <div class="field">
-                  <label for="pp-sponsor-name">Nom du sponsor</label>
-                  <input id="pp-sponsor-name" type="text" placeholder="Nom du sponsor affiché" />
+                  <label for="pong-sponsor-name" class="field-label">Nom du sponsor Pong</label>
+                  <input id="pong-sponsor-name" type="text" class="field-input" />
                 </div>
+
                 <div class="field">
-                  <label for="pp-sponsor-logo">URL du logo du sponsor</label>
-                  <input id="pp-sponsor-logo" type="text" placeholder="https://.../logo.png" />
+                  <label for="pong-sponsor-logo" class="field-label">URL logo sponsor</label>
+                  <input id="pong-sponsor-logo" type="text" class="field-input" placeholder="https://...logo.png" />
                 </div>
+
                 <div class="field">
-                  <label for="pp-ai-name">Nom de l'IA</label>
-                  <input id="pp-ai-name" type="text" placeholder="PadelBot" />
+                  <label for="pong-ai-name" class="field-label">Nom de l'IA</label>
+                  <input id="pong-ai-name" type="text" class="field-input" placeholder="PadelBot" />
                 </div>
-              </div>
-              <div class="theme-actions" style="justify-content: flex-end;">
-                <button class="btn btn-small" id="pp-save-settings">Enregistrer les paramètres du mini-jeu</button>
               </div>
             </div>
 
-            <div class="card app-block-interactive pong-card pong-draggable" id="pp-card-draggable">
-              <div class="drag-handle">⛓️ Déplacer le bloc Padel Pong</div>
-              <h3 class="tournaments-title" style="margin-bottom:6px;">Padel Pong</h3>
-              <p class="pong-description">Mini-jeu rapide pour les pauses : scanne le QR code pour lancer <strong>padel-pong.html</strong> sur ton mobile ou ouvre-le directement.</p>
-              <div style="display:flex; gap:16px; align-items:center; margin-top:10px; flex-wrap:wrap;">
-                <div class="pong-qr" id="pp-qr"></div>
-                <div style="display:flex; flex-direction:column; gap:8px; min-width:220px;">
-                  <div id="pp-meta" class="small-muted">Sponsor & IA visibles dans le mini-jeu.</div>
-                  <button class="btn btn-small" id="pp-open-game" type="button">Ouvrir le mini-jeu</button>
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎨 Apparence du jeu</h3>
+
+              <div class="field">
+                <label class="checkbox-label">
+                  <input id="pong-use-theme" type="checkbox" checked />
+                  <span>Utiliser les couleurs du thème</span>
+                </label>
+              </div>
+
+              <div id="pong-custom-colors-section" class="settings-grid" style="display:none;">
+                <div class="field">
+                  <label for="pong-color-ball" class="field-label">Couleur balle</label>
+                  <input id="pong-color-ball" type="color" class="field-color" value="#e5e339" />
+                </div>
+                <div class="field">
+                  <label for="pong-color-player" class="field-label">Raquette joueur</label>
+                  <input id="pong-color-player" type="color" class="field-color" value="#004b9b" />
+                </div>
+                <div class="field">
+                  <label for="pong-color-ai" class="field-label">Raquette IA</label>
+                  <input id="pong-color-ai" type="color" class="field-color" value="#ff5252" />
+                </div>
+                <div class="field">
+                  <label for="pong-color-bg" class="field-label">Fond terrain</label>
+                  <input id="pong-color-bg" type="color" class="field-color" value="#020617" />
                 </div>
               </div>
-              <div class="resize-handle" aria-hidden="true"></div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">⚙️ Gameplay</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-leaderboard" type="checkbox" checked />
+                    <span>Activer le leaderboard</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-sounds" type="checkbox" checked />
+                    <span>Activer les sons</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="pong-difficulty" class="field-label">Difficulté par défaut</label>
+                  <select id="pong-difficulty" class="field-select">
+                    <option value="easy">Facile</option>
+                    <option value="medium" selected>Moyen</option>
+                    <option value="hard">Difficile</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📱 QR Code</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label for="pong-qr-size" class="field-label">Taille QR Code</label>
+                  <select id="pong-qr-size" class="field-select">
+                    <option value="120">Petit (120px)</option>
+                    <option value="160" selected>Moyen (160px)</option>
+                    <option value="200">Grand (200px)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="btn-save-pong">💾 Enregistrer config mini-jeu</button>
             </div>
           </div>
-        </div>
-      </div>
+
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 4 : 📤 EXPORTS
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-exports" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎨 Templates d'export</h3>
+
+              <div class="export-templates-grid">
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="moderne" id="template-moderne" checked style="display:none;" />
+                  <div class="template-preview moderne">
+                    <span class="template-emoji">🎨</span>
+                  </div>
+                  <div class="template-name">Moderne</div>
+                </label>
+
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="epure" id="template-epure" style="display:none;" />
+                  <div class="template-preview epure">
+                    <span class="template-emoji">📄</span>
+                  </div>
+                  <div class="template-name">Épuré</div>
+                </label>
+
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="sombre" id="template-sombre" style="display:none;" />
+                  <div class="template-preview sombre">
+                    <span class="template-emoji">🌙</span>
+                  </div>
+                  <div class="template-name">Sombre</div>
+                </label>
+
+                <label class="export-template-card">
+                  <input type="radio" name="export-template" value="sponsor" id="template-sponsor" style="display:none;" />
+                  <div class="template-preview sponsor">
+                    <span class="template-emoji">💼</span>
+                  </div>
+                  <div class="template-name">Sponsor</div>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🖼️ Fond d'export journée ligue</h3>
+
+              <div class="settings-grid">
+                <div class="field full-width">
+                  <label for="export-league-bg" class="field-label">Image de fond</label>
+                  <input id="export-league-bg" type="file" class="field-input" accept="image/*" />
+                  <div id="export-league-bg-preview-wrapper" style="display:none; margin-top:8px;">
+                    <img id="export-league-bg-preview" alt="Preview" style="max-width:300px; border-radius:8px;" />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="export-overlay-opacity" class="field-label">Opacité overlay</label>
+                  <input id="export-overlay-opacity" type="range" class="field-range" min="0" max="100" value="50" />
+                  <span id="export-overlay-value">50%</span>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-dark-filter" type="checkbox" checked />
+                    <span>Appliquer filtre sombre</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🏷️ Branding automatique</h3>
+
+              <div class="field">
+                <label class="checkbox-label">
+                  <input id="export-branding-enabled" type="checkbox" checked />
+                  <span>Ajouter branding aux exports</span>
+                </label>
+              </div>
+
+              <div id="export-branding-options" class="settings-grid">
+                <div class="field full-width">
+                  <label for="export-branding-logo" class="field-label">Logo pour exports</label>
+                  <input id="export-branding-logo" type="file" class="field-input" accept="image/*" />
+                </div>
+
+                <div class="field full-width">
+                  <label for="export-branding-text" class="field-label">Texte footer</label>
+                  <input id="export-branding-text" type="text" class="field-input" placeholder="Généré par..." />
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-qr-enabled" type="checkbox" />
+                    <span>Ajouter QR code vers site</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="export-qr-position" class="field-label">Position QR</label>
+                  <select id="export-qr-position" class="field-select">
+                    <option value="bottom-left">Bas gauche</option>
+                    <option value="bottom-right" selected>Bas droite</option>
+                    <option value="none">Aucun</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📁 Formats d'export</h3>
+
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-format-png" type="checkbox" checked />
+                    <span>PNG (réseaux sociaux)</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-format-pdf" type="checkbox" checked />
+                    <span>PDF (impression)</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="export-format-jpeg" type="checkbox" checked />
+                    <span>JPEG (compatibilité)</span>
+                  </label>
+                </div>
+
+                <div class="field">
+                  <label for="export-quality" class="field-label">Qualité image</label>
+                  <select id="export-quality" class="field-select">
+                    <option value="72">Normale (72 dpi)</option>
+                    <option value="150" selected>Haute (150 dpi)</option>
+                    <option value="300">Impression (300 dpi)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-actions">
+              <button class="btn btn-primary" id="btn-save-exports">💾 Sauvegarder préférences exports</button>
+            </div>
+          </div>
+
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 5 : 🎨 THÈME
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-theme" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📚 Bibliothèque de thèmes</h3>
+
+              <div id="themes-library-grid" class="themes-grid">
+                <!-- Themes will be loaded dynamically -->
+              </div>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">🎨 Éditeur de thème personnalisé</h3>
+
+              <!-- Couleurs -->
+              <details class="theme-editor-group" open>
+                <summary class="theme-editor-summary">🎨 Couleurs</summary>
+                <div class="settings-grid-3">
+                  <div class="field">
+                    <label for="theme-primary" class="field-label">Principale</label>
+                    <input id="theme-primary" type="color" class="field-color" value="#004b9b" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-secondary" class="field-label">Secondaire</label>
+                    <input id="theme-secondary" type="color" class="field-color" value="#4d81b9" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-accent" class="field-label">Accent</label>
+                    <input id="theme-accent" type="color" class="field-color" value="#e5e339" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-bg" class="field-label">Fond</label>
+                    <input id="theme-bg" type="color" class="field-color" value="#020617" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-card" class="field-label">Cartes</label>
+                    <input id="theme-card" type="color" class="field-color" value="#0b1220" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-text" class="field-label">Texte</label>
+                    <input id="theme-text" type="color" class="field-color" value="#ffffff" />
+                  </div>
+                  <div class="field">
+                    <label for="theme-title" class="field-label">Titres</label>
+                    <input id="theme-title" type="color" class="field-color" value="#e5e339" />
+                  </div>
+                </div>
+              </details>
+
+              <!-- Typographie -->
+              <details class="theme-editor-group">
+                <summary class="theme-editor-summary">✒️ Typographie</summary>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="theme-font" class="field-label">Police principale</label>
+                    <select id="theme-font" class="field-select">
+                      <option value="system" selected>System</option>
+                      <option value="Inter">Inter</option>
+                      <option value="Poppins">Poppins</option>
+                      <option value="Montserrat">Montserrat</option>
+                      <option value="Roboto">Roboto</option>
+                      <option value="Nunito">Nunito</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Formes -->
+              <details class="theme-editor-group">
+                <summary class="theme-editor-summary">🔲 Formes & Espacements</summary>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="theme-border-radius" class="field-label">Arrondis</label>
+                    <select id="theme-border-radius" class="field-select">
+                      <option value="square">Carré</option>
+                      <option value="rounded" selected>Arrondi léger</option>
+                      <option value="pill">Très arrondi</option>
+                    </select>
+                  </div>
+
+                  <div class="field">
+                    <label for="theme-button-style" class="field-label">Style boutons</label>
+                    <select id="theme-button-style" class="field-select">
+                      <option value="solid" selected>Plein</option>
+                      <option value="outline">Contour</option>
+                      <option value="ghost">Transparent</option>
+                    </select>
+                  </div>
+                </div>
+              </details>
+
+              <!-- Fond -->
+              <details class="theme-editor-group">
+                <summary class="theme-editor-summary">🌌 Fond de page</summary>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="theme-bg-style" class="field-label">Type de fond</label>
+                    <select id="theme-bg-style" class="field-select">
+                      <option value="solid">Uni</option>
+                      <option value="gradient" selected>Dégradé</option>
+                      <option value="pattern">Motif</option>
+                      <option value="image">Image</option>
+                    </select>
+                  </div>
+
+                  <div class="field" id="theme-bg-image-field" style="display:none;">
+                    <label for="theme-bg-image" class="field-label">Image</label>
+                    <input id="theme-bg-image" type="file" class="field-input" accept="image/*" />
+                  </div>
+                </div>
+              </details>
+            </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">💾 Mes thèmes sauvegardés</h3>
+
+              <div id="custom-themes-list">
+                <div class="empty-state">
+                  <p>🎨</p>
+                  <p>Aucun thème personnalisé</p>
+                </div>
+              </div>
+
+              <div class="theme-management-btns">
+                <button class="btn btn-primary" id="btn-save-custom-theme">💾 Sauvegarder comme nouveau thème</button>
+                <button class="btn btn-secondary" id="btn-import-theme">📥 Importer</button>
+                <button class="btn btn-secondary" id="btn-export-theme">📤 Exporter</button>
+              </div>
+            </div>
+
+            <div class="settings-actions theme-actions">
+              <div class="unsaved-indicator" id="theme-unsaved" style="display:none;">
+                <span class="dot">●</span>
+                <span>Modifications non sauvegardées</span>
+              </div>
+              <button class="btn btn-primary" id="btn-apply-theme">✅ Appliquer les modifications</button>
+              <button class="btn btn-secondary" id="btn-cancel-theme">↩️ Annuler</button>
+              <button class="btn btn-danger" id="btn-reset-theme">🔄 Réinitialiser par défaut</button>
+            </div>
+          </div>
+
+          <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+               PANEL 6 : 📺 VUE TV
+               ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
+          <div class="settings-panel" id="panel-tvview" role="tabpanel">
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📺 Configuration des vues TV</h3>
+              <p class="field-hint">Personnalisez l'affichage, la rotation et les animations pour chaque mode de jeu</p>
+            </div>
+
+            <!-- Sub-tabs pour chaque mode -->
+            <div class="tvview-mode-tabs">
+              <button class="tvview-mode-tab active" data-mode="md">
+                🔄 Montante/Desc.
+              </button>
+              <button class="tvview-mode-tab" data-mode="classic">
+                🏆 Tournoi Classique
+              </button>
+              <button class="tvview-mode-tab" data-mode="americano">
+                🎯 Américano
+              </button>
+            </div>
+
+            <!-- Mode M/D Config -->
+            <div class="tvview-mode-panel active" data-mode="md">
+              <!-- Section 2.1 : Blocs affichés -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📦 Blocs affichés</h3>
+                <p class="field-hint">Sélectionnez les blocs qui apparaîtront dans la rotation TV</p>
+
+                <div class="tvview-blocks-list">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-block-current-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">🏓</span>
+                      <span class="block-name">Matchs en cours</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-block-ranking" checked />
+                    <span class="block-label">
+                      <span class="block-icon">📊</span>
+                      <span class="block-name">Classement en temps réel</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-block-next-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">⏭️</span>
+                      <span class="block-name">Prochains matchs</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-block-resting-teams" />
+                    <span class="block-label">
+                      <span class="block-icon">💤</span>
+                      <span class="block-name">Équipes au repos</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-block-stats" />
+                    <span class="block-label">
+                      <span class="block-icon">📈</span>
+                      <span class="block-name">Statistiques tournoi</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-block-podium" checked />
+                    <span class="block-label">
+                      <span class="block-icon">🏆</span>
+                      <span class="block-name">Podium top 3</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section 2.2 : Rotation automatique -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">🔄 Rotation automatique</h3>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="md-rotation-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Activer la rotation automatique</span>
+                  </span>
+                </label>
+
+                <div id="md-rotation-settings" class="tvview-rotation-settings">
+                  <h4 class="subsection-title">⏱️ Durée d'affichage par bloc</h4>
+
+                  <div class="tvview-duration-grid">
+                    <div class="duration-item">
+                      <label class="field-label">Matchs en cours</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-duration-current-matches" min="2" max="30" value="10" class="duration-slider" />
+                        <span class="duration-value">10s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Classement</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-duration-ranking" min="2" max="30" value="8" class="duration-slider" />
+                        <span class="duration-value">8s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Prochains matchs</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-duration-next-matches" min="2" max="30" value="6" class="duration-slider" />
+                        <span class="duration-value">6s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Podium</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-duration-podium" min="2" max="30" value="5" class="duration-slider" />
+                        <span class="duration-value">5s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Équipes au repos</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-duration-resting-teams" min="2" max="30" value="5" class="duration-slider" />
+                        <span class="duration-value">5s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Statistiques</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-duration-stats" min="2" max="30" value="5" class="duration-slider" />
+                        <span class="duration-value">5s</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4 class="subsection-title">📋 Ordre de rotation</h4>
+                  <div class="tvview-rotation-order" id="md-rotation-order">
+                    <div class="rotation-item" draggable="true" data-block="current_matches">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">1.</span>
+                      <span class="rotation-icon">🏓</span>
+                      <span class="rotation-name">Matchs en cours</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="ranking">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">2.</span>
+                      <span class="rotation-icon">📊</span>
+                      <span class="rotation-name">Classement</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="next_matches">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">3.</span>
+                      <span class="rotation-icon">⏭️</span>
+                      <span class="rotation-name">Prochains matchs</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="podium">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">4.</span>
+                      <span class="rotation-icon">🏆</span>
+                      <span class="rotation-name">Podium</span>
+                    </div>
+                  </div>
+
+                  <div class="tvview-rotation-options">
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="md-pause-hover" checked />
+                      <span class="block-label">
+                        <span class="block-name">Pause rotation au survol de la souris</span>
+                      </span>
+                    </label>
+
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="md-show-progress" checked />
+                      <span class="block-label">
+                        <span class="block-name">Afficher indicateur de progression</span>
+                      </span>
+                    </label>
+                  </div>
+
+                  <h4 class="subsection-title">✨ Transition entre blocs</h4>
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label for="md-transition-type" class="field-label">Type</label>
+                      <select id="md-transition-type" class="field-select">
+                        <option value="fade" selected>Fade</option>
+                        <option value="slide">Slide</option>
+                        <option value="none">None</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="md-transition-duration" class="field-label">Durée</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-transition-duration" min="0.1" max="2" step="0.1" value="0.5" class="duration-slider" />
+                        <span class="duration-value">0.5s</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2.3 : Mise en page -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📐 Mise en page (Layout)</h3>
+
+                <div class="tvview-layout-options">
+                  <label class="layout-option">
+                    <input type="radio" name="md-layout" value="fullscreen" checked />
+                    <div class="layout-card">
+                      <div class="layout-preview fullscreen-preview">
+                        <div class="preview-block">BLOC</div>
+                      </div>
+                      <span class="layout-name">Plein écran</span>
+                      <span class="layout-desc">1 bloc à la fois</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="md-layout" value="split-vertical" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-v-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split vertical</span>
+                      <span class="layout-desc">2 blocs côte à côte</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="md-layout" value="split-horizontal" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-h-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split horizontal</span>
+                      <span class="layout-desc">2 blocs haut/bas</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="md-layout" value="grid-2x2" />
+                    <div class="layout-card">
+                      <div class="layout-preview grid-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                        <div class="preview-block">3</div>
+                        <div class="preview-block">4</div>
+                      </div>
+                      <span class="layout-name">Grille 2x2</span>
+                      <span class="layout-desc">4 blocs</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="md-layout" value="pip" />
+                    <div class="layout-card">
+                      <div class="layout-preview pip-preview">
+                        <div class="preview-block main">Principal</div>
+                        <div class="preview-block mini">Mini</div>
+                      </div>
+                      <span class="layout-name">Picture-in-Picture</span>
+                      <span class="layout-desc">Principal + mini</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="tvview-layout-extras">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-auto-fullscreen" />
+                    <span class="block-label">
+                      <span class="block-name">Mode plein écran automatique (F11)</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-hide-cursor" checked />
+                    <span class="block-label">
+                      <span class="block-name">Cacher curseur après 3s d'inactivité</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section 2.4 : Animations & Effets -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">✨ Animations & Effets</h3>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="md-animations-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Activer les animations de victoire</span>
+                  </span>
+                </label>
+
+                <div id="md-animations-settings" class="tvview-animations-settings">
+                  <h4 class="subsection-title">🎊 Confettis</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-confetti-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Explosion de confettis</span>
+                    </span>
+                  </label>
+
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label class="field-label">Intensité</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-confetti-intensity" min="1" max="5" value="3" class="duration-slider" />
+                        <span class="duration-value">Moyen</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label class="field-label">Couleurs</label>
+                      <select id="md-confetti-colors" class="field-select">
+                        <option value="theme" selected>Accent du thème</option>
+                        <option value="rainbow">Arc-en-ciel</option>
+                        <option value="gold">Or & Argent</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <h4 class="subsection-title">✨ Effets visuels</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-flash-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Flash sur la card du match gagnant</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-badge-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Badge "NOUVEAU" sur match validé</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-scale-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Animation scale + glow sur équipe gagnante</span>
+                    </span>
+                  </label>
+
+                  <h4 class="subsection-title">🔊 Son de célébration</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-sound-enabled" />
+                    <span class="block-label">
+                      <span class="block-name">Activer le son</span>
+                    </span>
+                  </label>
+
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label class="field-label">Volume</label>
+                      <div class="slider-group">
+                        <input type="range" id="md-sound-volume" min="0" max="100" value="50" class="duration-slider" />
+                        <span class="duration-value">50%</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label class="field-label">Type de son</label>
+                      <select id="md-sound-type" class="field-select">
+                        <option value="ding" selected>Ding court</option>
+                        <option value="fanfare">Fanfare</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="field" id="md-sound-upload-field" style="display:none;">
+                    <label for="md-sound-file" class="field-label">Upload son custom (.mp3, max 50KB)</label>
+                    <input id="md-sound-file" type="file" class="field-input" accept="audio/mpeg" />
+                  </div>
+
+                  <button class="btn btn-secondary btn-small" id="md-test-animation">▶ Tester l'animation</button>
+                </div>
+              </div>
+
+              <!-- Section 2.5 : Éléments permanents -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📌 Éléments permanents</h3>
+
+                <h4 class="subsection-title">Header (bandeau haut)</h4>
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="md-header-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Afficher header</span>
+                  </span>
+                </label>
+
+                <div id="md-header-settings" class="settings-grid-3">
+                  <div class="field">
+                    <label class="field-label">Logo club</label>
+                    <select id="md-header-logo-pos" class="field-select">
+                      <option value="left" selected>Gauche</option>
+                      <option value="center">Centre</option>
+                      <option value="right">Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Nom tournoi</label>
+                    <select id="md-header-name-pos" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center" selected>Centre</option>
+                      <option value="right">Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Heure actuelle</label>
+                    <select id="md-header-time-pos" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center">Centre</option>
+                      <option value="right" selected>Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                </div>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="md-header-live-badge" checked />
+                  <span class="block-label">
+                    <span class="block-name">Badge "🔴 LIVE"</span>
+                  </span>
+                </label>
+
+                <h4 class="subsection-title">Footer (bandeau bas)</h4>
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="md-footer-enabled" />
+                  <span class="block-label">
+                    <span class="block-name">Afficher footer</span>
+                  </span>
+                </label>
+
+                <div id="md-footer-settings" style="display:none;">
+                  <div class="field">
+                    <label for="md-footer-text" class="field-label">Texte personnalisé</label>
+                    <input id="md-footer-text" type="text" class="field-input" placeholder="Merci aux partenaires..." />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Alignement</label>
+                    <select id="md-footer-align" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center" selected>Centre</option>
+                      <option value="right">Droite</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="tvview-permanent-note">
+                  <p class="field-hint">
+                    ℹ️ Configuration détaillée des sponsors et Padel Pong dans l'onglet "💼 Sponsors"
+                  </p>
+                </div>
+              </div>
+
+              <!-- Section 2.6 : Gestion des configurations -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">💾 Gestion des configurations</h3>
+
+                <div class="field">
+                  <label for="md-config-name" class="field-label">Nom de cette configuration</label>
+                  <input id="md-config-name" type="text" class="field-input" value="Configuration standard M/D" />
+                </div>
+
+                <div class="tvview-config-actions">
+                  <button class="btn btn-primary" id="md-save-config">💾 Sauvegarder cette config</button>
+                  <button class="btn btn-secondary" id="md-duplicate-config">📋 Dupliquer</button>
+                  <button class="btn btn-danger" id="md-reset-config">🔄 Réinitialiser par défaut</button>
+                </div>
+
+                <h4 class="subsection-title">📚 Mes configurations sauvegardées</h4>
+                <div id="md-saved-configs" class="tvview-saved-configs">
+                  <div class="empty-state">
+                    <p>💾</p>
+                    <p>Aucune configuration sauvegardée</p>
+                  </div>
+                </div>
+
+                <h4 class="subsection-title">📤 Appliquer à d'autres modes</h4>
+                <div class="tvview-apply-modes">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-apply-to-classic" />
+                    <span class="block-label">
+                      <span class="block-name">Tournoi Classique</span>
+                    </span>
+                  </label>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="md-apply-to-americano" />
+                    <span class="block-label">
+                      <span class="block-name">Américano</span>
+                    </span>
+                  </label>
+                  <button class="btn btn-secondary" id="md-apply-to-modes">📤 Appliquer aux modes sélectionnés</button>
+                </div>
+
+                <h4 class="subsection-title">Import/Export</h4>
+                <div class="tvview-import-export">
+                  <button class="btn btn-secondary" id="md-import-config">📥 Importer config</button>
+                  <input type="file" id="md-import-file" accept=".json" style="display:none;" />
+                  <button class="btn btn-secondary" id="md-export-config">📤 Exporter cette config</button>
+                </div>
+              </div>
+
+            </div>
+
+            <!-- Mode Tournoi Classique Config (copy of MD with different IDs) -->
+            <div class="tvview-mode-panel" data-mode="classic">
+              <div class="settings-section app-block-interactive">
+                <p class="field-hint">Configuration similaire au mode M/D avec blocs spécifiques au tournoi classique</p>
+                <p style="color: var(--muted); font-style: italic;">
+                  Section en cours de développement - Utilisez la config M/D comme template et appliquez-la ici
+                </p>
+              </div>
+            </div>
+
+            <!-- Mode Américano Config -->
+            <div class="tvview-mode-panel" data-mode="americano">
+              <div class="settings-section app-block-interactive">
+                <p class="field-hint">Configuration similaire au mode M/D avec blocs spécifiques à l'Américano</p>
+                <p style="color: var(--muted); font-style: italic;">
+                  Section en cours de développement - Utilisez la config M/D comme template et appliquez-la ici
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+        </div><!-- End panels -->
+      </div><!-- End shell -->
     </section>
 
     <!-- PAGE ADMIN M/D -->
@@ -3339,7 +5416,7 @@ body.sidebar-open .app {
 
       <main class="tv-main">
         <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="current_matches">
             <div class="tv-block-title">
               <span>Matchs en cours</span>
               <span>Roulement <span id="americano-tv-round">1</span></span>
@@ -3351,7 +5428,7 @@ body.sidebar-open .app {
         </section>
 
         <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="next_matches">
             <div class="tv-block-title">
               <span>Matchs à venir</span>
               <span>Prochain roulement</span>
@@ -3361,7 +5438,7 @@ body.sidebar-open .app {
             </div>
           </div>
 
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="ranking">
             <div class="tv-block-title">
               <span>Classement</span>
               <span>Live</span>
@@ -3690,7 +5767,7 @@ body.sidebar-open .app {
 
       <main class="tv-main">
         <section class="tv-col">
-          <article class="tv-block">
+          <article class="tv-block" data-tv-block="current_matches">
             <div class="tv-block-title">
               <span id="tv-left-title">Matchs en cours par terrain</span>
             </div>
@@ -3699,7 +5776,7 @@ body.sidebar-open .app {
         </section>
 
         <section class="tv-col">
-          <article class="tv-block">
+          <article class="tv-block" data-tv-block="next_matches">
             <div class="tv-block-title">
               <span id="tv-right-title">Prochains matchs par terrain</span>
             </div>
@@ -3708,16 +5785,16 @@ body.sidebar-open .app {
         </section>
       </main>
 
-      <section id="tv-final-ranking" class="tv-final-ranking" style="display:none;"></section>
+      <article class="tv-block" data-tv-block="ranking" id="tv-final-ranking" style="display:none;"></article>
 
       <section id="tv-bracket-row" class="tv-bracket-row">
-        <article class="tv-block tv-bracket-block">
+        <article class="tv-block tv-bracket-block" data-tv-block="main_bracket">
           <div class="tv-block-title">
             <span>Arbre tableau principal</span>
           </div>
           <div id="tv-main-bracket-tree" class="tv-bracket-body"></div>
         </article>
-        <article class="tv-block tv-bracket-block">
+        <article class="tv-block tv-bracket-block" data-tv-block="conso_bracket">
           <div class="tv-block-title">
             <span>Arbre consolante / classement</span>
           </div>
@@ -4192,7 +6269,7 @@ body.sidebar-open .app {
 
       <main class="tv-main">
         <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="current_matches" style="display:none;">
             <div class="tv-block-title">
               <span>Matchs en cours</span>
               <span>Roulement <span id="tv-label-roulement">1</span></span>
@@ -4202,10 +6279,8 @@ body.sidebar-open .app {
             </div>
             <div class="tv-small-note">⚡ Terrain 1 = plus fort • Terrain 4 = terrain fun</div>
           </div>
-        </section>
 
-        <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="next_matches" style="display:none;">
             <div class="tv-block-title">
               <span>Matchs à venir</span>
               <span>Prochain roulement</span>
@@ -4215,17 +6290,47 @@ body.sidebar-open .app {
             </div>
           </div>
 
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="resting_teams" style="display:none;">
+            <div class="tv-block-title">
+              <span>Équipes au repos</span>
+              <span>Ce roulement</span>
+            </div>
+            <div id="tv-rest-list" class="tv-current-list">
+              <div class="tv-empty">Aucune équipe au repos.</div>
+            </div>
+          </div>
+
+          <div class="tv-block" data-tv-block="stats" style="display:none;">
+            <div class="tv-block-title">
+              <span>Statistiques</span>
+              <span>Performance globale</span>
+            </div>
+            <div id="tv-stats-content" class="tv-current-list">
+              <div class="tv-empty">Les stats apparaîtront après plusieurs matchs.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block" data-tv-block="ranking" style="display:none;">
             <div class="tv-block-title">
               <span>Classement</span>
               <span>Points cumulés</span>
             </div>
             <div id="tv-podium" class="tv-podium"></div>
-          <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
-          <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
-        </div>
-      </section>
-    </main>
+            <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
+            <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
+          </div>
+
+          <div class="tv-block" data-tv-block="podium" style="display:none;">
+            <div class="tv-block-title">
+              <span>Podium</span>
+              <span>Top 3</span>
+            </div>
+            <div id="tv-podium-only" class="tv-podium"></div>
+          </div>
+        </section>
+      </main>
   </section>
 
     <!-- Pop-up Timer M/D -->
@@ -5255,14 +7360,55 @@ body.sidebar-open .app {
         document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
+
+        // Charger les sponsors depuis le nouveau système (localStorage)
+        try {
+          var sponsorsList = localStorage.getItem('sponsors_list');
+          if (sponsorsList) {
+            var parsedSponsors = JSON.parse(sponsorsList);
+            if (Array.isArray(parsedSponsors) && parsedSponsors.length > 0) {
+              // Remplacer les anciens sponsors par les nouveaux
+              currentClubProfile.sponsors = parsedSponsors;
+            }
+          }
+        } catch (e) {
+          console.warn('[Club] Erreur chargement sponsors:', e);
+        }
+
         var activeSponsor = getActiveSponsor(currentClubProfile);
         if (activeSponsor) {
           currentClubProfile.sponsorName = activeSponsor.name || '';
           currentClubProfile.sponsorLogoDataUrl = activeSponsor.logoDataUrl || null;
         }
-        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
-        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
-        renderSponsorBanner({ banner: 'americano-tv-sponsor-banner', logo: 'americano-tv-sponsor-logo', name: 'americano-tv-sponsor-name', posKey: 'tvSponsorAmericanoPos' }, currentClubProfile, currentClubProfile.tvSponsorAmericano !== false);
+
+        // Vérifier les nouveaux paramètres TV pour les sponsors
+        var sponsorsTVSettings = null;
+        try {
+          var stored = localStorage.getItem('sponsors_tv_settings');
+          if (stored) sponsorsTVSettings = JSON.parse(stored);
+        } catch (e) { }
+
+        // M/D TV sponsors
+        var mdSponsorEnabled = currentClubProfile.tvSponsorMd !== false; // Ancien système (fallback)
+        if (sponsorsTVSettings && sponsorsTVSettings.modes) {
+          mdSponsorEnabled = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.md;
+        }
+        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, mdSponsorEnabled);
+
+        // Classic TV sponsors
+        var classicSponsorEnabled = currentClubProfile.tvSponsorClassic !== false;
+        if (sponsorsTVSettings && sponsorsTVSettings.modes) {
+          classicSponsorEnabled = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.classic;
+        }
+        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, classicSponsorEnabled);
+
+        // Americano TV sponsors
+        var americanoSponsorEnabled = currentClubProfile.tvSponsorAmericano !== false;
+        if (sponsorsTVSettings && sponsorsTVSettings.modes) {
+          americanoSponsorEnabled = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.americano;
+        }
+        renderSponsorBanner({ banner: 'americano-tv-sponsor-banner', logo: 'americano-tv-sponsor-logo', name: 'americano-tv-sponsor-name', posKey: 'tvSponsorAmericanoPos' }, currentClubProfile, americanoSponsorEnabled);
+
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
 
@@ -5852,153 +7998,9 @@ body.sidebar-open .app {
   <script src="mode_classic.js"></script>
   <script src="mode_md.js"></script>
   <script src="mode_ligue.js"></script>
-  <!-- 🆕 SIDEBAR NAVIGATION LOGIC -->
-<script>
-(function() {
-  // Références
-  const sidebar = document.getElementById('app-sidebar');
-  const sidebarLogo = document.getElementById('sidebar-logo');
-  const mobileHandle = document.getElementById('sidebar-mobile-handle');
-  const settingsBtn = document.getElementById('sidebar-settings-btn');
-  const navItems = document.querySelectorAll('.sidebar-item[data-nav]');
-  
-  // Sync logo sidebar avec logo principal
-  function syncSidebarLogo() {
-    const mainLogo = document.getElementById('app-logo');
-    if (mainLogo && mainLogo.src) {
-      sidebarLogo.src = mainLogo.src;
-      sidebarLogo.style.display = 'block';
-    }
-  }
-  
-  // Observer le logo principal
-  const logoObserver = new MutationObserver(syncSidebarLogo);
-  const mainLogo = document.getElementById('app-logo');
-  if (mainLogo) {
-    logoObserver.observe(mainLogo, { attributes: true, attributeFilter: ['src'] });
-    syncSidebarLogo();
-  }
-  
-  // Toggle sidebar mobile
-  if (mobileHandle) {
-    mobileHandle.addEventListener('click', function() {
-      sidebar.classList.toggle('open');
-    });
-  }
-  
-  // Fermer sidebar mobile après navigation
-  function closeMobileSidebar() {
-    if (window.innerWidth <= 900) {
-      sidebar.classList.remove('open');
-    }
-  }
-  
-  // Map navigation
-  const navMap = {
-    'home': 'home-root',
-    'md': 'admin-root',
-    'tournaments': 'tournaments-root',
-    'americano': 'americano-root',
-    'ligue': 'ligue-root',
-    'ligue-config': 'ligue-config-root'
-  };
-  
-  // Navigation handler
-  navItems.forEach(function(item) {
-    item.addEventListener('click', function(e) {
-      e.preventDefault();
-      const target = this.getAttribute('data-nav');
-      const sectionId = navMap[target];
-      
-      if (!sectionId) return;
-      
-      // Hide all sections
-      document.querySelectorAll('[id$="-root"]').forEach(function(section) {
-        section.style.display = 'none';
-      });
-      
-      // Show target section
-      const targetSection = document.getElementById(sectionId);
-      if (targetSection) {
-        targetSection.style.display = 'block';
-        
-        // Update active state
-        navItems.forEach(function(nav) {
-          nav.classList.remove('active');
-        });
-        item.classList.add('active');
-        
-        // Smooth scroll to top
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        // Close mobile sidebar
-        closeMobileSidebar();
-      }
-    });
-  });
-  
-  // Settings button
-  if (settingsBtn) {
-    settingsBtn.addEventListener('click', function() {
-      // Hide all sections
-      document.querySelectorAll('[id$="-root"]').forEach(function(section) {
-        section.style.display = 'none';
-      });
-      
-      // Show settings
-      const settingsSection = document.getElementById('settings-root');
-      if (settingsSection) {
-        settingsSection.style.display = 'block';
-        
-        // Update active state
-        navItems.forEach(function(nav) {
-          nav.classList.remove('active');
-        });
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        closeMobileSidebar();
-      }
-    });
-  }
-  
-  // Sync avec les boutons existants
-  const existingButtons = {
-    'btn-home-md': 'md',
-    'btn-home-tournaments': 'tournaments',
-    'btn-home-ligue': 'ligue',
-    'btn-open-settings': null, // settings handled separately
-    'btn-back-home-from-md': 'home',
-    'btn-back-home-from-tournaments': 'home',
-    'btn-back-home-from-classic': 'home',
-    'btn-back-home-from-ligue': 'home',
-    'btn-ligue-config': 'ligue-config',
-    'btn-home-americano': 'americano',
-    'btn-americano-home': 'home'
-  };
-  
-  Object.keys(existingButtons).forEach(function(btnId) {
-    const btn = document.getElementById(btnId);
-    const navTarget = existingButtons[btnId];
-    
-    if (btn && navTarget) {
-      btn.addEventListener('click', function() {
-        const targetNav = document.querySelector('.sidebar-item[data-nav="' + navTarget + '"]');
-        if (targetNav) {
-          navItems.forEach(function(nav) {
-            nav.classList.remove('active');
-          });
-          targetNav.classList.add('active');
-        }
-      });
-    }
-  });
-  
-  // Init: set home as active
-  const homeNav = document.querySelector('.sidebar-item[data-nav="home"]');
-  if (homeNav) {
-    homeNav.classList.add('active');
-  }
-})();
-</script>
+  <script src="sidebar.js"></script>
+  <script src="tv-rotation.js"></script>
+  <script src="tv-animations.js"></script>
+  <script src="settings.js"></script>
 </body>
 </html>
