@@ -1452,6 +1452,14 @@
        STYLES PARAMÈTRES - NOUVELLE INTERFACE
        ====================================== */
 
+    /* Override de la largeur maximale pour la page paramètres */
+    #settings-root {
+      max-width: none !important;
+      margin: 0 !important;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
     /* Container principal des paramètres */
     .settings-shell {
       display: flex;
@@ -1463,6 +1471,7 @@
       overflow: hidden;
       max-width: 100%;
       box-sizing: border-box;
+      width: 100%;
     }
 
     /* En-tête principal */
@@ -2691,6 +2700,10 @@
     }
 
     @media (max-width: 900px) {
+      #settings-root {
+        padding: 12px;
+      }
+
       .settings-grid-3 {
         grid-template-columns: 1fr;
       }
