@@ -24,6 +24,9 @@
     this.isRunning = false;
     this.transitionInProgress = false;
 
+    // Déterminer combien de blocs afficher simultanément selon le layout
+    this.blocksPerView = this.getBlocksPerView();
+
     // Éléments UI
     this.indicator = null;
     this.indicatorDots = [];
@@ -32,6 +35,26 @@
     this.handleMouseEnter = this.handleMouseEnter.bind(this);
     this.handleMouseLeave = this.handleMouseLeave.bind(this);
   }
+
+  /**
+   * Détermine combien de blocs afficher simultanément selon le layout
+   * @returns {number} Nombre de blocs par vue
+   */
+  TVRotationManager.prototype.getBlocksPerView = function() {
+    var layoutType = this.config.layout ? this.config.layout.type : 'fullscreen';
+
+    switch (layoutType) {
+      case 'split-vertical':
+      case 'split-horizontal':
+      case 'pip':
+        return 2;
+      case 'grid-2x2':
+        return 4;
+      case 'fullscreen':
+      default:
+        return 1;
+    }
+  };
 
   /**
    * Initialise le système de rotation
@@ -153,21 +176,28 @@
     }
 
     this.currentIndex = index;
-    var block = this.blocks[index];
 
-    console.log('[TVRotationManager] Affichage bloc: ' + block.id + ' (' + block.duration + 's)');
+    // Déterminer quels blocs afficher selon le layout
+    var blocksToShow = [];
+    for (var i = 0; i < this.blocksPerView && (index + i) < this.blocks.length; i++) {
+      blocksToShow.push(this.blocks[index + i]);
+    }
+
+    console.log('[TVRotationManager] Affichage de ' + blocksToShow.length + ' bloc(s) à partir de l\'index ' + index);
 
     // Cacher tous les blocs
     this.hideAllBlocks();
 
-    // Afficher le bloc cible avec transition
-    this.applyTransition(block);
+    // Afficher les blocs cibles avec transition
+    for (var j = 0; j < blocksToShow.length; j++) {
+      this.applyTransition(blocksToShow[j]);
+    }
 
     // Mettre à jour l'indicateur
     this.updateIndicator(index);
 
-    // Programmer le prochain bloc
-    this.scheduleNext(block.duration);
+    // Programmer le prochain groupe de blocs (utiliser la durée du premier bloc)
+    this.scheduleNext(blocksToShow[0].duration);
   };
 
   /**
@@ -246,18 +276,18 @@
   };
 
   /**
-   * Affiche le bloc suivant
+   * Affiche le bloc suivant (ou groupe de blocs selon le layout)
    */
   TVRotationManager.prototype.showNext = function() {
-    var nextIndex = (this.currentIndex + 1) % this.blocks.length;
+    var nextIndex = (this.currentIndex + this.blocksPerView) % this.blocks.length;
     this.showBlock(nextIndex);
   };
 
   /**
-   * Affiche le bloc précédent
+   * Affiche le bloc précédent (ou groupe de blocs selon le layout)
    */
   TVRotationManager.prototype.showPrevious = function() {
-    var prevIndex = (this.currentIndex - 1 + this.blocks.length) % this.blocks.length;
+    var prevIndex = (this.currentIndex - this.blocksPerView + this.blocks.length) % this.blocks.length;
     this.showBlock(prevIndex);
   };
 
