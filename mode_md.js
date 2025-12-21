@@ -1210,7 +1210,58 @@ function initTVSystems() {
       tvRotationManager.start();
       console.log('[MD TV] Rotation démarrée');
     }
+  } else {
+    // Si rotation désactivée, afficher les blocs statiques selon le layout
+    showStaticTVBlocks(tvConfig, mdTvRoot);
+    console.log('[MD TV] Blocs statiques affichés (rotation désactivée)');
   }
+}
+
+// Afficher les blocs TV statiques quand la rotation est désactivée
+function showStaticTVBlocks(config, container) {
+  if (!config || !container) return;
+
+  // Récupérer tous les blocs TV
+  var allBlocks = container.querySelectorAll('.tv-block');
+
+  // Cacher tous les blocs d'abord
+  for (var i = 0; i < allBlocks.length; i++) {
+    allBlocks[i].style.display = 'none';
+    allBlocks[i].classList.remove('tv-block-active');
+  }
+
+  // Filtrer les blocs activés
+  var enabledBlocks = [];
+  for (var i = 0; i < allBlocks.length; i++) {
+    var block = allBlocks[i];
+    var blockId = block.getAttribute('data-tv-block');
+    if (blockId && config.blocks && config.blocks[blockId] && config.blocks[blockId].enabled) {
+      enabledBlocks.push(block);
+    }
+  }
+
+  if (enabledBlocks.length === 0) {
+    console.warn('[MD TV] Aucun bloc activé');
+    return;
+  }
+
+  // Déterminer combien de blocs afficher selon le layout
+  var layoutType = config.layout ? config.layout.type : 'fullscreen';
+  var blocksToShow = 1; // Par défaut: fullscreen
+
+  if (layoutType === 'split-vertical' || layoutType === 'split-horizontal' || layoutType === 'pip') {
+    blocksToShow = 2;
+  } else if (layoutType === 'grid-2x2') {
+    blocksToShow = 4;
+  }
+
+  // Afficher les N premiers blocs activés
+  for (var i = 0; i < Math.min(blocksToShow, enabledBlocks.length); i++) {
+    enabledBlocks[i].style.display = 'block';
+    enabledBlocks[i].classList.add('tv-block-active');
+  }
+
+  console.log('[MD TV] Affichage de ' + Math.min(blocksToShow, enabledBlocks.length) + ' bloc(s) en mode ' + layoutType);
 }
 
 function destroyTVSystems() {

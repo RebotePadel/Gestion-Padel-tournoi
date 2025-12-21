@@ -2023,6 +2023,24 @@
       }
       // Réinitialiser avec la nouvelle config
       window.mdInitTVSystems();
+    } else if (mode === 'classic' && typeof window.classicInitTVSystems === 'function') {
+      // Réinitialiser les systèmes TV pour Classic
+      if (typeof window.classicDestroyTVSystems === 'function') {
+        window.classicDestroyTVSystems();
+      }
+      // Réinitialiser avec la nouvelle config
+      window.classicInitTVSystems();
+    } else if (mode === 'americano' && window.AMERICANO && typeof window.AMERICANO.initTVSystems === 'function') {
+      // Réinitialiser les systèmes TV pour Americano
+      if (typeof window.AMERICANO.destroyTVSystems === 'function') {
+        window.AMERICANO.destroyTVSystems();
+      }
+      // Re-render la vue TV
+      if (typeof window.AMERICANO.renderTv === 'function') {
+        window.AMERICANO.renderTv();
+      }
+      // Réinitialiser avec la nouvelle config
+      window.AMERICANO.initTVSystems();
     }
 
     showNotification('Configuration TV sauvegardée avec succès !', 'success');
