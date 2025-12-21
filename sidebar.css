@@ -1,0 +1,554 @@
+/* ========================================
+   🆕 SIDEBAR MODERNE V2
+   ======================================== */
+
+.app-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 280px;
+  height: 100vh;
+  background: linear-gradient(180deg,
+    rgba(2, 6, 23, 0.98) 0%,
+    rgba(11, 18, 32, 0.95) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid rgba(148, 163, 184, 0.1);
+  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar collapsed state */
+.app-sidebar.collapsed {
+  transform: translateX(-280px);
+}
+
+/* Toggle button (encoche) - Toujours en position fixed */
+.sidebar-toggle-btn {
+  position: fixed;
+  left: 280px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-title));
+  border: none;
+  border-radius: 0 12px 12px 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 2px 0 12px rgba(229, 227, 57, 0.4);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  padding: 0;
+}
+
+/* Show toggle button only on desktop */
+@media (min-width: 901px) {
+  .sidebar-toggle-btn {
+    display: flex;
+  }
+}
+
+.sidebar-toggle-btn:hover {
+  transform: translateY(-50%) translateX(4px);
+  box-shadow: 2px 0 16px rgba(229, 227, 57, 0.6),
+              0 0 20px rgba(229, 227, 57, 0.3);
+}
+
+.toggle-chevron {
+  font-size: 0.8rem;
+  color: #0f172a;
+  font-weight: bold;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* When collapsed: move button to left edge + rotate chevron */
+body.sidebar-collapsed .sidebar-toggle-btn {
+  left: 0;
+  display: flex !important; /* Force display even on mobile when collapsed */
+}
+
+body.sidebar-collapsed .toggle-chevron {
+  transform: rotate(180deg);
+}
+
+body.sidebar-collapsed .sidebar-toggle-btn:hover {
+  box-shadow: 2px 0 20px rgba(229, 227, 57, 0.8),
+              0 0 24px rgba(229, 227, 57, 0.4);
+}
+
+/* Hide sidebar and toggle button in TV mode (full screen) */
+body.tv-mode .app-sidebar,
+body.tv-mode .sidebar-toggle-btn {
+  display: none !important;
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 12px 24px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+  margin-bottom: 24px;
+  min-height: 60px;
+}
+
+.sidebar-logo {
+  max-width: 80px;
+  max-height: 60px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  object-fit: contain;
+  display: none;
+  flex-shrink: 0;
+}
+
+.sidebar-logo[src] {
+  display: block;
+}
+
+.sidebar-club-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-title));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+}
+
+.sidebar-item::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg,
+    rgba(229, 227, 57, 0.1),
+    rgba(77, 129, 185, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.sidebar-item:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.05);
+  transform: translateX(4px);
+}
+
+.sidebar-item:hover::before {
+  opacity: 1;
+}
+
+.sidebar-item.active {
+  color: #0f172a;
+  background: linear-gradient(135deg, var(--brand-accent), var(--brand-title));
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(229, 227, 57, 0.3);
+}
+
+.sidebar-item.active::before {
+  display: none;
+}
+
+.sidebar-icon {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.sidebar-label {
+  flex: 1;
+}
+
+.sidebar-section {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-section-label {
+  padding: 8px 16px 4px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 600;
+}
+
+/* Menu déroulant ligues */
+.sidebar-item-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-item-wrapper .sidebar-item {
+  flex: 1;
+  margin-right: 0;
+}
+
+.sidebar-submenu-toggle {
+  position: absolute;
+  right: 12px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: rgba(255, 255, 255, 0.5);
+  z-index: 1;
+}
+
+.sidebar-submenu-toggle:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.sidebar-submenu-toggle .chevron {
+  font-size: 0.7rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-submenu-toggle.open .chevron {
+  transform: rotate(180deg);
+}
+
+.sidebar-submenu {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-submenu.open {
+  max-height: 500px;
+}
+
+.sidebar-submenu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 40px;
+  color: rgba(255, 255, 255, 0.6);
+  text-decoration: none;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  border-radius: 8px;
+  margin: 2px 0;
+}
+
+.sidebar-submenu-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  padding-left: 44px;
+}
+
+.sidebar-submenu-item .submenu-icon {
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+.sidebar-submenu-item .submenu-label {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Pastilles de niveau de ligue */
+.sidebar-level-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-left: auto;
+  flex-shrink: 0;
+  border: 1px solid;
+  transition: all 0.2s ease;
+}
+
+/* Niveau 1 - Rouge */
+.sidebar-level-badge.level-n1 {
+  background: rgba(127, 29, 29, 0.2);
+  border-color: rgba(127, 29, 29, 0.6);
+  color: #fca5a5;
+}
+
+/* Niveau 2 - Orange */
+.sidebar-level-badge.level-n2 {
+  background: rgba(180, 83, 9, 0.2);
+  border-color: rgba(180, 83, 9, 0.6);
+  color: #fbbf24;
+}
+
+/* Niveau 3 - Jaune */
+.sidebar-level-badge.level-n3 {
+  background: rgba(202, 138, 4, 0.2);
+  border-color: rgba(202, 138, 4, 0.6);
+  color: #fcd34d;
+}
+
+/* Effet hover sur les items avec pastille */
+.sidebar-submenu-item:hover .sidebar-level-badge.level-n1 {
+  background: rgba(127, 29, 29, 0.3);
+  box-shadow: 0 0 8px rgba(252, 165, 165, 0.3);
+}
+
+.sidebar-submenu-item:hover .sidebar-level-badge.level-n2 {
+  background: rgba(180, 83, 9, 0.3);
+  box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+}
+
+.sidebar-submenu-item:hover .sidebar-level-badge.level-n3 {
+  background: rgba(202, 138, 4, 0.3);
+  box-shadow: 0 0 8px rgba(252, 211, 77, 0.3);
+}
+
+.sidebar-footer {
+  padding-top: 16px;
+  border-top: 1px solid rgba(148, 163, 184, 0.1);
+  margin-top: auto;
+}
+
+/* Layout avec sidebar */
+body.sidebar-open .app {
+  margin-left: 280px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app {
+  margin-left: 280px;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Force margin pour toutes les sections avec .app */
+section .app {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+/* Container principal avec sidebar */
+body > .app {
+  margin-left: 280px !important;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Recentrer le contenu quand la sidebar est collapsed */
+body.sidebar-collapsed > .app {
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* 🆕 Cacher sidebar en mode TV */
+body.tv-mode .app-sidebar {
+  display: none !important;
+  opacity: 0;
+  pointer-events: none;
+  z-index: -1;
+}
+
+body.tv-mode .sidebar-mobile-handle {
+  display: none !important;
+}
+
+body.tv-mode .sidebar-toggle {
+  display: none !important;
+}
+
+body.tv-mode .app {
+  margin-left: auto !important;
+  margin-right: auto !important;
+}
+
+/* Mobile : Bottom sheet sidebar */
+.sidebar-mobile-handle {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .app-sidebar {
+    width: 100%;
+    height: auto;
+    max-height: 70vh;
+    bottom: 0;
+    top: auto;
+    left: 0;
+    border-right: none;
+    border-top: 1px solid rgba(148, 163, 184, 0.1);
+    border-radius: 24px 24px 0 0;
+    transform: translateY(calc(100% - 70px));
+    padding-top: 32px;
+  }
+
+  .app-sidebar.open {
+    transform: translateY(0);
+  }
+
+  .sidebar-mobile-handle {
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--brand-accent), var(--brand-title));
+    border-radius: 50%;
+    box-shadow: 0 8px 24px rgba(229, 227, 57, 0.4);
+    z-index: 99;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .sidebar-mobile-handle:active {
+    transform: translateX(-50%) scale(0.9);
+  }
+
+  .handle-bar {
+    width: 24px;
+    height: 3px;
+    background: #0f172a;
+    border-radius: 999px;
+    position: relative;
+  }
+
+  .handle-bar::before,
+  .handle-bar::after {
+    content: '';
+    position: absolute;
+    width: 24px;
+    height: 3px;
+    background: #0f172a;
+    border-radius: 999px;
+    left: 0;
+  }
+
+  .handle-bar::before {
+    top: -8px;
+  }
+
+  .handle-bar::after {
+    bottom: -8px;
+  }
+
+  .app {
+    margin-left: 0;
+    padding-bottom: 100px;
+  }
+
+  body.sidebar-open .app {
+    margin-left: 0;
+  }
+}
+
+/* Adapter l'ancien header avec la sidebar */
+@media (min-width: 901px) {
+  /* Cacher uniquement le header de la page d'accueil et sections sans actions */
+  #home-root .app-header,
+  #settings-root .app-header,
+  #ligue-root .app-header,
+  #tournaments-root .app-header {
+    display: none !important;
+  }
+
+  /* Garder le header pour les modes avec actions contextuelles */
+  #classic-root .app-header,
+  #admin-root .app-header,
+  #americano-root .app-header,
+  #ligue-manage-root .app-header,
+  #ligue-config-root .app-header {
+    display: flex !important;
+    margin-bottom: 16px;
+  }
+
+  /* Cacher les boutons retour (remplacés par la sidebar) */
+  .header-back-btn {
+    display: none !important;
+  }
+
+  /* Garder settings et actions spécifiques */
+  .header-settings-btn {
+    display: inline-flex !important;
+  }
+}
+
+/* Sur mobile, garder le header compact */
+@media (max-width: 900px) {
+  .app-header {
+    padding: 12px 16px;
+  }
+
+  .header-back-btn,
+  .header-settings-btn {
+    display: none !important;
+  }
+}
