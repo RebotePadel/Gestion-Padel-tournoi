@@ -1663,6 +1663,9 @@
     // Initialiser drag & drop
     initTVDragDrop();
 
+    // Initialiser les checkboxes de blocs (synchronisation avec rotation)
+    initBlockCheckboxes();
+
     // Initialiser les boutons d'action
     initTVActions();
 
@@ -1842,13 +1845,133 @@
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
-  function updateRotationNumbers() {
-    var items = document.querySelectorAll('#md-rotation-order .rotation-item');
+  function updateRotationNumbers(mode) {
+    var items = document.querySelectorAll('#' + mode + '-rotation-order .rotation-item');
     items.forEach(function(item, index) {
       var numberSpan = item.querySelector('.rotation-number');
       if (numberSpan) {
         numberSpan.textContent = (index + 1) + '.';
       }
+    });
+  }
+
+  /**
+   * Synchronise la liste de rotation avec les blocs cochés
+   * @param {string} mode - Le mode (md, classic, americano)
+   */
+  function syncRotationWithBlocks(mode) {
+    var rotationOrder = document.getElementById(mode + '-rotation-order');
+    if (!rotationOrder) return;
+
+    // Récupérer tous les blocs et leur état
+    var allBlocks = {
+      'current_matches': { name: 'Matchs en cours', icon: '🏓' },
+      'ranking': { name: 'Classement', icon: '📊' },
+      'next_matches': { name: 'Prochains matchs', icon: '⏭️' },
+      'podium': { name: 'Podium', icon: '🏆' },
+      'resting_teams': { name: 'Équipes au repos', icon: '💺' },
+      'stats': { name: 'Statistiques', icon: '📈' },
+      'main_bracket': { name: 'Tableau principal', icon: '🏆' },
+      'conso_bracket': { name: 'Tableau consolante', icon: '🎯' }
+    };
+
+    // Récupérer les blocs actuellement cochés
+    var checkedBlocks = [];
+    Object.keys(allBlocks).forEach(function(blockId) {
+      var checkbox = document.getElementById(mode + '-block-' + blockId.replace(/_/g, '-'));
+      if (checkbox && checkbox.checked) {
+        checkedBlocks.push(blockId);
+      }
+    });
+
+    // Récupérer l'ordre actuel de rotation
+    var currentOrder = Array.from(rotationOrder.querySelectorAll('.rotation-item')).map(function(item) {
+      return item.getAttribute('data-block');
+    });
+
+    // Créer un nouvel ordre en préservant l'ordre existant autant que possible
+    var newOrder = [];
+
+    // D'abord, ajouter les blocs qui sont déjà dans l'ordre ET qui sont cochés
+    currentOrder.forEach(function(blockId) {
+      if (checkedBlocks.indexOf(blockId) !== -1) {
+        newOrder.push(blockId);
+      }
+    });
+
+    // Ensuite, ajouter les nouveaux blocs cochés qui n'étaient pas dans l'ordre
+    checkedBlocks.forEach(function(blockId) {
+      if (newOrder.indexOf(blockId) === -1) {
+        newOrder.push(blockId);
+      }
+    });
+
+    // Reconstruire la liste HTML
+    rotationOrder.innerHTML = '';
+    newOrder.forEach(function(blockId) {
+      var blockInfo = allBlocks[blockId];
+      if (!blockInfo) return;
+
+      var item = document.createElement('div');
+      item.className = 'rotation-item';
+      item.draggable = true;
+      item.setAttribute('data-block', blockId);
+
+      var dragHandle = document.createElement('span');
+      dragHandle.className = 'drag-handle';
+      dragHandle.textContent = '⋮⋮';
+
+      var number = document.createElement('span');
+      number.className = 'rotation-number';
+
+      var icon = document.createElement('span');
+      icon.className = 'rotation-icon';
+      icon.textContent = blockInfo.icon;
+
+      var name = document.createElement('span');
+      name.className = 'rotation-name';
+      name.textContent = blockInfo.name;
+
+      item.appendChild(dragHandle);
+      item.appendChild(number);
+      item.appendChild(icon);
+      item.appendChild(name);
+
+      rotationOrder.appendChild(item);
+    });
+
+    // Mettre à jour les numéros
+    updateRotationNumbers(mode);
+  }
+
+  /**
+   * Initialise les événements sur les checkboxes de blocs
+   */
+  function initBlockCheckboxes() {
+    var modes = ['md', 'classic', 'americano'];
+
+    modes.forEach(function(mode) {
+      // Tous les blocs possibles
+      var blockIds = [
+        'current-matches',
+        'ranking',
+        'next-matches',
+        'podium',
+        'resting-teams',
+        'stats',
+        'main-bracket',
+        'conso-bracket'
+      ];
+
+      blockIds.forEach(function(blockId) {
+        var checkbox = document.getElementById(mode + '-block-' + blockId);
+        if (checkbox) {
+          checkbox.addEventListener('change', function() {
+            // Synchroniser la liste de rotation avec les blocs cochés
+            syncRotationWithBlocks(mode);
+          });
+        }
+      });
     });
   }
 
