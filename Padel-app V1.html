@@ -1106,16 +1106,20 @@
 
     /* Grid 2x2: 4 blocs en grille */
     .tv-main.layout-grid-2x2 {
+      display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr;
+      gap: 12px;
+    }
+    /* Aplatir la structure des colonnes pour grid-2x2 */
+    .tv-main.layout-grid-2x2 .tv-column,
+    .tv-main.layout-grid-2x2 .tv-col {
+      display: contents; /* Les colonnes deviennent transparentes, les blocs deviennent des grid items directs */
     }
     .tv-main.layout-grid-2x2 .tv-block {
       display: none;
     }
-    .tv-main.layout-grid-2x2 .tv-block:nth-child(1),
-    .tv-main.layout-grid-2x2 .tv-block:nth-child(2),
-    .tv-main.layout-grid-2x2 .tv-block:nth-child(3),
-    .tv-main.layout-grid-2x2 .tv-block:nth-child(4) {
+    .tv-main.layout-grid-2x2 .tv-block.tv-block-active {
       display: block;
     }
 
@@ -5412,7 +5416,7 @@
 
       <main class="tv-main">
         <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="current_matches">
             <div class="tv-block-title">
               <span>Matchs en cours</span>
               <span>Roulement <span id="americano-tv-round">1</span></span>
@@ -5424,7 +5428,7 @@
         </section>
 
         <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="next_matches">
             <div class="tv-block-title">
               <span>Matchs à venir</span>
               <span>Prochain roulement</span>
@@ -5434,7 +5438,7 @@
             </div>
           </div>
 
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="ranking">
             <div class="tv-block-title">
               <span>Classement</span>
               <span>Live</span>
@@ -5763,7 +5767,7 @@
 
       <main class="tv-main">
         <section class="tv-col">
-          <article class="tv-block">
+          <article class="tv-block" data-tv-block="current_matches">
             <div class="tv-block-title">
               <span id="tv-left-title">Matchs en cours par terrain</span>
             </div>
@@ -5772,7 +5776,7 @@
         </section>
 
         <section class="tv-col">
-          <article class="tv-block">
+          <article class="tv-block" data-tv-block="next_matches">
             <div class="tv-block-title">
               <span id="tv-right-title">Prochains matchs par terrain</span>
             </div>
@@ -5781,16 +5785,16 @@
         </section>
       </main>
 
-      <section id="tv-final-ranking" class="tv-final-ranking" style="display:none;"></section>
+      <article class="tv-block" data-tv-block="ranking" id="tv-final-ranking" style="display:none;"></article>
 
       <section id="tv-bracket-row" class="tv-bracket-row">
-        <article class="tv-block tv-bracket-block">
+        <article class="tv-block tv-bracket-block" data-tv-block="main_bracket">
           <div class="tv-block-title">
             <span>Arbre tableau principal</span>
           </div>
           <div id="tv-main-bracket-tree" class="tv-bracket-body"></div>
         </article>
-        <article class="tv-block tv-bracket-block">
+        <article class="tv-block tv-bracket-block" data-tv-block="conso_bracket">
           <div class="tv-block-title">
             <span>Arbre consolante / classement</span>
           </div>
