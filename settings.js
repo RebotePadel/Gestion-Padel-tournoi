@@ -860,13 +860,34 @@
 
     // Appliquer le thème
     var root = document.documentElement;
-    if (theme.colors.primary) root.style.setProperty('--brand-primary', theme.colors.primary);
-    if (theme.colors.secondary) root.style.setProperty('--brand-secondary', theme.colors.secondary);
-    if (theme.colors.accent) root.style.setProperty('--brand-accent', theme.colors.accent);
-    if (theme.colors.background) root.style.setProperty('--brand-bg', theme.colors.background);
-    if (theme.colors.card) root.style.setProperty('--brand-card-bg', theme.colors.card);
-    if (theme.colors.text) root.style.setProperty('--brand-text', theme.colors.text);
-    if (theme.colors.title) root.style.setProperty('--brand-title', theme.colors.title);
+    if (theme.colors.primary) {
+      root.style.setProperty('--brand-primary', theme.colors.primary);
+      root.style.setProperty('--brand-primary-rgb', hexToRgb(theme.colors.primary));
+    }
+    if (theme.colors.secondary) {
+      root.style.setProperty('--brand-secondary', theme.colors.secondary);
+      root.style.setProperty('--brand-secondary-rgb', hexToRgb(theme.colors.secondary));
+    }
+    if (theme.colors.accent) {
+      root.style.setProperty('--brand-accent', theme.colors.accent);
+      root.style.setProperty('--brand-accent-rgb', hexToRgb(theme.colors.accent));
+    }
+    if (theme.colors.background) {
+      root.style.setProperty('--brand-bg', theme.colors.background);
+      root.style.setProperty('--brand-bg-rgb', hexToRgb(theme.colors.background));
+    }
+    if (theme.colors.card) {
+      root.style.setProperty('--brand-card-bg', theme.colors.card);
+      root.style.setProperty('--brand-card-bg-rgb', hexToRgb(theme.colors.card));
+    }
+    if (theme.colors.text) {
+      root.style.setProperty('--brand-text', theme.colors.text);
+      root.style.setProperty('--brand-text-rgb', hexToRgb(theme.colors.text));
+    }
+    if (theme.colors.title) {
+      root.style.setProperty('--brand-title', theme.colors.title);
+      root.style.setProperty('--brand-title-rgb', hexToRgb(theme.colors.title));
+    }
     if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
     if (theme.colors.muted) root.style.setProperty('--muted', theme.colors.muted);
 
@@ -1292,6 +1313,14 @@
     });
   }
 
+  // Helper pour convertir hex en RGB
+  function hexToRgb(hex) {
+    var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ?
+      parseInt(result[1], 16) + ', ' + parseInt(result[2], 16) + ', ' + parseInt(result[3], 16) :
+      null;
+  }
+
   function applyTheme(themeId) {
     var theme = state.themesLibrary.find(function(t) { return t.id === themeId; });
     if (!theme) return;
@@ -1299,13 +1328,34 @@
     if (confirm('Appliquer le thème "' + theme.name + '" à l\'application ?\n\nCela modifiera les couleurs de l\'interface et des modes de jeu.')) {
       // Appliquer les CSS variables principales
       var root = document.documentElement;
-      if (theme.colors.primary) root.style.setProperty('--brand-primary', theme.colors.primary);
-      if (theme.colors.secondary) root.style.setProperty('--brand-secondary', theme.colors.secondary);
-      if (theme.colors.accent) root.style.setProperty('--brand-accent', theme.colors.accent);
-      if (theme.colors.background) root.style.setProperty('--brand-bg', theme.colors.background);
-      if (theme.colors.card) root.style.setProperty('--brand-card-bg', theme.colors.card);
-      if (theme.colors.text) root.style.setProperty('--brand-text', theme.colors.text);
-      if (theme.colors.title) root.style.setProperty('--brand-title', theme.colors.title);
+      if (theme.colors.primary) {
+        root.style.setProperty('--brand-primary', theme.colors.primary);
+        root.style.setProperty('--brand-primary-rgb', hexToRgb(theme.colors.primary));
+      }
+      if (theme.colors.secondary) {
+        root.style.setProperty('--brand-secondary', theme.colors.secondary);
+        root.style.setProperty('--brand-secondary-rgb', hexToRgb(theme.colors.secondary));
+      }
+      if (theme.colors.accent) {
+        root.style.setProperty('--brand-accent', theme.colors.accent);
+        root.style.setProperty('--brand-accent-rgb', hexToRgb(theme.colors.accent));
+      }
+      if (theme.colors.background) {
+        root.style.setProperty('--brand-bg', theme.colors.background);
+        root.style.setProperty('--brand-bg-rgb', hexToRgb(theme.colors.background));
+      }
+      if (theme.colors.card) {
+        root.style.setProperty('--brand-card-bg', theme.colors.card);
+        root.style.setProperty('--brand-card-bg-rgb', hexToRgb(theme.colors.card));
+      }
+      if (theme.colors.text) {
+        root.style.setProperty('--brand-text', theme.colors.text);
+        root.style.setProperty('--brand-text-rgb', hexToRgb(theme.colors.text));
+      }
+      if (theme.colors.title) {
+        root.style.setProperty('--brand-title', theme.colors.title);
+        root.style.setProperty('--brand-title-rgb', hexToRgb(theme.colors.title));
+      }
       if (theme.colors.border) root.style.setProperty('--border', theme.colors.border);
       if (theme.colors.muted) root.style.setProperty('--muted', theme.colors.muted);
 
@@ -1344,13 +1394,34 @@
 
     // Appliquer les CSS variables sans confirmation
     var root = document.documentElement;
-    if (savedTheme.colors.primary) root.style.setProperty('--brand-primary', savedTheme.colors.primary);
-    if (savedTheme.colors.secondary) root.style.setProperty('--brand-secondary', savedTheme.colors.secondary);
-    if (savedTheme.colors.accent) root.style.setProperty('--brand-accent', savedTheme.colors.accent);
-    if (savedTheme.colors.background) root.style.setProperty('--brand-bg', savedTheme.colors.background);
-    if (savedTheme.colors.card) root.style.setProperty('--brand-card-bg', savedTheme.colors.card);
-    if (savedTheme.colors.text) root.style.setProperty('--brand-text', savedTheme.colors.text);
-    if (savedTheme.colors.title) root.style.setProperty('--brand-title', savedTheme.colors.title);
+    if (savedTheme.colors.primary) {
+      root.style.setProperty('--brand-primary', savedTheme.colors.primary);
+      root.style.setProperty('--brand-primary-rgb', hexToRgb(savedTheme.colors.primary));
+    }
+    if (savedTheme.colors.secondary) {
+      root.style.setProperty('--brand-secondary', savedTheme.colors.secondary);
+      root.style.setProperty('--brand-secondary-rgb', hexToRgb(savedTheme.colors.secondary));
+    }
+    if (savedTheme.colors.accent) {
+      root.style.setProperty('--brand-accent', savedTheme.colors.accent);
+      root.style.setProperty('--brand-accent-rgb', hexToRgb(savedTheme.colors.accent));
+    }
+    if (savedTheme.colors.background) {
+      root.style.setProperty('--brand-bg', savedTheme.colors.background);
+      root.style.setProperty('--brand-bg-rgb', hexToRgb(savedTheme.colors.background));
+    }
+    if (savedTheme.colors.card) {
+      root.style.setProperty('--brand-card-bg', savedTheme.colors.card);
+      root.style.setProperty('--brand-card-bg-rgb', hexToRgb(savedTheme.colors.card));
+    }
+    if (savedTheme.colors.text) {
+      root.style.setProperty('--brand-text', savedTheme.colors.text);
+      root.style.setProperty('--brand-text-rgb', hexToRgb(savedTheme.colors.text));
+    }
+    if (savedTheme.colors.title) {
+      root.style.setProperty('--brand-title', savedTheme.colors.title);
+      root.style.setProperty('--brand-title-rgb', hexToRgb(savedTheme.colors.title));
+    }
     if (savedTheme.colors.border) root.style.setProperty('--border', savedTheme.colors.border);
     if (savedTheme.colors.muted) root.style.setProperty('--muted', savedTheme.colors.muted);
 
