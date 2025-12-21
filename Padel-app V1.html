@@ -1072,6 +1072,9 @@
 
     /* TV Layouts */
     /* Fullscreen: un seul bloc visible (défaut avec rotation) */
+    .tv-main.layout-fullscreen {
+      grid-template-columns: 1fr;
+    }
     .tv-main.layout-fullscreen .tv-block {
       display: none;
     }
@@ -1086,8 +1089,7 @@
     .tv-main.layout-split-vertical .tv-block {
       display: none;
     }
-    .tv-main.layout-split-vertical .tv-block:nth-child(1),
-    .tv-main.layout-split-vertical .tv-block:nth-child(2) {
+    .tv-main.layout-split-vertical .tv-block.tv-block-active {
       display: block;
     }
 
@@ -1099,8 +1101,7 @@
     .tv-main.layout-split-horizontal .tv-block {
       display: none;
     }
-    .tv-main.layout-split-horizontal .tv-block:nth-child(1),
-    .tv-main.layout-split-horizontal .tv-block:nth-child(2) {
+    .tv-main.layout-split-horizontal .tv-block.tv-block-active {
       display: block;
     }
 
@@ -1131,10 +1132,12 @@
     .tv-main.layout-pip .tv-block {
       display: none;
     }
-    .tv-main.layout-pip .tv-block:nth-child(1) {
+    /* Premier bloc actif = bloc principal en plein écran */
+    .tv-main.layout-pip .tv-block.tv-block-active:first-of-type {
       display: block;
     }
-    .tv-main.layout-pip .tv-block:nth-child(2) {
+    /* Deuxième bloc actif = petit bloc en PiP */
+    .tv-main.layout-pip .tv-block.tv-block-active:last-of-type {
       display: block;
       position: absolute;
       bottom: 20px;

@@ -165,8 +165,8 @@
    * @param {number} index - Index du bloc à afficher
    */
   TVRotationManager.prototype.showBlock = function(index) {
-    if (index < 0 || index >= this.blocks.length) {
-      console.error('[TVRotationManager] Index invalide: ' + index);
+    if (this.blocks.length === 0) {
+      console.error('[TVRotationManager] Aucun bloc disponible');
       return;
     }
 
@@ -175,15 +175,18 @@
       return;
     }
 
-    this.currentIndex = index;
+    // Normaliser l'index avec modulo pour éviter les dépassements
+    this.currentIndex = index % this.blocks.length;
 
     // Déterminer quels blocs afficher selon le layout
+    // IMPORTANT : Toujours remplir TOUS les slots même s'il faut répéter des blocs
     var blocksToShow = [];
-    for (var i = 0; i < this.blocksPerView && (index + i) < this.blocks.length; i++) {
-      blocksToShow.push(this.blocks[index + i]);
+    for (var i = 0; i < this.blocksPerView; i++) {
+      var blockIndex = (this.currentIndex + i) % this.blocks.length;
+      blocksToShow.push(this.blocks[blockIndex]);
     }
 
-    console.log('[TVRotationManager] Affichage de ' + blocksToShow.length + ' bloc(s) à partir de l\'index ' + index);
+    console.log('[TVRotationManager] Affichage de ' + blocksToShow.length + ' bloc(s) à partir de l\'index ' + this.currentIndex);
 
     // Cacher tous les blocs
     this.hideAllBlocks();
@@ -194,7 +197,7 @@
     }
 
     // Mettre à jour l'indicateur
-    this.updateIndicator(index);
+    this.updateIndicator(this.currentIndex);
 
     // Programmer le prochain groupe de blocs (utiliser la durée du premier bloc)
     this.scheduleNext(blocksToShow[0].duration);
