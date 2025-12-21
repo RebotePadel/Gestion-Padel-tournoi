@@ -82,6 +82,12 @@ body.sidebar-collapsed .sidebar-toggle-btn:hover {
               0 0 24px rgba(229, 227, 57, 0.4);
 }
 
+/* Hide sidebar and toggle button in TV mode (full screen) */
+body.tv-mode .app-sidebar,
+body.tv-mode .sidebar-toggle-btn {
+  display: none !important;
+}
+
 .sidebar-brand {
   display: flex;
   align-items: center;

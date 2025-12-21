@@ -56,6 +56,12 @@
       padding: 16px;
     }
 
+    /* TV mode: full screen without sidebar */
+    body.tv-mode {
+      padding: 0;
+      overflow-x: hidden;
+    }
+
     h1, h2, h3, h4, h5, h6,
     .card, .btn, .settings-shell, .settings-section,
     input, select, textarea, label,
@@ -960,7 +966,13 @@
     }
 
     /* VUE TV */
-    #tv-root { position: relative; }
+    #tv-root,
+    #americano-tv-root {
+      position: relative;
+      width: 100vw;
+      min-height: 100vh;
+      padding: 16px;
+    }
     .tv-header {
       display: flex;
       justify-content: space-between;
