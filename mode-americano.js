@@ -1041,6 +1041,36 @@
     if (reset) reset.addEventListener('click', resetTimer);
   }
 
+  function bindAmericanoTabs() {
+    var tabButtons = document.querySelectorAll('.americano-tab-btn');
+
+    tabButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        var targetTab = this.getAttribute('data-americano-tab');
+
+        // Désactiver tous les boutons d'onglets
+        tabButtons.forEach(function(btn) {
+          btn.classList.remove('active');
+        });
+
+        // Activer le bouton cliqué
+        this.classList.add('active');
+
+        // Cacher tous les panneaux
+        var allPanels = document.querySelectorAll('.americano-tab-panel');
+        allPanels.forEach(function(panel) {
+          panel.classList.remove('active');
+        });
+
+        // Afficher le panneau cible
+        var targetPanel = document.querySelector('[data-americano-tab-panel="' + targetTab + '"]');
+        if (targetPanel) {
+          targetPanel.classList.add('active');
+        }
+      });
+    });
+  }
+
   function init() {
     setTeamCountOptions();
     renderTeamsList();
@@ -1048,6 +1078,7 @@
     bindEvents();
     bindRoundsPager();
     bindAmericanoCollapse();
+    bindAmericanoTabs(); // Initialiser la navigation par onglets
     if (window.showAmericano && typeof window.showAmericano === 'function' && root && root.style.display !== 'none') {
       window.showAmericano();
     }
