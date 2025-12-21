@@ -5019,22 +5019,923 @@
 
             <!-- Mode Tournoi Classique Config (copy of MD with different IDs) -->
             <div class="tvview-mode-panel" data-mode="classic">
+              <!-- Section 2.1 : Blocs affichés -->
               <div class="settings-section app-block-interactive">
-                <p class="field-hint">Configuration similaire au mode M/D avec blocs spécifiques au tournoi classique</p>
-                <p style="color: var(--muted); font-style: italic;">
-                  Section en cours de développement - Utilisez la config M/D comme template et appliquez-la ici
-                </p>
+                <h3 class="settings-section-title">📦 Blocs affichés</h3>
+                <p class="field-hint">Sélectionnez les blocs qui apparaîtront dans la rotation TV</p>
+
+                <div class="tvview-blocks-list">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-block-current-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">🏓</span>
+                      <span class="block-name">Matchs en cours</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-block-next-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">⏭️</span>
+                      <span class="block-name">Prochains matchs</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-block-ranking" checked />
+                    <span class="block-label">
+                      <span class="block-icon">📊</span>
+                      <span class="block-name">Classement final</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-block-main-bracket" checked />
+                    <span class="block-label">
+                      <span class="block-icon">🏆</span>
+                      <span class="block-name">Tableau principal</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-block-conso-bracket" />
+                    <span class="block-label">
+                      <span class="block-icon">🎯</span>
+                      <span class="block-name">Tableau consolante</span>
+                    </span>
+                  </label>
+                </div>
               </div>
+
+              <!-- Section 2.2 : Rotation automatique -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">🔄 Rotation automatique</h3>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="classic-rotation-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Activer la rotation automatique</span>
+                  </span>
+                </label>
+
+                <div id="classic-rotation-settings" class="tvview-rotation-settings">
+                  <h4 class="subsection-title">⏱️ Durée d'affichage par bloc</h4>
+
+                  <div class="tvview-duration-grid">
+                    <div class="duration-item">
+                      <label class="field-label">Matchs en cours</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-duration-current-matches" min="2" max="30" value="10" class="duration-slider" />
+                        <span class="duration-value">10s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Prochains matchs</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-duration-next-matches" min="2" max="30" value="6" class="duration-slider" />
+                        <span class="duration-value">6s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Classement final</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-duration-ranking" min="2" max="30" value="8" class="duration-slider" />
+                        <span class="duration-value">8s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Tableau principal</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-duration-main-bracket" min="2" max="30" value="10" class="duration-slider" />
+                        <span class="duration-value">10s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Tableau consolante</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-duration-conso-bracket" min="2" max="30" value="8" class="duration-slider" />
+                        <span class="duration-value">8s</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4 class="subsection-title">📋 Ordre de rotation</h4>
+                  <div class="tvview-rotation-order" id="classic-rotation-order">
+                    <div class="rotation-item" draggable="true" data-block="current_matches">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">1.</span>
+                      <span class="rotation-icon">🏓</span>
+                      <span class="rotation-name">Matchs en cours</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="next_matches">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">2.</span>
+                      <span class="rotation-icon">⏭️</span>
+                      <span class="rotation-name">Prochains matchs</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="ranking">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">3.</span>
+                      <span class="rotation-icon">📊</span>
+                      <span class="rotation-name">Classement final</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="main_bracket">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">4.</span>
+                      <span class="rotation-icon">🏆</span>
+                      <span class="rotation-name">Tableau principal</span>
+                    </div>
+                  </div>
+
+                  <div class="tvview-rotation-options">
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="classic-pause-hover" checked />
+                      <span class="block-label">
+                        <span class="block-name">Pause rotation au survol de la souris</span>
+                      </span>
+                    </label>
+
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="classic-show-progress" checked />
+                      <span class="block-label">
+                        <span class="block-name">Afficher indicateur de progression</span>
+                      </span>
+                    </label>
+                  </div>
+
+                  <h4 class="subsection-title">✨ Transition entre blocs</h4>
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label for="classic-transition-type" class="field-label">Type</label>
+                      <select id="classic-transition-type" class="field-select">
+                        <option value="fade" selected>Fade</option>
+                        <option value="slide">Slide</option>
+                        <option value="none">None</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="classic-transition-duration" class="field-label">Durée</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-transition-duration" min="0.1" max="2" step="0.1" value="0.5" class="duration-slider" />
+                        <span class="duration-value">0.5s</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2.3 : Mise en page -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📐 Mise en page (Layout)</h3>
+
+                <div class="tvview-layout-options">
+                  <label class="layout-option">
+                    <input type="radio" name="classic-layout" value="fullscreen" checked />
+                    <div class="layout-card">
+                      <div class="layout-preview fullscreen-preview">
+                        <div class="preview-block">BLOC</div>
+                      </div>
+                      <span class="layout-name">Plein écran</span>
+                      <span class="layout-desc">1 bloc à la fois</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="classic-layout" value="split-vertical" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-v-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split vertical</span>
+                      <span class="layout-desc">2 blocs côte à côte</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="classic-layout" value="split-horizontal" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-h-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split horizontal</span>
+                      <span class="layout-desc">2 blocs haut/bas</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="classic-layout" value="grid-2x2" />
+                    <div class="layout-card">
+                      <div class="layout-preview grid-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                        <div class="preview-block">3</div>
+                        <div class="preview-block">4</div>
+                      </div>
+                      <span class="layout-name">Grille 2x2</span>
+                      <span class="layout-desc">4 blocs</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="classic-layout" value="pip" />
+                    <div class="layout-card">
+                      <div class="layout-preview pip-preview">
+                        <div class="preview-block main">Principal</div>
+                        <div class="preview-block mini">Mini</div>
+                      </div>
+                      <span class="layout-name">Picture-in-Picture</span>
+                      <span class="layout-desc">Principal + mini</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="tvview-layout-extras">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-auto-fullscreen" />
+                    <span class="block-label">
+                      <span class="block-name">Mode plein écran automatique (F11)</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-hide-cursor" checked />
+                    <span class="block-label">
+                      <span class="block-name">Cacher curseur après 3s d'inactivité</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section 2.4 : Animations & Effets -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">✨ Animations & Effets</h3>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="classic-animations-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Activer les animations de victoire</span>
+                  </span>
+                </label>
+
+                <div id="classic-animations-settings" class="tvview-animations-settings">
+                  <h4 class="subsection-title">🎊 Confettis</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-confetti-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Explosion de confettis</span>
+                    </span>
+                  </label>
+
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label class="field-label">Intensité</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-confetti-intensity" min="1" max="5" value="3" class="duration-slider" />
+                        <span class="duration-value">Moyen</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label class="field-label">Couleurs</label>
+                      <select id="classic-confetti-colors" class="field-select">
+                        <option value="theme" selected>Accent du thème</option>
+                        <option value="rainbow">Arc-en-ciel</option>
+                        <option value="gold">Or & Argent</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <h4 class="subsection-title">✨ Effets visuels</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-flash-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Flash sur la card du match gagnant</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-badge-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Badge "NOUVEAU" sur match validé</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-scale-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Animation scale + glow sur équipe gagnante</span>
+                    </span>
+                  </label>
+
+                  <h4 class="subsection-title">🔊 Son de célébration</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-sound-enabled" />
+                    <span class="block-label">
+                      <span class="block-name">Activer le son</span>
+                    </span>
+                  </label>
+
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label class="field-label">Volume</label>
+                      <div class="slider-group">
+                        <input type="range" id="classic-sound-volume" min="0" max="100" value="50" class="duration-slider" />
+                        <span class="duration-value">50%</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label class="field-label">Type de son</label>
+                      <select id="classic-sound-type" class="field-select">
+                        <option value="ding" selected>Ding court</option>
+                        <option value="fanfare">Fanfare</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="field" id="classic-sound-upload-field" style="display:none;">
+                    <label for="classic-sound-file" class="field-label">Upload son custom (.mp3, max 50KB)</label>
+                    <input id="classic-sound-file" type="file" class="field-input" accept="audio/mpeg" />
+                  </div>
+
+                  <button class="btn btn-secondary btn-small" id="classic-test-animation">▶ Tester l'animation</button>
+                </div>
+              </div>
+
+              <!-- Section 2.5 : Éléments permanents -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📌 Éléments permanents</h3>
+
+                <h4 class="subsection-title">Header (bandeau haut)</h4>
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="classic-header-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Afficher header</span>
+                  </span>
+                </label>
+
+                <div id="classic-header-settings" class="settings-grid-3">
+                  <div class="field">
+                    <label class="field-label">Logo club</label>
+                    <select id="classic-header-logo-pos" class="field-select">
+                      <option value="left" selected>Gauche</option>
+                      <option value="center">Centre</option>
+                      <option value="right">Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Nom tournoi</label>
+                    <select id="classic-header-name-pos" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center" selected>Centre</option>
+                      <option value="right">Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Heure actuelle</label>
+                    <select id="classic-header-time-pos" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center">Centre</option>
+                      <option value="right" selected>Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                </div>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="classic-header-live-badge" checked />
+                  <span class="block-label">
+                    <span class="block-name">Badge "🔴 LIVE"</span>
+                  </span>
+                </label>
+
+                <h4 class="subsection-title">Footer (bandeau bas)</h4>
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="classic-footer-enabled" />
+                  <span class="block-label">
+                    <span class="block-name">Afficher footer</span>
+                  </span>
+                </label>
+
+                <div id="classic-footer-settings" style="display:none;">
+                  <div class="field">
+                    <label for="classic-footer-text" class="field-label">Texte personnalisé</label>
+                    <input id="classic-footer-text" type="text" class="field-input" placeholder="Merci aux partenaires..." />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Alignement</label>
+                    <select id="classic-footer-align" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center" selected>Centre</option>
+                      <option value="right">Droite</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="tvview-permanent-note">
+                  <p class="field-hint">
+                    ℹ️ Configuration détaillée des sponsors et Padel Pong dans l'onglet "💼 Sponsors"
+                  </p>
+                </div>
+              </div>
+
+              <!-- Section 2.6 : Gestion des configurations -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">💾 Gestion des configurations</h3>
+
+                <div class="field">
+                  <label for="classic-config-name" class="field-label">Nom de cette configuration</label>
+                  <input id="classic-config-name" type="text" class="field-input" value="Configuration standard Classique" />
+                </div>
+
+                <div class="tvview-config-actions">
+                  <button class="btn btn-primary" id="classic-save-config">💾 Sauvegarder cette config</button>
+                  <button class="btn btn-secondary" id="classic-duplicate-config">📋 Dupliquer</button>
+                  <button class="btn btn-danger" id="classic-reset-config">🔄 Réinitialiser par défaut</button>
+                </div>
+
+                <h4 class="subsection-title">📚 Mes configurations sauvegardées</h4>
+                <div id="classic-saved-configs" class="tvview-saved-configs">
+                  <div class="empty-state">
+                    <p>💾</p>
+                    <p>Aucune configuration sauvegardée</p>
+                  </div>
+                </div>
+
+                <h4 class="subsection-title">📤 Appliquer à d'autres modes</h4>
+                <div class="tvview-apply-modes">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-apply-to-md" />
+                    <span class="block-label">
+                      <span class="block-name">Mexique/Double</span>
+                    </span>
+                  </label>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="classic-apply-to-americano" />
+                    <span class="block-label">
+                      <span class="block-name">Américano</span>
+                    </span>
+                  </label>
+                  <button class="btn btn-secondary" id="classic-apply-to-modes">📤 Appliquer aux modes sélectionnés</button>
+                </div>
+
+                <h4 class="subsection-title">Import/Export</h4>
+                <div class="tvview-import-export">
+                  <button class="btn btn-secondary" id="classic-import-config">📥 Importer config</button>
+                  <input type="file" id="classic-import-file" accept=".json" style="display:none;" />
+                  <button class="btn btn-secondary" id="classic-export-config">📤 Exporter cette config</button>
+                </div>
+              </div>
+
             </div>
 
             <!-- Mode Américano Config -->
             <div class="tvview-mode-panel" data-mode="americano">
+              <!-- Section 2.1 : Blocs affichés -->
               <div class="settings-section app-block-interactive">
-                <p class="field-hint">Configuration similaire au mode M/D avec blocs spécifiques à l'Américano</p>
-                <p style="color: var(--muted); font-style: italic;">
-                  Section en cours de développement - Utilisez la config M/D comme template et appliquez-la ici
-                </p>
+                <h3 class="settings-section-title">📦 Blocs affichés</h3>
+                <p class="field-hint">Sélectionnez les blocs qui apparaîtront dans la rotation TV</p>
+
+                <div class="tvview-blocks-list">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-block-current-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">🏓</span>
+                      <span class="block-name">Matchs en cours</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-block-next-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">⏭️</span>
+                      <span class="block-name">Prochains matchs</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-block-ranking" checked />
+                    <span class="block-label">
+                      <span class="block-icon">📊</span>
+                      <span class="block-name">Classement live & Podium</span>
+                    </span>
+                  </label>
+                </div>
               </div>
+
+              <!-- Section 2.2 : Rotation automatique -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">🔄 Rotation automatique</h3>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="americano-rotation-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Activer la rotation automatique</span>
+                  </span>
+                </label>
+
+                <div id="americano-rotation-settings" class="tvview-rotation-settings">
+                  <h4 class="subsection-title">⏱️ Durée d'affichage par bloc</h4>
+
+                  <div class="tvview-duration-grid">
+                    <div class="duration-item">
+                      <label class="field-label">Matchs en cours</label>
+                      <div class="slider-group">
+                        <input type="range" id="americano-duration-current-matches" min="2" max="30" value="10" class="duration-slider" />
+                        <span class="duration-value">10s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Prochains matchs</label>
+                      <div class="slider-group">
+                        <input type="range" id="americano-duration-next-matches" min="2" max="30" value="6" class="duration-slider" />
+                        <span class="duration-value">6s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Classement & Podium</label>
+                      <div class="slider-group">
+                        <input type="range" id="americano-duration-ranking" min="2" max="30" value="8" class="duration-slider" />
+                        <span class="duration-value">8s</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <h4 class="subsection-title">📋 Ordre de rotation</h4>
+                  <div class="tvview-rotation-order" id="americano-rotation-order">
+                    <div class="rotation-item" draggable="true" data-block="current_matches">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">1.</span>
+                      <span class="rotation-icon">🏓</span>
+                      <span class="rotation-name">Matchs en cours</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="next_matches">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">2.</span>
+                      <span class="rotation-icon">⏭️</span>
+                      <span class="rotation-name">Prochains matchs</span>
+                    </div>
+                    <div class="rotation-item" draggable="true" data-block="ranking">
+                      <span class="drag-handle">⋮⋮</span>
+                      <span class="rotation-number">3.</span>
+                      <span class="rotation-icon">📊</span>
+                      <span class="rotation-name">Classement & Podium</span>
+                    </div>
+                  </div>
+
+                  <div class="tvview-rotation-options">
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="americano-pause-hover" checked />
+                      <span class="block-label">
+                        <span class="block-name">Pause rotation au survol de la souris</span>
+                      </span>
+                    </label>
+
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="americano-show-progress" checked />
+                      <span class="block-label">
+                        <span class="block-name">Afficher indicateur de progression</span>
+                      </span>
+                    </label>
+                  </div>
+
+                  <h4 class="subsection-title">✨ Transition entre blocs</h4>
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label for="americano-transition-type" class="field-label">Type</label>
+                      <select id="americano-transition-type" class="field-select">
+                        <option value="fade" selected>Fade</option>
+                        <option value="slide">Slide</option>
+                        <option value="none">None</option>
+                      </select>
+                    </div>
+                    <div class="field">
+                      <label for="americano-transition-duration" class="field-label">Durée</label>
+                      <div class="slider-group">
+                        <input type="range" id="americano-transition-duration" min="0.1" max="2" step="0.1" value="0.5" class="duration-slider" />
+                        <span class="duration-value">0.5s</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section 2.3 : Mise en page -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📐 Mise en page (Layout)</h3>
+
+                <div class="tvview-layout-options">
+                  <label class="layout-option">
+                    <input type="radio" name="americano-layout" value="fullscreen" checked />
+                    <div class="layout-card">
+                      <div class="layout-preview fullscreen-preview">
+                        <div class="preview-block">BLOC</div>
+                      </div>
+                      <span class="layout-name">Plein écran</span>
+                      <span class="layout-desc">1 bloc à la fois</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="americano-layout" value="split-vertical" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-v-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split vertical</span>
+                      <span class="layout-desc">2 blocs côte à côte</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="americano-layout" value="split-horizontal" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-h-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split horizontal</span>
+                      <span class="layout-desc">2 blocs haut/bas</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="americano-layout" value="grid-2x2" />
+                    <div class="layout-card">
+                      <div class="layout-preview grid-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                        <div class="preview-block">3</div>
+                        <div class="preview-block">4</div>
+                      </div>
+                      <span class="layout-name">Grille 2x2</span>
+                      <span class="layout-desc">4 blocs</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="americano-layout" value="pip" />
+                    <div class="layout-card">
+                      <div class="layout-preview pip-preview">
+                        <div class="preview-block main">Principal</div>
+                        <div class="preview-block mini">Mini</div>
+                      </div>
+                      <span class="layout-name">Picture-in-Picture</span>
+                      <span class="layout-desc">Principal + mini</span>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="tvview-layout-extras">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-auto-fullscreen" />
+                    <span class="block-label">
+                      <span class="block-name">Mode plein écran automatique (F11)</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-hide-cursor" checked />
+                    <span class="block-label">
+                      <span class="block-name">Cacher curseur après 3s d'inactivité</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section 2.4 : Animations & Effets -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">✨ Animations & Effets</h3>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="americano-animations-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Activer les animations de victoire</span>
+                  </span>
+                </label>
+
+                <div id="americano-animations-settings" class="tvview-animations-settings">
+                  <h4 class="subsection-title">🎊 Confettis</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-confetti-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Explosion de confettis</span>
+                    </span>
+                  </label>
+
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label class="field-label">Intensité</label>
+                      <div class="slider-group">
+                        <input type="range" id="americano-confetti-intensity" min="1" max="5" value="3" class="duration-slider" />
+                        <span class="duration-value">Moyen</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label class="field-label">Couleurs</label>
+                      <select id="americano-confetti-colors" class="field-select">
+                        <option value="theme" selected>Accent du thème</option>
+                        <option value="rainbow">Arc-en-ciel</option>
+                        <option value="gold">Or & Argent</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <h4 class="subsection-title">✨ Effets visuels</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-flash-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Flash sur la card du match gagnant</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-badge-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Badge "NOUVEAU" sur match validé</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-scale-enabled" checked />
+                    <span class="block-label">
+                      <span class="block-name">Animation scale + glow sur équipe gagnante</span>
+                    </span>
+                  </label>
+
+                  <h4 class="subsection-title">🔊 Son de célébration</h4>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-sound-enabled" />
+                    <span class="block-label">
+                      <span class="block-name">Activer le son</span>
+                    </span>
+                  </label>
+
+                  <div class="settings-grid">
+                    <div class="field">
+                      <label class="field-label">Volume</label>
+                      <div class="slider-group">
+                        <input type="range" id="americano-sound-volume" min="0" max="100" value="50" class="duration-slider" />
+                        <span class="duration-value">50%</span>
+                      </div>
+                    </div>
+                    <div class="field">
+                      <label class="field-label">Type de son</label>
+                      <select id="americano-sound-type" class="field-select">
+                        <option value="ding" selected>Ding court</option>
+                        <option value="fanfare">Fanfare</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="field" id="americano-sound-upload-field" style="display:none;">
+                    <label for="americano-sound-file" class="field-label">Upload son custom (.mp3, max 50KB)</label>
+                    <input id="americano-sound-file" type="file" class="field-input" accept="audio/mpeg" />
+                  </div>
+
+                  <button class="btn btn-secondary btn-small" id="americano-test-animation">▶ Tester l'animation</button>
+                </div>
+              </div>
+
+              <!-- Section 2.5 : Éléments permanents -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📌 Éléments permanents</h3>
+
+                <h4 class="subsection-title">Header (bandeau haut)</h4>
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="americano-header-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Afficher header</span>
+                  </span>
+                </label>
+
+                <div id="americano-header-settings" class="settings-grid-3">
+                  <div class="field">
+                    <label class="field-label">Logo club</label>
+                    <select id="americano-header-logo-pos" class="field-select">
+                      <option value="left" selected>Gauche</option>
+                      <option value="center">Centre</option>
+                      <option value="right">Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Nom tournoi</label>
+                    <select id="americano-header-name-pos" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center" selected>Centre</option>
+                      <option value="right">Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Heure actuelle</label>
+                    <select id="americano-header-time-pos" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center">Centre</option>
+                      <option value="right" selected>Droite</option>
+                      <option value="none">Masqué</option>
+                    </select>
+                  </div>
+                </div>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="americano-header-live-badge" checked />
+                  <span class="block-label">
+                    <span class="block-name">Badge "🔴 LIVE"</span>
+                  </span>
+                </label>
+
+                <h4 class="subsection-title">Footer (bandeau bas)</h4>
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="americano-footer-enabled" />
+                  <span class="block-label">
+                    <span class="block-name">Afficher footer</span>
+                  </span>
+                </label>
+
+                <div id="americano-footer-settings" style="display:none;">
+                  <div class="field">
+                    <label for="americano-footer-text" class="field-label">Texte personnalisé</label>
+                    <input id="americano-footer-text" type="text" class="field-input" placeholder="Merci aux partenaires..." />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Alignement</label>
+                    <select id="americano-footer-align" class="field-select">
+                      <option value="left">Gauche</option>
+                      <option value="center" selected>Centre</option>
+                      <option value="right">Droite</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="tvview-permanent-note">
+                  <p class="field-hint">
+                    ℹ️ Configuration détaillée des sponsors et Padel Pong dans l'onglet "💼 Sponsors"
+                  </p>
+                </div>
+              </div>
+
+              <!-- Section 2.6 : Gestion des configurations -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">💾 Gestion des configurations</h3>
+
+                <div class="field">
+                  <label for="americano-config-name" class="field-label">Nom de cette configuration</label>
+                  <input id="americano-config-name" type="text" class="field-input" value="Configuration standard Américano" />
+                </div>
+
+                <div class="tvview-config-actions">
+                  <button class="btn btn-primary" id="americano-save-config">💾 Sauvegarder cette config</button>
+                  <button class="btn btn-secondary" id="americano-duplicate-config">📋 Dupliquer</button>
+                  <button class="btn btn-danger" id="americano-reset-config">🔄 Réinitialiser par défaut</button>
+                </div>
+
+                <h4 class="subsection-title">📚 Mes configurations sauvegardées</h4>
+                <div id="americano-saved-configs" class="tvview-saved-configs">
+                  <div class="empty-state">
+                    <p>💾</p>
+                    <p>Aucune configuration sauvegardée</p>
+                  </div>
+                </div>
+
+                <h4 class="subsection-title">📤 Appliquer à d'autres modes</h4>
+                <div class="tvview-apply-modes">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-apply-to-md" />
+                    <span class="block-label">
+                      <span class="block-name">Mexique/Double</span>
+                    </span>
+                  </label>
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="americano-apply-to-classic" />
+                    <span class="block-label">
+                      <span class="block-name">Tournoi Classique</span>
+                    </span>
+                  </label>
+                  <button class="btn btn-secondary" id="americano-apply-to-modes">📤 Appliquer aux modes sélectionnés</button>
+                </div>
+
+                <h4 class="subsection-title">Import/Export</h4>
+                <div class="tvview-import-export">
+                  <button class="btn btn-secondary" id="americano-import-config">📥 Importer config</button>
+                  <input type="file" id="americano-import-file" accept=".json" style="display:none;" />
+                  <button class="btn btn-secondary" id="americano-export-config">📤 Exporter cette config</button>
+                </div>
+              </div>
+
+            </div>
             </div>
 
           </div>
