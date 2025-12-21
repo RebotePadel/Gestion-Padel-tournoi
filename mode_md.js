@@ -1158,5 +1158,174 @@ function loadHistoryEntry(entry) {
   renderTvView();
   window.scrollTo(0, elTournamentSection.offsetTop - 10);
 }
+
+/* TV ROTATION & ANIMATIONS */
+var tvRotationManager = null;
+var tvAnimations = null;
+
+function initTVSystems() {
+  console.log('[MD TV] Initialisation systèmes TV...');
+
+  // Charger config TV depuis localStorage
+  var tvConfig = null;
+  try {
+    var stored = localStorage.getItem('tv_config_md');
+    if (stored) {
+      tvConfig = JSON.parse(stored);
+    }
+  } catch (e) {
+    console.warn('[MD TV] Erreur chargement config:', e);
+  }
+
+  // Utiliser config par défaut si pas de config
+  if (!tvConfig) {
+    console.log('[MD TV] Utilisation config par défaut');
+    return;
+  }
+
+  // Initialiser animations
+  if (window.TVAnimations) {
+    tvAnimations = new window.TVAnimations(tvConfig.animations || {});
+    tvAnimations.init();
+  }
+
+  // Initialiser rotation si activée
+  if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
+    tvRotationManager = new window.TVRotationManager(tvConfig, mdTvRoot);
+    if (tvRotationManager.init()) {
+      tvRotationManager.start();
+      console.log('[MD TV] Rotation démarrée');
+    }
+  }
+}
+
+function destroyTVSystems() {
+  console.log('[MD TV] Nettoyage systèmes TV...');
+
+  if (tvRotationManager) {
+    tvRotationManager.destroy();
+    tvRotationManager = null;
+  }
+
+  if (tvAnimations) {
+    tvAnimations.destroy();
+    tvAnimations = null;
+  }
+}
+
+function updateTVRestingTeams() {
+  var elRestList = mdTvRoot ? mdTvRoot.querySelector('#tv-rest-list') : null;
+  if (!elRestList) return;
+
+  var currentInfo = getMatchesAndRestForRound(state.currentRoulement);
+  var restTeams = currentInfo.restTeams || [];
+
+  if (restTeams.length === 0) {
+    elRestList.innerHTML = '<div class="tv-empty">Aucune équipe au repos ce roulement.</div>';
+  } else {
+    var restHtml = '';
+    for (var i = 0; i < restTeams.length; i++) {
+      var team = restTeams[i];
+      restHtml += '<div class="tv-match-card">' +
+        '<div class="tv-match-top"><span>🛋️ Au repos</span></div>' +
+        '<div class="tv-match-teams">' +
+        '<div class="tv-match-team-line">' +
+        '<span class="tv-match-team-name">' + escapeHtml(team.name) + '</span>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+    }
+    elRestList.innerHTML = restHtml;
+  }
+}
+
+function updateTVStats() {
+  var elStatsContent = mdTvRoot ? mdTvRoot.querySelector('#tv-stats-content') : null;
+  if (!elStatsContent) return;
+
+  var statsCopy = getSortedStatsForRanking();
+  var anyMatch = statsCopy.some(function(s) { return s.matches > 0; });
+
+  if (!anyMatch) {
+    elStatsContent.innerHTML = '<div class="tv-empty">Les statistiques apparaîtront après les premiers matchs.</div>';
+    return;
+  }
+
+  // Calculer stats globales
+  var totalMatches = 0;
+  var totalPoints = 0;
+  for (var i = 0; i < statsCopy.length; i++) {
+    totalMatches += statsCopy[i].matches;
+    totalPoints += statsCopy[i].points;
+  }
+
+  var statsHtml = '<div style="padding: 20px;">' +
+    '<div class="tv-match-card">' +
+    '<div class="tv-match-top"><span>📊 Statistiques globales</span></div>' +
+    '<div style="padding: 16px; display: grid; gap: 12px;">' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Total matchs joués:</span>' +
+    '<span style="font-weight: bold;">' + (totalMatches / 2) + '</span>' +
+    '</div>' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Total points distribués:</span>' +
+    '<span style="font-weight: bold;">' + totalPoints + ' pts</span>' +
+    '</div>' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Équipes participantes:</span>' +
+    '<span style="font-weight: bold;">' + state.teamCount + '</span>' +
+    '</div>' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Roulement actuel:</span>' +
+    '<span style="font-weight: bold;">' + state.currentRoulement + ' / ' + state.maxRoulements + '</span>' +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+    '</div>';
+
+  elStatsContent.innerHTML = statsHtml;
+}
+
+function updateTVPodiumOnly() {
+  var elPodiumOnly = mdTvRoot ? mdTvRoot.querySelector('#tv-podium-only') : null;
+  if (!elPodiumOnly) return;
+
+  var statsCopy = getSortedStatsForRanking();
+  var anyMatch = statsCopy.some(function(s) { return s.matches > 0; });
+
+  if (!anyMatch) {
+    elPodiumOnly.innerHTML = '<div class="tv-empty">Le podium apparaîtra dès les premiers résultats.</div>';
+    return;
+  }
+
+  var podium = statsCopy.slice(0, 3);
+  var labels = ['🥇 1er', '🥈 2e', '🥉 3e'];
+  var podiumHtml = '';
+
+  for (var p = 0; p < podium.length; p++) {
+    var sP = podium[p];
+    podiumHtml += '<div class="tv-podium-item">' +
+      '<div class="tv-podium-rank">' + labels[p] + '</div>' +
+      '<div class="tv-podium-name">' + escapeHtml(sP.name) + '</div>' +
+      '<div class="tv-podium-points">' + sP.points + ' pts • ' +
+      sP.wins + 'V / ' + sP.losses + 'D</div>' +
+      '</div>';
+  }
+
+  elPodiumOnly.innerHTML = podiumHtml;
+}
+
+// Améliorer renderTvView pour utiliser les nouveaux blocs
+var originalRenderTvView = renderTvView;
+renderTvView = function() {
+  originalRenderTvView();
+  updateTVRestingTeams();
+  updateTVStats();
+  updateTVPodiumOnly();
+};
+
+// Export pour utilisation globale
 window.mdRenderTvView = renderTvView;
+window.mdInitTVSystems = initTVSystems;
+window.mdDestroyTVSystems = destroyTVSystems;
 })();

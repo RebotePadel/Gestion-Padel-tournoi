@@ -6139,7 +6139,7 @@
 
       <main class="tv-main">
         <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="current_matches" style="display:none;">
             <div class="tv-block-title">
               <span>Matchs en cours</span>
               <span>Roulement <span id="tv-label-roulement">1</span></span>
@@ -6149,10 +6149,8 @@
             </div>
             <div class="tv-small-note">⚡ Terrain 1 = plus fort • Terrain 4 = terrain fun</div>
           </div>
-        </section>
 
-        <section class="tv-column">
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="next_matches" style="display:none;">
             <div class="tv-block-title">
               <span>Matchs à venir</span>
               <span>Prochain roulement</span>
@@ -6162,17 +6160,47 @@
             </div>
           </div>
 
-          <div class="tv-block">
+          <div class="tv-block" data-tv-block="resting_teams" style="display:none;">
+            <div class="tv-block-title">
+              <span>Équipes au repos</span>
+              <span>Ce roulement</span>
+            </div>
+            <div id="tv-rest-list" class="tv-current-list">
+              <div class="tv-empty">Aucune équipe au repos.</div>
+            </div>
+          </div>
+
+          <div class="tv-block" data-tv-block="stats" style="display:none;">
+            <div class="tv-block-title">
+              <span>Statistiques</span>
+              <span>Performance globale</span>
+            </div>
+            <div id="tv-stats-content" class="tv-current-list">
+              <div class="tv-empty">Les stats apparaîtront après plusieurs matchs.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block" data-tv-block="ranking" style="display:none;">
             <div class="tv-block-title">
               <span>Classement</span>
               <span>Points cumulés</span>
             </div>
             <div id="tv-podium" class="tv-podium"></div>
-          <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
-          <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
-        </div>
-      </section>
-    </main>
+            <div id="tv-ranking-grid" class="tv-ranking-grid"></div>
+            <div class="tv-small-note">3 pts par victoire • Le moteur équilibre matchs et repos.</div>
+          </div>
+
+          <div class="tv-block" data-tv-block="podium" style="display:none;">
+            <div class="tv-block-title">
+              <span>Podium</span>
+              <span>Top 3</span>
+            </div>
+            <div id="tv-podium-only" class="tv-podium"></div>
+          </div>
+        </section>
+      </main>
   </section>
 
     <!-- Pop-up Timer M/D -->
@@ -7800,6 +7828,8 @@
   <script src="mode_md.js"></script>
   <script src="mode_ligue.js"></script>
   <script src="sidebar.js"></script>
+  <script src="tv-rotation.js"></script>
+  <script src="tv-animations.js"></script>
   <script src="settings.js"></script>
 </body>
 </html>

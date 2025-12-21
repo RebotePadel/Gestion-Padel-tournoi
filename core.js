@@ -56,6 +56,12 @@
     var tvSections = ['tv', 'americanoTv', 'liguePlayer', 'liguePlayerManage'];
     if (tvSections.indexOf(key) === -1) {
       document.body.classList.remove('tv-mode');
+      // Nettoyer systèmes TV si on quitte une vue TV
+      if (current && tvSections.indexOf(current) !== -1) {
+        if (typeof window.mdDestroyTVSystems === 'function') {
+          try { window.mdDestroyTVSystems(); } catch (e) { /* noop */ }
+        }
+      }
     }
 
     hideAllSections();
@@ -80,6 +86,10 @@
     document.body.classList.add('tv-mode'); // Masquer sidebar
     if (typeof window.mdRenderTvView === 'function') {
       try { window.mdRenderTvView(); } catch (e) { /* noop */ }
+    }
+    // Initialiser systèmes TV (rotation + animations)
+    if (typeof window.mdInitTVSystems === 'function') {
+      try { window.mdInitTVSystems(); } catch (e) { console.warn('TV init error:', e); }
     }
     updatePongTvVisibility();
   }

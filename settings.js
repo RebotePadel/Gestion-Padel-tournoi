@@ -2004,6 +2004,119 @@
   }
 
   // ========================================
+  // MIGRATION DES DONNÉES EXISTANTES
+  // ========================================
+
+  function migrateOldTVSettings() {
+    // Vérifier si déjà migré
+    if (localStorage.getItem('tv_migration_done')) {
+      return;
+    }
+
+    console.log('[Settings] Migration des anciennes configs TV...');
+
+    var migrationCount = 0;
+
+    // 1. Migrer toggles sponsors TV (ancien système)
+    var oldMdToggle = localStorage.getItem('app-sponsor-md-toggle');
+    var oldClassicToggle = localStorage.getItem('app-sponsor-classic-toggle');
+
+    if (oldMdToggle || oldClassicToggle) {
+      var sponsorsTVSettings = {
+        enabled: true,
+        position: 'top-right',
+        size: { width: 200, height: 80 },
+        style: 'banner',
+        duration: 5,
+        transition: { type: 'fade', duration: 0.3 },
+        fairRotation: true,
+        modes: {
+          md: oldMdToggle !== 'false',
+          classic: oldClassicToggle !== 'false',
+          americano: true
+        }
+      };
+      saveToStorage(STORAGE_KEYS.sponsorsTVSettings, sponsorsTVSettings);
+      migrationCount++;
+      console.log('[Settings] ✓ Sponsors TV migrés');
+    }
+
+    // 2. Migrer positions widgets Pong (ancien système)
+    var mdPongPos = localStorage.getItem('tvSponsorMdPos');
+    var classicPongPos = localStorage.getItem('tvSponsorClassicPos');
+
+    if (mdPongPos || classicPongPos) {
+      // Parser les positions si elles existent
+      var position = 'bottom-right'; // Valeur par défaut
+      var offset = { x: 20, y: 20 };
+
+      try {
+        if (mdPongPos) {
+          var pos = JSON.parse(mdPongPos);
+          if (pos.x !== undefined && pos.y !== undefined) {
+            offset = { x: pos.x, y: pos.y };
+          }
+        }
+      } catch (e) {
+        console.warn('[Settings] Erreur parsing position Pong:', e);
+      }
+
+      var pongTVWidget = {
+        enabled: true,
+        position: position,
+        offset: offset,
+        size: 'medium',
+        content: { qr: true, text: true, sponsor: true },
+        customText: 'Scanne & joue !',
+        style: { bg: 'semi', border: 'accent', radius: 12 },
+        draggable: true,
+        hideButton: true,
+        modes: { md: !!mdPongPos, classic: !!classicPongPos, americano: false }
+      };
+      saveToStorage(STORAGE_KEYS.pongTVWidget, pongTVWidget);
+      migrationCount++;
+      console.log('[Settings] ✓ Widget Pong migré');
+    }
+
+    // 3. Créer configs TV par défaut si elles n'existent pas
+    if (!loadFromStorage(STORAGE_KEYS.tvConfigMD, null)) {
+      var mdConfig = JSON.parse(JSON.stringify(DEFAULT_TV_CONFIG));
+      mdConfig.id = 'md';
+      mdConfig.name = 'Configuration M/D';
+      saveToStorage(STORAGE_KEYS.tvConfigMD, mdConfig);
+      migrationCount++;
+      console.log('[Settings] ✓ Config TV M/D créée');
+    }
+
+    if (!loadFromStorage(STORAGE_KEYS.tvConfigClassic, null)) {
+      var classicConfig = JSON.parse(JSON.stringify(DEFAULT_TV_CONFIG));
+      classicConfig.id = 'classic';
+      classicConfig.name = 'Configuration Tournoi Classique';
+      saveToStorage(STORAGE_KEYS.tvConfigClassic, classicConfig);
+      migrationCount++;
+      console.log('[Settings] ✓ Config TV Classic créée');
+    }
+
+    if (!loadFromStorage(STORAGE_KEYS.tvConfigAmericano, null)) {
+      var americanoConfig = JSON.parse(JSON.stringify(DEFAULT_TV_CONFIG));
+      americanoConfig.id = 'americano';
+      americanoConfig.name = 'Configuration Américano';
+      saveToStorage(STORAGE_KEYS.tvConfigAmericano, americanoConfig);
+      migrationCount++;
+      console.log('[Settings] ✓ Config TV Américano créée');
+    }
+
+    // Marquer migration comme terminée
+    localStorage.setItem('tv_migration_done', 'true');
+
+    if (migrationCount > 0) {
+      console.log('[Settings] Migration terminée : ' + migrationCount + ' éléments migrés');
+    } else {
+      console.log('[Settings] Migration terminée : aucune donnée à migrer');
+    }
+  }
+
+  // ========================================
   // INITIALISATION
   // ========================================
 
@@ -2013,6 +2126,9 @@
     // Restaurer le thème sauvegardé immédiatement (avant même de vérifier settings-root)
     // Cela permet d'appliquer le thème à toute l'application, pas seulement aux paramètres
     restoreSavedTheme();
+
+    // Migrer les anciennes configurations TV
+    migrateOldTVSettings();
 
     // Vérifier que nous sommes sur la page settings
     var settingsRoot = document.getElementById('settings-root');
