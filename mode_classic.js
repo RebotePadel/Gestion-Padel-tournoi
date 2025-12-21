@@ -112,23 +112,27 @@
     const elHomeLogoPreview = selClassic("#home-logo-preview");
     const elHomeLogoHelper  = selClassic("#home-logo-helper");
 
-    // TV
-    const elTvOverlay     = selClassic("#tv-overlay");
+    // TV - éléments en dehors de #classic-root, donc on utilise document.querySelector
+    const elTvOverlay     = document.querySelector("#tv-overlay");
     const elBtnOpenTv     = selClassic("#btn-open-tv");
-    const elBtnCloseTv    = selClassic("#btn-close-tv");
-    const elTvTitle       = selClassic("#tv-title");
-    const elTvSubtitle    = selClassic("#tv-subtitle");
-    const elTvPhaseTag    = selClassic("#tv-phase-tag");
-    const elTvMain        = selClassic(".tv-main");
-    const elTvLeftTitle   = selClassic("#tv-left-title");
-    const elTvRightTitle  = selClassic("#tv-right-title");
-    const elTvLeftList    = selClassic("#tv-left-list");
-    const elTvRightList   = selClassic("#tv-right-list");
-    const elTvLogo        = selClassic("#tv-logo");
-    const elTvBracketRow  = selClassic("#tv-bracket-row");
-    const elTvMainTree    = selClassic("#tv-main-bracket-tree");
-    const elTvConsoTree   = selClassic("#tv-conso-bracket-tree");
-    const elTvFinalRanking= selClassic("#tv-final-ranking");
+    const elBtnCloseTv    = document.querySelector("#tv-overlay #btn-close-tv");
+
+    // Debug
+    if (!elBtnOpenTv) console.error("❌ Bouton Vue TV non trouvé dans #classic-root");
+    if (!elTvOverlay) console.error("❌ TV Overlay non trouvé");
+    const elTvTitle       = document.querySelector("#tv-overlay #tv-title");
+    const elTvSubtitle    = document.querySelector("#tv-overlay #tv-subtitle");
+    const elTvPhaseTag    = document.querySelector("#tv-overlay #tv-phase-tag");
+    const elTvMain        = document.querySelector("#tv-overlay .tv-main");
+    const elTvLeftTitle   = document.querySelector("#tv-overlay #tv-left-title");
+    const elTvRightTitle  = document.querySelector("#tv-overlay #tv-right-title");
+    const elTvLeftList    = document.querySelector("#tv-overlay #tv-left-list");
+    const elTvRightList   = document.querySelector("#tv-overlay #tv-right-list");
+    const elTvLogo        = document.querySelector("#tv-overlay #tv-logo");
+    const elTvBracketRow  = document.querySelector("#tv-overlay #tv-bracket-row");
+    const elTvMainTree    = document.querySelector("#tv-overlay #tv-main-bracket-tree");
+    const elTvConsoTree   = document.querySelector("#tv-overlay #tv-conso-bracket-tree");
+    const elTvFinalRanking= document.querySelector("#tv-overlay #tv-final-ranking");
 
     /* INIT TEAMS INPUTS */
     function initTeamsInputs() {
@@ -1730,14 +1734,26 @@
     }
 
     /* VUE TV */
-    elBtnOpenTv.addEventListener("click", () => {
-      elTvOverlay.style.display = "block";
-      updateTv();
-    });
+    if (elBtnOpenTv) {
+      elBtnOpenTv.addEventListener("click", () => {
+        if (elTvOverlay) {
+          elTvOverlay.style.display = "block";
+          document.body.classList.add("tv-mode"); // Masquer sidebar
+          updateTv();
+          initTVSystems(); // Initialiser rotation et animations
+        }
+      });
+    }
 
-    elBtnCloseTv.addEventListener("click", () => {
-      elTvOverlay.style.display = "none";
-    });
+    if (elBtnCloseTv) {
+      elBtnCloseTv.addEventListener("click", () => {
+        if (elTvOverlay) {
+          destroyTVSystems(); // Nettoyer rotation et animations
+          elTvOverlay.style.display = "none";
+          document.body.classList.remove("tv-mode"); // Réafficher sidebar
+        }
+      });
+    }
 
     function updateTv() {
       const name = state.name || "Tournoi de padel";
@@ -2113,6 +2129,129 @@
       container.innerHTML = "";
       container.appendChild(frag);
     }
+
+    /* TV ROTATION & ANIMATIONS */
+    var tvRotationManager = null;
+    var tvAnimations = null;
+
+    function initTVSystems() {
+      console.log('[Classic TV] Initialisation systèmes TV...');
+
+      // Charger config TV depuis localStorage
+      var tvConfig = null;
+      try {
+        var stored = localStorage.getItem('tv_config_classic');
+        if (stored) {
+          tvConfig = JSON.parse(stored);
+        }
+      } catch (e) {
+        console.warn('[Classic TV] Erreur chargement config:', e);
+      }
+
+      // Appliquer layout au conteneur TV
+      var tvMain = elTvOverlay ? elTvOverlay.querySelector('.tv-main') : null;
+      if (tvMain && tvConfig && tvConfig.layout) {
+        // Retirer toutes les classes de layout existantes
+        tvMain.classList.remove('layout-fullscreen', 'layout-split-vertical', 'layout-split-horizontal', 'layout-grid-2x2', 'layout-pip');
+        // Ajouter la nouvelle classe de layout
+        var layoutClass = 'layout-' + tvConfig.layout.type;
+        tvMain.classList.add(layoutClass);
+        console.log('[Classic TV] Layout appliqué:', tvConfig.layout.type);
+      } else if (tvMain) {
+        // Par défaut: fullscreen
+        tvMain.classList.add('layout-fullscreen');
+      }
+
+      // Ne pas continuer si pas de config
+      if (!tvConfig) {
+        console.log('[Classic TV] Pas de config, layout par défaut appliqué');
+        return;
+      }
+
+      // Initialiser animations
+      if (window.TVAnimations) {
+        tvAnimations = new window.TVAnimations(tvConfig.animations || {});
+        tvAnimations.init();
+      }
+
+      // Initialiser rotation si activée
+      if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
+        tvRotationManager = new window.TVRotationManager(tvConfig, elTvOverlay);
+        if (tvRotationManager.init()) {
+          tvRotationManager.start();
+          console.log('[Classic TV] Rotation démarrée');
+        }
+      } else {
+        // Si rotation désactivée, afficher les blocs statiques selon le layout
+        showStaticTVBlocks(tvConfig, elTvOverlay);
+        console.log('[Classic TV] Blocs statiques affichés (rotation désactivée)');
+      }
+    }
+
+    // Afficher les blocs TV statiques quand la rotation est désactivée
+    function showStaticTVBlocks(config, container) {
+      if (!config || !container) return;
+
+      // Récupérer tous les blocs TV
+      var allBlocks = container.querySelectorAll('.tv-block');
+
+      // Cacher tous les blocs d'abord
+      for (var i = 0; i < allBlocks.length; i++) {
+        allBlocks[i].style.display = 'none';
+        allBlocks[i].classList.remove('tv-block-active');
+      }
+
+      // Filtrer les blocs activés
+      var enabledBlocks = [];
+      for (var i = 0; i < allBlocks.length; i++) {
+        var block = allBlocks[i];
+        var blockId = block.getAttribute('data-tv-block');
+        if (blockId && config.blocks && config.blocks[blockId] && config.blocks[blockId].enabled) {
+          enabledBlocks.push(block);
+        }
+      }
+
+      if (enabledBlocks.length === 0) {
+        console.warn('[Classic TV] Aucun bloc activé');
+        return;
+      }
+
+      // Déterminer combien de blocs afficher selon le layout
+      var layoutType = config.layout ? config.layout.type : 'fullscreen';
+      var blocksToShow = 1; // Par défaut: fullscreen
+
+      if (layoutType === 'split-vertical' || layoutType === 'split-horizontal' || layoutType === 'pip') {
+        blocksToShow = 2;
+      } else if (layoutType === 'grid-2x2') {
+        blocksToShow = 4;
+      }
+
+      // Afficher les N premiers blocs activés
+      for (var i = 0; i < Math.min(blocksToShow, enabledBlocks.length); i++) {
+        enabledBlocks[i].style.display = 'block';
+        enabledBlocks[i].classList.add('tv-block-active');
+      }
+
+      console.log('[Classic TV] Affichage de ' + Math.min(blocksToShow, enabledBlocks.length) + ' bloc(s) en mode ' + layoutType);
+    }
+
+    function destroyTVSystems() {
+      console.log('[Classic TV] Nettoyage systèmes TV...');
+
+      if (tvRotationManager) {
+        tvRotationManager.destroy();
+        tvRotationManager = null;
+      }
+
+      if (tvAnimations) {
+        tvAnimations.destroy();
+        tvAnimations = null;
+      }
+    }
+
+    // Exporter les fonctions TV globalement
+    window.classicInitTVSystems = initTVSystems;
+    window.classicDestroyTVSystems = destroyTVSystems;
 
     /* HISTORIQUE */
     function getHistoryList() {

@@ -38,16 +38,6 @@
     }
   }
 
-  function renderSettingsButton() {
-    var btn = document.getElementById('btn-open-settings');
-    if (!btn) return;
-    if (current === 'home') {
-      btn.classList.add('is-visible');
-    } else {
-      btn.classList.remove('is-visible');
-    }
-  }
-
   function hideAllSections() {
     Object.keys(sections).forEach(function(key) {
       var el = sections[key];
@@ -61,6 +51,19 @@
     if (!fromBack && current && key !== current) {
       historyStack.push(current);
     }
+
+    // Retirer tv-mode sauf pour les vues TV
+    var tvSections = ['tv', 'americanoTv', 'liguePlayer', 'liguePlayerManage'];
+    if (tvSections.indexOf(key) === -1) {
+      document.body.classList.remove('tv-mode');
+      // Nettoyer systèmes TV si on quitte une vue TV
+      if (current && tvSections.indexOf(current) !== -1) {
+        if (typeof window.mdDestroyTVSystems === 'function') {
+          try { window.mdDestroyTVSystems(); } catch (e) { /* noop */ }
+        }
+      }
+    }
+
     hideAllSections();
     sections[key].style.display = 'block';
     current = key;
@@ -68,7 +71,6 @@
       historyStack = [];
     }
     renderBackButton();
-    renderSettingsButton();
     window.scrollTo(0, 0);
 
     if (key === 'settings') {
@@ -81,8 +83,13 @@
   function showAdmin() { showSection('admin'); }
   function showTV() {
     showSection('tv');
+    document.body.classList.add('tv-mode'); // Masquer sidebar
     if (typeof window.mdRenderTvView === 'function') {
       try { window.mdRenderTvView(); } catch (e) { /* noop */ }
+    }
+    // Initialiser systèmes TV (rotation + animations)
+    if (typeof window.mdInitTVSystems === 'function') {
+      try { window.mdInitTVSystems(); } catch (e) { console.warn('TV init error:', e); }
     }
     updatePongTvVisibility();
   }
@@ -94,13 +101,17 @@
   }
   function showAmericanoTv() {
     showSection('americanoTv');
+    document.body.classList.add('tv-mode'); // Masquer sidebar
     if (window.AMERICANO && typeof window.AMERICANO.renderTv === 'function') window.AMERICANO.renderTv();
   }
   function showLigue() { showSection('ligue'); }
   function showLigueConfig() { showSection('ligueConfig'); }
   function showLigueActive() { showSection('ligueActive'); }
   function showLigueManage() { showSection('ligueManage'); }
-  function showLiguePlayer() { showSection('liguePlayer'); }
+  function showLiguePlayer() {
+    showSection('liguePlayer');
+    document.body.classList.add('tv-mode'); // Masquer sidebar
+  }
   function showSettings() { showSection('settings'); }
 
   function goBack() {
@@ -306,8 +317,27 @@
     var classicOverlay = document.getElementById('tv-overlay');
     var classicVisible = classicOverlay && classicOverlay.style.display !== 'none';
     var hasConfig = !!padelPongConfig;
-    toggleTvWidget('pong-tv-widget-md', hasConfig && mdVisible);
-    toggleTvWidget('pong-tv-widget-classic', hasConfig && classicVisible);
+
+    // Vérifier les nouveaux paramètres TV pour le widget Pong
+    var pongTVWidget = null;
+    try {
+      var stored = localStorage.getItem('pong_tv_widget');
+      if (stored) pongTVWidget = JSON.parse(stored);
+    } catch (e) { }
+
+    // M/D widget Pong
+    var mdPongEnabled = true; // Par défaut activé (ancien comportement)
+    if (pongTVWidget && pongTVWidget.modes) {
+      mdPongEnabled = pongTVWidget.enabled && pongTVWidget.modes.md;
+    }
+    toggleTvWidget('pong-tv-widget-md', hasConfig && mdVisible && mdPongEnabled);
+
+    // Classic widget Pong
+    var classicPongEnabled = true;
+    if (pongTVWidget && pongTVWidget.modes) {
+      classicPongEnabled = pongTVWidget.enabled && pongTVWidget.modes.classic;
+    }
+    toggleTvWidget('pong-tv-widget-classic', hasConfig && classicVisible && classicPongEnabled);
   }
 
   function initSettingsTabs() {
@@ -325,10 +355,13 @@
   bind('btn-home-tournaments', showTournaments);
   bind('btn-home-md', showAdmin);
   bind('btn-home-ligue', showLigue);
-  bind('btn-open-settings', showSettings);
   bind('btn-settings-home', showHome);
 
-  bind('btn-ligue-player-view', showLiguePlayer);
+  // Binding pour les boutons avec classe (plusieurs boutons "Vue joueur")
+  var liguePlayerBtns = document.querySelectorAll('.btn-ligue-player-view');
+  liguePlayerBtns.forEach(function(btn) {
+    btn.addEventListener('click', showLiguePlayer);
+  });
 
   bind('btn-back-home-from-md', showHome);
   bind('btn-go-tv', showTV);
@@ -357,7 +390,6 @@
   initTvWidgets();
 
   renderBackButton();
-  renderSettingsButton();
 
   window.hideAllSections = hideAllSections;
   window.showHome = showHome;
@@ -375,4 +407,5 @@
   window.showSettings = showSettings;
   window.navigateToSection = showSection;
   window.goBack = goBack;
+  window.updatePongTvVisibility = updatePongTvVisibility;
 })();

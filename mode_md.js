@@ -1158,5 +1158,239 @@ function loadHistoryEntry(entry) {
   renderTvView();
   window.scrollTo(0, elTournamentSection.offsetTop - 10);
 }
+
+/* TV ROTATION & ANIMATIONS */
+var tvRotationManager = null;
+var tvAnimations = null;
+
+function initTVSystems() {
+  console.log('[MD TV] Initialisation systèmes TV...');
+
+  // Charger config TV depuis localStorage
+  var tvConfig = null;
+  try {
+    var stored = localStorage.getItem('tv_config_md');
+    if (stored) {
+      tvConfig = JSON.parse(stored);
+    }
+  } catch (e) {
+    console.warn('[MD TV] Erreur chargement config:', e);
+  }
+
+  // Appliquer layout au conteneur TV
+  var tvMain = mdTvRoot ? mdTvRoot.querySelector('.tv-main') : null;
+  if (tvMain && tvConfig && tvConfig.layout) {
+    // Retirer toutes les classes de layout existantes
+    tvMain.classList.remove('layout-fullscreen', 'layout-split-vertical', 'layout-split-horizontal', 'layout-grid-2x2', 'layout-pip');
+    // Ajouter la nouvelle classe de layout
+    var layoutClass = 'layout-' + tvConfig.layout.type;
+    tvMain.classList.add(layoutClass);
+    console.log('[MD TV] Layout appliqué:', tvConfig.layout.type);
+  } else if (tvMain) {
+    // Par défaut: fullscreen
+    tvMain.classList.add('layout-fullscreen');
+  }
+
+  // Ne pas continuer si pas de config
+  if (!tvConfig) {
+    console.log('[MD TV] Pas de config, layout par défaut appliqué');
+    return;
+  }
+
+  // Initialiser animations
+  if (window.TVAnimations) {
+    tvAnimations = new window.TVAnimations(tvConfig.animations || {});
+    tvAnimations.init();
+  }
+
+  // Initialiser rotation si activée
+  if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
+    tvRotationManager = new window.TVRotationManager(tvConfig, mdTvRoot);
+    if (tvRotationManager.init()) {
+      tvRotationManager.start();
+      console.log('[MD TV] Rotation démarrée');
+    }
+  } else {
+    // Si rotation désactivée, afficher les blocs statiques selon le layout
+    showStaticTVBlocks(tvConfig, mdTvRoot);
+    console.log('[MD TV] Blocs statiques affichés (rotation désactivée)');
+  }
+}
+
+// Afficher les blocs TV statiques quand la rotation est désactivée
+function showStaticTVBlocks(config, container) {
+  if (!config || !container) return;
+
+  // Récupérer tous les blocs TV
+  var allBlocks = container.querySelectorAll('.tv-block');
+
+  // Cacher tous les blocs d'abord
+  for (var i = 0; i < allBlocks.length; i++) {
+    allBlocks[i].style.display = 'none';
+    allBlocks[i].classList.remove('tv-block-active');
+  }
+
+  // Filtrer les blocs activés
+  var enabledBlocks = [];
+  for (var i = 0; i < allBlocks.length; i++) {
+    var block = allBlocks[i];
+    var blockId = block.getAttribute('data-tv-block');
+    if (blockId && config.blocks && config.blocks[blockId] && config.blocks[blockId].enabled) {
+      enabledBlocks.push(block);
+    }
+  }
+
+  if (enabledBlocks.length === 0) {
+    console.warn('[MD TV] Aucun bloc activé');
+    return;
+  }
+
+  // Déterminer combien de blocs afficher selon le layout
+  var layoutType = config.layout ? config.layout.type : 'fullscreen';
+  var blocksToShow = 1; // Par défaut: fullscreen
+
+  if (layoutType === 'split-vertical' || layoutType === 'split-horizontal' || layoutType === 'pip') {
+    blocksToShow = 2;
+  } else if (layoutType === 'grid-2x2') {
+    blocksToShow = 4;
+  }
+
+  // Afficher les N premiers blocs activés
+  for (var i = 0; i < Math.min(blocksToShow, enabledBlocks.length); i++) {
+    enabledBlocks[i].style.display = 'block';
+    enabledBlocks[i].classList.add('tv-block-active');
+  }
+
+  console.log('[MD TV] Affichage de ' + Math.min(blocksToShow, enabledBlocks.length) + ' bloc(s) en mode ' + layoutType);
+}
+
+function destroyTVSystems() {
+  console.log('[MD TV] Nettoyage systèmes TV...');
+
+  if (tvRotationManager) {
+    tvRotationManager.destroy();
+    tvRotationManager = null;
+  }
+
+  if (tvAnimations) {
+    tvAnimations.destroy();
+    tvAnimations = null;
+  }
+}
+
+function updateTVRestingTeams() {
+  var elRestList = mdTvRoot ? mdTvRoot.querySelector('#tv-rest-list') : null;
+  if (!elRestList) return;
+
+  var currentInfo = getMatchesAndRestForRound(state.currentRoulement);
+  var restTeams = currentInfo.restTeams || [];
+
+  if (restTeams.length === 0) {
+    elRestList.innerHTML = '<div class="tv-empty">Aucune équipe au repos ce roulement.</div>';
+  } else {
+    var restHtml = '';
+    for (var i = 0; i < restTeams.length; i++) {
+      var team = restTeams[i];
+      restHtml += '<div class="tv-match-card">' +
+        '<div class="tv-match-top"><span>🛋️ Au repos</span></div>' +
+        '<div class="tv-match-teams">' +
+        '<div class="tv-match-team-line">' +
+        '<span class="tv-match-team-name">' + escapeHtml(team.name) + '</span>' +
+        '</div>' +
+        '</div>' +
+        '</div>';
+    }
+    elRestList.innerHTML = restHtml;
+  }
+}
+
+function updateTVStats() {
+  var elStatsContent = mdTvRoot ? mdTvRoot.querySelector('#tv-stats-content') : null;
+  if (!elStatsContent) return;
+
+  var statsCopy = getSortedStatsForRanking();
+  var anyMatch = statsCopy.some(function(s) { return s.matches > 0; });
+
+  if (!anyMatch) {
+    elStatsContent.innerHTML = '<div class="tv-empty">Les statistiques apparaîtront après les premiers matchs.</div>';
+    return;
+  }
+
+  // Calculer stats globales
+  var totalMatches = 0;
+  var totalPoints = 0;
+  for (var i = 0; i < statsCopy.length; i++) {
+    totalMatches += statsCopy[i].matches;
+    totalPoints += statsCopy[i].points;
+  }
+
+  var statsHtml = '<div style="padding: 20px;">' +
+    '<div class="tv-match-card">' +
+    '<div class="tv-match-top"><span>📊 Statistiques globales</span></div>' +
+    '<div style="padding: 16px; display: grid; gap: 12px;">' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Total matchs joués:</span>' +
+    '<span style="font-weight: bold;">' + (totalMatches / 2) + '</span>' +
+    '</div>' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Total points distribués:</span>' +
+    '<span style="font-weight: bold;">' + totalPoints + ' pts</span>' +
+    '</div>' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Équipes participantes:</span>' +
+    '<span style="font-weight: bold;">' + state.teamCount + '</span>' +
+    '</div>' +
+    '<div style="display: flex; justify-content: space-between;">' +
+    '<span>Roulement actuel:</span>' +
+    '<span style="font-weight: bold;">' + state.currentRoulement + ' / ' + state.maxRoulements + '</span>' +
+    '</div>' +
+    '</div>' +
+    '</div>' +
+    '</div>';
+
+  elStatsContent.innerHTML = statsHtml;
+}
+
+function updateTVPodiumOnly() {
+  var elPodiumOnly = mdTvRoot ? mdTvRoot.querySelector('#tv-podium-only') : null;
+  if (!elPodiumOnly) return;
+
+  var statsCopy = getSortedStatsForRanking();
+  var anyMatch = statsCopy.some(function(s) { return s.matches > 0; });
+
+  if (!anyMatch) {
+    elPodiumOnly.innerHTML = '<div class="tv-empty">Le podium apparaîtra dès les premiers résultats.</div>';
+    return;
+  }
+
+  var podium = statsCopy.slice(0, 3);
+  var labels = ['🥇 1er', '🥈 2e', '🥉 3e'];
+  var podiumHtml = '';
+
+  for (var p = 0; p < podium.length; p++) {
+    var sP = podium[p];
+    podiumHtml += '<div class="tv-podium-item">' +
+      '<div class="tv-podium-rank">' + labels[p] + '</div>' +
+      '<div class="tv-podium-name">' + escapeHtml(sP.name) + '</div>' +
+      '<div class="tv-podium-points">' + sP.points + ' pts • ' +
+      sP.wins + 'V / ' + sP.losses + 'D</div>' +
+      '</div>';
+  }
+
+  elPodiumOnly.innerHTML = podiumHtml;
+}
+
+// Améliorer renderTvView pour utiliser les nouveaux blocs
+var originalRenderTvView = renderTvView;
+renderTvView = function() {
+  originalRenderTvView();
+  updateTVRestingTeams();
+  updateTVStats();
+  updateTVPodiumOnly();
+};
+
+// Export pour utilisation globale
 window.mdRenderTvView = renderTvView;
+window.mdInitTVSystems = initTVSystems;
+window.mdDestroyTVSystems = destroyTVSystems;
 })();
