@@ -1425,6 +1425,7 @@
     .americano-round-card { border: 1px solid #1f2937; padding: 10px; border-radius: 14px; background: rgba(2,6,23,0.4); min-width:0; }
     .americano-match-row { display: grid; grid-template-columns: minmax(0,1fr) 50px minmax(0,1fr); align-items: center; gap: 6px; padding: 2px 0; }
     .americano-score-inputs { display: flex; gap: 6px; align-items: center; }
+    .americano-score-inputs input[type="number"] { width: 60px; min-width: 60px; text-align: center; font-size: 1rem; font-weight: 600; }
     .americano-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; border: 1px solid #1e293b; background: rgba(255,255,255,0.04); color: var(--text); font-size: 0.8rem; }
     .americano-team { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
     .americano-team.left { text-align: left; }
@@ -1460,6 +1461,8 @@
       border-radius: 16px;
       border: 1px solid var(--border);
       overflow: hidden;
+      max-width: 100%;
+      box-sizing: border-box;
     }
 
     /* En-tête principal */
@@ -1553,11 +1556,14 @@
     /* Panneaux */
     .settings-panels {
       padding: 24px;
+      max-width: 100%;
+      overflow-x: hidden;
     }
 
     .settings-panel {
       display: none;
       animation: fadeIn 0.3s ease;
+      max-width: 100%;
     }
 
     .settings-panel.active {
@@ -1583,6 +1589,9 @@
       padding: 20px;
       margin-bottom: 20px;
       transition: all 0.2s ease;
+      max-width: 100%;
+      box-sizing: border-box;
+      overflow-x: auto;
     }
 
     .settings-section:hover {
