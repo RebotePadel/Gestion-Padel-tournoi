@@ -7284,6 +7284,21 @@
         document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
+
+        // Charger les sponsors depuis le nouveau système (localStorage)
+        try {
+          var sponsorsList = localStorage.getItem('sponsors_list');
+          if (sponsorsList) {
+            var parsedSponsors = JSON.parse(sponsorsList);
+            if (Array.isArray(parsedSponsors) && parsedSponsors.length > 0) {
+              // Remplacer les anciens sponsors par les nouveaux
+              currentClubProfile.sponsors = parsedSponsors;
+            }
+          }
+        } catch (e) {
+          console.warn('[Club] Erreur chargement sponsors:', e);
+        }
+
         var activeSponsor = getActiveSponsor(currentClubProfile);
         if (activeSponsor) {
           currentClubProfile.sponsorName = activeSponsor.name || '';

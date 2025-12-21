@@ -368,7 +368,7 @@
       category: panel.querySelector('#sponsor-category-input'),
       url: panel.querySelector('#sponsor-url-input'),
       addBtn: panel.querySelector('#btn-add-new-sponsor'),
-      listContainer: panel.querySelector('#sponsors-list-container')
+      listContainer: panel.querySelector('#sponsors-active-list')
     };
 
     // Bouton ajouter
@@ -1663,6 +1663,9 @@
 
     // Charger la config du mode actuel
     loadTVConfig(tvViewState.currentMode);
+
+    // Afficher les configs sauvegardées
+    renderSavedConfigs(tvViewState.currentMode);
   }
 
   function initTVModeTabs() {
@@ -1979,10 +1982,73 @@
                      mode === 'classic' ? STORAGE_KEYS.tvConfigClassic :
                      STORAGE_KEYS.tvConfigAmericano;
 
+    // Sauvegarder la config principale
     saveToStorage(storageKey, config);
     tvViewState.currentConfig = config;
 
+    // Sauvegarder aussi dans la bibliothèque
+    var library = loadFromStorage(STORAGE_KEYS.tvConfigsLibrary, []);
+    var existingIndex = library.findIndex(function(c) { return c.id === config.id; });
+
+    if (existingIndex !== -1) {
+      // Mettre à jour config existante
+      library[existingIndex] = config;
+    } else {
+      // Ajouter nouvelle config
+      library.push(config);
+    }
+
+    saveToStorage(STORAGE_KEYS.tvConfigsLibrary, library);
+
+    // Recharger la liste des configs sauvegardées
+    renderSavedConfigs(mode);
+
+    // Mettre à jour la vue TV si elle est active
+    if (mode === 'md' && typeof window.mdInitTVSystems === 'function') {
+      // Réinitialiser les systèmes TV avec la nouvelle config
+      if (typeof window.mdDestroyTVSystems === 'function') {
+        window.mdDestroyTVSystems();
+      }
+      // Re-render la vue
+      if (typeof window.mdRenderTvView === 'function') {
+        window.mdRenderTvView();
+      }
+      // Réinitialiser avec la nouvelle config
+      window.mdInitTVSystems();
+    }
+
     showNotification('Configuration TV sauvegardée avec succès !', 'success');
+  }
+
+  function renderSavedConfigs(mode) {
+    var container = document.getElementById(mode + '-saved-configs');
+    if (!container) return;
+
+    var library = loadFromStorage(STORAGE_KEYS.tvConfigsLibrary, []);
+    var modeConfigs = library.filter(function(c) { return c.id === mode; });
+
+    if (modeConfigs.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>💾</p><p>Aucune configuration sauvegardée</p></div>';
+      return;
+    }
+
+    var html = '';
+    modeConfigs.forEach(function(config) {
+      html += '<div class="saved-config-item" style="background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 10px; padding: 12px; margin-bottom: 8px;">';
+      html += '  <div style="display: flex; justify-content: space-between; align-items: center;">';
+      html += '    <div>';
+      html += '      <div style="font-weight: 600; margin-bottom: 4px;">' + (config.name || 'Sans nom') + '</div>';
+      html += '      <div style="font-size: 0.85rem; color: var(--muted);">';
+      html += '        Rotation: ' + (config.rotation.enabled ? 'Activée' : 'Désactivée');
+      html += '        • Layout: ' + config.layout.type;
+      html += '      </div>';
+      html += '    </div>';
+      html += '    <button class="btn btn-secondary btn-small" onclick="window.settingsLoadTVConfig(\'' + mode + '\')">Charger</button>';
+      html += '  </div>';
+      html += '</div>';
+    });
+
+    container.innerHTML = html;
   }
 
   function gatherTVConfigFromUI(mode) {
