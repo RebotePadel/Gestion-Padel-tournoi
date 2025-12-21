@@ -3972,6 +3972,57 @@
                 </div>
               </div>
             </div>
+
+            <div class="settings-section app-block-interactive">
+              <h3 class="settings-section-title">📺 Affichage dans les vues TV</h3>
+              <p class="field-hint">Contrôlez l'affichage automatique des sponsors et widgets dans chaque mode TV</p>
+
+              <h4 style="font-size: 0.9rem; font-weight: 600; margin: 16px 0 8px 0; color: var(--text);">Sponsors TV</h4>
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-tv-md-toggle" type="checkbox" checked />
+                    <span>Afficher dans M/D TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-tv-classic-toggle" type="checkbox" checked />
+                    <span>Afficher dans Tournoi Classique TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="sponsor-tv-americano-toggle" type="checkbox" checked />
+                    <span>Afficher dans Américano TV</span>
+                  </label>
+                </div>
+              </div>
+
+              <h4 style="font-size: 0.9rem; font-weight: 600; margin: 16px 0 8px 0; color: var(--text);">Widget Padel Pong</h4>
+              <div class="settings-grid">
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-tv-md-toggle" type="checkbox" checked />
+                    <span>Afficher dans M/D TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-tv-classic-toggle" type="checkbox" checked />
+                    <span>Afficher dans Tournoi Classique TV</span>
+                  </label>
+                </div>
+                <div class="field">
+                  <label class="checkbox-label">
+                    <input id="pong-tv-americano-toggle" type="checkbox" />
+                    <span>Afficher dans Américano TV</span>
+                  </label>
+                </div>
+              </div>
+
+              <button class="btn btn-primary" id="btn-save-tv-widgets" style="margin-top: 12px;">💾 Enregistrer les paramètres TV</button>
+            </div>
           </div>
 
           <!-- ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -7238,9 +7289,35 @@
           currentClubProfile.sponsorName = activeSponsor.name || '';
           currentClubProfile.sponsorLogoDataUrl = activeSponsor.logoDataUrl || null;
         }
-        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, currentClubProfile.tvSponsorMd !== false);
-        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, currentClubProfile.tvSponsorClassic !== false);
-        renderSponsorBanner({ banner: 'americano-tv-sponsor-banner', logo: 'americano-tv-sponsor-logo', name: 'americano-tv-sponsor-name', posKey: 'tvSponsorAmericanoPos' }, currentClubProfile, currentClubProfile.tvSponsorAmericano !== false);
+
+        // Vérifier les nouveaux paramètres TV pour les sponsors
+        var sponsorsTVSettings = null;
+        try {
+          var stored = localStorage.getItem('sponsors_tv_settings');
+          if (stored) sponsorsTVSettings = JSON.parse(stored);
+        } catch (e) { }
+
+        // M/D TV sponsors
+        var mdSponsorEnabled = currentClubProfile.tvSponsorMd !== false; // Ancien système (fallback)
+        if (sponsorsTVSettings && sponsorsTVSettings.modes) {
+          mdSponsorEnabled = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.md;
+        }
+        renderSponsorBanner({ banner: 'tv-sponsor-banner', logo: 'tv-sponsor-logo', name: 'tv-sponsor-name', posKey: 'tvSponsorMdPos' }, currentClubProfile, mdSponsorEnabled);
+
+        // Classic TV sponsors
+        var classicSponsorEnabled = currentClubProfile.tvSponsorClassic !== false;
+        if (sponsorsTVSettings && sponsorsTVSettings.modes) {
+          classicSponsorEnabled = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.classic;
+        }
+        renderSponsorBanner({ banner: 'classic-tv-sponsor-banner', logo: 'classic-tv-sponsor-logo', name: 'classic-tv-sponsor-name', posKey: 'tvSponsorClassicPos' }, currentClubProfile, classicSponsorEnabled);
+
+        // Americano TV sponsors
+        var americanoSponsorEnabled = currentClubProfile.tvSponsorAmericano !== false;
+        if (sponsorsTVSettings && sponsorsTVSettings.modes) {
+          americanoSponsorEnabled = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.americano;
+        }
+        renderSponsorBanner({ banner: 'americano-tv-sponsor-banner', logo: 'americano-tv-sponsor-logo', name: 'americano-tv-sponsor-name', posKey: 'tvSponsorAmericanoPos' }, currentClubProfile, americanoSponsorEnabled);
+
         updateSponsorPreview(currentClubProfile.sponsorLogoDataUrl);
       }
 

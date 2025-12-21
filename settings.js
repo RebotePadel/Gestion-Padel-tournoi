@@ -387,6 +387,9 @@
     }
 
     renderSponsorsList();
+
+    // Initialiser contrôles TV widgets
+    initTVWidgetsControls();
   }
 
   function addSponsor() {
@@ -503,6 +506,111 @@
 
   // Exposer la fonction de suppression globalement
   window.settingsDeleteSponsor = deleteSponsor;
+
+  // ========================================
+  // TV WIDGETS CONTROLS (dans onglet Sponsors)
+  // ========================================
+
+  function initTVWidgetsControls() {
+    console.log('[Settings] Initialisation contrôles TV widgets...');
+
+    // Charger les paramètres sponsors TV
+    var sponsorsTVSettings = loadFromStorage(STORAGE_KEYS.sponsorsTVSettings, null);
+    if (sponsorsTVSettings && sponsorsTVSettings.modes) {
+      var mdToggle = document.getElementById('sponsor-tv-md-toggle');
+      var classicToggle = document.getElementById('sponsor-tv-classic-toggle');
+      var americanoToggle = document.getElementById('sponsor-tv-americano-toggle');
+
+      if (mdToggle) mdToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.md;
+      if (classicToggle) classicToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.classic;
+      if (americanoToggle) americanoToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.americano;
+    }
+
+    // Charger les paramètres Pong TV
+    var pongTVWidget = loadFromStorage(STORAGE_KEYS.pongTVWidget, null);
+    if (pongTVWidget && pongTVWidget.modes) {
+      var mdPongToggle = document.getElementById('pong-tv-md-toggle');
+      var classicPongToggle = document.getElementById('pong-tv-classic-toggle');
+      var americanoPongToggle = document.getElementById('pong-tv-americano-toggle');
+
+      if (mdPongToggle) mdPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.md;
+      if (classicPongToggle) classicPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.classic;
+      if (americanoPongToggle) americanoPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.americano;
+    }
+
+    // Bouton de sauvegarde
+    var saveBtn = document.getElementById('btn-save-tv-widgets');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', saveTVWidgetsSettings);
+    }
+  }
+
+  function saveTVWidgetsSettings() {
+    console.log('[Settings] Sauvegarde paramètres TV widgets...');
+
+    // Récupérer valeurs sponsors TV
+    var mdToggle = document.getElementById('sponsor-tv-md-toggle');
+    var classicToggle = document.getElementById('sponsor-tv-classic-toggle');
+    var americanoToggle = document.getElementById('sponsor-tv-americano-toggle');
+
+    var sponsorsTVSettings = {
+      enabled: true,
+      position: 'top-right',
+      size: { width: 200, height: 80 },
+      style: 'banner',
+      duration: 5,
+      transition: { type: 'fade', duration: 0.3 },
+      fairRotation: true,
+      modes: {
+        md: mdToggle ? mdToggle.checked : true,
+        classic: classicToggle ? classicToggle.checked : true,
+        americano: americanoToggle ? americanoToggle.checked : true
+      }
+    };
+
+    // Récupérer valeurs Pong TV
+    var mdPongToggle = document.getElementById('pong-tv-md-toggle');
+    var classicPongToggle = document.getElementById('pong-tv-classic-toggle');
+    var americanoPongToggle = document.getElementById('pong-tv-americano-toggle');
+
+    var pongTVWidget = {
+      enabled: true,
+      position: 'bottom-right',
+      offset: { x: 20, y: 20 },
+      size: 'medium',
+      content: { qr: true, text: true, sponsor: true },
+      customText: 'Scanne & joue !',
+      style: { bg: 'semi', border: 'accent', radius: 12 },
+      draggable: true,
+      hideButton: true,
+      modes: {
+        md: mdPongToggle ? mdPongToggle.checked : true,
+        classic: classicPongToggle ? classicPongToggle.checked : true,
+        americano: americanoPongToggle ? americanoPongToggle.checked : false
+      }
+    };
+
+    // Sauvegarder
+    var success = true;
+    success = saveToStorage(STORAGE_KEYS.sponsorsTVSettings, sponsorsTVSettings) && success;
+    success = saveToStorage(STORAGE_KEYS.pongTVWidget, pongTVWidget) && success;
+
+    if (success) {
+      showNotification('Paramètres TV sauvegardés avec succès !', 'success');
+
+      // Recharger le thème pour appliquer les changements immédiatement
+      if (typeof window.reloadClubProfile === 'function') {
+        window.reloadClubProfile();
+      }
+
+      // Mettre à jour la visibilité des widgets Pong
+      if (typeof window.updatePongTvVisibility === 'function') {
+        window.updatePongTvVisibility();
+      }
+    } else {
+      showNotification('Erreur lors de la sauvegarde', 'error');
+    }
+  }
 
   // ========================================
   // ONGLET PONG

@@ -317,8 +317,27 @@
     var classicOverlay = document.getElementById('tv-overlay');
     var classicVisible = classicOverlay && classicOverlay.style.display !== 'none';
     var hasConfig = !!padelPongConfig;
-    toggleTvWidget('pong-tv-widget-md', hasConfig && mdVisible);
-    toggleTvWidget('pong-tv-widget-classic', hasConfig && classicVisible);
+
+    // Vérifier les nouveaux paramètres TV pour le widget Pong
+    var pongTVWidget = null;
+    try {
+      var stored = localStorage.getItem('pong_tv_widget');
+      if (stored) pongTVWidget = JSON.parse(stored);
+    } catch (e) { }
+
+    // M/D widget Pong
+    var mdPongEnabled = true; // Par défaut activé (ancien comportement)
+    if (pongTVWidget && pongTVWidget.modes) {
+      mdPongEnabled = pongTVWidget.enabled && pongTVWidget.modes.md;
+    }
+    toggleTvWidget('pong-tv-widget-md', hasConfig && mdVisible && mdPongEnabled);
+
+    // Classic widget Pong
+    var classicPongEnabled = true;
+    if (pongTVWidget && pongTVWidget.modes) {
+      classicPongEnabled = pongTVWidget.enabled && pongTVWidget.modes.classic;
+    }
+    toggleTvWidget('pong-tv-widget-classic', hasConfig && classicVisible && classicPongEnabled);
   }
 
   function initSettingsTabs() {
@@ -388,4 +407,5 @@
   window.showSettings = showSettings;
   window.navigateToSection = showSection;
   window.goBack = goBack;
+  window.updatePongTvVisibility = updatePongTvVisibility;
 })();
