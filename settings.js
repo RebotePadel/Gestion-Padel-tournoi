@@ -1896,6 +1896,14 @@
         testTVAnimation();
       });
     }
+
+    // Appliquer aux modes sélectionnés
+    var applyToModesBtn = document.getElementById('md-apply-to-modes');
+    if (applyToModesBtn) {
+      applyToModesBtn.addEventListener('click', function() {
+        applyConfigToModes(tvViewState.currentMode);
+      });
+    }
   }
 
   function loadTVConfig(mode) {
@@ -2049,6 +2057,82 @@
     });
 
     container.innerHTML = html;
+  }
+
+  function applyConfigToModes(sourceMode) {
+    console.log('[Settings] Application config aux autres modes depuis:', sourceMode);
+
+    // Récupérer la config source
+    var sourceKey = sourceMode === 'md' ? STORAGE_KEYS.tvConfigMD :
+                    sourceMode === 'classic' ? STORAGE_KEYS.tvConfigClassic :
+                    STORAGE_KEYS.tvConfigAmericano;
+
+    var sourceConfig = loadFromStorage(sourceKey, null);
+    if (!sourceConfig) {
+      showNotification('Aucune configuration à transférer', 'error');
+      return;
+    }
+
+    // Récupérer les modes cibles sélectionnés
+    var targetModes = [];
+    if (sourceMode === 'md') {
+      if (document.getElementById('md-apply-to-classic') && document.getElementById('md-apply-to-classic').checked) {
+        targetModes.push('classic');
+      }
+      if (document.getElementById('md-apply-to-americano') && document.getElementById('md-apply-to-americano').checked) {
+        targetModes.push('americano');
+      }
+    }
+
+    if (targetModes.length === 0) {
+      showNotification('Sélectionnez au moins un mode cible', 'warning');
+      return;
+    }
+
+    // Appliquer la config à chaque mode cible
+    var applied = 0;
+    targetModes.forEach(function(targetMode) {
+      // Créer une copie de la config
+      var targetConfig = JSON.parse(JSON.stringify(sourceConfig));
+
+      // Ajuster l'ID et le nom
+      targetConfig.id = targetMode;
+      targetConfig.name = 'Configuration ' + (targetMode === 'classic' ? 'Tournoi Classique' :
+                                               targetMode === 'americano' ? 'Américano' : targetMode);
+
+      // Sauvegarder dans le mode cible
+      var targetKey = targetMode === 'md' ? STORAGE_KEYS.tvConfigMD :
+                      targetMode === 'classic' ? STORAGE_KEYS.tvConfigClassic :
+                      STORAGE_KEYS.tvConfigAmericano;
+
+      if (saveToStorage(targetKey, targetConfig)) {
+        applied++;
+
+        // Aussi sauvegarder dans la bibliothèque
+        var library = loadFromStorage(STORAGE_KEYS.tvConfigsLibrary, []);
+        var existingIndex = library.findIndex(function(c) { return c.id === targetConfig.id; });
+        if (existingIndex !== -1) {
+          library[existingIndex] = targetConfig;
+        } else {
+          library.push(targetConfig);
+        }
+        saveToStorage(STORAGE_KEYS.tvConfigsLibrary, library);
+      }
+    });
+
+    // Décocher les cases
+    if (sourceMode === 'md') {
+      var classicCheckbox = document.getElementById('md-apply-to-classic');
+      var americanoCheckbox = document.getElementById('md-apply-to-americano');
+      if (classicCheckbox) classicCheckbox.checked = false;
+      if (americanoCheckbox) americanoCheckbox.checked = false;
+    }
+
+    if (applied > 0) {
+      showNotification('Configuration appliquée à ' + applied + ' mode(s) !', 'success');
+    } else {
+      showNotification('Erreur lors du transfert', 'error');
+    }
   }
 
   function gatherTVConfigFromUI(mode) {

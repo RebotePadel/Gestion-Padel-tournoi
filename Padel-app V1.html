@@ -1070,6 +1070,78 @@
       box-shadow: 0 20px 45px rgba(0,0,0,0.9);
     }
 
+    /* TV Layouts */
+    /* Fullscreen: un seul bloc visible (défaut avec rotation) */
+    .tv-main.layout-fullscreen .tv-block {
+      display: none;
+    }
+    .tv-main.layout-fullscreen .tv-block.tv-block-active {
+      display: block;
+    }
+
+    /* Split Vertical: 2 blocs côte à côte */
+    .tv-main.layout-split-vertical {
+      grid-template-columns: 1fr 1fr;
+    }
+    .tv-main.layout-split-vertical .tv-block {
+      display: none;
+    }
+    .tv-main.layout-split-vertical .tv-block:nth-child(1),
+    .tv-main.layout-split-vertical .tv-block:nth-child(2) {
+      display: block;
+    }
+
+    /* Split Horizontal: 2 blocs empilés */
+    .tv-main.layout-split-horizontal {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+    .tv-main.layout-split-horizontal .tv-block {
+      display: none;
+    }
+    .tv-main.layout-split-horizontal .tv-block:nth-child(1),
+    .tv-main.layout-split-horizontal .tv-block:nth-child(2) {
+      display: block;
+    }
+
+    /* Grid 2x2: 4 blocs en grille */
+    .tv-main.layout-grid-2x2 {
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+    }
+    .tv-main.layout-grid-2x2 .tv-block {
+      display: none;
+    }
+    .tv-main.layout-grid-2x2 .tv-block:nth-child(1),
+    .tv-main.layout-grid-2x2 .tv-block:nth-child(2),
+    .tv-main.layout-grid-2x2 .tv-block:nth-child(3),
+    .tv-main.layout-grid-2x2 .tv-block:nth-child(4) {
+      display: block;
+    }
+
+    /* PiP (Picture in Picture): bloc principal + petit bloc en coin */
+    .tv-main.layout-pip {
+      position: relative;
+      grid-template-columns: 1fr;
+    }
+    .tv-main.layout-pip .tv-block {
+      display: none;
+    }
+    .tv-main.layout-pip .tv-block:nth-child(1) {
+      display: block;
+    }
+    .tv-main.layout-pip .tv-block:nth-child(2) {
+      display: block;
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      width: 30%;
+      min-width: 280px;
+      max-width: 400px;
+      z-index: 10;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+
     .tv-block-title {
       display: flex;
       align-items: center;

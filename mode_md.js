@@ -1177,9 +1177,23 @@ function initTVSystems() {
     console.warn('[MD TV] Erreur chargement config:', e);
   }
 
-  // Utiliser config par défaut si pas de config
+  // Appliquer layout au conteneur TV
+  var tvMain = mdTvRoot ? mdTvRoot.querySelector('.tv-main') : null;
+  if (tvMain && tvConfig && tvConfig.layout) {
+    // Retirer toutes les classes de layout existantes
+    tvMain.classList.remove('layout-fullscreen', 'layout-split-vertical', 'layout-split-horizontal', 'layout-grid-2x2', 'layout-pip');
+    // Ajouter la nouvelle classe de layout
+    var layoutClass = 'layout-' + tvConfig.layout.type;
+    tvMain.classList.add(layoutClass);
+    console.log('[MD TV] Layout appliqué:', tvConfig.layout.type);
+  } else if (tvMain) {
+    // Par défaut: fullscreen
+    tvMain.classList.add('layout-fullscreen');
+  }
+
+  // Ne pas continuer si pas de config
   if (!tvConfig) {
-    console.log('[MD TV] Utilisation config par défaut');
+    console.log('[MD TV] Pas de config, layout par défaut appliqué');
     return;
   }
 
