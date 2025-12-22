@@ -2176,14 +2176,14 @@
 
       // Initialiser rotation si activée
       if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
-        tvRotationManager = new window.TVRotationManager(tvConfig, elTvOverlay);
+        tvRotationManager = new window.TVRotationManager(tvConfig, tvMain);
         if (tvRotationManager.init()) {
           tvRotationManager.start();
           console.log('[Classic TV] Rotation démarrée');
         }
       } else {
         // Si rotation désactivée, afficher les blocs statiques selon le layout
-        showStaticTVBlocks(tvConfig, elTvOverlay);
+        showStaticTVBlocks(tvConfig, tvMain);
         console.log('[Classic TV] Blocs statiques affichés (rotation désactivée)');
       }
     }

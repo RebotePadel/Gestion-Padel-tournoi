@@ -1205,14 +1205,14 @@ function initTVSystems() {
 
   // Initialiser rotation si activée
   if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
-    tvRotationManager = new window.TVRotationManager(tvConfig, mdTvRoot);
+    tvRotationManager = new window.TVRotationManager(tvConfig, tvMain);
     if (tvRotationManager.init()) {
       tvRotationManager.start();
       console.log('[MD TV] Rotation démarrée');
     }
   } else {
     // Si rotation désactivée, afficher les blocs statiques selon le layout
-    showStaticTVBlocks(tvConfig, mdTvRoot);
+    showStaticTVBlocks(tvConfig, tvMain);
     console.log('[MD TV] Blocs statiques affichés (rotation désactivée)');
   }
 }

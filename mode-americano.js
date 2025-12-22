@@ -752,14 +752,14 @@
 
     // Initialiser rotation si activée
     if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
-      tvRotationManager = new window.TVRotationManager(tvConfig, tvRoot);
+      tvRotationManager = new window.TVRotationManager(tvConfig, tvMain);
       if (tvRotationManager.init()) {
         tvRotationManager.start();
         console.log('[Americano TV] Rotation démarrée');
       }
     } else {
       // Si rotation désactivée, afficher les blocs statiques selon le layout
-      showStaticTVBlocks(tvConfig, tvRoot);
+      showStaticTVBlocks(tvConfig, tvMain);
       console.log('[Americano TV] Blocs statiques affichés (rotation désactivée)');
     }
   }
