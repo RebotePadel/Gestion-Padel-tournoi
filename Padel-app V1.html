@@ -1203,6 +1203,110 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
+    /* ========================================
+       FIX LAYOUT FULLSCREEN MODE CLASSIC
+       ======================================== */
+
+    /* Classic TV fullscreen : override le grid 2 colonnes par défaut */
+    #tv-overlay .tv-main.layout-fullscreen {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-template-columns: unset !important;
+      gap: 12px;
+    }
+
+    /* Les .tv-col wrappers doivent devenir invisibles en fullscreen */
+    #tv-overlay .tv-main.layout-fullscreen .tv-col {
+      display: contents; /* Flatten structure : enfants deviennent enfants directs */
+    }
+
+    /* Blocs occupent 100% en fullscreen */
+    #tv-overlay .tv-main.layout-fullscreen .tv-block {
+      width: 100%;
+      flex: 1;
+      min-height: 400px;
+      display: none; /* Par défaut caché */
+    }
+
+    /* Seuls les blocs actifs sont visibles */
+    #tv-overlay .tv-main.layout-fullscreen .tv-block.tv-block-active {
+      display: block;
+    }
+
+    /* Split vertical explicite pour Classic */
+    #tv-overlay .tv-main.layout-split-vertical {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-template-rows: 1fr;
+      gap: 12px;
+    }
+
+    #tv-overlay .tv-main.layout-split-vertical .tv-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Split horizontal pour Classic */
+    #tv-overlay .tv-main.layout-split-horizontal {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+    }
+
+    #tv-overlay .tv-main.layout-split-horizontal .tv-col {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* Grid 2x2 pour Classic */
+    #tv-overlay .tv-main.layout-grid-2x2 {
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-template-rows: 1fr 1fr;
+      gap: 12px;
+    }
+
+    #tv-overlay .tv-main.layout-grid-2x2 .tv-col {
+      display: contents; /* Flatten pour que les blocs deviennent grid items */
+    }
+
+    /* PiP pour Classic */
+    #tv-overlay .tv-main.layout-pip {
+      position: relative;
+      display: flex !important;
+      flex-direction: column !important;
+      grid-template-columns: unset !important;
+    }
+
+    #tv-overlay .tv-main.layout-pip .tv-col {
+      display: contents;
+    }
+
+    /* Blocs hors .tv-main (ranking, brackets) - doivent être cachés par défaut */
+    #tv-overlay .tv-block[data-tv-block="ranking"],
+    #tv-overlay .tv-bracket-row,
+    #tv-overlay .tv-bracket-block {
+      display: none; /* Cachés par défaut */
+    }
+
+    /* Visibles uniquement quand actifs */
+    #tv-overlay .tv-block.tv-block-active[data-tv-block="ranking"] {
+      display: block;
+    }
+
+    #tv-overlay .tv-bracket-row.tv-block-active {
+      display: flex;
+      gap: 12px;
+    }
+
+    #tv-overlay .tv-bracket-block.tv-block-active {
+      display: block;
+      flex: 1;
+    }
+
     .tv-block-title {
       display: flex;
       align-items: center;
