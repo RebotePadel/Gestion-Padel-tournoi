@@ -376,6 +376,7 @@ body.tv-mode .sidebar-toggle-btn {
 
 /* Layout avec sidebar - par défaut tous les conteneurs .app et sections principales sont décalés */
 .app,
+#home-root,
 #admin-root,
 #classic-root,
 #americano-root,
@@ -390,6 +391,7 @@ body.tv-mode .sidebar-toggle-btn {
 
 /* Recentrer le contenu quand la sidebar est collapsed */
 body.sidebar-collapsed .app,
+body.sidebar-collapsed #home-root,
 body.sidebar-collapsed #admin-root,
 body.sidebar-collapsed #classic-root,
 body.sidebar-collapsed #americano-root,
@@ -421,6 +423,7 @@ body.tv-mode .sidebar-toggle {
 }
 
 body.tv-mode .app,
+body.tv-mode #home-root,
 body.tv-mode #admin-root,
 body.tv-mode #classic-root,
 body.tv-mode #americano-root,
@@ -508,6 +511,7 @@ body.tv-mode #settings-root {
   }
 
   .app,
+  #home-root,
   #admin-root,
   #classic-root,
   #americano-root,
