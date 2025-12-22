@@ -1240,9 +1240,10 @@ function showStaticTVBlocks(config, container) {
     }
   }
 
+  // Si aucun bloc n'est activé, afficher tous les blocs disponibles par défaut
   if (enabledBlocks.length === 0) {
-    console.warn('[MD TV] Aucun bloc activé');
-    return;
+    console.warn('[MD TV] Aucun bloc activé, affichage de tous les blocs par défaut');
+    enabledBlocks = Array.from(allBlocks);
   }
 
   // Déterminer combien de blocs afficher selon le layout
@@ -1255,13 +1256,15 @@ function showStaticTVBlocks(config, container) {
     blocksToShow = 4;
   }
 
-  // Afficher les N premiers blocs activés
-  for (var i = 0; i < Math.min(blocksToShow, enabledBlocks.length); i++) {
-    enabledBlocks[i].style.display = 'block';
-    enabledBlocks[i].classList.add('tv-block-active');
+  // Afficher les blocs en utilisant modulo pour remplir TOUS les slots
+  // même s'il faut répéter des blocs
+  for (var i = 0; i < blocksToShow; i++) {
+    var blockIndex = i % enabledBlocks.length;
+    enabledBlocks[blockIndex].style.display = 'block';
+    enabledBlocks[blockIndex].classList.add('tv-block-active');
   }
 
-  console.log('[MD TV] Affichage de ' + Math.min(blocksToShow, enabledBlocks.length) + ' bloc(s) en mode ' + layoutType);
+  console.log('[MD TV] Affichage de ' + blocksToShow + ' slot(s) avec ' + enabledBlocks.length + ' bloc(s) disponible(s) en mode ' + layoutType);
 }
 
 function destroyTVSystems() {
