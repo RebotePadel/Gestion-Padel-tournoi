@@ -280,12 +280,13 @@
 
     .card:hover {
       box-shadow: var(--shadow-lg);
-      transform: translateY(-4px);
-      border-color: rgba(var(--brand-accent-rgb), 0.3);
+      transform: translateY(-1px);
+      border-color: rgba(var(--brand-accent-rgb), 0.2);
     }
 
+    /* Yellow gradient overlay DISABLED - impacts admin usability */
     .card:hover::before {
-      opacity: 1;
+      opacity: 0;
     }
 
     .card-interactive {
@@ -969,14 +970,26 @@
       background-color: rgba(250, 204, 21, 0.05);
     }
 
-    /* Ligue pages: NO zoom, NO gradient - subtle shadow only */
+    /* Ligue pages: NO zoom, NO gradient, NO transform - subtle shadow only */
     #ligue-manage-root .ligue-match-card:hover,
     #ligue-root .ligue-list .card:hover,
     #ligue-active-root .ligue-list .card:hover,
     #ligue-config-root .card:hover,
     #ligue-player-root .card:hover,
     #ligue-player-manage-root .card:hover {
+      transform: none;
+      background-color: transparent;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Disable yellow gradient overlay on ligue cards */
+    #ligue-manage-root .ligue-match-card:hover::before,
+    #ligue-root .ligue-list .card:hover::before,
+    #ligue-active-root .ligue-list .card:hover::before,
+    #ligue-config-root .card:hover::before,
+    #ligue-player-root .card:hover::before,
+    #ligue-player-manage-root .card:hover::before {
+      opacity: 0 !important;
     }
 
     /* ========================================
