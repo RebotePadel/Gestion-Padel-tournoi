@@ -514,6 +514,7 @@
       flex-wrap: wrap;
       margin-bottom: 4px;
       position: relative;
+      z-index: 100;
     }
 
     .header-back-btn {
@@ -985,6 +986,18 @@
       transform: none;
       background-color: transparent;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* CRITICAL: Disable ALL hover effects on ligue theme shells (main containers) */
+    .ligue-theme-shell:hover,
+    #ligue-manage-shell:hover,
+    #ligue-active-shell:hover,
+    #ligue-config-shell:hover,
+    #ligue-player-shell:hover,
+    #ligue-player-manage-shell:hover {
+      transform: none !important;
+      box-shadow: var(--shadow-md) !important;
+      border-color: var(--brand-border) !important;
     }
 
     /* Disable yellow gradient overlay on ligue cards */
