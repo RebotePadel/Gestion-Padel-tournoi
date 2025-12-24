@@ -963,16 +963,20 @@
       transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s ease-out;
       cursor: pointer;
     }
-    #admin-root .match-card:hover,
+    #admin-root .match-card:hover {
+      transform: translateY(-1px) scale(1.005);
+      box-shadow: 0 8px 20px rgba(250, 204, 21, 0.12), 0 6px 15px rgba(0,0,0,0.35);
+      background-color: rgba(250, 204, 21, 0.05);
+    }
+
+    /* Ligue pages: NO zoom, NO gradient - subtle shadow only */
     #ligue-manage-root .ligue-match-card:hover,
     #ligue-root .ligue-list .card:hover,
     #ligue-active-root .ligue-list .card:hover,
     #ligue-config-root .card:hover,
     #ligue-player-root .card:hover,
     #ligue-player-manage-root .card:hover {
-      transform: translateY(-1px) scale(1.005);
-      box-shadow: 0 8px 20px rgba(250, 204, 21, 0.12), 0 6px 15px rgba(0,0,0,0.35);
-      background-color: rgba(250, 204, 21, 0.05);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
     }
 
     /* ========================================
@@ -1142,7 +1146,7 @@
       transition: all 0.2s ease;
       font-weight: 600;
     }
-    .ligue-tab:hover { box-shadow: 0 0 0 1px rgba(229,231,235,0.08); transform: translateY(-0.5px); }
+    .ligue-tab:hover { box-shadow: 0 0 0 1px rgba(229,231,235,0.15); }
     .ligue-tab.active { color: #0b0b0b; background: #e6e6e6; }
     .ligue-theme-n1 .ligue-tab.active { background: linear-gradient(135deg, #7f1d1d, #b91c1c); color: #fff; }
     .ligue-theme-n2 .ligue-tab.active { background: linear-gradient(135deg, #b45309, #f97316); color: #fff; }
