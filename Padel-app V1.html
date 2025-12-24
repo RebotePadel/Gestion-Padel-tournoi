@@ -7814,27 +7814,8 @@
                 <span id="ligue-player-reglement-end" class="ligue-badge">—</span>
                 <span>pour programmer vos matchs.</span>
               </div>
-              <div class="ligue-section" style="margin-top:12px; color: var(--text);">
-                <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02);">
-                  <h5 class="tournaments-title" style="margin-bottom:6px;">📅 Programmation premium</h5>
-                  <p style="margin-bottom:6px;">Planifiez vos rencontres librement (heures creuses, pleines, week-end) en respectant l’ordre officiel des matchs. Exemple : on joue la Journée 1 avant la Journée 3.</p>
-                  <p style="margin-bottom:6px;">Réservation rapide : contactez-nous via le WhatsApp de la ligue ou par téléphone pour bloquer votre créneau.</p>
-                </div>
-                <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02);">
-                  <h5 class="tournaments-title" style="margin-bottom:6px;">🎾 Format de jeu</h5>
-                  <ul style="margin-left:16px; list-style: disc;">
-                    <li>Match en <strong>2 sets gagnants</strong> (0 à 7 jeux par set, avantage classique).</li>
-                    <li>En cas de 3eme set, vous jouez un super tie-break en 10 points (2pts d'écarts).</li>
-                    <li>Avant de jouer : récupérez vos balles neuves et votre fiche de score au bar.</li>
-                    <li>Après le match : remettez le score au staff pour validation.</li>
-                  </ul>
-                </div>
-                <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02);">
-                  <h5 class="tournaments-title" style="margin-bottom:6px;">🤝 Fair-play & confort</h5>
-                  <p style="margin-bottom:6px;">Auto-arbitrage, respect et courtoisie sont de mise. Un différend ? On échange calmement ou on contacte le staff.</p>
-                  <p style="margin-bottom:0;">Jouez sereinement, profitez du club, et que le meilleur duo l’emporte !</p>
-                </div>
-              </div>
+              <!-- Rules blocks will be dynamically rendered here by JavaScript -->
+              <div class="ligue-section" style="margin-top:12px; color: var(--text);"></div>
             </div>
           </div>
         </div>
@@ -8054,7 +8035,7 @@
         <div class="ligue-panel hidden" id="panel-ligue-rules">
           <div class="ligue-inline" style="justify-content:space-between; align-items:center;">
             <h4 class="tournaments-title">📜 Règlement</h4>
-            <div class="small-muted">Créneaux et consignes</div>
+            <div class="small-muted">Créneaux et consignes - Éditable</div>
           </div>
           <div class="ligue-section" id="ligue-reglement-panel">
             <div class="card" style="border:1px solid #111827;">
@@ -8065,25 +8046,53 @@
                 <input type="date" id="ligue-reglement-end" class="ligue-reglement-date" />
                 <span>pour programmer vos matchs.</span>
               </div>
+
               <div class="ligue-section" style="margin-top:12px; color: var(--text);">
-                <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02);">
-                  <h5 class="tournaments-title" style="margin-bottom:6px;">📅 Programmation premium</h5>
-                  <p style="margin-bottom:6px;">Planifiez vos rencontres librement (heures creuses, pleines, week-end) en respectant l’ordre officiel des matchs. Exemple : on joue la Journée 1 avant la Journée 3.</p>
-                  <p style="margin-bottom:6px;">Réservation rapide : contactez-nous via le WhatsApp de la ligue ou par téléphone pour bloquer votre créneau.</p>
+                <!-- Bloc 1 : Programmation -->
+                <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02); margin-bottom:12px;">
+                  <div class="ligue-field" style="margin-bottom:8px;">
+                    <label style="font-size:0.85rem; color:var(--muted);">Titre du bloc 1</label>
+                    <input type="text" id="ligue-rule-title-1" placeholder="Ex: 📅 Programmation premium"
+                           style="width:100%; padding:8px 12px; border-radius:8px; background:#0b1220; border:1px solid #1e293b; color:var(--text);" />
+                  </div>
+                  <div class="ligue-field">
+                    <label style="font-size:0.85rem; color:var(--muted);">Contenu du bloc 1</label>
+                    <textarea id="ligue-rule-content-1" rows="4" placeholder="Décrivez les règles de programmation..."
+                              style="width:100%; padding:8px 12px; border-radius:8px; background:#0b1220; border:1px solid #1e293b; color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+                  </div>
                 </div>
-                <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02);">
-                  <h5 class="tournaments-title" style="margin-bottom:6px;">🎾 Format de jeu</h5>
-                  <ul style="margin-left:16px; list-style: disc;">
-                    <li>Match en <strong>2 sets gagnants</strong> (0 à 7 jeux par set, avantage classique).</li>
-                    <li>En cas de 3eme set, vous jouez un super tie-break en 10 points (2pts d'écarts).</li>
-                    <li>Avant de jouer : récupérez vos balles neuves et votre fiche de score au bar.</li>
-                    <li>Après le match : remettez le score au staff pour validation.</li>
-                  </ul>
+
+                <!-- Bloc 2 : Format de jeu -->
+                <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02); margin-bottom:12px;">
+                  <div class="ligue-field" style="margin-bottom:8px;">
+                    <label style="font-size:0.85rem; color:var(--muted);">Titre du bloc 2</label>
+                    <input type="text" id="ligue-rule-title-2" placeholder="Ex: 🎾 Format de jeu"
+                           style="width:100%; padding:8px 12px; border-radius:8px; background:#0b1220; border:1px solid #1e293b; color:var(--text);" />
+                  </div>
+                  <div class="ligue-field">
+                    <label style="font-size:0.85rem; color:var(--muted);">Contenu du bloc 2</label>
+                    <textarea id="ligue-rule-content-2" rows="4" placeholder="Décrivez le format de jeu..."
+                              style="width:100%; padding:8px 12px; border-radius:8px; background:#0b1220; border:1px solid #1e293b; color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+                  </div>
                 </div>
+
+                <!-- Bloc 3 : Fair-play -->
                 <div class="card" style="border:1px solid #1f2937; background: rgba(255,255,255,0.02);">
-                  <h5 class="tournaments-title" style="margin-bottom:6px;">🤝 Fair-play & confort</h5>
-                  <p style="margin-bottom:6px;">Auto-arbitrage, respect et courtoisie sont de mise. Un différend ? On échange calmement ou on contacte le staff.</p>
-                  <p style="margin-bottom:0;">Jouez sereinement, profitez du club, et que le meilleur duo l’emporte !</p>
+                  <div class="ligue-field" style="margin-bottom:8px;">
+                    <label style="font-size:0.85rem; color:var(--muted);">Titre du bloc 3</label>
+                    <input type="text" id="ligue-rule-title-3" placeholder="Ex: 🤝 Fair-play & confort"
+                           style="width:100%; padding:8px 12px; border-radius:8px; background:#0b1220; border:1px solid #1e293b; color:var(--text);" />
+                  </div>
+                  <div class="ligue-field">
+                    <label style="font-size:0.85rem; color:var(--muted);">Contenu du bloc 3</label>
+                    <textarea id="ligue-rule-content-3" rows="4" placeholder="Décrivez les règles de fair-play..."
+                              style="width:100%; padding:8px 12px; border-radius:8px; background:#0b1220; border:1px solid #1e293b; color:var(--text); font-family:inherit; resize:vertical;"></textarea>
+                  </div>
+                </div>
+
+                <div class="ligue-inline" style="margin-top:16px; gap:8px;">
+                  <button id="btn-save-ligue-rules" class="btn" style="flex:1;">💾 Sauvegarder le règlement</button>
+                  <button id="btn-reset-ligue-rules" class="btn btn-secondary" style="flex:0 0 auto;">🔄 Réinitialiser</button>
                 </div>
               </div>
             </div>
