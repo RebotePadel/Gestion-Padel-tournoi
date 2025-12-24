@@ -8,6 +8,10 @@
   <link rel="shortcut icon" href="./assets/Favicon/favicon-32.png?v=1" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="sidebar.css">
+  <!-- Google Fonts preconnect for faster loading -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Dynamic font link will be injected here by JavaScript -->
   <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
   <style>
@@ -2390,27 +2394,28 @@
       box-shadow: var(--shadow-md);
     }
 
-    /* Navigation par onglets */
+    /* Navigation par onglets - Individual buttons style */
     .settings-tabs-nav {
       display: flex;
-      gap: 0;
-      background: rgba(0, 0, 0, 0.2);
-      border-bottom: 2px solid var(--brand-border);
-      padding: 0;
+      gap: 12px;
+      background: transparent;
+      border-bottom: none;
+      padding: 8px 0;
       overflow-x: auto;
       position: sticky;
       top: 0;
       z-index: var(--z-dropdown);
       backdrop-filter: blur(10px);
+      flex-wrap: wrap;
     }
 
     .settings-tab {
-      flex: 1;
+      flex: 0 0 auto;
       min-width: fit-content;
-      padding: var(--spacing-lg) var(--spacing-xl);
-      background: transparent;
-      border: none;
-      border-bottom: 3px solid transparent;
+      padding: 12px 20px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--brand-border);
+      border-radius: var(--radius-lg);
       color: var(--brand-muted);
       font-size: var(--font-size-base);
       font-weight: 600;
@@ -2424,14 +2429,18 @@
     }
 
     .settings-tab:hover {
-      background: rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(229, 227, 57, 0.3);
       color: var(--brand-text);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .settings-tab.active {
-      background: rgba(229, 227, 57, 0.1);
-      border-bottom-color: var(--brand-accent);
+      background: linear-gradient(135deg, rgba(229, 227, 57, 0.15), rgba(229, 227, 57, 0.08));
+      border-color: var(--brand-accent);
       color: var(--brand-accent);
+      box-shadow: 0 0 0 1px rgba(229, 227, 57, 0.3), 0 4px 12px rgba(229, 227, 57, 0.15);
     }
 
     /* Panneaux */
