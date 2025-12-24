@@ -954,14 +954,19 @@
     .club-theme-card { margin-top: 12px; }
 
     /* Application aux blocs dynamiques d'admin dépourvus de classe dédiée */
-    #admin-root .match-card,
+    #admin-root .match-card {
+      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s ease-out;
+      cursor: pointer;
+    }
+
+    /* Ligue cards: NO transform transition to prevent any zoom animation */
     #ligue-manage-root .ligue-match-card,
     #ligue-root .ligue-list .card,
     #ligue-active-root .ligue-list .card,
     #ligue-config-root .card,
     #ligue-player-root .card,
     #ligue-player-manage-root .card {
-      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s ease-out;
+      transition: box-shadow 0.15s ease-out, background-color 0.15s ease-out;
       cursor: pointer;
     }
     #admin-root .match-card:hover {
@@ -1156,7 +1161,7 @@
       border: 1px solid #111827;
       color: var(--text);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: box-shadow 0.15s ease, background-color 0.15s ease, color 0.15s ease;
       font-weight: 600;
     }
     .ligue-tab:hover { box-shadow: 0 0 0 1px rgba(229,231,235,0.15); }
