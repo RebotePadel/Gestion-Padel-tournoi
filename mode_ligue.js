@@ -1820,9 +1820,8 @@
     var rulesSection = panel.querySelector('.ligue-section');
     if (!rulesSection) return;
 
-    // Clear existing rule blocks (keep date info)
-    var existingBlocks = rulesSection.querySelectorAll('.card[style*="1f2937"]');
-    existingBlocks.forEach(function(block) { block.remove(); });
+    // CLEAR ALL existing content to avoid duplicates
+    rulesSection.innerHTML = '';
 
     // Render custom blocks
     function createRuleBlock(title, content) {
