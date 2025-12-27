@@ -1448,6 +1448,62 @@
     .americano-podium-ga { color: var(--muted); font-size: 0.85rem; }
 
     /* ======================================
+       STYLES SOLO NIGHT
+       ====================================== */
+
+    .solonight-player-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; min-width: 0; padding: 4px 0; }
+    .solonight-player-row label { font-size: 0.85rem; color: var(--muted); }
+    .solonight-player-row input { width: 100%; min-width: 0; }
+
+    .rotation-section { margin-bottom: 24px; padding: 16px; border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.2); }
+    .rotation-section h3 { margin-bottom: 12px; color: var(--brand-accent); }
+
+    .matches-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 12px; }
+
+    .match-card { border: 1px solid #1f2937; border-radius: 12px; background: rgba(15,23,42,0.5); padding: 12px; min-width: 0; }
+    .court-label { font-weight: 700; color: var(--brand-accent); margin-bottom: 8px; font-size: 0.9rem; }
+
+    .match-teams { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .match-teams .team { flex: 1; padding: 8px; border-radius: 8px; background: rgba(30,41,59,0.4); text-align: center; min-width: 0; }
+    .match-teams .team strong { display: block; margin-bottom: 4px; color: var(--brand-accent); font-size: 0.85rem; }
+    .match-teams .vs { font-weight: 700; color: var(--muted); font-size: 0.9rem; }
+
+    .match-result { display: flex; flex-direction: column; gap: 6px; }
+    .match-result button { flex: 1; }
+    .match-result strong { color: var(--text); }
+
+    .paused-players { margin-top: 12px; padding: 10px; border-radius: 8px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); }
+    .paused-players strong { color: var(--brand-accent); }
+
+    .standings-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .standings-table th, .standings-table td { padding: 10px; text-align: left; border-bottom: 1px solid #1f2937; }
+    .standings-table th { color: var(--brand-accent); font-weight: 700; background: rgba(2,6,23,0.4); }
+    .standings-table tr:hover { background: rgba(59,130,246,0.05); }
+    .standings-table .podium-1 { background: rgba(255,215,0,0.1); border-left: 3px solid gold; }
+    .standings-table .podium-2 { background: rgba(192,192,192,0.1); border-left: 3px solid silver; }
+    .standings-table .podium-3 { background: rgba(205,127,50,0.1); border-left: 3px solid #cd7f32; }
+
+    .status-message { padding: 12px; border-radius: 8px; font-weight: 500; }
+    .status-message.info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #60a5fa; }
+    .status-message.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
+    .status-message.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+
+    .tv-match-card { border: 1px solid #1f2937; border-radius: 12px; background: rgba(15,23,42,0.6); padding: 16px; margin-bottom: 12px; }
+    .tv-match-card.completed { border-color: rgba(34,197,94,0.5); }
+    .tv-match-card.pending { border-color: rgba(59,130,246,0.5); }
+    .tv-match-card .tv-court { font-weight: 700; color: var(--brand-accent); margin-bottom: 12px; font-size: 1rem; }
+    .tv-match-card .tv-teams { display: flex; align-items: center; gap: 12px; }
+    .tv-match-card .tv-team { flex: 1; padding: 12px; border-radius: 8px; background: rgba(30,41,59,0.5); text-align: center; font-size: 1rem; }
+    .tv-match-card .tv-team.winner { background: rgba(34,197,94,0.2); border: 2px solid rgba(34,197,94,0.6); }
+    .tv-match-card .tv-vs { font-weight: 700; font-size: 1.2rem; color: var(--muted); }
+
+    .tv-standing-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid #1f2937; }
+    .tv-standing-row.podium { background: rgba(255,215,0,0.1); }
+    .tv-standing-row .pos { font-weight: 700; font-size: 1.1rem; color: var(--brand-accent); width: 40px; }
+    .tv-standing-row .name { flex: 1; font-size: 1rem; }
+    .tv-standing-row .wins { font-weight: 700; color: var(--brand-accent); font-size: 1rem; }
+
+    /* ======================================
        STYLES PARAMÈTRES - NOUVELLE INTERFACE
        ====================================== */
 
@@ -5234,16 +5290,16 @@
 
         <article class="tournament-type-card app-block-interactive">
           <div class="tournament-type-title">
-            <span>Mode “Fun Night”</span>
-            <span class="tournament-type-pill">Mix & rotation</span>
+            <span>Solo Night</span>
+            <span class="tournament-type-pill">Joueurs individuels</span>
           </div>
           <p>
-            Format plus léger pour les soirées découverte : matchs courts,
-            équipes remixées, rotations automatiques sur les terrains.
+            Format solo avec partenaires et adversaires changeants. Contraintes strictes :
+            jamais le même partenaire, jamais le même duo adverse.
           </p>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-            <span class="small-muted">Disponible bientôt</span>
-            <button class="btn btn-small" disabled>🚧 En cours</button>
+            <span class="small-muted">Mode fun avec contraintes</span>
+            <button class="btn btn-small" id="btn-open-solonight">▶ Ouvrir</button>
           </div>
         </article>
       </div>
@@ -5446,6 +5502,171 @@
             <!-- TV UI : podium premium + reste du classement -->
             <div id="americano-tv-podium" class="tv-podium tv-podium-premium"></div>
             <div id="americano-tv-ranking-rest" class="tv-ranking-grid"></div>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <!-- MODE SOLO NIGHT -->
+    <section id="solonight-root" style="display:none;">
+      <div class="mode-toggle" style="justify-content:flex-start; margin-bottom:8px;">
+        <button class="btn btn-secondary btn-small" id="btn-solonight-home">🏠 Accueil</button>
+        <button class="btn btn-secondary btn-small" id="btn-solonight-formats">🏆 Formats</button>
+        <button class="btn btn-secondary btn-small" id="btn-solonight-open-tv">🎥 Vue TV</button>
+      </div>
+
+      <div class="card app-block-interactive" style="margin-bottom:10px;">
+        <div class="tournaments-header" style="margin-bottom:4px;">
+          <div>
+            <div class="tournaments-subtitle">Tournoi classique</div>
+            <h1 class="tournaments-title">Mode Solo Night</h1>
+          </div>
+        </div>
+        <div class="small-muted">Joueurs individuels avec partenaires et adversaires changeants. Contraintes strictes : jamais le même partenaire, jamais le même duo adverse.</div>
+      </div>
+
+      <!-- FORMULAIRE CONFIGURATION -->
+      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
+        <div class="americano-card-header">
+          <div>
+            <h3 class="tournaments-title" style="margin-bottom:6px;">Configuration</h3>
+            <div class="small-muted">Paramètres du tournoi Solo Night</div>
+          </div>
+        </div>
+        <div class="americano-card-body">
+          <div class="field">
+            <label for="solonight-name">Nom du tournoi</label>
+            <input type="text" id="solonight-name" placeholder="Solo Night du vendredi" />
+          </div>
+          <div class="field">
+            <label for="solonight-player-count">Nombre de joueurs (8 à 24)</label>
+            <select id="solonight-player-count">
+              <option value="8">8 joueurs</option>
+              <option value="10">10 joueurs</option>
+              <option value="12">12 joueurs</option>
+              <option value="14">14 joueurs</option>
+              <option value="16" selected>16 joueurs</option>
+              <option value="18">18 joueurs</option>
+              <option value="20">20 joueurs</option>
+              <option value="22">22 joueurs</option>
+              <option value="24">24 joueurs</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="solonight-rotation-count">Nombre de rotations</label>
+            <select id="solonight-rotation-count">
+              <option value="4">4 rotations</option>
+              <option value="6">6 rotations</option>
+              <option value="8" selected>8 rotations</option>
+              <option value="10">10 rotations</option>
+              <option value="12">12 rotations</option>
+              <option value="14">14 rotations</option>
+              <option value="16">16 rotations</option>
+              <option value="18">18 rotations</option>
+              <option value="20">20 rotations</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- INSCRIPTION JOUEURS -->
+      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
+        <div class="americano-card-header">
+          <div>
+            <h3 class="tournaments-title" style="margin-bottom:6px;">Inscription des joueurs</h3>
+            <div class="small-muted">1 nom par joueur • saisie directe</div>
+          </div>
+        </div>
+        <div class="americano-card-body">
+          <div id="solonight-players-list" class="americano-teams-grid"></div>
+        </div>
+      </div>
+
+      <!-- GÉNÉRATION -->
+      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
+        <div class="americano-card-header">
+          <div>
+            <h3 class="tournaments-title" style="margin-bottom:6px;">Génération du planning</h3>
+            <div class="small-muted">Générer les rotations avec contraintes</div>
+          </div>
+        </div>
+        <div class="americano-card-body">
+          <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+            <button class="btn" id="solonight-btn-generate">Générer les rotations</button>
+            <button class="btn btn-secondary" id="solonight-btn-regenerate" style="display:none;">Régénérer</button>
+          </div>
+          <div id="solonight-status" class="status-message" style="display:none; margin-top:10px;"></div>
+        </div>
+      </div>
+
+      <!-- PLANNING -->
+      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
+        <div class="americano-card-header">
+          <div>
+            <h3 class="tournaments-title" style="margin-bottom:6px;">Planning des rotations</h3>
+            <div class="small-muted">Matchs par rotation • Terrains • Joueurs en pause</div>
+          </div>
+        </div>
+        <div class="americano-card-body">
+          <div id="solonight-planning"></div>
+        </div>
+      </div>
+
+      <!-- CLASSEMENT -->
+      <div class="card app-block-interactive americano-card">
+        <div class="americano-card-header">
+          <div>
+            <h3 class="tournaments-title" style="margin-bottom:6px;">Classement</h3>
+            <div class="small-muted">Classement individuel par nombre de victoires</div>
+          </div>
+        </div>
+        <div class="americano-card-body">
+          <div id="solonight-standings"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- VUE TV SOLO NIGHT -->
+    <section id="solonight-tv-root" style="display:none;">
+      <header class="tv-header">
+        <div class="tv-header-left">
+          <img id="solonight-tv-logo" alt="Logo club TV" />
+          <div class="tv-title-block">
+            <div id="solonight-tv-name">Solo Night</div>
+            <div id="solonight-tv-meta">Matchs en direct</div>
+          </div>
+        </div>
+        <div class="tv-header-right">
+          <div class="tv-tag-live">🔴 LIVE</div>
+          <button id="btn-solonight-tv-back" class="btn btn-secondary btn-small">↩ Mode admin</button>
+        </div>
+      </header>
+
+      <div id="solonight-tv-sponsor-banner" class="tv-sponsor">
+        <img id="solonight-tv-sponsor-logo" alt="Sponsor" />
+        <div class="tv-sponsor-name" id="solonight-tv-sponsor-name"></div>
+      </div>
+
+      <main class="tv-main">
+        <section class="tv-column" style="flex: 2;">
+          <div class="tv-block" data-tv-block="current_matches">
+            <div class="tv-block-title">
+              <span>Matchs en cours</span>
+              <span>Rotation actuelle</span>
+            </div>
+            <div id="solonight-tv-current" class="tv-current-list">
+              <div class="tv-empty">Génère le planning et lance les matchs.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block" data-tv-block="ranking">
+            <div class="tv-block-title">
+              <span>Classement</span>
+              <span>Live</span>
+            </div>
+            <div id="solonight-tv-standings" class="tv-ranking-grid"></div>
           </div>
         </section>
       </main>
@@ -7998,6 +8219,7 @@
   <script src="mode_classic.js"></script>
   <script src="mode_md.js"></script>
   <script src="mode_ligue.js"></script>
+  <script src="mode_solonight.js"></script>
   <script src="sidebar.js"></script>
   <script src="tv-rotation.js"></script>
   <script src="tv-animations.js"></script>
