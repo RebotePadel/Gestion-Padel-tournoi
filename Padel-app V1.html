@@ -73,12 +73,34 @@
     .app {
       max-width: 1100px;
       margin: 0 auto;
+      margin-left: 300px;
       background: radial-gradient(circle at 0 0, rgba(148,163,184,0.25), transparent 55%),
                   var(--bg-dark);
       border-radius: 18px;
       border: 1px solid #1f2937;
       box-shadow: 0 24px 60px rgba(0,0,0,0.85);
       padding: 16px;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* When sidebar is collapsed */
+    body.sidebar-collapsed .app {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* In TV mode, center content */
+    body.tv-mode .app {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Mobile: sidebar is overlay, don't offset content */
+    @media (max-width: 900px) {
+      .app {
+        margin-left: auto;
+        margin-right: auto;
+      }
     }
 
     /* HEADER GLOBAL */
@@ -5521,109 +5543,132 @@
             <div class="tournaments-subtitle">Tournoi classique</div>
             <h1 class="tournaments-title">Mode Solo Night</h1>
           </div>
+          <div class="americano-inline" style="gap:6px;">
+            <div class="americano-chip" id="solonight-meta">0 joueurs • 0 rotations</div>
+            <div class="americano-chip" id="solonight-round-meta">Planning non généré</div>
+          </div>
         </div>
         <div class="small-muted">Joueurs individuels avec partenaires et adversaires changeants. Contraintes strictes : jamais le même partenaire, jamais le même duo adverse.</div>
       </div>
 
-      <!-- FORMULAIRE CONFIGURATION -->
-      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
-        <div class="americano-card-header">
-          <div>
-            <h3 class="tournaments-title" style="margin-bottom:6px;">Configuration</h3>
-            <div class="small-muted">Paramètres du tournoi Solo Night</div>
-          </div>
-        </div>
-        <div class="americano-card-body">
-          <div class="field">
-            <label for="solonight-name">Nom du tournoi</label>
-            <input type="text" id="solonight-name" placeholder="Solo Night du vendredi" />
-          </div>
-          <div class="field">
-            <label for="solonight-player-count">Nombre de joueurs (8 à 24)</label>
-            <select id="solonight-player-count">
-              <option value="8">8 joueurs</option>
-              <option value="10">10 joueurs</option>
-              <option value="12">12 joueurs</option>
-              <option value="14">14 joueurs</option>
-              <option value="16" selected>16 joueurs</option>
-              <option value="18">18 joueurs</option>
-              <option value="20">20 joueurs</option>
-              <option value="22">22 joueurs</option>
-              <option value="24">24 joueurs</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="solonight-rotation-count">Nombre de rotations</label>
-            <select id="solonight-rotation-count">
-              <option value="4">4 rotations</option>
-              <option value="6">6 rotations</option>
-              <option value="8" selected>8 rotations</option>
-              <option value="10">10 rotations</option>
-              <option value="12">12 rotations</option>
-              <option value="14">14 rotations</option>
-              <option value="16">16 rotations</option>
-              <option value="18">18 rotations</option>
-              <option value="20">20 rotations</option>
-            </select>
-          </div>
-        </div>
-      </div>
+      <nav class="americano-tabs">
+        <button class="americano-tab-btn active" data-solonight-tab="config">Configuration</button>
+        <button class="americano-tab-btn" data-solonight-tab="players">Joueurs</button>
+        <button class="americano-tab-btn" data-solonight-tab="planning">Planning</button>
+        <button class="americano-tab-btn" data-solonight-tab="standings">Classement</button>
+      </nav>
 
-      <!-- INSCRIPTION JOUEURS -->
-      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
-        <div class="americano-card-header">
-          <div>
-            <h3 class="tournaments-title" style="margin-bottom:6px;">Inscription des joueurs</h3>
-            <div class="small-muted">1 nom par joueur • saisie directe</div>
+      <!-- ONGLET CONFIGURATION -->
+      <section id="solonight-tab-config" class="americano-tab-panel active" data-solonight-tab-panel="config">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Configuration du tournoi</h3>
+              <div class="small-muted">Paramètres généraux</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-config-body">−</button>
+          </div>
+          <div id="solonight-config-body" class="americano-card-body">
+            <div class="field">
+              <label for="solonight-name">Nom du tournoi</label>
+              <input type="text" id="solonight-name" placeholder="Solo Night du vendredi" />
+            </div>
+            <div class="field">
+              <label for="solonight-player-count">Nombre de joueurs (8 à 24)</label>
+              <select id="solonight-player-count">
+                <option value="8">8 joueurs</option>
+                <option value="10">10 joueurs</option>
+                <option value="12">12 joueurs</option>
+                <option value="14">14 joueurs</option>
+                <option value="16" selected>16 joueurs</option>
+                <option value="18">18 joueurs</option>
+                <option value="20">20 joueurs</option>
+                <option value="22">22 joueurs</option>
+                <option value="24">24 joueurs</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="solonight-rotation-count">Nombre de rotations</label>
+              <select id="solonight-rotation-count">
+                <option value="4">4 rotations</option>
+                <option value="6">6 rotations</option>
+                <option value="8" selected>8 rotations</option>
+                <option value="10">10 rotations</option>
+                <option value="12">12 rotations</option>
+                <option value="14">14 rotations</option>
+                <option value="16">16 rotations</option>
+                <option value="18">18 rotations</option>
+                <option value="20">20 rotations</option>
+              </select>
+            </div>
           </div>
         </div>
-        <div class="americano-card-body">
-          <div id="solonight-players-list" class="americano-teams-grid"></div>
-        </div>
-      </div>
+      </section>
 
-      <!-- GÉNÉRATION -->
-      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
-        <div class="americano-card-header">
-          <div>
-            <h3 class="tournaments-title" style="margin-bottom:6px;">Génération du planning</h3>
-            <div class="small-muted">Générer les rotations avec contraintes</div>
+      <!-- ONGLET JOUEURS -->
+      <section id="solonight-tab-players" class="americano-tab-panel" data-solonight-tab-panel="players">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Inscription des joueurs</h3>
+              <div class="small-muted">1 nom par joueur • saisie directe</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-players-body">−</button>
+          </div>
+          <div id="solonight-players-body" class="americano-card-body">
+            <div id="solonight-players-list" class="americano-teams-grid"></div>
           </div>
         </div>
-        <div class="americano-card-body">
-          <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
-            <button class="btn" id="solonight-btn-generate">Générer les rotations</button>
-            <button class="btn btn-secondary" id="solonight-btn-regenerate" style="display:none;">Régénérer</button>
-          </div>
-          <div id="solonight-status" class="status-message" style="display:none; margin-top:10px;"></div>
-        </div>
-      </div>
+      </section>
 
-      <!-- PLANNING -->
-      <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
-        <div class="americano-card-header">
-          <div>
-            <h3 class="tournaments-title" style="margin-bottom:6px;">Planning des rotations</h3>
-            <div class="small-muted">Matchs par rotation • Terrains • Joueurs en pause</div>
+      <!-- ONGLET PLANNING -->
+      <section id="solonight-tab-planning" class="americano-tab-panel" data-solonight-tab-panel="planning">
+        <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Génération du planning</h3>
+              <div class="small-muted">Générer les rotations avec contraintes</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-generation-body">−</button>
+          </div>
+          <div id="solonight-generation-body" class="americano-card-body">
+            <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+              <button class="btn" id="solonight-btn-generate">Générer les rotations</button>
+              <button class="btn btn-secondary" id="solonight-btn-regenerate" style="display:none;">Régénérer</button>
+            </div>
+            <div id="solonight-status" class="status-message" style="display:none; margin-top:10px;"></div>
           </div>
         </div>
-        <div class="americano-card-body">
-          <div id="solonight-planning"></div>
-        </div>
-      </div>
 
-      <!-- CLASSEMENT -->
-      <div class="card app-block-interactive americano-card">
-        <div class="americano-card-header">
-          <div>
-            <h3 class="tournaments-title" style="margin-bottom:6px;">Classement</h3>
-            <div class="small-muted">Classement individuel par nombre de victoires</div>
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Planning des rotations</h3>
+              <div class="small-muted">Matchs par rotation • Terrains • Joueurs en pause</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-planning-body">−</button>
+          </div>
+          <div id="solonight-planning-body" class="americano-card-body">
+            <div id="solonight-planning"></div>
           </div>
         </div>
-        <div class="americano-card-body">
-          <div id="solonight-standings"></div>
+      </section>
+
+      <!-- ONGLET CLASSEMENT -->
+      <section id="solonight-tab-standings" class="americano-tab-panel" data-solonight-tab-panel="standings">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Classement</h3>
+              <div class="small-muted">Classement individuel par nombre de victoires</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-standings-body">−</button>
+          </div>
+          <div id="solonight-standings-body" class="americano-card-body">
+            <div id="solonight-standings"></div>
+          </div>
         </div>
-      </div>
+      </section>
     </section>
 
     <!-- VUE TV SOLO NIGHT -->

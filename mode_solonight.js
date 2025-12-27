@@ -794,16 +794,96 @@
   }
 
   // ========================================
+  // GESTION DES ONGLETS
+  // ========================================
+
+  function bindTabs() {
+    var tabButtons = root ? root.querySelectorAll('[data-solonight-tab]') : [];
+    var tabPanels = root ? root.querySelectorAll('[data-solonight-tab-panel]') : [];
+
+    tabButtons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var targetTab = btn.getAttribute('data-solonight-tab');
+
+        // Désactiver tous les boutons et panels
+        tabButtons.forEach(function(b) { b.classList.remove('active'); });
+        tabPanels.forEach(function(p) { p.classList.remove('active'); });
+
+        // Activer le bouton et panel ciblé
+        btn.classList.add('active');
+        var targetPanel = root.querySelector('[data-solonight-tab-panel="' + targetTab + '"]');
+        if (targetPanel) targetPanel.classList.add('active');
+      });
+    });
+  }
+
+  // ========================================
+  // GESTION DES COLLAPSE
+  // ========================================
+
+  function bindCollapse() {
+    var collapseButtons = root ? root.querySelectorAll('.americano-collapse[data-target]') : [];
+
+    collapseButtons.forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var targetId = btn.getAttribute('data-target');
+        var targetBody = document.getElementById(targetId);
+
+        if (targetBody) {
+          var isCollapsed = targetBody.classList.toggle('americano-collapsed');
+          btn.textContent = isCollapsed ? '+' : '−';
+        }
+      });
+    });
+  }
+
+  // ========================================
+  // MISE À JOUR DES MÉTADONNÉES
+  // ========================================
+
+  function updateMeta() {
+    var metaEl = document.getElementById('solonight-meta');
+    var roundMetaEl = document.getElementById('solonight-round-meta');
+
+    if (metaEl) {
+      metaEl.textContent = state.players.length + ' joueurs • ' +
+                           (state.rotations.length || state.rotationCount) + ' rotations';
+    }
+
+    if (roundMetaEl) {
+      if (state.rotations.length > 0) {
+        roundMetaEl.textContent = 'Planning généré';
+      } else {
+        roundMetaEl.textContent = 'Planning non généré';
+      }
+    }
+  }
+
+  // ========================================
   // EXPOSITION GLOBALE
   // ========================================
 
   window.SOLONIGHT = {
-    render: render,
+    render: function() {
+      render();
+      updateMeta();
+    },
     renderTv: renderTv,
     state: state,
     saveState: saveState
   };
 
+  // ========================================
+  // INITIALISATION
+  // ========================================
+
+  function init() {
+    bindTabs();
+    bindCollapse();
+    render();
+    updateMeta();
+  }
+
   // Rendu initial
-  render();
+  init();
 })();
