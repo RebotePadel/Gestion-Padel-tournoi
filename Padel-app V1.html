@@ -54,27 +54,12 @@
       color: var(--text);
       min-height: 100vh;
       padding: 16px;
-      padding-left: 296px;
-      transition: padding-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* When sidebar is collapsed */
-    body.sidebar-collapsed {
-      padding-left: 16px;
     }
 
     /* TV mode: full screen without sidebar */
     body.tv-mode {
       padding: 0;
-      padding-left: 0;
       overflow-x: hidden;
-    }
-
-    /* Mobile: sidebar is overlay */
-    @media (max-width: 900px) {
-      body {
-        padding-left: 16px;
-      }
     }
 
     h1, h2, h3, h4, h5, h6,
@@ -87,13 +72,35 @@
 
     .app {
       max-width: 1100px;
-      margin: 0 auto;
+      margin-left: calc(280px + max(0px, (100vw - 280px - 1100px - 32px) / 2));
+      margin-right: 16px;
       background: radial-gradient(circle at 0 0, rgba(148,163,184,0.25), transparent 55%),
                   var(--bg-dark);
       border-radius: 18px;
       border: 1px solid #1f2937;
       box-shadow: 0 24px 60px rgba(0,0,0,0.85);
       padding: 16px;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* When sidebar is collapsed - center normally */
+    body.sidebar-collapsed .app {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* TV mode - center normally */
+    body.tv-mode .app {
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Mobile - sidebar is overlay, center normally */
+    @media (max-width: 900px) {
+      .app {
+        margin-left: auto;
+        margin-right: auto;
+      }
     }
 
     /* HEADER GLOBAL */
