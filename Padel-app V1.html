@@ -26,8 +26,12 @@
       --brand-text-rgb: 249, 250, 251;
       --brand-title: #e5e339;
       --brand-title-rgb: 229, 227, 57;
+      --brand-muted: #9ca3af;
+      --brand-border: #1e293b;
       --brand-accent-soft: rgba(var(--brand-accent-rgb), 0.25);
       --brand-primary-glow: rgba(var(--brand-primary-rgb), 0.55);
+      --brand-success: #22c55e;
+      --brand-danger: #ef4444;
 
       --blue-strong: var(--brand-primary);
       --blue-mid: var(--brand-secondary);
@@ -36,12 +40,28 @@
       --accent: var(--brand-accent);
       --bg-dark: var(--brand-bg);
       --card: var(--brand-card-bg);
-      --border: #1e293b;
+      --border: var(--brand-border);
       --text: var(--brand-text);
-      --muted: #9ca3af;
-      --success: #22c55e;
-      --danger: #ef4444;
+      --muted: var(--brand-muted);
+      --success: var(--brand-success);
+      --danger: var(--brand-danger);
       --app-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      /* Typographie */
+      --font-size-xs: clamp(0.7rem, 1.5vw, 0.75rem);
+      --font-size-sm: clamp(0.8rem, 1.8vw, 0.85rem);
+      --font-size-base: clamp(0.9rem, 2vw, 1rem);
+      --font-size-lg: clamp(1rem, 2.5vw, 1.1rem);
+      --font-size-xl: clamp(1.2rem, 3vw, 1.5rem);
+      --font-size-2xl: clamp(1.5rem, 4vw, 2rem);
+
+      /* Espacements */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 24px;
+      --spacing-2xl: 32px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -269,8 +289,45 @@
       gap: 12px;
       margin-top: 10px;
     }
+
+    /* Responsive breakpoints */
+    @media (max-width: 1200px) {
+      .app {
+        max-width: 100%;
+        padding: var(--spacing-xl) 24px;
+      }
+      #home-root {
+        max-width: 100%;
+      }
+      .home-grid {
+        gap: var(--spacing-lg);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .home-grid {
+        gap: var(--spacing-lg);
+      }
+    }
+
     @media (max-width: 800px) {
       .home-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        padding: var(--spacing-lg);
+      }
+      .home-grid {
+        grid-template-columns: minmax(0,1fr);
+        gap: var(--spacing-md);
+      }
+      .home-hero h2 {
+        font-size: var(--font-size-base);
+      }
+      .home-hero p {
+        font-size: var(--font-size-xs);
+      }
     }
 
     .home-card {
