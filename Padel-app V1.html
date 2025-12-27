@@ -70,7 +70,8 @@
       font-family: var(--app-font-family);
     }
 
-    .app {
+    /* Main app container only (not nested ones like in #classic-root) */
+    body > .app {
       max-width: 1100px;
       margin-left: calc(280px + max(0px, (100vw - 280px - 1100px - 32px) / 2));
       margin-right: 16px;
@@ -83,21 +84,33 @@
       transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
+    /* Nested .app containers (like in #classic-root) use default centering */
+    .app {
+      max-width: 1100px;
+      margin: 0 auto;
+      background: radial-gradient(circle at 0 0, rgba(148,163,184,0.25), transparent 55%),
+                  var(--bg-dark);
+      border-radius: 18px;
+      border: 1px solid #1f2937;
+      box-shadow: 0 24px 60px rgba(0,0,0,0.85);
+      padding: 16px;
+    }
+
     /* When sidebar is collapsed - center normally */
-    body.sidebar-collapsed .app {
+    body.sidebar-collapsed > .app {
       margin-left: auto;
       margin-right: auto;
     }
 
     /* TV mode - center normally */
-    body.tv-mode .app {
+    body.tv-mode > .app {
       margin-left: auto;
       margin-right: auto;
     }
 
     /* Mobile - sidebar is overlay, center normally */
     @media (max-width: 900px) {
-      .app {
+      body > .app {
         margin-left: auto;
         margin-right: auto;
       }
