@@ -374,31 +374,40 @@ body.tv-mode .sidebar-toggle-btn {
   margin-top: auto;
 }
 
-/* Layout avec sidebar */
-body.sidebar-open .app {
+/* Layout avec sidebar - par défaut tous les conteneurs .app et sections principales sont décalés */
+.app,
+#home-root,
+#admin-root,
+#classic-root,
+#americano-root,
+#solonight-root,
+#ligue-root,
+#ligue-manage-root,
+#ligue-config-root,
+#ligue-active-root,
+#ligue-player-root,
+#ligue-player-manage-root,
+#tournaments-root,
+#settings-root {
   margin-left: 280px;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.app {
-  margin-left: 280px;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Force margin pour toutes les sections avec .app */
-section .app {
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-}
-
-/* Container principal avec sidebar */
-body > .app {
-  margin-left: 280px !important;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Recentrer le contenu quand la sidebar est collapsed */
-body.sidebar-collapsed > .app {
+body.sidebar-collapsed .app,
+body.sidebar-collapsed #home-root,
+body.sidebar-collapsed #admin-root,
+body.sidebar-collapsed #classic-root,
+body.sidebar-collapsed #americano-root,
+body.sidebar-collapsed #solonight-root,
+body.sidebar-collapsed #ligue-root,
+body.sidebar-collapsed #ligue-manage-root,
+body.sidebar-collapsed #ligue-config-root,
+body.sidebar-collapsed #ligue-active-root,
+body.sidebar-collapsed #ligue-player-root,
+body.sidebar-collapsed #ligue-player-manage-root,
+body.sidebar-collapsed #tournaments-root,
+body.sidebar-collapsed #settings-root {
   margin-left: 0 !important;
   margin-right: 0 !important;
   width: 100%;
@@ -421,7 +430,20 @@ body.tv-mode .sidebar-toggle {
   display: none !important;
 }
 
-body.tv-mode .app {
+body.tv-mode .app,
+body.tv-mode #home-root,
+body.tv-mode #admin-root,
+body.tv-mode #classic-root,
+body.tv-mode #americano-root,
+body.tv-mode #solonight-root,
+body.tv-mode #ligue-root,
+body.tv-mode #ligue-manage-root,
+body.tv-mode #ligue-config-root,
+body.tv-mode #ligue-active-root,
+body.tv-mode #ligue-player-root,
+body.tv-mode #ligue-player-manage-root,
+body.tv-mode #tournaments-root,
+body.tv-mode #settings-root {
   margin-left: auto !important;
   margin-right: auto !important;
 }
@@ -500,12 +522,38 @@ body.tv-mode .app {
     bottom: -8px;
   }
 
-  .app {
+  .app,
+  #home-root,
+  #admin-root,
+  #classic-root,
+  #americano-root,
+  #solonight-root,
+  #ligue-root,
+  #ligue-manage-root,
+  #ligue-config-root,
+  #ligue-active-root,
+  #ligue-player-root,
+  #ligue-player-manage-root,
+  #tournaments-root,
+  #settings-root {
     margin-left: 0;
     padding-bottom: 100px;
   }
 
-  body.sidebar-open .app {
+  body.sidebar-open .app,
+  body.sidebar-open #home-root,
+  body.sidebar-open #admin-root,
+  body.sidebar-open #classic-root,
+  body.sidebar-open #americano-root,
+  body.sidebar-open #solonight-root,
+  body.sidebar-open #ligue-root,
+  body.sidebar-open #ligue-manage-root,
+  body.sidebar-open #ligue-config-root,
+  body.sidebar-open #ligue-active-root,
+  body.sidebar-open #ligue-player-root,
+  body.sidebar-open #ligue-player-manage-root,
+  body.sidebar-open #tournaments-root,
+  body.sidebar-open #settings-root {
     margin-left: 0;
   }
 }
