@@ -7357,7 +7357,7 @@
         nameTargets.forEach(function(el) { el.textContent = currentClubProfile.name || DEFAULT_PROFILE.name; });
         var shortTargets = document.querySelectorAll('[data-club-shortname]');
         shortTargets.forEach(function(el) { el.textContent = currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName; });
-        document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
+        document.title = 'Gestion Padel – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
 
