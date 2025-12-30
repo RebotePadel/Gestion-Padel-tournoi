@@ -1180,70 +1180,135 @@
       box-shadow: 0 20px 45px rgba(0,0,0,0.9);
     }
 
-    /* TV Layouts */
-    /* Fullscreen: un seul bloc visible (défaut avec rotation) */
+    /* ========================================
+       ÉTAPE 1 : FIX LAYOUTS VUE TV MODE M/D
+       ======================================== */
+
+    /* FULLSCREEN LAYOUT - Override du grid pour vraiment afficher 1 seul bloc plein écran */
+    #tv-root .tv-main.tv-layout-fullscreen,
+    .tv-main.layout-fullscreen {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-template-columns: unset !important;
+      gap: 12px;
+    }
+
+    /* En fullscreen, les .tv-column wrappers deviennent invisibles (display: contents) */
+    #tv-root .tv-main.tv-layout-fullscreen .tv-column,
+    .tv-main.layout-fullscreen .tv-column {
+      display: contents; /* Les enfants deviennent enfants directs du flex */
+    }
+
+    /* Blocs en fullscreen occupent tout l'espace */
+    #tv-root .tv-main.tv-layout-fullscreen .tv-block,
     .tv-main.layout-fullscreen .tv-block {
+      width: 100%;
+      min-height: 400px;
+      flex: 1;
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-fullscreen .tv-block.tv-block-active,
     .tv-main.layout-fullscreen .tv-block.tv-block-active {
       display: block;
     }
 
-    /* Split Vertical: 2 blocs côte à côte */
+    /* SPLIT VERTICAL - 2 blocs côte à côte */
+    #tv-root .tv-main.tv-layout-split-v,
     .tv-main.layout-split-vertical {
-      grid-template-columns: 1fr 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-template-rows: 1fr;
+      gap: 12px;
     }
+
+    #tv-root .tv-main.tv-layout-split-v .tv-column,
+    .tv-main.layout-split-vertical .tv-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #tv-root .tv-main.tv-layout-split-v .tv-block,
     .tv-main.layout-split-vertical .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-split-v .tv-block.tv-block-active,
     .tv-main.layout-split-vertical .tv-block:nth-child(1),
     .tv-main.layout-split-vertical .tv-block:nth-child(2) {
       display: block;
     }
 
-    /* Split Horizontal: 2 blocs empilés */
+    /* SPLIT HORIZONTAL - 2 blocs empilés */
+    #tv-root .tv-main.tv-layout-split-h,
     .tv-main.layout-split-horizontal {
-      grid-template-columns: 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr !important;
       grid-template-rows: 1fr 1fr;
+      gap: 12px;
     }
+
+    #tv-root .tv-main.tv-layout-split-h .tv-column,
+    .tv-main.layout-split-horizontal .tv-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #tv-root .tv-main.tv-layout-split-h .tv-block,
     .tv-main.layout-split-horizontal .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-split-h .tv-block.tv-block-active,
     .tv-main.layout-split-horizontal .tv-block:nth-child(1),
     .tv-main.layout-split-horizontal .tv-block:nth-child(2) {
       display: block;
     }
 
-    /* Grid 2x2: 4 blocs en grille */
+    /* GRID 2x2 - 4 blocs en grille */
+    #tv-root .tv-main.tv-layout-grid-4,
     .tv-main.layout-grid-2x2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
       grid-template-rows: 1fr 1fr;
       gap: 12px;
     }
+
     /* Aplatir la structure des colonnes pour grid-2x2 */
+    #tv-root .tv-main.tv-layout-grid-4 .tv-column,
     .tv-main.layout-grid-2x2 .tv-column,
     .tv-main.layout-grid-2x2 .tv-col {
       display: contents; /* Les colonnes deviennent transparentes, les blocs deviennent des grid items directs */
     }
+
+    #tv-root .tv-main.tv-layout-grid-4 .tv-block,
     .tv-main.layout-grid-2x2 .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-grid-4 .tv-block.tv-block-active,
     .tv-main.layout-grid-2x2 .tv-block.tv-block-active {
       display: block;
     }
 
     /* PiP (Picture in Picture): bloc principal + petit bloc en coin */
+    #tv-root .tv-main.tv-layout-pip,
     .tv-main.layout-pip {
       position: relative;
       grid-template-columns: 1fr;
     }
+
+    #tv-root .tv-main.tv-layout-pip .tv-block,
     .tv-main.layout-pip .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-pip .tv-block:nth-child(1),
     .tv-main.layout-pip .tv-block:nth-child(1) {
       display: block;
     }
+
+    #tv-root .tv-main.tv-layout-pip .tv-block:nth-child(2),
     .tv-main.layout-pip .tv-block:nth-child(2) {
       display: block;
       position: absolute;
@@ -1256,6 +1321,167 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
+    /* Responsive Mobile M/D - tous layouts passent en 1 colonne */
+    @media (max-width: 900px) {
+      #tv-root .tv-main,
+      .tv-main {
+        grid-template-columns: 1fr !important;
+      }
+
+      #tv-root .tv-main .tv-column,
+      .tv-main .tv-column {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    /* ========================================
+       ÉTAPE 2 : COULEURS VUE TV UNIFIÉES
+       ======================================== */
+
+    /* Définir les variables CSS par défaut pour la vue TV */
+    #tv-root {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    /* TOUS les textes de la vue TV M/D utilisent la variable --tv-text-color */
+    #tv-root,
+    #tv-root * {
+      color: var(--tv-text-color);
+    }
+
+    /* Titres Vue TV utilisent --tv-title-color */
+    #tv-root h1,
+    #tv-root h2,
+    #tv-root h3,
+    #tv-root h4,
+    #tv-root .tv-title,
+    #tv-root .tv-block-title,
+    #tv-root #tv-tournoi-name,
+    #tv-root .tv-match-top,
+    #tv-root .tv-podium-name,
+    #tv-root .tv-ranking-name,
+    #tv-root .team-name,
+    #tv-root .tv-section-title {
+      color: var(--tv-title-color) !important;
+    }
+
+    /* Sous-titres / Métadonnées utilisent --tv-subtitle-color */
+    #tv-root #tv-roulement-info,
+    #tv-root .tv-block-title span:last-child,
+    #tv-root .tv-match-tag,
+    #tv-root .tv-small-note,
+    #tv-root .status-line,
+    #tv-root .small-muted,
+    #tv-root .tv-subtitle {
+      color: var(--tv-subtitle-color) !important;
+    }
+
+    /* Texte muted / secondaire utilisent --tv-muted-color */
+    #tv-root .tv-empty,
+    #tv-root .tv-ranking-record {
+      color: var(--tv-muted-color) !important;
+    }
+
+    /* Reset spécifique des couleurs en dur pour les cartes */
+    #tv-root .tv-match-card {
+      color: var(--tv-text-color) !important;
+    }
+
+    #tv-root .tv-match-card-next {
+      color: var(--tv-text-color) !important;
+    }
+
+    #tv-root .tv-ranking-item {
+      color: var(--tv-text-color) !important;
+    }
+
+    #tv-root .tv-podium-row {
+      color: var(--tv-text-color) !important;
+    }
+
+    /* Points / Scores gardent la couleur accent pour visibilité */
+    #tv-root .tv-ranking-points,
+    #tv-root .ranking-points,
+    #tv-root .match-score {
+      color: var(--brand-accent) !important;
+    }
+
+    /* Vue TV Classic - mêmes variables */
+    #tv-overlay {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    #tv-overlay,
+    #tv-overlay * {
+      color: var(--tv-text-color);
+    }
+
+    #tv-overlay h1,
+    #tv-overlay h2,
+    #tv-overlay h3,
+    #tv-overlay .tv-title {
+      color: var(--tv-title-color) !important;
+    }
+
+    #tv-overlay .tv-subtitle,
+    #tv-overlay .small-muted {
+      color: var(--tv-subtitle-color) !important;
+    }
+
+    /* Vue TV Américano - mêmes variables */
+    #americano-tv-root {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    #americano-tv-root,
+    #americano-tv-root * {
+      color: var(--tv-text-color);
+    }
+
+    #americano-tv-root h1,
+    #americano-tv-root h2,
+    #americano-tv-root #americano-tv-name {
+      color: var(--tv-title-color) !important;
+    }
+
+    #americano-tv-root #americano-tv-meta {
+      color: var(--tv-subtitle-color) !important;
+    }
+
+    /* Vue TV Solo Night - mêmes variables */
+    #solonight-tv-root {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    #solonight-tv-root,
+    #solonight-tv-root * {
+      color: var(--tv-text-color);
+    }
+
+    #solonight-tv-root h1,
+    #solonight-tv-root h2,
+    #solonight-tv-root #solonight-tv-name {
+      color: var(--tv-title-color) !important;
+    }
+
+    #solonight-tv-root .tv-subtitle,
+    #solonight-tv-root .small-muted {
+      color: var(--tv-subtitle-color) !important;
+    }
+
     .tv-block-title {
       display: flex;
       align-items: center;
@@ -1264,12 +1490,12 @@
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
-      color: var(--blue-soft);
+      /* color déjà géré par les variables CSS ci-dessus */
     }
 
     .tv-block-title span:last-child {
       font-size: 0.8rem;
-      color: var(--muted);
+      /* color déjà géré par var(--tv-subtitle-color) ci-dessus */
     }
 
     .tv-current-list,.tv-next-list {
@@ -4749,6 +4975,9 @@
               <button class="tvview-mode-tab" data-mode="americano">
                 🎯 Américano
               </button>
+              <button class="tvview-mode-tab" data-mode="solonight">
+                🌙 Solo Night
+              </button>
             </div>
 
             <!-- Mode M/D Config -->
@@ -5264,23 +5493,6 @@
                   </div>
                 </div>
 
-                <h4 class="subsection-title">📤 Appliquer à d'autres modes</h4>
-                <div class="tvview-apply-modes">
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-apply-to-classic" />
-                    <span class="block-label">
-                      <span class="block-name">Tournoi Classique</span>
-                    </span>
-                  </label>
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-apply-to-americano" />
-                    <span class="block-label">
-                      <span class="block-name">Américano</span>
-                    </span>
-                  </label>
-                  <button class="btn btn-secondary" id="md-apply-to-modes">📤 Appliquer aux modes sélectionnés</button>
-                </div>
-
                 <h4 class="subsection-title">Import/Export</h4>
                 <div class="tvview-import-export">
                   <button class="btn btn-secondary" id="md-import-config">📥 Importer config</button>
@@ -5309,6 +5521,225 @@
                   Section en cours de développement - Utilisez la config M/D comme template et appliquez-la ici
                 </p>
               </div>
+            </div>
+
+            <!-- Mode Solo Night Config -->
+            <div class="tvview-mode-panel" data-mode="solonight">
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">🌙 Configuration Vue TV Solo Night</h3>
+                <p class="field-hint">Personnalisez l'affichage TV pour le mode Solo Night - Tournoi individuel nocturne</p>
+                <p style="color: var(--muted); font-style: italic;">
+                  ℹ️ Configuration complète disponible - Blocs affichés: Matchs en cours, Classement live, Prochains matchs, Podium top 3
+                </p>
+              </div>
+
+              <!-- Section : Blocs affichés -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📦 Blocs affichés</h3>
+                <p class="field-hint">Sélectionnez les blocs qui apparaîtront dans la rotation TV Solo Night</p>
+
+                <div class="tvview-blocks-list">
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="solonight-block-current-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">🏓</span>
+                      <span class="block-name">Matchs en cours</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="solonight-block-ranking" checked />
+                    <span class="block-label">
+                      <span class="block-icon">📊</span>
+                      <span class="block-name">Classement en temps réel</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="solonight-block-next-matches" checked />
+                    <span class="block-label">
+                      <span class="block-icon">⏭️</span>
+                      <span class="block-name">Prochains matchs</span>
+                    </span>
+                  </label>
+
+                  <label class="tvview-block-item">
+                    <input type="checkbox" id="solonight-block-podium" />
+                    <span class="block-label">
+                      <span class="block-icon">🏆</span>
+                      <span class="block-name">Podium top 3</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section : Rotation automatique -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">🔄 Rotation automatique</h3>
+
+                <label class="tvview-block-item">
+                  <input type="checkbox" id="solonight-rotation-enabled" checked />
+                  <span class="block-label">
+                    <span class="block-name">Activer la rotation automatique</span>
+                  </span>
+                </label>
+
+                <div id="solonight-rotation-settings" class="tvview-rotation-settings">
+                  <h4 class="subsection-title">⏱️ Durée d'affichage par bloc</h4>
+
+                  <div class="tvview-duration-grid">
+                    <div class="duration-item">
+                      <label class="field-label">Matchs en cours</label>
+                      <div class="slider-group">
+                        <input type="range" id="solonight-duration-current-matches" min="2" max="30" value="10" class="duration-slider" />
+                        <span class="duration-value">10s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Classement</label>
+                      <div class="slider-group">
+                        <input type="range" id="solonight-duration-ranking" min="2" max="30" value="8" class="duration-slider" />
+                        <span class="duration-value">8s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Prochains matchs</label>
+                      <div class="slider-group">
+                        <input type="range" id="solonight-duration-next-matches" min="2" max="30" value="6" class="duration-slider" />
+                        <span class="duration-value">6s</span>
+                      </div>
+                    </div>
+
+                    <div class="duration-item">
+                      <label class="field-label">Podium</label>
+                      <div class="slider-group">
+                        <input type="range" id="solonight-duration-podium" min="2" max="30" value="5" class="duration-slider" />
+                        <span class="duration-value">5s</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="tvview-rotation-options">
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="solonight-pause-hover" />
+                      <span class="block-label">
+                        <span class="block-name">Pause rotation au survol de la souris</span>
+                      </span>
+                    </label>
+
+                    <label class="tvview-block-item">
+                      <input type="checkbox" id="solonight-show-progress" checked />
+                      <span class="block-label">
+                        <span class="block-name">Afficher indicateur de progression</span>
+                      </span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Section : Mise en page (Layout) -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">📐 Mise en page (Layout)</h3>
+
+                <div class="tvview-layout-options">
+                  <label class="layout-option">
+                    <input type="radio" name="solonight-layout" value="fullscreen" checked />
+                    <div class="layout-card">
+                      <div class="layout-preview fullscreen-preview">
+                        <div class="preview-block">BLOC</div>
+                      </div>
+                      <span class="layout-name">Plein écran</span>
+                      <span class="layout-desc">1 bloc à la fois</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="solonight-layout" value="split-vertical" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-v-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split vertical</span>
+                      <span class="layout-desc">2 blocs côte à côte</span>
+                    </div>
+                  </label>
+
+                  <label class="layout-option">
+                    <input type="radio" name="solonight-layout" value="split-horizontal" />
+                    <div class="layout-card">
+                      <div class="layout-preview split-h-preview">
+                        <div class="preview-block">1</div>
+                        <div class="preview-block">2</div>
+                      </div>
+                      <span class="layout-name">Split horizontal</span>
+                      <span class="layout-desc">2 blocs haut/bas</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Section : Couleurs de texte -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">🎨 Couleurs de texte TV</h3>
+                <p class="field-hint">Personnalisez les couleurs du texte affiché dans la vue TV Solo Night</p>
+
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="solonight-tv-text-color" class="field-label">Couleur du texte</label>
+                    <div class="color-input-group">
+                      <input type="color" id="solonight-tv-text-color" value="#f9fafb" class="color-picker" />
+                      <input type="text" id="solonight-tv-text-color-hex" value="#f9fafb" class="color-hex-input" placeholder="#ffffff" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label for="solonight-tv-title-color" class="field-label">Couleur des titres</label>
+                    <div class="color-input-group">
+                      <input type="color" id="solonight-tv-title-color" value="#e5e339" class="color-picker" />
+                      <input type="text" id="solonight-tv-title-color-hex" value="#e5e339" class="color-hex-input" placeholder="#e5e339" />
+                    </div>
+                  </div>
+
+                  <div class="field">
+                    <label for="solonight-tv-subtitle-color" class="field-label">Couleur des sous-titres</label>
+                    <div class="color-input-group">
+                      <input type="color" id="solonight-tv-subtitle-color" value="#9ca3af" class="color-picker" />
+                      <input type="text" id="solonight-tv-subtitle-color-hex" value="#9ca3af" class="color-hex-input" placeholder="#9ca3af" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tvview-color-preview">
+                  <div class="color-preview-card">
+                    <h4 id="solonight-preview-title" style="color: #e5e339;">Titre du bloc TV</h4>
+                    <p id="solonight-preview-subtitle" style="color: #9ca3af;">Sous-titre ou label</p>
+                    <p id="solonight-preview-text" style="color: #f9fafb;">Texte de description</p>
+                  </div>
+                </div>
+
+                <button class="btn btn-secondary btn-small" id="solonight-reset-text-colors">🔄 Réinitialiser les couleurs par défaut</button>
+              </div>
+
+              <!-- Section : Sauvegarde config -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">💾 Gestion de configuration</h3>
+
+                <div class="tvview-config-actions">
+                  <button class="btn btn-primary" id="solonight-save-config">💾 Sauvegarder cette config</button>
+                  <button class="btn btn-danger" id="solonight-reset-config">🔄 Réinitialiser par défaut</button>
+                </div>
+
+                <h4 class="subsection-title">Import/Export</h4>
+                <div class="tvview-import-export">
+                  <button class="btn btn-secondary" id="solonight-import-config">📥 Importer config</button>
+                  <input type="file" id="solonight-import-file" accept=".json" style="display:none;" />
+                  <button class="btn btn-secondary" id="solonight-export-config">📤 Exporter cette config</button>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -8637,6 +9068,204 @@
         loadTVColors();
 
         console.log('[TV Colors] Initialisé');
+      });
+    })();
+  </script>
+
+  <!-- Script gestion layouts Vue TV M/D et rotation -->
+  <script>
+    (function() {
+      'use strict';
+
+      // Variable globale pour le manager de rotation
+      window.mdTVRotationManager = null;
+
+      // Configuration par défaut Vue TV M/D
+      function getDefaultTVConfig() {
+        return {
+          blocks: {
+            current_matches: { enabled: true, duration: 10 },
+            ranking: { enabled: true, duration: 8 },
+            next_matches: { enabled: true, duration: 6 },
+            resting_teams: { enabled: false, duration: 5 }
+          },
+          rotation: {
+            enabled: true,
+            order: ["current_matches", "ranking", "next_matches"],
+            pauseOnHover: false,
+            showIndicator: true,
+            transition: { type: "fade", duration: 0.5 }
+          },
+          layout: {
+            type: "fullscreen" // fullscreen, split-vertical, split-horizontal, grid-2x2, pip
+          },
+          colors: {
+            text: "#f9fafb",
+            title: "#e5e339",
+            subtitle: "#9ca3af"
+          },
+          animations: {
+            enabled: true
+          },
+          header: {
+            enabled: true
+          },
+          footer: {
+            enabled: false
+          }
+        };
+      }
+
+      // Charger config depuis localStorage
+      function loadTVConfig() {
+        try {
+          var stored = localStorage.getItem('tv_config_md');
+          if (stored) {
+            return JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error('[TV Layout] Erreur chargement config:', e);
+        }
+        return getDefaultTVConfig();
+      }
+
+      // Sauvegarder config dans localStorage
+      function saveTVConfig(config) {
+        try {
+          localStorage.setItem('tv_config_md', JSON.stringify(config));
+          console.log('[TV Layout] Config sauvegardée');
+        } catch (e) {
+          console.error('[TV Layout] Erreur sauvegarde:', e);
+        }
+      }
+
+      // Appliquer le layout à la vue TV
+      function applyTVLayout(layoutType) {
+        var tvMain = document.querySelector('#tv-root .tv-main');
+        if (!tvMain) {
+          console.warn('[TV Layout] Élément .tv-main non trouvé');
+          return;
+        }
+
+        // Retirer toutes les classes de layout existantes
+        tvMain.classList.remove(
+          'tv-layout-fullscreen',
+          'layout-fullscreen',
+          'tv-layout-split-v',
+          'layout-split-vertical',
+          'tv-layout-split-h',
+          'layout-split-horizontal',
+          'tv-layout-grid-4',
+          'layout-grid-2x2',
+          'tv-layout-pip',
+          'layout-pip'
+        );
+
+        // Ajouter la classe correspondante au layout choisi
+        switch (layoutType) {
+          case 'fullscreen':
+            tvMain.classList.add('tv-layout-fullscreen', 'layout-fullscreen');
+            console.log('[TV Layout] Fullscreen activé');
+            break;
+          case 'split-vertical':
+            tvMain.classList.add('tv-layout-split-v', 'layout-split-vertical');
+            console.log('[TV Layout] Split vertical activé');
+            break;
+          case 'split-horizontal':
+            tvMain.classList.add('tv-layout-split-h', 'layout-split-horizontal');
+            console.log('[TV Layout] Split horizontal activé');
+            break;
+          case 'grid-2x2':
+            tvMain.classList.add('tv-layout-grid-4', 'layout-grid-2x2');
+            console.log('[TV Layout] Grid 2x2 activé');
+            break;
+          case 'pip':
+            tvMain.classList.add('tv-layout-pip', 'layout-pip');
+            console.log('[TV Layout] PiP activé');
+            break;
+          default:
+            tvMain.classList.add('tv-layout-fullscreen', 'layout-fullscreen');
+            console.log('[TV Layout] Fullscreen par défaut');
+        }
+      }
+
+      // Initialiser la vue TV M/D
+      function initMDTVView() {
+        console.log('[TV M/D] Initialisation...');
+
+        // Charger config
+        var config = loadTVConfig();
+
+        // Appliquer layout
+        if (config.layout && config.layout.type) {
+          applyTVLayout(config.layout.type);
+        }
+
+        // Appliquer couleurs (si existantes)
+        var savedColors = localStorage.getItem('mdTVColors');
+        if (savedColors) {
+          try {
+            var colors = JSON.parse(savedColors);
+            var tvRoot = document.getElementById('tv-root');
+            if (tvRoot) {
+              tvRoot.style.setProperty('--tv-text-color', colors.text || '#f9fafb');
+              tvRoot.style.setProperty('--tv-title-color', colors.title || '#e5e339');
+              tvRoot.style.setProperty('--tv-subtitle-color', colors.subtitle || '#9ca3af');
+            }
+          } catch (e) {
+            console.error('[TV M/D] Erreur application couleurs:', e);
+          }
+        }
+
+        // Initialiser TVRotationManager si disponible
+        if (typeof TVRotationManager !== 'undefined' && config.rotation && config.rotation.enabled) {
+          var tvRoot = document.getElementById('tv-root');
+
+          // Détruire manager existant si présent
+          if (window.mdTVRotationManager) {
+            window.mdTVRotationManager.destroy();
+          }
+
+          // Créer nouveau manager
+          window.mdTVRotationManager = new TVRotationManager(config, tvRoot);
+
+          if (window.mdTVRotationManager.init()) {
+            window.mdTVRotationManager.start();
+            console.log('[TV M/D] Rotation démarrée');
+          }
+        } else {
+          console.log('[TV M/D] Rotation désactivée ou TVRotationManager non disponible');
+        }
+
+        console.log('[TV M/D] Initialisé avec layout:', config.layout.type);
+      }
+
+      // Exporter fonctions vers window pour accès depuis autres scripts
+      window.initMDTVView = initMDTVView;
+      window.loadTVConfig = loadTVConfig;
+      window.saveTVConfig = saveTVConfig;
+      window.applyTVLayout = applyTVLayout;
+
+      // Écouter l'ouverture de la vue TV M/D
+      document.addEventListener('DOMContentLoaded', function() {
+        // Chercher le bouton qui ouvre la vue TV
+        var btnBackAdmin = document.getElementById('btn-back-admin');
+        if (btnBackAdmin) {
+          btnBackAdmin.addEventListener('click', function() {
+            // Fermer la vue TV
+            var tvRoot = document.getElementById('tv-root');
+            if (tvRoot) {
+              tvRoot.style.display = 'none';
+            }
+
+            // Arrêter la rotation
+            if (window.mdTVRotationManager) {
+              window.mdTVRotationManager.stop();
+            }
+          });
+        }
+
+        console.log('[TV Layout] Module chargé');
       });
     })();
   </script>
