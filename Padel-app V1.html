@@ -1868,6 +1868,69 @@
       font-family: monospace;
     }
 
+    /* Groupe input couleur (Vue TV) */
+    .color-input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-picker {
+      width: 60px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      padding: 4px;
+    }
+
+    .color-hex-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: monospace;
+      text-transform: uppercase;
+    }
+
+    .color-hex-input:focus {
+      outline: none;
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 3px rgba(229, 227, 57, 0.1);
+    }
+
+    /* Aperçu couleurs TV */
+    .tvview-color-preview {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .color-preview-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .color-preview-card h4 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .color-preview-card p {
+      font-size: 0.95rem;
+      margin: 6px 0;
+    }
+
     .field-range {
       display: flex;
       flex-direction: column;
@@ -5133,7 +5196,52 @@
                 </div>
               </div>
 
-              <!-- Section 2.6 : Gestion des configurations -->
+              <!-- Section 2.6 : Couleurs de texte -->
+              <div class="settings-section app-block-interactive">
+                <h3 class="settings-section-title">🎨 Couleurs de texte TV</h3>
+                <p class="field-hint">Personnalisez les couleurs du texte affiché dans la vue TV</p>
+
+                <div class="settings-grid">
+                  <div class="field">
+                    <label for="md-tv-text-color" class="field-label">Couleur du texte</label>
+                    <div class="color-input-group">
+                      <input type="color" id="md-tv-text-color" value="#f9fafb" class="color-picker" />
+                      <input type="text" id="md-tv-text-color-hex" value="#f9fafb" class="color-hex-input" placeholder="#ffffff" />
+                    </div>
+                    <p class="field-hint">Texte de corps, labels, descriptions</p>
+                  </div>
+
+                  <div class="field">
+                    <label for="md-tv-title-color" class="field-label">Couleur des titres</label>
+                    <div class="color-input-group">
+                      <input type="color" id="md-tv-title-color" value="#e5e339" class="color-picker" />
+                      <input type="text" id="md-tv-title-color-hex" value="#e5e339" class="color-hex-input" placeholder="#ffffff" />
+                    </div>
+                    <p class="field-hint">Titres principaux, noms d'équipes, en-têtes</p>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="md-tv-subtitle-color" class="field-label">Couleur des sous-titres</label>
+                  <div class="color-input-group">
+                    <input type="color" id="md-tv-subtitle-color" value="#9ca3af" class="color-picker" />
+                    <input type="text" id="md-tv-subtitle-color-hex" value="#9ca3af" class="color-hex-input" placeholder="#cccccc" />
+                  </div>
+                  <p class="field-hint">Labels secondaires, infos complémentaires</p>
+                </div>
+
+                <div class="tvview-color-preview">
+                  <div class="color-preview-card">
+                    <h4 id="preview-title" style="color: #e5e339;">Titre du bloc TV</h4>
+                    <p id="preview-subtitle" style="color: #9ca3af;">Sous-titre ou label</p>
+                    <p id="preview-text" style="color: #f9fafb;">Texte de description ou contenu du bloc</p>
+                  </div>
+                </div>
+
+                <button class="btn btn-secondary btn-small" id="md-reset-text-colors">🔄 Réinitialiser les couleurs par défaut</button>
+              </div>
+
+              <!-- Section 2.7 : Gestion des configurations -->
               <div class="settings-section app-block-interactive">
                 <h3 class="settings-section-title">💾 Gestion des configurations</h3>
 
@@ -8357,5 +8465,181 @@
   <script src="tv-rotation.js"></script>
   <script src="tv-animations.js"></script>
   <script src="settings.js"></script>
+
+  <!-- Script gestion couleurs Vue TV -->
+  <script>
+    (function() {
+      'use strict';
+
+      // Attendre que le DOM soit chargé
+      document.addEventListener('DOMContentLoaded', function() {
+        // Références aux inputs
+        var textColorPicker = document.getElementById('md-tv-text-color');
+        var textColorHex = document.getElementById('md-tv-text-color-hex');
+        var titleColorPicker = document.getElementById('md-tv-title-color');
+        var titleColorHex = document.getElementById('md-tv-title-color-hex');
+        var subtitleColorPicker = document.getElementById('md-tv-subtitle-color');
+        var subtitleColorHex = document.getElementById('md-tv-subtitle-color-hex');
+
+        // Références aux éléments d'aperçu
+        var previewTitle = document.getElementById('preview-title');
+        var previewSubtitle = document.getElementById('preview-subtitle');
+        var previewText = document.getElementById('preview-text');
+
+        // Bouton reset
+        var resetBtn = document.getElementById('md-reset-text-colors');
+
+        if (!textColorPicker || !titleColorPicker || !subtitleColorPicker) {
+          console.warn('[TV Colors] Éléments non trouvés');
+          return;
+        }
+
+        // Sync color picker -> hex input -> preview
+        function syncColorToHex(picker, hexInput, previewElement) {
+          var color = picker.value;
+          hexInput.value = color.toUpperCase();
+          if (previewElement) {
+            previewElement.style.color = color;
+          }
+          saveTVColors();
+        }
+
+        // Sync hex input -> color picker -> preview
+        function syncHexToColor(hexInput, picker, previewElement) {
+          var hex = hexInput.value.trim();
+          // Valider format hex
+          if (/^#[0-9A-F]{6}$/i.test(hex)) {
+            picker.value = hex;
+            if (previewElement) {
+              previewElement.style.color = hex;
+            }
+            saveTVColors();
+          }
+        }
+
+        // Event listeners - Texte
+        textColorPicker.addEventListener('input', function() {
+          syncColorToHex(textColorPicker, textColorHex, previewText);
+        });
+
+        textColorHex.addEventListener('input', function() {
+          syncHexToColor(textColorHex, textColorPicker, previewText);
+        });
+
+        // Event listeners - Titres
+        titleColorPicker.addEventListener('input', function() {
+          syncColorToHex(titleColorPicker, titleColorHex, previewTitle);
+        });
+
+        titleColorHex.addEventListener('input', function() {
+          syncHexToColor(titleColorHex, titleColorPicker, previewTitle);
+        });
+
+        // Event listeners - Sous-titres
+        subtitleColorPicker.addEventListener('input', function() {
+          syncColorToHex(subtitleColorPicker, subtitleColorHex, previewSubtitle);
+        });
+
+        subtitleColorHex.addEventListener('input', function() {
+          syncHexToColor(subtitleColorHex, subtitleColorPicker, previewSubtitle);
+        });
+
+        // Bouton reset
+        if (resetBtn) {
+          resetBtn.addEventListener('click', function() {
+            // Couleurs par défaut
+            textColorPicker.value = '#f9fafb';
+            textColorHex.value = '#F9FAFB';
+            previewText.style.color = '#f9fafb';
+
+            titleColorPicker.value = '#e5e339';
+            titleColorHex.value = '#E5E339';
+            previewTitle.style.color = '#e5e339';
+
+            subtitleColorPicker.value = '#9ca3af';
+            subtitleColorHex.value = '#9CA3AF';
+            previewSubtitle.style.color = '#9ca3af';
+
+            saveTVColors();
+
+            // Feedback visuel
+            resetBtn.textContent = '✅ Réinitialisé !';
+            setTimeout(function() {
+              resetBtn.textContent = '🔄 Réinitialiser les couleurs par défaut';
+            }, 2000);
+          });
+        }
+
+        // Sauvegarder dans localStorage
+        function saveTVColors() {
+          try {
+            var colors = {
+              text: textColorPicker.value,
+              title: titleColorPicker.value,
+              subtitle: subtitleColorPicker.value
+            };
+            localStorage.setItem('mdTVColors', JSON.stringify(colors));
+            applyTVColors(colors);
+          } catch (e) {
+            console.error('[TV Colors] Erreur sauvegarde:', e);
+          }
+        }
+
+        // Charger depuis localStorage
+        function loadTVColors() {
+          try {
+            var stored = localStorage.getItem('mdTVColors');
+            if (stored) {
+              var colors = JSON.parse(stored);
+              if (colors.text) {
+                textColorPicker.value = colors.text;
+                textColorHex.value = colors.text.toUpperCase();
+                previewText.style.color = colors.text;
+              }
+              if (colors.title) {
+                titleColorPicker.value = colors.title;
+                titleColorHex.value = colors.title.toUpperCase();
+                previewTitle.style.color = colors.title;
+              }
+              if (colors.subtitle) {
+                subtitleColorPicker.value = colors.subtitle;
+                subtitleColorHex.value = colors.subtitle.toUpperCase();
+                previewSubtitle.style.color = colors.subtitle;
+              }
+              applyTVColors(colors);
+            }
+          } catch (e) {
+            console.error('[TV Colors] Erreur chargement:', e);
+          }
+        }
+
+        // Appliquer les couleurs dans la vue TV (si ouverte)
+        function applyTVColors(colors) {
+          // Créer ou mettre à jour des CSS custom properties dans la vue TV
+          var tvRoot = document.getElementById('tv-root');
+          if (tvRoot) {
+            tvRoot.style.setProperty('--tv-text-color', colors.text || '#f9fafb');
+            tvRoot.style.setProperty('--tv-title-color', colors.title || '#e5e339');
+            tvRoot.style.setProperty('--tv-subtitle-color', colors.subtitle || '#9ca3af');
+          }
+
+          // Appliquer directement aux éléments TV existants
+          var tvTexts = document.querySelectorAll('.tv-block p, .tv-block td, .tv-block span:not(.team-name):not(.match-score)');
+          var tvTitles = document.querySelectorAll('.tv-block h2, .tv-block h3, .tv-block .team-name, .tv-block .tv-section-title');
+          var tvSubtitles = document.querySelectorAll('.tv-block h4, .tv-block .small-muted, .tv-block .tv-subtitle');
+
+          tvTexts.forEach(function(el) { el.style.color = colors.text || '#f9fafb'; });
+          tvTitles.forEach(function(el) { el.style.color = colors.title || '#e5e339'; });
+          tvSubtitles.forEach(function(el) { el.style.color = colors.subtitle || '#9ca3af'; });
+        }
+
+        // Charger au démarrage
+        loadTVColors();
+
+        console.log('[TV Colors] Initialisé');
+      });
+    })();
+  </script>
+
 </body>
 </html>

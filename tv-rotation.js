@@ -226,6 +226,7 @@
 
     var transition = this.config.rotation.transition || { type: 'fade', duration: 0.5 };
     var duration = transition.duration || 0.5;
+    var layoutType = this.config.layout ? this.config.layout.type : 'fullscreen';
 
     this.transitionInProgress = true;
 
@@ -233,8 +234,11 @@
     blockElement.style.display = 'block';
     blockElement.style.opacity = '0';
 
-    if (transition.type === 'slide') {
+    // En mode fullscreen, ne PAS appliquer de translateX (garde le bloc centré)
+    if (transition.type === 'slide' && layoutType !== 'fullscreen') {
       blockElement.style.transform = 'translateX(100%)';
+    } else {
+      blockElement.style.transform = 'none';
     }
 
     // Forcer reflow
@@ -244,7 +248,7 @@
     blockElement.style.transition = 'all ' + duration + 's ease-in-out';
     blockElement.style.opacity = '1';
 
-    if (transition.type === 'slide') {
+    if (transition.type === 'slide' && layoutType !== 'fullscreen') {
       blockElement.style.transform = 'translateX(0)';
     }
 
