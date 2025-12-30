@@ -26,8 +26,12 @@
       --brand-text-rgb: 249, 250, 251;
       --brand-title: #e5e339;
       --brand-title-rgb: 229, 227, 57;
+      --brand-muted: #9ca3af;
+      --brand-border: #1e293b;
       --brand-accent-soft: rgba(var(--brand-accent-rgb), 0.25);
       --brand-primary-glow: rgba(var(--brand-primary-rgb), 0.55);
+      --brand-success: #22c55e;
+      --brand-danger: #ef4444;
 
       --blue-strong: var(--brand-primary);
       --blue-mid: var(--brand-secondary);
@@ -36,12 +40,28 @@
       --accent: var(--brand-accent);
       --bg-dark: var(--brand-bg);
       --card: var(--brand-card-bg);
-      --border: #1e293b;
+      --border: var(--brand-border);
       --text: var(--brand-text);
-      --muted: #9ca3af;
-      --success: #22c55e;
-      --danger: #ef4444;
+      --muted: var(--brand-muted);
+      --success: var(--brand-success);
+      --danger: var(--brand-danger);
       --app-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      /* Typographie */
+      --font-size-xs: clamp(0.7rem, 1.5vw, 0.75rem);
+      --font-size-sm: clamp(0.8rem, 1.8vw, 0.85rem);
+      --font-size-base: clamp(0.9rem, 2vw, 1rem);
+      --font-size-lg: clamp(1rem, 2.5vw, 1.1rem);
+      --font-size-xl: clamp(1.2rem, 3vw, 1.5rem);
+      --font-size-2xl: clamp(1.5rem, 4vw, 2rem);
+
+      /* Espacements */
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 12px;
+      --spacing-lg: 16px;
+      --spacing-xl: 24px;
+      --spacing-2xl: 32px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -71,14 +91,18 @@
     }
 
     .app {
-      max-width: 1100px;
-      margin: 0 auto;
+      max-width: 1400px;
+      margin-top: 0;
+      margin-bottom: 0;
+      margin-right: auto;
+      /* margin-left géré par sidebar.css (280px avec sidebar, 0 sans) */
       background: radial-gradient(circle at 0 0, rgba(148,163,184,0.25), transparent 55%),
                   var(--bg-dark);
       border-radius: 18px;
       border: 1px solid #1f2937;
       box-shadow: 0 24px 60px rgba(0,0,0,0.85);
-      padding: 16px;
+      padding: 24px 32px;
+      transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* HEADER GLOBAL */
@@ -90,6 +114,7 @@
       flex-wrap: wrap;
       margin-bottom: 4px;
       position: relative;
+      z-index: 100;
     }
 
     .header-back-btn {
@@ -146,7 +171,12 @@
     .mode-toggle button { font-size: 0.75rem; }
 
     /* ROOT SECTIONS */
-    #home-root { display: block; }
+    #home-root {
+      display: block;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0;
+    }
     #admin-root, #tv-root, #tournaments-root, #classic-root, #league-root, #americano-root, #americano-tv-root { display: none; }
 
     .btn {
@@ -259,8 +289,45 @@
       gap: 12px;
       margin-top: 10px;
     }
+
+    /* Responsive breakpoints */
+    @media (max-width: 1200px) {
+      .app {
+        max-width: 100%;
+        padding: var(--spacing-xl) 24px;
+      }
+      #home-root {
+        max-width: 100%;
+      }
+      .home-grid {
+        gap: var(--spacing-lg);
+      }
+    }
+
+    @media (max-width: 900px) {
+      .home-grid {
+        gap: var(--spacing-lg);
+      }
+    }
+
     @media (max-width: 800px) {
       .home-grid { grid-template-columns: minmax(0,1fr); }
+    }
+
+    @media (max-width: 600px) {
+      .app {
+        padding: var(--spacing-lg);
+      }
+      .home-grid {
+        grid-template-columns: minmax(0,1fr);
+        gap: var(--spacing-md);
+      }
+      .home-hero h2 {
+        font-size: var(--font-size-base);
+      }
+      .home-hero p {
+        font-size: var(--font-size-xs);
+      }
     }
 
     .home-card {
@@ -565,16 +632,22 @@
     #ligue-manage-root .ligue-match-card,
     #ligue-root .ligue-list .card,
     #ligue-active-root .ligue-list .card {
-      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s ease-out;
+      transition: box-shadow 0.15s ease-out, background-color 0.15s ease-out, border-color 0.15s ease-out;
       cursor: pointer;
     }
-    #admin-root .match-card:hover,
-    #ligue-manage-root .ligue-match-card:hover,
-    #ligue-root .ligue-list .card:hover,
-    #ligue-active-root .ligue-list .card:hover {
+    #admin-root .match-card:hover {
       transform: translateY(-2px) scale(1.02);
       box-shadow: 0 12px 30px rgba(250, 204, 21, 0.15), 0 10px 25px rgba(0,0,0,0.45);
       background-color: rgba(250, 204, 21, 0.08);
+    }
+    /* Ligues : pas de zoom, surbrillance uniquement */
+    #ligue-manage-root .ligue-match-card:hover,
+    #ligue-root .ligue-list .card:hover,
+    #ligue-active-root .ligue-list .card:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 8px 20px rgba(0, 0, 0, 0.4);
+      border-color: var(--brand-accent);
+      background-color: rgba(229, 227, 57, 0.05);
     }
 
     /* LIGUE THEMES */
@@ -672,18 +745,55 @@
       border: 1px solid #111827;
       color: var(--text);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: box-shadow 0.2s ease, background-color 0.2s ease;
       font-weight: 600;
     }
-    .ligue-tab:hover { box-shadow: 0 0 0 1px rgba(229,231,235,0.08); transform: translateY(-1px); }
+    .ligue-tab:hover {
+      box-shadow: 0 0 0 1px rgba(229, 227, 57, 0.3);
+      background-color: rgba(255, 255, 255, 0.08);
+    }
     .ligue-tab.active { color: #0b0b0b; background: #e6e6e6; }
+    .ligue-tab.active:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
     .ligue-theme-n1 .ligue-tab.active { background: linear-gradient(135deg, #7f1d1d, #b91c1c); color: #fff; }
     .ligue-theme-n2 .ligue-tab.active { background: linear-gradient(135deg, #b45309, #f97316); color: #fff; }
     .ligue-theme-n3 .ligue-tab.active { background: linear-gradient(135deg, #ca8a04, #fbbf24); color: #0f172a; }
 
     .ligue-panel { margin-top: 12px; }
     .ligue-panel.hidden { display: none; }
-    .ligue-match-card { border: 1px solid #111827; border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); }
+    .ligue-match-card { border: 1px solid #111827; border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease; }
+
+    /* Suppression zoom sur TOUS les éléments ligues (sauf boutons) */
+    #ligue-config-root .card:hover,
+    #ligue-player-root .card:hover,
+    #ligue-player-manage-root .card:hover,
+    .ligue-theme-shell:hover,
+    .ligue-theme-n1:hover,
+    .ligue-theme-n2:hover,
+    .ligue-theme-n3:hover,
+    .ligue-match-row:hover,
+    .ligue-team-row:hover,
+    .ligue-result-team:hover,
+    .ligue-history-item:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 1px rgba(229, 227, 57, 0.3), 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Effet subtil pour les lignes de classement */
+    .ligue-standings tr:hover td {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Boutons ligues peuvent garder un léger lift */
+    #ligue-root .btn:hover,
+    #ligue-config-root .btn:hover,
+    #ligue-active-root .btn:hover,
+    #ligue-manage-root .btn:hover,
+    #ligue-player-root .btn:hover,
+    #ligue-player-manage-root .btn:hover {
+      transform: translateY(-1px) !important;
+    }
     .ligue-match-validated { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.55); }
     .ligue-match-winner-card { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.55); }
     /* PATCH: alignement "vs" au centre (grille 3 colonnes) */
@@ -1070,70 +1180,135 @@
       box-shadow: 0 20px 45px rgba(0,0,0,0.9);
     }
 
-    /* TV Layouts */
-    /* Fullscreen: un seul bloc visible (défaut avec rotation) */
+    /* ========================================
+       ÉTAPE 1 : FIX LAYOUTS VUE TV MODE M/D
+       ======================================== */
+
+    /* FULLSCREEN LAYOUT - Override du grid pour vraiment afficher 1 seul bloc plein écran */
+    #tv-root .tv-main.tv-layout-fullscreen,
+    .tv-main.layout-fullscreen {
+      display: flex !important;
+      flex-direction: column !important;
+      grid-template-columns: unset !important;
+      gap: 12px;
+    }
+
+    /* En fullscreen, les .tv-column wrappers deviennent invisibles (display: contents) */
+    #tv-root .tv-main.tv-layout-fullscreen .tv-column,
+    .tv-main.layout-fullscreen .tv-column {
+      display: contents; /* Les enfants deviennent enfants directs du flex */
+    }
+
+    /* Blocs en fullscreen occupent tout l'espace */
+    #tv-root .tv-main.tv-layout-fullscreen .tv-block,
     .tv-main.layout-fullscreen .tv-block {
+      width: 100%;
+      min-height: 400px;
+      flex: 1;
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-fullscreen .tv-block.tv-block-active,
     .tv-main.layout-fullscreen .tv-block.tv-block-active {
       display: block;
     }
 
-    /* Split Vertical: 2 blocs côte à côte */
+    /* SPLIT VERTICAL - 2 blocs côte à côte */
+    #tv-root .tv-main.tv-layout-split-v,
     .tv-main.layout-split-vertical {
-      grid-template-columns: 1fr 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
+      grid-template-rows: 1fr;
+      gap: 12px;
     }
+
+    #tv-root .tv-main.tv-layout-split-v .tv-column,
+    .tv-main.layout-split-vertical .tv-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #tv-root .tv-main.tv-layout-split-v .tv-block,
     .tv-main.layout-split-vertical .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-split-v .tv-block.tv-block-active,
     .tv-main.layout-split-vertical .tv-block:nth-child(1),
     .tv-main.layout-split-vertical .tv-block:nth-child(2) {
       display: block;
     }
 
-    /* Split Horizontal: 2 blocs empilés */
+    /* SPLIT HORIZONTAL - 2 blocs empilés */
+    #tv-root .tv-main.tv-layout-split-h,
     .tv-main.layout-split-horizontal {
-      grid-template-columns: 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr !important;
       grid-template-rows: 1fr 1fr;
+      gap: 12px;
     }
+
+    #tv-root .tv-main.tv-layout-split-h .tv-column,
+    .tv-main.layout-split-horizontal .tv-column {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #tv-root .tv-main.tv-layout-split-h .tv-block,
     .tv-main.layout-split-horizontal .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-split-h .tv-block.tv-block-active,
     .tv-main.layout-split-horizontal .tv-block:nth-child(1),
     .tv-main.layout-split-horizontal .tv-block:nth-child(2) {
       display: block;
     }
 
-    /* Grid 2x2: 4 blocs en grille */
+    /* GRID 2x2 - 4 blocs en grille */
+    #tv-root .tv-main.tv-layout-grid-4,
     .tv-main.layout-grid-2x2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
+      display: grid !important;
+      grid-template-columns: 1fr 1fr !important;
       grid-template-rows: 1fr 1fr;
       gap: 12px;
     }
+
     /* Aplatir la structure des colonnes pour grid-2x2 */
+    #tv-root .tv-main.tv-layout-grid-4 .tv-column,
     .tv-main.layout-grid-2x2 .tv-column,
     .tv-main.layout-grid-2x2 .tv-col {
       display: contents; /* Les colonnes deviennent transparentes, les blocs deviennent des grid items directs */
     }
+
+    #tv-root .tv-main.tv-layout-grid-4 .tv-block,
     .tv-main.layout-grid-2x2 .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-grid-4 .tv-block.tv-block-active,
     .tv-main.layout-grid-2x2 .tv-block.tv-block-active {
       display: block;
     }
 
     /* PiP (Picture in Picture): bloc principal + petit bloc en coin */
+    #tv-root .tv-main.tv-layout-pip,
     .tv-main.layout-pip {
       position: relative;
       grid-template-columns: 1fr;
     }
+
+    #tv-root .tv-main.tv-layout-pip .tv-block,
     .tv-main.layout-pip .tv-block {
       display: none;
     }
+
+    #tv-root .tv-main.tv-layout-pip .tv-block:nth-child(1),
     .tv-main.layout-pip .tv-block:nth-child(1) {
       display: block;
     }
+
+    #tv-root .tv-main.tv-layout-pip .tv-block:nth-child(2),
     .tv-main.layout-pip .tv-block:nth-child(2) {
       display: block;
       position: absolute;
@@ -1146,6 +1321,167 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
 
+    /* Responsive Mobile M/D - tous layouts passent en 1 colonne */
+    @media (max-width: 900px) {
+      #tv-root .tv-main,
+      .tv-main {
+        grid-template-columns: 1fr !important;
+      }
+
+      #tv-root .tv-main .tv-column,
+      .tv-main .tv-column {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+
+    /* ========================================
+       ÉTAPE 2 : COULEURS VUE TV UNIFIÉES
+       ======================================== */
+
+    /* Définir les variables CSS par défaut pour la vue TV */
+    #tv-root {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    /* TOUS les textes de la vue TV M/D utilisent la variable --tv-text-color */
+    #tv-root,
+    #tv-root * {
+      color: var(--tv-text-color);
+    }
+
+    /* Titres Vue TV utilisent --tv-title-color */
+    #tv-root h1,
+    #tv-root h2,
+    #tv-root h3,
+    #tv-root h4,
+    #tv-root .tv-title,
+    #tv-root .tv-block-title,
+    #tv-root #tv-tournoi-name,
+    #tv-root .tv-match-top,
+    #tv-root .tv-podium-name,
+    #tv-root .tv-ranking-name,
+    #tv-root .team-name,
+    #tv-root .tv-section-title {
+      color: var(--tv-title-color) !important;
+    }
+
+    /* Sous-titres / Métadonnées utilisent --tv-subtitle-color */
+    #tv-root #tv-roulement-info,
+    #tv-root .tv-block-title span:last-child,
+    #tv-root .tv-match-tag,
+    #tv-root .tv-small-note,
+    #tv-root .status-line,
+    #tv-root .small-muted,
+    #tv-root .tv-subtitle {
+      color: var(--tv-subtitle-color) !important;
+    }
+
+    /* Texte muted / secondaire utilisent --tv-muted-color */
+    #tv-root .tv-empty,
+    #tv-root .tv-ranking-record {
+      color: var(--tv-muted-color) !important;
+    }
+
+    /* Reset spécifique des couleurs en dur pour les cartes */
+    #tv-root .tv-match-card {
+      color: var(--tv-text-color) !important;
+    }
+
+    #tv-root .tv-match-card-next {
+      color: var(--tv-text-color) !important;
+    }
+
+    #tv-root .tv-ranking-item {
+      color: var(--tv-text-color) !important;
+    }
+
+    #tv-root .tv-podium-row {
+      color: var(--tv-text-color) !important;
+    }
+
+    /* Points / Scores gardent la couleur accent pour visibilité */
+    #tv-root .tv-ranking-points,
+    #tv-root .ranking-points,
+    #tv-root .match-score {
+      color: var(--brand-accent) !important;
+    }
+
+    /* Vue TV Classic - mêmes variables */
+    #tv-overlay {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    #tv-overlay,
+    #tv-overlay * {
+      color: var(--tv-text-color);
+    }
+
+    #tv-overlay h1,
+    #tv-overlay h2,
+    #tv-overlay h3,
+    #tv-overlay .tv-title {
+      color: var(--tv-title-color) !important;
+    }
+
+    #tv-overlay .tv-subtitle,
+    #tv-overlay .small-muted {
+      color: var(--tv-subtitle-color) !important;
+    }
+
+    /* Vue TV Américano - mêmes variables */
+    #americano-tv-root {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    #americano-tv-root,
+    #americano-tv-root * {
+      color: var(--tv-text-color);
+    }
+
+    #americano-tv-root h1,
+    #americano-tv-root h2,
+    #americano-tv-root #americano-tv-name {
+      color: var(--tv-title-color) !important;
+    }
+
+    #americano-tv-root #americano-tv-meta {
+      color: var(--tv-subtitle-color) !important;
+    }
+
+    /* Vue TV Solo Night - mêmes variables */
+    #solonight-tv-root {
+      --tv-text-color: #f9fafb;
+      --tv-title-color: #e5e339;
+      --tv-subtitle-color: #9ca3af;
+      --tv-muted-color: #6b7280;
+    }
+
+    #solonight-tv-root,
+    #solonight-tv-root * {
+      color: var(--tv-text-color);
+    }
+
+    #solonight-tv-root h1,
+    #solonight-tv-root h2,
+    #solonight-tv-root #solonight-tv-name {
+      color: var(--tv-title-color) !important;
+    }
+
+    #solonight-tv-root .tv-subtitle,
+    #solonight-tv-root .small-muted {
+      color: var(--tv-subtitle-color) !important;
+    }
+
     .tv-block-title {
       display: flex;
       align-items: center;
@@ -1154,12 +1490,12 @@
       font-size: 0.9rem;
       text-transform: uppercase;
       letter-spacing: 0.16em;
-      color: var(--blue-soft);
+      /* color déjà géré par les variables CSS ci-dessus */
     }
 
     .tv-block-title span:last-child {
       font-size: 0.8rem;
-      color: var(--muted);
+      /* color déjà géré par var(--tv-subtitle-color) ci-dessus */
     }
 
     .tv-current-list,.tv-next-list {
@@ -1448,6 +1784,62 @@
     .americano-podium-ga { color: var(--muted); font-size: 0.85rem; }
 
     /* ======================================
+       STYLES SOLO NIGHT
+       ====================================== */
+
+    .solonight-player-row { display: grid; grid-template-columns: 120px 1fr; gap: 8px; align-items: center; min-width: 0; padding: 4px 0; }
+    .solonight-player-row label { font-size: 0.85rem; color: var(--muted); }
+    .solonight-player-row input { width: 100%; min-width: 0; }
+
+    .rotation-section { margin-bottom: 24px; padding: 16px; border: 1px solid #1f2937; border-radius: 14px; background: rgba(2,6,23,0.2); }
+    .rotation-section h3 { margin-bottom: 12px; color: var(--brand-accent); }
+
+    .matches-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-bottom: 12px; }
+
+    .match-card { border: 1px solid #1f2937; border-radius: 12px; background: rgba(15,23,42,0.5); padding: 12px; min-width: 0; }
+    .court-label { font-weight: 700; color: var(--brand-accent); margin-bottom: 8px; font-size: 0.9rem; }
+
+    .match-teams { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .match-teams .team { flex: 1; padding: 8px; border-radius: 8px; background: rgba(30,41,59,0.4); text-align: center; min-width: 0; }
+    .match-teams .team strong { display: block; margin-bottom: 4px; color: var(--brand-accent); font-size: 0.85rem; }
+    .match-teams .vs { font-weight: 700; color: var(--muted); font-size: 0.9rem; }
+
+    .match-result { display: flex; flex-direction: column; gap: 6px; }
+    .match-result button { flex: 1; }
+    .match-result strong { color: var(--text); }
+
+    .paused-players { margin-top: 12px; padding: 10px; border-radius: 8px; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); }
+    .paused-players strong { color: var(--brand-accent); }
+
+    .standings-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    .standings-table th, .standings-table td { padding: 10px; text-align: left; border-bottom: 1px solid #1f2937; }
+    .standings-table th { color: var(--brand-accent); font-weight: 700; background: rgba(2,6,23,0.4); }
+    .standings-table tr:hover { background: rgba(59,130,246,0.05); }
+    .standings-table .podium-1 { background: rgba(255,215,0,0.1); border-left: 3px solid gold; }
+    .standings-table .podium-2 { background: rgba(192,192,192,0.1); border-left: 3px solid silver; }
+    .standings-table .podium-3 { background: rgba(205,127,50,0.1); border-left: 3px solid #cd7f32; }
+
+    .status-message { padding: 12px; border-radius: 8px; font-weight: 500; }
+    .status-message.info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #60a5fa; }
+    .status-message.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
+    .status-message.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+
+    .tv-match-card { border: 1px solid #1f2937; border-radius: 12px; background: rgba(15,23,42,0.6); padding: 16px; margin-bottom: 12px; }
+    .tv-match-card.completed { border-color: rgba(34,197,94,0.5); }
+    .tv-match-card.pending { border-color: rgba(59,130,246,0.5); }
+    .tv-match-card .tv-court { font-weight: 700; color: var(--brand-accent); margin-bottom: 12px; font-size: 1rem; }
+    .tv-match-card .tv-teams { display: flex; align-items: center; gap: 12px; }
+    .tv-match-card .tv-team { flex: 1; padding: 12px; border-radius: 8px; background: rgba(30,41,59,0.5); text-align: center; font-size: 1rem; }
+    .tv-match-card .tv-team.winner { background: rgba(34,197,94,0.2); border: 2px solid rgba(34,197,94,0.6); }
+    .tv-match-card .tv-vs { font-weight: 700; font-size: 1.2rem; color: var(--muted); }
+
+    .tv-standing-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid #1f2937; }
+    .tv-standing-row.podium { background: rgba(255,215,0,0.1); }
+    .tv-standing-row .pos { font-weight: 700; font-size: 1.1rem; color: var(--brand-accent); width: 40px; }
+    .tv-standing-row .name { flex: 1; font-size: 1rem; }
+    .tv-standing-row .wins { font-weight: 700; color: var(--brand-accent); font-size: 1rem; }
+
+    /* ======================================
        STYLES PARAMÈTRES - NOUVELLE INTERFACE
        ====================================== */
 
@@ -1700,6 +2092,69 @@
       color: var(--text);
       font-size: 0.9rem;
       font-family: monospace;
+    }
+
+    /* Groupe input couleur (Vue TV) */
+    .color-input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .color-picker {
+      width: 60px;
+      height: 44px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      cursor: pointer;
+      background: transparent;
+      padding: 4px;
+    }
+
+    .color-hex-input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      font-family: monospace;
+      text-transform: uppercase;
+    }
+
+    .color-hex-input:focus {
+      outline: none;
+      border-color: var(--brand-accent);
+      box-shadow: 0 0 0 3px rgba(229, 227, 57, 0.1);
+    }
+
+    /* Aperçu couleurs TV */
+    .tvview-color-preview {
+      margin-top: 20px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .color-preview-card {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(148, 163, 184, 0.2);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .color-preview-card h4 {
+      font-size: 1.3rem;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+
+    .color-preview-card p {
+      font-size: 0.95rem;
+      margin: 6px 0;
     }
 
     .field-range {
@@ -4520,522 +4975,299 @@
               <button class="tvview-mode-tab" data-mode="americano">
                 🎯 Américano
               </button>
+              <button class="tvview-mode-tab" data-mode="solonight">
+                🌙 Solo Night
+              </button>
             </div>
 
-            <!-- Mode M/D Config -->
-            <div class="tvview-mode-panel active" data-mode="md">
-              <!-- Section 2.1 : Blocs affichés -->
+
+            <!-- ========== ONGLET M/D ========== -->
+            <div class="tvview-mode-panel active" id="tv-panel-md" data-tv-mode="md">
+              <h3 class="tournaments-title">Configuration Vue TV Montante/Descendante</h3>
+              <p class="small-muted">Personnalise l'affichage TV pour le mode M/D.</p>
+              
+              <!-- Section 1 : Blocs affichés -->
               <div class="settings-section app-block-interactive">
-                <h3 class="settings-section-title">📦 Blocs affichés</h3>
-                <p class="field-hint">Sélectionnez les blocs qui apparaîtront dans la rotation TV</p>
-
-                <div class="tvview-blocks-list">
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-current-matches" checked />
-                    <span class="block-label">
-                      <span class="block-icon">🏓</span>
-                      <span class="block-name">Matchs en cours</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-ranking" checked />
-                    <span class="block-label">
-                      <span class="block-icon">📊</span>
-                      <span class="block-name">Classement en temps réel</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-next-matches" checked />
-                    <span class="block-label">
-                      <span class="block-icon">⏭️</span>
-                      <span class="block-name">Prochains matchs</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-resting-teams" />
-                    <span class="block-label">
-                      <span class="block-icon">💤</span>
-                      <span class="block-name">Équipes au repos</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-stats" />
-                    <span class="block-label">
-                      <span class="block-icon">📈</span>
-                      <span class="block-name">Statistiques tournoi</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-block-podium" checked />
-                    <span class="block-label">
-                      <span class="block-icon">🏆</span>
-                      <span class="block-name">Podium top 3</span>
-                    </span>
-                  </label>
+                <div class="settings-subtitle">📺 Blocs affichés</div>
+                <div class="settings-inline" style="flex-direction:column; gap:8px;">
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="md" data-block="current_matches" checked /> Matchs en cours</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="md" data-block="ranking" checked /> Classement</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="md" data-block="next_matches" checked /> Prochains matchs</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="md" data-block="podium" /> Podium top 3</label>
                 </div>
               </div>
-
-              <!-- Section 2.2 : Rotation automatique -->
+              
+              <!-- Section 2 : Rotation -->
               <div class="settings-section app-block-interactive">
-                <h3 class="settings-section-title">🔄 Rotation automatique</h3>
-
-                <label class="tvview-block-item">
-                  <input type="checkbox" id="md-rotation-enabled" checked />
-                  <span class="block-label">
-                    <span class="block-name">Activer la rotation automatique</span>
-                  </span>
-                </label>
-
-                <div id="md-rotation-settings" class="tvview-rotation-settings">
-                  <h4 class="subsection-title">⏱️ Durée d'affichage par bloc</h4>
-
-                  <div class="tvview-duration-grid">
-                    <div class="duration-item">
-                      <label class="field-label">Matchs en cours</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-duration-current-matches" min="2" max="30" value="10" class="duration-slider" />
-                        <span class="duration-value">10s</span>
-                      </div>
-                    </div>
-
-                    <div class="duration-item">
-                      <label class="field-label">Classement</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-duration-ranking" min="2" max="30" value="8" class="duration-slider" />
-                        <span class="duration-value">8s</span>
-                      </div>
-                    </div>
-
-                    <div class="duration-item">
-                      <label class="field-label">Prochains matchs</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-duration-next-matches" min="2" max="30" value="6" class="duration-slider" />
-                        <span class="duration-value">6s</span>
-                      </div>
-                    </div>
-
-                    <div class="duration-item">
-                      <label class="field-label">Podium</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-duration-podium" min="2" max="30" value="5" class="duration-slider" />
-                        <span class="duration-value">5s</span>
-                      </div>
-                    </div>
-
-                    <div class="duration-item">
-                      <label class="field-label">Équipes au repos</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-duration-resting-teams" min="2" max="30" value="5" class="duration-slider" />
-                        <span class="duration-value">5s</span>
-                      </div>
-                    </div>
-
-                    <div class="duration-item">
-                      <label class="field-label">Statistiques</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-duration-stats" min="2" max="30" value="5" class="duration-slider" />
-                        <span class="duration-value">5s</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <h4 class="subsection-title">📋 Ordre de rotation</h4>
-                  <div class="tvview-rotation-order" id="md-rotation-order">
-                    <div class="rotation-item" draggable="true" data-block="current_matches">
-                      <span class="drag-handle">⋮⋮</span>
-                      <span class="rotation-number">1.</span>
-                      <span class="rotation-icon">🏓</span>
-                      <span class="rotation-name">Matchs en cours</span>
-                    </div>
-                    <div class="rotation-item" draggable="true" data-block="ranking">
-                      <span class="drag-handle">⋮⋮</span>
-                      <span class="rotation-number">2.</span>
-                      <span class="rotation-icon">📊</span>
-                      <span class="rotation-name">Classement</span>
-                    </div>
-                    <div class="rotation-item" draggable="true" data-block="next_matches">
-                      <span class="drag-handle">⋮⋮</span>
-                      <span class="rotation-number">3.</span>
-                      <span class="rotation-icon">⏭️</span>
-                      <span class="rotation-name">Prochains matchs</span>
-                    </div>
-                    <div class="rotation-item" draggable="true" data-block="podium">
-                      <span class="drag-handle">⋮⋮</span>
-                      <span class="rotation-number">4.</span>
-                      <span class="rotation-icon">🏆</span>
-                      <span class="rotation-name">Podium</span>
-                    </div>
-                  </div>
-
-                  <div class="tvview-rotation-options">
-                    <label class="tvview-block-item">
-                      <input type="checkbox" id="md-pause-hover" checked />
-                      <span class="block-label">
-                        <span class="block-name">Pause rotation au survol de la souris</span>
-                      </span>
-                    </label>
-
-                    <label class="tvview-block-item">
-                      <input type="checkbox" id="md-show-progress" checked />
-                      <span class="block-label">
-                        <span class="block-name">Afficher indicateur de progression</span>
-                      </span>
-                    </label>
-                  </div>
-
-                  <h4 class="subsection-title">✨ Transition entre blocs</h4>
-                  <div class="settings-grid">
-                    <div class="field">
-                      <label for="md-transition-type" class="field-label">Type</label>
-                      <select id="md-transition-type" class="field-select">
-                        <option value="fade" selected>Fade</option>
-                        <option value="slide">Slide</option>
-                        <option value="none">None</option>
-                      </select>
-                    </div>
-                    <div class="field">
-                      <label for="md-transition-duration" class="field-label">Durée</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-transition-duration" min="0.1" max="2" step="0.1" value="0.5" class="duration-slider" />
-                        <span class="duration-value">0.5s</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Section 2.3 : Mise en page -->
-              <div class="settings-section app-block-interactive">
-                <h3 class="settings-section-title">📐 Mise en page (Layout)</h3>
-
-                <div class="tvview-layout-options">
-                  <label class="layout-option">
-                    <input type="radio" name="md-layout" value="fullscreen" checked />
-                    <div class="layout-card">
-                      <div class="layout-preview fullscreen-preview">
-                        <div class="preview-block">BLOC</div>
-                      </div>
-                      <span class="layout-name">Plein écran</span>
-                      <span class="layout-desc">1 bloc à la fois</span>
-                    </div>
-                  </label>
-
-                  <label class="layout-option">
-                    <input type="radio" name="md-layout" value="split-vertical" />
-                    <div class="layout-card">
-                      <div class="layout-preview split-v-preview">
-                        <div class="preview-block">1</div>
-                        <div class="preview-block">2</div>
-                      </div>
-                      <span class="layout-name">Split vertical</span>
-                      <span class="layout-desc">2 blocs côte à côte</span>
-                    </div>
-                  </label>
-
-                  <label class="layout-option">
-                    <input type="radio" name="md-layout" value="split-horizontal" />
-                    <div class="layout-card">
-                      <div class="layout-preview split-h-preview">
-                        <div class="preview-block">1</div>
-                        <div class="preview-block">2</div>
-                      </div>
-                      <span class="layout-name">Split horizontal</span>
-                      <span class="layout-desc">2 blocs haut/bas</span>
-                    </div>
-                  </label>
-
-                  <label class="layout-option">
-                    <input type="radio" name="md-layout" value="grid-2x2" />
-                    <div class="layout-card">
-                      <div class="layout-preview grid-preview">
-                        <div class="preview-block">1</div>
-                        <div class="preview-block">2</div>
-                        <div class="preview-block">3</div>
-                        <div class="preview-block">4</div>
-                      </div>
-                      <span class="layout-name">Grille 2x2</span>
-                      <span class="layout-desc">4 blocs</span>
-                    </div>
-                  </label>
-
-                  <label class="layout-option">
-                    <input type="radio" name="md-layout" value="pip" />
-                    <div class="layout-card">
-                      <div class="layout-preview pip-preview">
-                        <div class="preview-block main">Principal</div>
-                        <div class="preview-block mini">Mini</div>
-                      </div>
-                      <span class="layout-name">Picture-in-Picture</span>
-                      <span class="layout-desc">Principal + mini</span>
-                    </div>
-                  </label>
-                </div>
-
-                <div class="tvview-layout-extras">
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-auto-fullscreen" />
-                    <span class="block-label">
-                      <span class="block-name">Mode plein écran automatique (F11)</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-hide-cursor" checked />
-                    <span class="block-label">
-                      <span class="block-name">Cacher curseur après 3s d'inactivité</span>
-                    </span>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Section 2.4 : Animations & Effets -->
-              <div class="settings-section app-block-interactive">
-                <h3 class="settings-section-title">✨ Animations & Effets</h3>
-
-                <label class="tvview-block-item">
-                  <input type="checkbox" id="md-animations-enabled" checked />
-                  <span class="block-label">
-                    <span class="block-name">Activer les animations de victoire</span>
-                  </span>
-                </label>
-
-                <div id="md-animations-settings" class="tvview-animations-settings">
-                  <h4 class="subsection-title">🎊 Confettis</h4>
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-confetti-enabled" checked />
-                    <span class="block-label">
-                      <span class="block-name">Explosion de confettis</span>
-                    </span>
-                  </label>
-
-                  <div class="settings-grid">
-                    <div class="field">
-                      <label class="field-label">Intensité</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-confetti-intensity" min="1" max="5" value="3" class="duration-slider" />
-                        <span class="duration-value">Moyen</span>
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label class="field-label">Couleurs</label>
-                      <select id="md-confetti-colors" class="field-select">
-                        <option value="theme" selected>Accent du thème</option>
-                        <option value="rainbow">Arc-en-ciel</option>
-                        <option value="gold">Or & Argent</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <h4 class="subsection-title">✨ Effets visuels</h4>
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-flash-enabled" checked />
-                    <span class="block-label">
-                      <span class="block-name">Flash sur la card du match gagnant</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-badge-enabled" checked />
-                    <span class="block-label">
-                      <span class="block-name">Badge "NOUVEAU" sur match validé</span>
-                    </span>
-                  </label>
-
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-scale-enabled" checked />
-                    <span class="block-label">
-                      <span class="block-name">Animation scale + glow sur équipe gagnante</span>
-                    </span>
-                  </label>
-
-                  <h4 class="subsection-title">🔊 Son de célébration</h4>
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-sound-enabled" />
-                    <span class="block-label">
-                      <span class="block-name">Activer le son</span>
-                    </span>
-                  </label>
-
-                  <div class="settings-grid">
-                    <div class="field">
-                      <label class="field-label">Volume</label>
-                      <div class="slider-group">
-                        <input type="range" id="md-sound-volume" min="0" max="100" value="50" class="duration-slider" />
-                        <span class="duration-value">50%</span>
-                      </div>
-                    </div>
-                    <div class="field">
-                      <label class="field-label">Type de son</label>
-                      <select id="md-sound-type" class="field-select">
-                        <option value="ding" selected>Ding court</option>
-                        <option value="fanfare">Fanfare</option>
-                        <option value="custom">Custom</option>
-                      </select>
-                    </div>
-                  </div>
-
-                  <div class="field" id="md-sound-upload-field" style="display:none;">
-                    <label for="md-sound-file" class="field-label">Upload son custom (.mp3, max 50KB)</label>
-                    <input id="md-sound-file" type="file" class="field-input" accept="audio/mpeg" />
-                  </div>
-
-                  <button class="btn btn-secondary btn-small" id="md-test-animation">▶ Tester l'animation</button>
-                </div>
-              </div>
-
-              <!-- Section 2.5 : Éléments permanents -->
-              <div class="settings-section app-block-interactive">
-                <h3 class="settings-section-title">📌 Éléments permanents</h3>
-
-                <h4 class="subsection-title">Header (bandeau haut)</h4>
-                <label class="tvview-block-item">
-                  <input type="checkbox" id="md-header-enabled" checked />
-                  <span class="block-label">
-                    <span class="block-name">Afficher header</span>
-                  </span>
-                </label>
-
-                <div id="md-header-settings" class="settings-grid-3">
-                  <div class="field">
-                    <label class="field-label">Logo club</label>
-                    <select id="md-header-logo-pos" class="field-select">
-                      <option value="left" selected>Gauche</option>
-                      <option value="center">Centre</option>
-                      <option value="right">Droite</option>
-                      <option value="none">Masqué</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label class="field-label">Nom tournoi</label>
-                    <select id="md-header-name-pos" class="field-select">
-                      <option value="left">Gauche</option>
-                      <option value="center" selected>Centre</option>
-                      <option value="right">Droite</option>
-                      <option value="none">Masqué</option>
-                    </select>
-                  </div>
-                  <div class="field">
-                    <label class="field-label">Heure actuelle</label>
-                    <select id="md-header-time-pos" class="field-select">
-                      <option value="left">Gauche</option>
-                      <option value="center">Centre</option>
-                      <option value="right" selected>Droite</option>
-                      <option value="none">Masqué</option>
-                    </select>
-                  </div>
-                </div>
-
-                <label class="tvview-block-item">
-                  <input type="checkbox" id="md-header-live-badge" checked />
-                  <span class="block-label">
-                    <span class="block-name">Badge "🔴 LIVE"</span>
-                  </span>
-                </label>
-
-                <h4 class="subsection-title">Footer (bandeau bas)</h4>
-                <label class="tvview-block-item">
-                  <input type="checkbox" id="md-footer-enabled" />
-                  <span class="block-label">
-                    <span class="block-name">Afficher footer</span>
-                  </span>
-                </label>
-
-                <div id="md-footer-settings" style="display:none;">
-                  <div class="field">
-                    <label for="md-footer-text" class="field-label">Texte personnalisé</label>
-                    <input id="md-footer-text" type="text" class="field-input" placeholder="Merci aux partenaires..." />
-                  </div>
-                  <div class="field">
-                    <label class="field-label">Alignement</label>
-                    <select id="md-footer-align" class="field-select">
-                      <option value="left">Gauche</option>
-                      <option value="center" selected>Centre</option>
-                      <option value="right">Droite</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div class="tvview-permanent-note">
-                  <p class="field-hint">
-                    ℹ️ Configuration détaillée des sponsors et Padel Pong dans l'onglet "💼 Sponsors"
-                  </p>
-                </div>
-              </div>
-
-              <!-- Section 2.6 : Gestion des configurations -->
-              <div class="settings-section app-block-interactive">
-                <h3 class="settings-section-title">💾 Gestion des configurations</h3>
-
+                <div class="settings-subtitle">🔄 Rotation automatique</div>
+                <label><input type="checkbox" id="tv-md-rotation-enabled" checked /> Activer la rotation</label>
                 <div class="field">
-                  <label for="md-config-name" class="field-label">Nom de cette configuration</label>
-                  <input id="md-config-name" type="text" class="field-input" value="Configuration standard M/D" />
-                </div>
-
-                <div class="tvview-config-actions">
-                  <button class="btn btn-primary" id="md-save-config">💾 Sauvegarder cette config</button>
-                  <button class="btn btn-secondary" id="md-duplicate-config">📋 Dupliquer</button>
-                  <button class="btn btn-danger" id="md-reset-config">🔄 Réinitialiser par défaut</button>
-                </div>
-
-                <h4 class="subsection-title">📚 Mes configurations sauvegardées</h4>
-                <div id="md-saved-configs" class="tvview-saved-configs">
-                  <div class="empty-state">
-                    <p>💾</p>
-                    <p>Aucune configuration sauvegardée</p>
+                  <label class="field-label">Durée par bloc (secondes)</label>
+                  <div class="settings-grid">
+                    <div class="field"><label>Matchs en cours</label><input type="number" id="tv-md-duration-current" value="10" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Classement</label><input type="number" id="tv-md-duration-ranking" value="8" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Prochains matchs</label><input type="number" id="tv-md-duration-next" value="6" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Podium</label><input type="number" id="tv-md-duration-podium" value="5" min="2" max="60" class="field-input" style="width:80px;" /></div>
                   </div>
                 </div>
-
-                <h4 class="subsection-title">📤 Appliquer à d'autres modes</h4>
-                <div class="tvview-apply-modes">
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-apply-to-classic" />
-                    <span class="block-label">
-                      <span class="block-name">Tournoi Classique</span>
-                    </span>
-                  </label>
-                  <label class="tvview-block-item">
-                    <input type="checkbox" id="md-apply-to-americano" />
-                    <span class="block-label">
-                      <span class="block-name">Américano</span>
-                    </span>
-                  </label>
-                  <button class="btn btn-secondary" id="md-apply-to-modes">📤 Appliquer aux modes sélectionnés</button>
-                </div>
-
-                <h4 class="subsection-title">Import/Export</h4>
-                <div class="tvview-import-export">
-                  <button class="btn btn-secondary" id="md-import-config">📥 Importer config</button>
-                  <input type="file" id="md-import-file" accept=".json" style="display:none;" />
-                  <button class="btn btn-secondary" id="md-export-config">📤 Exporter cette config</button>
+              </div>
+              
+              <!-- Section 3 : Layout -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🖼️ Mise en page</div>
+                <div class="field">
+                  <label class="field-label">Type de layout</label>
+                  <select id="tv-md-layout" class="field-select">
+                    <option value="fullscreen" selected>Plein écran (1 bloc)</option>
+                    <option value="split-vertical">Split vertical (2 colonnes)</option>
+                    <option value="split-horizontal">Split horizontal (2 lignes)</option>
+                    <option value="grid-4">Grille 4 blocs</option>
+                  </select>
                 </div>
               </div>
-
-            </div>
-
-            <!-- Mode Tournoi Classique Config (copy of MD with different IDs) -->
-            <div class="tvview-mode-panel" data-mode="classic">
+              
+              <!-- Section 4 : Couleurs -->
               <div class="settings-section app-block-interactive">
-                <p class="field-hint">Configuration similaire au mode M/D avec blocs spécifiques au tournoi classique</p>
-                <p style="color: var(--muted); font-style: italic;">
-                  Section en cours de développement - Utilisez la config M/D comme template et appliquez-la ici
-                </p>
+                <div class="settings-subtitle">🎨 Couleurs Vue TV</div>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label class="field-label">Texte principal</label>
+                    <input type="color" id="tv-md-color-text" value="#f9fafb" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Titres</label>
+                    <input type="color" id="tv-md-color-title" value="#e5e339" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Sous-titres</label>
+                    <input type="color" id="tv-md-color-subtitle" value="#9ca3af" class="field-input" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Boutons actions -->
+              <div class="ligue-actions">
+                <button class="btn" id="btn-save-tv-md">💾 Sauvegarder config M/D</button>
+                <button class="btn btn-secondary" id="btn-reset-tv-md">🔄 Réinitialiser</button>
               </div>
             </div>
-
-            <!-- Mode Américano Config -->
-            <div class="tvview-mode-panel" data-mode="americano">
+            
+            
+            <!-- ========== ONGLET CLASSIC ========== -->
+            <div class="tvview-mode-panel" id="tv-panel-classic" data-tv-mode="classic">
+              <h3 class="tournaments-title">Configuration Vue TV Tournoi Classique</h3>
+              <p class="small-muted">Personnalise l'affichage TV pour les tournois classiques.</p>
+              
+              <!-- Section 1 : Blocs affichés -->
               <div class="settings-section app-block-interactive">
-                <p class="field-hint">Configuration similaire au mode M/D avec blocs spécifiques à l'Américano</p>
-                <p style="color: var(--muted); font-style: italic;">
-                  Section en cours de développement - Utilisez la config M/D comme template et appliquez-la ici
-                </p>
+                <div class="settings-subtitle">📺 Blocs affichés</div>
+                <div class="settings-inline" style="flex-direction:column; gap:8px;">
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="classic" data-block="matches_by_court" checked /> Matchs par terrain</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="classic" data-block="next_matches" checked /> Prochains matchs</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="classic" data-block="pool_rankings" /> Classements poules</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="classic" data-block="brackets" /> Tableaux</label>
+                </div>
+              </div>
+              
+              <!-- Section 2 : Rotation -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🔄 Rotation automatique</div>
+                <label><input type="checkbox" id="tv-classic-rotation-enabled" checked /> Activer la rotation</label>
+                <div class="field">
+                  <label class="field-label">Durée par bloc (secondes)</label>
+                  <div class="settings-grid">
+                    <div class="field"><label>Matchs par terrain</label><input type="number" id="tv-classic-duration-matches" value="10" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Prochains matchs</label><input type="number" id="tv-classic-duration-next" value="8" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Classements poules</label><input type="number" id="tv-classic-duration-pools" value="8" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Tableaux</label><input type="number" id="tv-classic-duration-brackets" value="10" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Section 3 : Layout -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🖼️ Mise en page</div>
+                <div class="field">
+                  <label class="field-label">Type de layout</label>
+                  <select id="tv-classic-layout" class="field-select">
+                    <option value="fullscreen">Plein écran (1 bloc)</option>
+                    <option value="split-vertical" selected>Split vertical (2 colonnes)</option>
+                    <option value="split-horizontal">Split horizontal (2 lignes)</option>
+                    <option value="grid-4">Grille 4 blocs</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Section 4 : Couleurs -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🎨 Couleurs Vue TV</div>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label class="field-label">Texte principal</label>
+                    <input type="color" id="tv-classic-color-text" value="#f9fafb" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Titres</label>
+                    <input type="color" id="tv-classic-color-title" value="#e5e339" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Sous-titres</label>
+                    <input type="color" id="tv-classic-color-subtitle" value="#9ca3af" class="field-input" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Boutons actions -->
+              <div class="ligue-actions">
+                <button class="btn" id="btn-save-tv-classic">💾 Sauvegarder config Classic</button>
+                <button class="btn btn-secondary" id="btn-reset-tv-classic">🔄 Réinitialiser</button>
               </div>
             </div>
+            
+            
+            <!-- ========== ONGLET AMÉRICANO ========== -->
+            <div class="tvview-mode-panel" id="tv-panel-americano" data-tv-mode="americano">
+              <h3 class="tournaments-title">Configuration Vue TV Américano</h3>
+              <p class="small-muted">Personnalise l'affichage TV pour le mode Américano.</p>
+              
+              <!-- Section 1 : Blocs affichés -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">📺 Blocs affichés</div>
+                <div class="settings-inline" style="flex-direction:column; gap:8px;">
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="americano" data-block="current_matches" checked /> Matchs en cours</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="americano" data-block="next_matches" checked /> Matchs à venir</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="americano" data-block="ranking" checked /> Classement live</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="americano" data-block="podium" /> Podium top 3</label>
+                </div>
+              </div>
+              
+              <!-- Section 2 : Rotation -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🔄 Rotation automatique</div>
+                <label><input type="checkbox" id="tv-americano-rotation-enabled" checked /> Activer la rotation</label>
+                <div class="field">
+                  <label class="field-label">Durée par bloc (secondes)</label>
+                  <div class="settings-grid">
+                    <div class="field"><label>Matchs en cours</label><input type="number" id="tv-americano-duration-current" value="10" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Matchs à venir</label><input type="number" id="tv-americano-duration-next" value="8" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Classement</label><input type="number" id="tv-americano-duration-ranking" value="8" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Podium</label><input type="number" id="tv-americano-duration-podium" value="5" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Section 3 : Layout -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🖼️ Mise en page</div>
+                <div class="field">
+                  <label class="field-label">Type de layout</label>
+                  <select id="tv-americano-layout" class="field-select">
+                    <option value="fullscreen">Plein écran (1 bloc)</option>
+                    <option value="split-vertical" selected>Split vertical (2 colonnes)</option>
+                    <option value="split-horizontal">Split horizontal (2 lignes)</option>
+                    <option value="grid-4">Grille 4 blocs</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Section 4 : Couleurs -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🎨 Couleurs Vue TV</div>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label class="field-label">Texte principal</label>
+                    <input type="color" id="tv-americano-color-text" value="#f9fafb" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Titres</label>
+                    <input type="color" id="tv-americano-color-title" value="#e5e339" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Sous-titres</label>
+                    <input type="color" id="tv-americano-color-subtitle" value="#9ca3af" class="field-input" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Boutons actions -->
+              <div class="ligue-actions">
+                <button class="btn" id="btn-save-tv-americano">💾 Sauvegarder config Américano</button>
+                <button class="btn btn-secondary" id="btn-reset-tv-americano">🔄 Réinitialiser</button>
+              </div>
+            </div>
+            
+            
+            <!-- ========== ONGLET SOLO NIGHT ========== -->
+            <div class="tvview-mode-panel" id="tv-panel-solonight" data-tv-mode="solonight">
+              <h3 class="tournaments-title">Configuration Vue TV Solo Night</h3>
+              <p class="small-muted">Personnalise l'affichage TV pour le mode Solo Night.</p>
+              
+              <!-- Section 1 : Blocs affichés -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">📺 Blocs affichés</div>
+                <div class="settings-inline" style="flex-direction:column; gap:8px;">
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="solonight" data-block="current_matches" checked /> Matchs en cours</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="solonight" data-block="next_matches" checked /> Prochains matchs</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="solonight" data-block="ranking" checked /> Classement</label>
+                  <label><input type="checkbox" class="tv-block-toggle" data-mode="solonight" data-block="podium" /> Podium</label>
+                </div>
+              </div>
+              
+              <!-- Section 2 : Rotation -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🔄 Rotation automatique</div>
+                <label><input type="checkbox" id="tv-solonight-rotation-enabled" checked /> Activer la rotation</label>
+                <div class="field">
+                  <label class="field-label">Durée par bloc (secondes)</label>
+                  <div class="settings-grid">
+                    <div class="field"><label>Matchs en cours</label><input type="number" id="tv-solonight-duration-current" value="10" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Prochains matchs</label><input type="number" id="tv-solonight-duration-next" value="8" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Classement</label><input type="number" id="tv-solonight-duration-ranking" value="8" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                    <div class="field"><label>Podium</label><input type="number" id="tv-solonight-duration-podium" value="5" min="2" max="60" class="field-input" style="width:80px;" /></div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Section 3 : Layout -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🖼️ Mise en page</div>
+                <div class="field">
+                  <label class="field-label">Type de layout</label>
+                  <select id="tv-solonight-layout" class="field-select">
+                    <option value="fullscreen" selected>Plein écran (1 bloc)</option>
+                    <option value="split-vertical">Split vertical (2 colonnes)</option>
+                    <option value="split-horizontal">Split horizontal (2 lignes)</option>
+                    <option value="grid-4">Grille 4 blocs</option>
+                  </select>
+                </div>
+              </div>
+              
+              <!-- Section 4 : Couleurs -->
+              <div class="settings-section app-block-interactive">
+                <div class="settings-subtitle">🎨 Couleurs Vue TV</div>
+                <div class="settings-grid">
+                  <div class="field">
+                    <label class="field-label">Texte principal</label>
+                    <input type="color" id="tv-solonight-color-text" value="#f9fafb" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Titres</label>
+                    <input type="color" id="tv-solonight-color-title" value="#e5e339" class="field-input" />
+                  </div>
+                  <div class="field">
+                    <label class="field-label">Sous-titres</label>
+                    <input type="color" id="tv-solonight-color-subtitle" value="#9ca3af" class="field-input" />
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Boutons actions -->
+              <div class="ligue-actions">
+                <button class="btn" id="btn-save-tv-solonight">💾 Sauvegarder config Solo Night</button>
+                <button class="btn btn-secondary" id="btn-reset-tv-solonight">🔄 Réinitialiser</button>
+              </div>
+            </div>
+            
 
           </div>
 
@@ -5234,16 +5466,16 @@
 
         <article class="tournament-type-card app-block-interactive">
           <div class="tournament-type-title">
-            <span>Mode “Fun Night”</span>
-            <span class="tournament-type-pill">Mix & rotation</span>
+            <span>Solo Night</span>
+            <span class="tournament-type-pill">Joueurs individuels</span>
           </div>
           <p>
-            Format plus léger pour les soirées découverte : matchs courts,
-            équipes remixées, rotations automatiques sur les terrains.
+            Format solo avec partenaires et adversaires changeants. Contraintes strictes :
+            jamais le même partenaire, jamais le même duo adverse.
           </p>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:4px;">
-            <span class="small-muted">Disponible bientôt</span>
-            <button class="btn btn-small" disabled>🚧 En cours</button>
+            <span class="small-muted">Mode fun avec contraintes</span>
+            <button class="btn btn-small" id="btn-open-solonight">▶ Ouvrir</button>
           </div>
         </article>
       </div>
@@ -5446,6 +5678,194 @@
             <!-- TV UI : podium premium + reste du classement -->
             <div id="americano-tv-podium" class="tv-podium tv-podium-premium"></div>
             <div id="americano-tv-ranking-rest" class="tv-ranking-grid"></div>
+          </div>
+        </section>
+      </main>
+    </section>
+
+    <!-- MODE SOLO NIGHT -->
+    <section id="solonight-root" style="display:none;">
+      <div class="mode-toggle" style="justify-content:flex-start; margin-bottom:8px;">
+        <button class="btn btn-secondary btn-small" id="btn-solonight-home">🏠 Accueil</button>
+        <button class="btn btn-secondary btn-small" id="btn-solonight-formats">🏆 Formats</button>
+        <button class="btn btn-secondary btn-small" id="btn-solonight-open-tv">🎥 Vue TV</button>
+      </div>
+
+      <div class="card app-block-interactive" style="margin-bottom:10px;">
+        <div class="tournaments-header" style="margin-bottom:4px;">
+          <div>
+            <div class="tournaments-subtitle">Tournoi classique</div>
+            <h1 class="tournaments-title">Mode Solo Night</h1>
+          </div>
+          <div class="americano-inline" style="gap:6px;">
+            <div class="americano-chip" id="solonight-meta">0 joueurs • 0 rotations</div>
+            <div class="americano-chip" id="solonight-round-meta">Planning non généré</div>
+          </div>
+        </div>
+        <div class="small-muted">Joueurs individuels avec partenaires et adversaires changeants. Contraintes strictes : jamais le même partenaire, jamais le même duo adverse.</div>
+      </div>
+
+      <nav class="americano-tabs">
+        <button class="americano-tab-btn active" data-solonight-tab="config">Configuration</button>
+        <button class="americano-tab-btn" data-solonight-tab="players">Joueurs</button>
+        <button class="americano-tab-btn" data-solonight-tab="planning">Planning</button>
+        <button class="americano-tab-btn" data-solonight-tab="standings">Classement</button>
+      </nav>
+
+      <!-- ONGLET CONFIGURATION -->
+      <section id="solonight-tab-config" class="americano-tab-panel active" data-solonight-tab-panel="config">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Configuration du tournoi</h3>
+              <div class="small-muted">Paramètres généraux</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-config-body">−</button>
+          </div>
+          <div id="solonight-config-body" class="americano-card-body">
+            <div class="field">
+              <label for="solonight-name">Nom du tournoi</label>
+              <input type="text" id="solonight-name" placeholder="Solo Night du vendredi" />
+            </div>
+            <div class="field">
+              <label for="solonight-player-count">Nombre de joueurs (8 à 24)</label>
+              <select id="solonight-player-count">
+                <option value="8">8 joueurs</option>
+                <option value="10">10 joueurs</option>
+                <option value="12">12 joueurs</option>
+                <option value="14">14 joueurs</option>
+                <option value="16" selected>16 joueurs</option>
+                <option value="18">18 joueurs</option>
+                <option value="20">20 joueurs</option>
+                <option value="22">22 joueurs</option>
+                <option value="24">24 joueurs</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="solonight-rotation-count">Nombre de rotations</label>
+              <select id="solonight-rotation-count">
+                <option value="4">4 rotations</option>
+                <option value="6">6 rotations</option>
+                <option value="8" selected>8 rotations</option>
+                <option value="10">10 rotations</option>
+                <option value="12">12 rotations</option>
+                <option value="14">14 rotations</option>
+                <option value="16">16 rotations</option>
+                <option value="18">18 rotations</option>
+                <option value="20">20 rotations</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ONGLET JOUEURS -->
+      <section id="solonight-tab-players" class="americano-tab-panel" data-solonight-tab-panel="players">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Inscription des joueurs</h3>
+              <div class="small-muted">1 nom par joueur • saisie directe</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-players-body">−</button>
+          </div>
+          <div id="solonight-players-body" class="americano-card-body">
+            <div id="solonight-players-list" class="americano-teams-grid"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ONGLET PLANNING -->
+      <section id="solonight-tab-planning" class="americano-tab-panel" data-solonight-tab-panel="planning">
+        <div class="card app-block-interactive americano-card" style="margin-bottom:10px;">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Génération du planning</h3>
+              <div class="small-muted">Générer les rotations avec contraintes</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-generation-body">−</button>
+          </div>
+          <div id="solonight-generation-body" class="americano-card-body">
+            <div class="americano-inline" style="justify-content:flex-start; gap:10px;">
+              <button class="btn" id="solonight-btn-generate">Générer les rotations</button>
+              <button class="btn btn-secondary" id="solonight-btn-regenerate" style="display:none;">Régénérer</button>
+            </div>
+            <div id="solonight-status" class="status-message" style="display:none; margin-top:10px;"></div>
+          </div>
+        </div>
+
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Planning des rotations</h3>
+              <div class="small-muted">Matchs par rotation • Terrains • Joueurs en pause</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-planning-body">−</button>
+          </div>
+          <div id="solonight-planning-body" class="americano-card-body">
+            <div id="solonight-planning"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ONGLET CLASSEMENT -->
+      <section id="solonight-tab-standings" class="americano-tab-panel" data-solonight-tab-panel="standings">
+        <div class="card app-block-interactive americano-card">
+          <div class="americano-card-header">
+            <div>
+              <h3 class="tournaments-title" style="margin-bottom:6px;">Classement</h3>
+              <div class="small-muted">Classement individuel par nombre de victoires</div>
+            </div>
+            <button class="collapse-toggle americano-collapse americano-collapse-btn" data-target="solonight-standings-body">−</button>
+          </div>
+          <div id="solonight-standings-body" class="americano-card-body">
+            <div id="solonight-standings"></div>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- VUE TV SOLO NIGHT -->
+    <section id="solonight-tv-root" style="display:none;">
+      <header class="tv-header">
+        <div class="tv-header-left">
+          <img id="solonight-tv-logo" alt="Logo club TV" />
+          <div class="tv-title-block">
+            <div id="solonight-tv-name">Solo Night</div>
+            <div id="solonight-tv-meta">Matchs en direct</div>
+          </div>
+        </div>
+        <div class="tv-header-right">
+          <div class="tv-tag-live">🔴 LIVE</div>
+          <button id="btn-solonight-tv-back" class="btn btn-secondary btn-small">↩ Mode admin</button>
+        </div>
+      </header>
+
+      <div id="solonight-tv-sponsor-banner" class="tv-sponsor">
+        <img id="solonight-tv-sponsor-logo" alt="Sponsor" />
+        <div class="tv-sponsor-name" id="solonight-tv-sponsor-name"></div>
+      </div>
+
+      <main class="tv-main">
+        <section class="tv-column" style="flex: 2;">
+          <div class="tv-block" data-tv-block="current_matches">
+            <div class="tv-block-title">
+              <span>Matchs en cours</span>
+              <span>Rotation actuelle</span>
+            </div>
+            <div id="solonight-tv-current" class="tv-current-list">
+              <div class="tv-empty">Génère le planning et lance les matchs.</div>
+            </div>
+          </div>
+        </section>
+
+        <section class="tv-column">
+          <div class="tv-block" data-tv-block="ranking">
+            <div class="tv-block-title">
+              <span>Classement</span>
+              <span>Live</span>
+            </div>
+            <div id="solonight-tv-standings" class="tv-ranking-grid"></div>
           </div>
         </section>
       </main>
@@ -7998,9 +8418,989 @@
   <script src="mode_classic.js"></script>
   <script src="mode_md.js"></script>
   <script src="mode_ligue.js"></script>
+  <script src="mode_solonight.js"></script>
   <script src="sidebar.js"></script>
   <script src="tv-rotation.js"></script>
   <script src="tv-animations.js"></script>
   <script src="settings.js"></script>
+
+  <!-- Script gestion couleurs Vue TV -->
+  <script>
+    (function() {
+      'use strict';
+
+      // Attendre que le DOM soit chargé
+      document.addEventListener('DOMContentLoaded', function() {
+        // Références aux inputs
+        var textColorPicker = document.getElementById('md-tv-text-color');
+        var textColorHex = document.getElementById('md-tv-text-color-hex');
+        var titleColorPicker = document.getElementById('md-tv-title-color');
+        var titleColorHex = document.getElementById('md-tv-title-color-hex');
+        var subtitleColorPicker = document.getElementById('md-tv-subtitle-color');
+        var subtitleColorHex = document.getElementById('md-tv-subtitle-color-hex');
+
+        // Références aux éléments d'aperçu
+        var previewTitle = document.getElementById('preview-title');
+        var previewSubtitle = document.getElementById('preview-subtitle');
+        var previewText = document.getElementById('preview-text');
+
+        // Bouton reset
+        var resetBtn = document.getElementById('md-reset-text-colors');
+
+        if (!textColorPicker || !titleColorPicker || !subtitleColorPicker) {
+          console.warn('[TV Colors] Éléments non trouvés');
+          return;
+        }
+
+        // Sync color picker -> hex input -> preview
+        function syncColorToHex(picker, hexInput, previewElement) {
+          var color = picker.value;
+          hexInput.value = color.toUpperCase();
+          if (previewElement) {
+            previewElement.style.color = color;
+          }
+          saveTVColors();
+        }
+
+        // Sync hex input -> color picker -> preview
+        function syncHexToColor(hexInput, picker, previewElement) {
+          var hex = hexInput.value.trim();
+          // Valider format hex
+          if (/^#[0-9A-F]{6}$/i.test(hex)) {
+            picker.value = hex;
+            if (previewElement) {
+              previewElement.style.color = hex;
+            }
+            saveTVColors();
+          }
+        }
+
+        // Event listeners - Texte
+        textColorPicker.addEventListener('input', function() {
+          syncColorToHex(textColorPicker, textColorHex, previewText);
+        });
+
+        textColorHex.addEventListener('input', function() {
+          syncHexToColor(textColorHex, textColorPicker, previewText);
+        });
+
+        // Event listeners - Titres
+        titleColorPicker.addEventListener('input', function() {
+          syncColorToHex(titleColorPicker, titleColorHex, previewTitle);
+        });
+
+        titleColorHex.addEventListener('input', function() {
+          syncHexToColor(titleColorHex, titleColorPicker, previewTitle);
+        });
+
+        // Event listeners - Sous-titres
+        subtitleColorPicker.addEventListener('input', function() {
+          syncColorToHex(subtitleColorPicker, subtitleColorHex, previewSubtitle);
+        });
+
+        subtitleColorHex.addEventListener('input', function() {
+          syncHexToColor(subtitleColorHex, subtitleColorPicker, previewSubtitle);
+        });
+
+        // Bouton reset
+        if (resetBtn) {
+          resetBtn.addEventListener('click', function() {
+            // Couleurs par défaut
+            textColorPicker.value = '#f9fafb';
+            textColorHex.value = '#F9FAFB';
+            previewText.style.color = '#f9fafb';
+
+            titleColorPicker.value = '#e5e339';
+            titleColorHex.value = '#E5E339';
+            previewTitle.style.color = '#e5e339';
+
+            subtitleColorPicker.value = '#9ca3af';
+            subtitleColorHex.value = '#9CA3AF';
+            previewSubtitle.style.color = '#9ca3af';
+
+            saveTVColors();
+
+            // Feedback visuel
+            resetBtn.textContent = '✅ Réinitialisé !';
+            setTimeout(function() {
+              resetBtn.textContent = '🔄 Réinitialiser les couleurs par défaut';
+            }, 2000);
+          });
+        }
+
+        // Sauvegarder dans localStorage
+        function saveTVColors() {
+          try {
+            var colors = {
+              text: textColorPicker.value,
+              title: titleColorPicker.value,
+              subtitle: subtitleColorPicker.value
+            };
+            localStorage.setItem('mdTVColors', JSON.stringify(colors));
+            applyTVColors(colors);
+          } catch (e) {
+            console.error('[TV Colors] Erreur sauvegarde:', e);
+          }
+        }
+
+        // Charger depuis localStorage
+        function loadTVColors() {
+          try {
+            var stored = localStorage.getItem('mdTVColors');
+            if (stored) {
+              var colors = JSON.parse(stored);
+              if (colors.text) {
+                textColorPicker.value = colors.text;
+                textColorHex.value = colors.text.toUpperCase();
+                previewText.style.color = colors.text;
+              }
+              if (colors.title) {
+                titleColorPicker.value = colors.title;
+                titleColorHex.value = colors.title.toUpperCase();
+                previewTitle.style.color = colors.title;
+              }
+              if (colors.subtitle) {
+                subtitleColorPicker.value = colors.subtitle;
+                subtitleColorHex.value = colors.subtitle.toUpperCase();
+                previewSubtitle.style.color = colors.subtitle;
+              }
+              applyTVColors(colors);
+            }
+          } catch (e) {
+            console.error('[TV Colors] Erreur chargement:', e);
+          }
+        }
+
+        // Appliquer les couleurs dans la vue TV (si ouverte)
+        function applyTVColors(colors) {
+          // Créer ou mettre à jour des CSS custom properties dans la vue TV
+          var tvRoot = document.getElementById('tv-root');
+          if (tvRoot) {
+            tvRoot.style.setProperty('--tv-text-color', colors.text || '#f9fafb');
+            tvRoot.style.setProperty('--tv-title-color', colors.title || '#e5e339');
+            tvRoot.style.setProperty('--tv-subtitle-color', colors.subtitle || '#9ca3af');
+          }
+
+          // Appliquer directement aux éléments TV existants
+          var tvTexts = document.querySelectorAll('.tv-block p, .tv-block td, .tv-block span:not(.team-name):not(.match-score)');
+          var tvTitles = document.querySelectorAll('.tv-block h2, .tv-block h3, .tv-block .team-name, .tv-block .tv-section-title');
+          var tvSubtitles = document.querySelectorAll('.tv-block h4, .tv-block .small-muted, .tv-block .tv-subtitle');
+
+          tvTexts.forEach(function(el) { el.style.color = colors.text || '#f9fafb'; });
+          tvTitles.forEach(function(el) { el.style.color = colors.title || '#e5e339'; });
+          tvSubtitles.forEach(function(el) { el.style.color = colors.subtitle || '#9ca3af'; });
+        }
+
+        // Charger au démarrage
+        loadTVColors();
+
+        console.log('[TV Colors] Initialisé');
+      });
+    })();
+  </script>
+
+  <!-- Script gestion layouts Vue TV M/D et rotation -->
+  <script>
+    (function() {
+      'use strict';
+
+      // Variable globale pour le manager de rotation
+      window.mdTVRotationManager = null;
+
+      // Configuration par défaut Vue TV M/D
+      function getDefaultTVConfig() {
+        return {
+          blocks: {
+            current_matches: { enabled: true, duration: 10 },
+            ranking: { enabled: true, duration: 8 },
+            next_matches: { enabled: true, duration: 6 },
+            resting_teams: { enabled: false, duration: 5 }
+          },
+          rotation: {
+            enabled: true,
+            order: ["current_matches", "ranking", "next_matches"],
+            pauseOnHover: false,
+            showIndicator: true,
+            transition: { type: "fade", duration: 0.5 }
+          },
+          layout: {
+            type: "fullscreen" // fullscreen, split-vertical, split-horizontal, grid-2x2, pip
+          },
+          colors: {
+            text: "#f9fafb",
+            title: "#e5e339",
+            subtitle: "#9ca3af"
+          },
+          animations: {
+            enabled: true
+          },
+          header: {
+            enabled: true
+          },
+          footer: {
+            enabled: false
+          }
+        };
+      }
+
+      // Charger config depuis localStorage
+      function loadTVConfig() {
+        try {
+          var stored = localStorage.getItem('tv_config_md');
+          if (stored) {
+            return JSON.parse(stored);
+          }
+        } catch (e) {
+          console.error('[TV Layout] Erreur chargement config:', e);
+        }
+        return getDefaultTVConfig();
+      }
+
+      // Sauvegarder config dans localStorage
+      function saveTVConfig(config) {
+        try {
+          localStorage.setItem('tv_config_md', JSON.stringify(config));
+          console.log('[TV Layout] Config sauvegardée');
+        } catch (e) {
+          console.error('[TV Layout] Erreur sauvegarde:', e);
+        }
+      }
+
+      // Appliquer le layout à la vue TV
+      function applyTVLayout(layoutType) {
+        var tvMain = document.querySelector('#tv-root .tv-main');
+        if (!tvMain) {
+          console.warn('[TV Layout] Élément .tv-main non trouvé');
+          return;
+        }
+
+        // Retirer toutes les classes de layout existantes
+        tvMain.classList.remove(
+          'tv-layout-fullscreen',
+          'layout-fullscreen',
+          'tv-layout-split-v',
+          'layout-split-vertical',
+          'tv-layout-split-h',
+          'layout-split-horizontal',
+          'tv-layout-grid-4',
+          'layout-grid-2x2',
+          'tv-layout-pip',
+          'layout-pip'
+        );
+
+        // Ajouter la classe correspondante au layout choisi
+        switch (layoutType) {
+          case 'fullscreen':
+            tvMain.classList.add('tv-layout-fullscreen', 'layout-fullscreen');
+            console.log('[TV Layout] Fullscreen activé');
+            break;
+          case 'split-vertical':
+            tvMain.classList.add('tv-layout-split-v', 'layout-split-vertical');
+            console.log('[TV Layout] Split vertical activé');
+            break;
+          case 'split-horizontal':
+            tvMain.classList.add('tv-layout-split-h', 'layout-split-horizontal');
+            console.log('[TV Layout] Split horizontal activé');
+            break;
+          case 'grid-2x2':
+            tvMain.classList.add('tv-layout-grid-4', 'layout-grid-2x2');
+            console.log('[TV Layout] Grid 2x2 activé');
+            break;
+          case 'pip':
+            tvMain.classList.add('tv-layout-pip', 'layout-pip');
+            console.log('[TV Layout] PiP activé');
+            break;
+          default:
+            tvMain.classList.add('tv-layout-fullscreen', 'layout-fullscreen');
+            console.log('[TV Layout] Fullscreen par défaut');
+        }
+      }
+
+      // Initialiser la vue TV M/D
+      function initMDTVView() {
+        console.log('[TV M/D] Initialisation...');
+
+        // Charger config
+        var config = loadTVConfig();
+
+        // Appliquer layout
+        if (config.layout && config.layout.type) {
+          applyTVLayout(config.layout.type);
+        }
+
+        // Appliquer couleurs (si existantes)
+        var savedColors = localStorage.getItem('mdTVColors');
+        if (savedColors) {
+          try {
+            var colors = JSON.parse(savedColors);
+            var tvRoot = document.getElementById('tv-root');
+            if (tvRoot) {
+              tvRoot.style.setProperty('--tv-text-color', colors.text || '#f9fafb');
+              tvRoot.style.setProperty('--tv-title-color', colors.title || '#e5e339');
+              tvRoot.style.setProperty('--tv-subtitle-color', colors.subtitle || '#9ca3af');
+            }
+          } catch (e) {
+            console.error('[TV M/D] Erreur application couleurs:', e);
+          }
+        }
+
+        // Initialiser TVRotationManager si disponible
+        if (typeof TVRotationManager !== 'undefined' && config.rotation && config.rotation.enabled) {
+          var tvRoot = document.getElementById('tv-root');
+
+          // Détruire manager existant si présent
+          if (window.mdTVRotationManager) {
+            window.mdTVRotationManager.destroy();
+          }
+
+          // Créer nouveau manager
+          window.mdTVRotationManager = new TVRotationManager(config, tvRoot);
+
+          if (window.mdTVRotationManager.init()) {
+            window.mdTVRotationManager.start();
+            console.log('[TV M/D] Rotation démarrée');
+          }
+        } else {
+          console.log('[TV M/D] Rotation désactivée ou TVRotationManager non disponible');
+        }
+
+        console.log('[TV M/D] Initialisé avec layout:', config.layout.type);
+      }
+
+      // Exporter fonctions vers window pour accès depuis autres scripts
+      window.initMDTVView = initMDTVView;
+      window.loadTVConfig = loadTVConfig;
+      window.saveTVConfig = saveTVConfig;
+      window.applyTVLayout = applyTVLayout;
+
+      // Écouter l'ouverture de la vue TV M/D
+      document.addEventListener('DOMContentLoaded', function() {
+        // Chercher le bouton qui ouvre la vue TV
+        var btnBackAdmin = document.getElementById('btn-back-admin');
+        if (btnBackAdmin) {
+          btnBackAdmin.addEventListener('click', function() {
+            // Fermer la vue TV
+            var tvRoot = document.getElementById('tv-root');
+            if (tvRoot) {
+              tvRoot.style.display = 'none';
+            }
+
+            // Arrêter la rotation
+            if (window.mdTVRotationManager) {
+              window.mdTVRotationManager.stop();
+            }
+          });
+        }
+
+        console.log('[TV Layout] Module chargé');
+      });
+    })();
+  </script>
+
+  <!-- Script gestion configs TV indépendantes par mode -->
+  <script>
+    (function() {
+      'use strict';
+
+      /* ========================================
+         PARTIE C : CONFIGS PAR DÉFAUT
+         ======================================== */
+      
+      function getDefaultTVConfig(mode) {
+        var defaults = {
+          md: {
+            blocks: {
+              current_matches: { enabled: true, duration: 10 },
+              ranking: { enabled: true, duration: 8 },
+              next_matches: { enabled: true, duration: 6 },
+              podium: { enabled: false, duration: 5 }
+            },
+            rotation: { enabled: true, order: ["current_matches", "ranking", "next_matches"], pauseOnHover: false, showIndicator: true, transition: { type: "fade", duration: 0.3 } },
+            layout: { type: "fullscreen" },
+            colors: { text: "#f9fafb", title: "#e5e339", subtitle: "#9ca3af" }
+          },
+          
+          classic: {
+            blocks: {
+              matches_by_court: { enabled: true, duration: 10 },
+              next_matches: { enabled: true, duration: 8 },
+              pool_rankings: { enabled: false, duration: 8 },
+              brackets: { enabled: false, duration: 10 }
+            },
+            rotation: { enabled: true, order: ["matches_by_court", "next_matches"], pauseOnHover: false, showIndicator: true, transition: { type: "fade", duration: 0.3 } },
+            layout: { type: "split-vertical" },
+            colors: { text: "#f9fafb", title: "#e5e339", subtitle: "#9ca3af" }
+          },
+          
+          americano: {
+            blocks: {
+              current_matches: { enabled: true, duration: 10 },
+              next_matches: { enabled: true, duration: 8 },
+              ranking: { enabled: true, duration: 8 },
+              podium: { enabled: false, duration: 5 }
+            },
+            rotation: { enabled: true, order: ["current_matches", "next_matches", "ranking"], pauseOnHover: false, showIndicator: true, transition: { type: "fade", duration: 0.3 } },
+            layout: { type: "split-vertical" },
+            colors: { text: "#f9fafb", title: "#e5e339", subtitle: "#9ca3af" }
+          },
+          
+          solonight: {
+            blocks: {
+              current_matches: { enabled: true, duration: 10 },
+              next_matches: { enabled: true, duration: 8 },
+              ranking: { enabled: true, duration: 8 },
+              podium: { enabled: false, duration: 5 }
+            },
+            rotation: { enabled: true, order: ["current_matches", "next_matches", "ranking"], pauseOnHover: false, showIndicator: true, transition: { type: "fade", duration: 0.3 } },
+            layout: { type: "fullscreen" },
+            colors: { text: "#f9fafb", title: "#e5e339", subtitle: "#9ca3af" }
+          }
+        };
+        
+        return defaults[mode] || defaults.md;
+      }
+
+      /* ========================================
+         PARTIE B : SYSTÈME COMPLET PAR MODE
+         ======================================== */
+
+      // ========== MODE M/D ==========
+
+      function loadTVConfigMD() {
+        var stored = localStorage.getItem('tv_config_md');
+        if (stored) {
+          try {
+            return JSON.parse(stored);
+          } catch (e) {
+            console.error('[TV M/D] Erreur parse config', e);
+          }
+        }
+        return getDefaultTVConfig('md');
+      }
+
+      function saveTVConfigMD(config) {
+        localStorage.setItem('tv_config_md', JSON.stringify(config));
+        console.log('[TV M/D] ✅ Config sauvegardée:', config);
+      }
+
+      function syncTVFormMD() {
+        var config = loadTVConfigMD();
+        
+        // Blocs
+        document.querySelectorAll('.tv-block-toggle[data-mode="md"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          cb.checked = config.blocks[block]?.enabled || false;
+        });
+        
+        // Durées
+        var durationCurrent = document.getElementById('tv-md-duration-current');
+        var durationRanking = document.getElementById('tv-md-duration-ranking');
+        var durationNext = document.getElementById('tv-md-duration-next');
+        var durationPodium = document.getElementById('tv-md-duration-podium');
+        
+        if (durationCurrent) durationCurrent.value = config.blocks.current_matches?.duration || 10;
+        if (durationRanking) durationRanking.value = config.blocks.ranking?.duration || 8;
+        if (durationNext) durationNext.value = config.blocks.next_matches?.duration || 6;
+        if (durationPodium) durationPodium.value = config.blocks.podium?.duration || 5;
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-md-rotation-enabled');
+        if (rotationEnabled) rotationEnabled.checked = config.rotation?.enabled !== false;
+        
+        // Layout
+        var layout = document.getElementById('tv-md-layout');
+        if (layout) layout.value = config.layout?.type || 'fullscreen';
+        
+        // Couleurs
+        if (config.colors) {
+          var colorText = document.getElementById('tv-md-color-text');
+          var colorTitle = document.getElementById('tv-md-color-title');
+          var colorSubtitle = document.getElementById('tv-md-color-subtitle');
+          
+          if (colorText) colorText.value = config.colors.text || '#f9fafb';
+          if (colorTitle) colorTitle.value = config.colors.title || '#e5e339';
+          if (colorSubtitle) colorSubtitle.value = config.colors.subtitle || '#9ca3af';
+        }
+        
+        console.log('[TV M/D] Form synchronized');
+      }
+
+      function saveTVFormMD() {
+        var config = {
+          blocks: {},
+          rotation: {},
+          layout: {},
+          colors: {}
+        };
+        
+        // Blocs
+        document.querySelectorAll('.tv-block-toggle[data-mode="md"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          var durationEl = document.getElementById('tv-md-duration-' + block.replace('_', '-'));
+          config.blocks[block] = {
+            enabled: cb.checked,
+            duration: durationEl ? parseInt(durationEl.value) || 10 : 10
+          };
+        });
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-md-rotation-enabled');
+        config.rotation = {
+          enabled: rotationEnabled ? rotationEnabled.checked : true,
+          order: Object.keys(config.blocks).filter(function(k) { return config.blocks[k].enabled; }),
+          pauseOnHover: false,
+          showIndicator: true,
+          transition: { type: 'fade', duration: 0.3 }
+        };
+        
+        // Layout
+        var layout = document.getElementById('tv-md-layout');
+        config.layout = {
+          type: layout ? layout.value : 'fullscreen'
+        };
+        
+        // Couleurs
+        var colorText = document.getElementById('tv-md-color-text');
+        var colorTitle = document.getElementById('tv-md-color-title');
+        var colorSubtitle = document.getElementById('tv-md-color-subtitle');
+        
+        config.colors = {
+          text: colorText ? colorText.value : '#f9fafb',
+          title: colorTitle ? colorTitle.value : '#e5e339',
+          subtitle: colorSubtitle ? colorSubtitle.value : '#9ca3af'
+        };
+        
+        saveTVConfigMD(config);
+        alert('✅ Configuration TV M/D sauvegardée !');
+      }
+
+      // ========== MODE CLASSIC ==========
+
+      function loadTVConfigClassic() {
+        var stored = localStorage.getItem('tv_config_classic');
+        if (stored) {
+          try {
+            return JSON.parse(stored);
+          } catch (e) {
+            console.error('[TV Classic] Erreur parse config', e);
+          }
+        }
+        return getDefaultTVConfig('classic');
+      }
+
+      function saveTVConfigClassic(config) {
+        localStorage.setItem('tv_config_classic', JSON.stringify(config));
+        console.log('[TV Classic] ✅ Config sauvegardée:', config);
+      }
+
+      function syncTVFormClassic() {
+        var config = loadTVConfigClassic();
+        
+        // Blocs
+        document.querySelectorAll('.tv-block-toggle[data-mode="classic"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          cb.checked = config.blocks[block]?.enabled || false;
+        });
+        
+        // Durées
+        var durationMatches = document.getElementById('tv-classic-duration-matches');
+        var durationNext = document.getElementById('tv-classic-duration-next');
+        var durationPools = document.getElementById('tv-classic-duration-pools');
+        var durationBrackets = document.getElementById('tv-classic-duration-brackets');
+        
+        if (durationMatches) durationMatches.value = config.blocks.matches_by_court?.duration || 10;
+        if (durationNext) durationNext.value = config.blocks.next_matches?.duration || 8;
+        if (durationPools) durationPools.value = config.blocks.pool_rankings?.duration || 8;
+        if (durationBrackets) durationBrackets.value = config.blocks.brackets?.duration || 10;
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-classic-rotation-enabled');
+        if (rotationEnabled) rotationEnabled.checked = config.rotation?.enabled !== false;
+        
+        // Layout
+        var layout = document.getElementById('tv-classic-layout');
+        if (layout) layout.value = config.layout?.type || 'split-vertical';
+        
+        // Couleurs
+        if (config.colors) {
+          var colorText = document.getElementById('tv-classic-color-text');
+          var colorTitle = document.getElementById('tv-classic-color-title');
+          var colorSubtitle = document.getElementById('tv-classic-color-subtitle');
+          
+          if (colorText) colorText.value = config.colors.text || '#f9fafb';
+          if (colorTitle) colorTitle.value = config.colors.title || '#e5e339';
+          if (colorSubtitle) colorSubtitle.value = config.colors.subtitle || '#9ca3af';
+        }
+        
+        console.log('[TV Classic] Form synchronized');
+      }
+
+      function saveTVFormClassic() {
+        var config = {
+          blocks: {},
+          rotation: {},
+          layout: {},
+          colors: {}
+        };
+        
+        // Blocs spécifiques Classic
+        var blocksMap = {
+          'matches_by_court': 'matches',
+          'next_matches': 'next',
+          'pool_rankings': 'pools',
+          'brackets': 'brackets'
+        };
+        
+        document.querySelectorAll('.tv-block-toggle[data-mode="classic"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          var shortName = blocksMap[block] || block;
+          var durationEl = document.getElementById('tv-classic-duration-' + shortName);
+          config.blocks[block] = {
+            enabled: cb.checked,
+            duration: durationEl ? parseInt(durationEl.value) || 10 : 10
+          };
+        });
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-classic-rotation-enabled');
+        config.rotation = {
+          enabled: rotationEnabled ? rotationEnabled.checked : true,
+          order: Object.keys(config.blocks).filter(function(k) { return config.blocks[k].enabled; }),
+          pauseOnHover: false,
+          showIndicator: true,
+          transition: { type: 'fade', duration: 0.3 }
+        };
+        
+        // Layout
+        var layout = document.getElementById('tv-classic-layout');
+        config.layout = {
+          type: layout ? layout.value : 'split-vertical'
+        };
+        
+        // Couleurs
+        var colorText = document.getElementById('tv-classic-color-text');
+        var colorTitle = document.getElementById('tv-classic-color-title');
+        var colorSubtitle = document.getElementById('tv-classic-color-subtitle');
+        
+        config.colors = {
+          text: colorText ? colorText.value : '#f9fafb',
+          title: colorTitle ? colorTitle.value : '#e5e339',
+          subtitle: colorSubtitle ? colorSubtitle.value : '#9ca3af'
+        };
+        
+        saveTVConfigClassic(config);
+        alert('✅ Configuration TV Classic sauvegardée !');
+      }
+
+      // ========== MODE AMÉRICANO ==========
+
+      function loadTVConfigAmericano() {
+        var stored = localStorage.getItem('tv_config_americano');
+        if (stored) {
+          try {
+            return JSON.parse(stored);
+          } catch (e) {
+            console.error('[TV Américano] Erreur parse config', e);
+          }
+        }
+        return getDefaultTVConfig('americano');
+      }
+
+      function saveTVConfigAmericano(config) {
+        localStorage.setItem('tv_config_americano', JSON.stringify(config));
+        console.log('[TV Américano] ✅ Config sauvegardée:', config);
+      }
+
+      function syncTVFormAmericano() {
+        var config = loadTVConfigAmericano();
+        
+        // Blocs
+        document.querySelectorAll('.tv-block-toggle[data-mode="americano"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          cb.checked = config.blocks[block]?.enabled || false;
+        });
+        
+        // Durées
+        var durationCurrent = document.getElementById('tv-americano-duration-current');
+        var durationNext = document.getElementById('tv-americano-duration-next');
+        var durationRanking = document.getElementById('tv-americano-duration-ranking');
+        var durationPodium = document.getElementById('tv-americano-duration-podium');
+        
+        if (durationCurrent) durationCurrent.value = config.blocks.current_matches?.duration || 10;
+        if (durationNext) durationNext.value = config.blocks.next_matches?.duration || 8;
+        if (durationRanking) durationRanking.value = config.blocks.ranking?.duration || 8;
+        if (durationPodium) durationPodium.value = config.blocks.podium?.duration || 5;
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-americano-rotation-enabled');
+        if (rotationEnabled) rotationEnabled.checked = config.rotation?.enabled !== false;
+        
+        // Layout
+        var layout = document.getElementById('tv-americano-layout');
+        if (layout) layout.value = config.layout?.type || 'split-vertical';
+        
+        // Couleurs
+        if (config.colors) {
+          var colorText = document.getElementById('tv-americano-color-text');
+          var colorTitle = document.getElementById('tv-americano-color-title');
+          var colorSubtitle = document.getElementById('tv-americano-color-subtitle');
+          
+          if (colorText) colorText.value = config.colors.text || '#f9fafb';
+          if (colorTitle) colorTitle.value = config.colors.title || '#e5e339';
+          if (colorSubtitle) colorSubtitle.value = config.colors.subtitle || '#9ca3af';
+        }
+        
+        console.log('[TV Américano] Form synchronized');
+      }
+
+      function saveTVFormAmericano() {
+        var config = {
+          blocks: {},
+          rotation: {},
+          layout: {},
+          colors: {}
+        };
+        
+        // Blocs
+        document.querySelectorAll('.tv-block-toggle[data-mode="americano"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          var durationEl = document.getElementById('tv-americano-duration-' + block.replace('_', '-'));
+          config.blocks[block] = {
+            enabled: cb.checked,
+            duration: durationEl ? parseInt(durationEl.value) || 10 : 10
+          };
+        });
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-americano-rotation-enabled');
+        config.rotation = {
+          enabled: rotationEnabled ? rotationEnabled.checked : true,
+          order: Object.keys(config.blocks).filter(function(k) { return config.blocks[k].enabled; }),
+          pauseOnHover: false,
+          showIndicator: true,
+          transition: { type: 'fade', duration: 0.3 }
+        };
+        
+        // Layout
+        var layout = document.getElementById('tv-americano-layout');
+        config.layout = {
+          type: layout ? layout.value : 'split-vertical'
+        };
+        
+        // Couleurs
+        var colorText = document.getElementById('tv-americano-color-text');
+        var colorTitle = document.getElementById('tv-americano-color-title');
+        var colorSubtitle = document.getElementById('tv-americano-color-subtitle');
+        
+        config.colors = {
+          text: colorText ? colorText.value : '#f9fafb',
+          title: colorTitle ? colorTitle.value : '#e5e339',
+          subtitle: colorSubtitle ? colorSubtitle.value : '#9ca3af'
+        };
+        
+        saveTVConfigAmericano(config);
+        alert('✅ Configuration TV Américano sauvegardée !');
+      }
+
+      // ========== MODE SOLO NIGHT ==========
+
+      function loadTVConfigSoloNight() {
+        var stored = localStorage.getItem('tv_config_solonight');
+        if (stored) {
+          try {
+            return JSON.parse(stored);
+          } catch (e) {
+            console.error('[TV Solo Night] Erreur parse config', e);
+          }
+        }
+        return getDefaultTVConfig('solonight');
+      }
+
+      function saveTVConfigSoloNight(config) {
+        localStorage.setItem('tv_config_solonight', JSON.stringify(config));
+        console.log('[TV Solo Night] ✅ Config sauvegardée:', config);
+      }
+
+      function syncTVFormSoloNight() {
+        var config = loadTVConfigSoloNight();
+        
+        // Blocs
+        document.querySelectorAll('.tv-block-toggle[data-mode="solonight"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          cb.checked = config.blocks[block]?.enabled || false;
+        });
+        
+        // Durées
+        var durationCurrent = document.getElementById('tv-solonight-duration-current');
+        var durationNext = document.getElementById('tv-solonight-duration-next');
+        var durationRanking = document.getElementById('tv-solonight-duration-ranking');
+        var durationPodium = document.getElementById('tv-solonight-duration-podium');
+        
+        if (durationCurrent) durationCurrent.value = config.blocks.current_matches?.duration || 10;
+        if (durationNext) durationNext.value = config.blocks.next_matches?.duration || 8;
+        if (durationRanking) durationRanking.value = config.blocks.ranking?.duration || 8;
+        if (durationPodium) durationPodium.value = config.blocks.podium?.duration || 5;
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-solonight-rotation-enabled');
+        if (rotationEnabled) rotationEnabled.checked = config.rotation?.enabled !== false;
+        
+        // Layout
+        var layout = document.getElementById('tv-solonight-layout');
+        if (layout) layout.value = config.layout?.type || 'fullscreen';
+        
+        // Couleurs
+        if (config.colors) {
+          var colorText = document.getElementById('tv-solonight-color-text');
+          var colorTitle = document.getElementById('tv-solonight-color-title');
+          var colorSubtitle = document.getElementById('tv-solonight-color-subtitle');
+          
+          if (colorText) colorText.value = config.colors.text || '#f9fafb';
+          if (colorTitle) colorTitle.value = config.colors.title || '#e5e339';
+          if (colorSubtitle) colorSubtitle.value = config.colors.subtitle || '#9ca3af';
+        }
+        
+        console.log('[TV Solo Night] Form synchronized');
+      }
+
+      function saveTVFormSoloNight() {
+        var config = {
+          blocks: {},
+          rotation: {},
+          layout: {},
+          colors: {}
+        };
+        
+        // Blocs
+        document.querySelectorAll('.tv-block-toggle[data-mode="solonight"]').forEach(function(cb) {
+          var block = cb.dataset.block;
+          var durationEl = document.getElementById('tv-solonight-duration-' + block.replace('_', '-'));
+          config.blocks[block] = {
+            enabled: cb.checked,
+            duration: durationEl ? parseInt(durationEl.value) || 10 : 10
+          };
+        });
+        
+        // Rotation
+        var rotationEnabled = document.getElementById('tv-solonight-rotation-enabled');
+        config.rotation = {
+          enabled: rotationEnabled ? rotationEnabled.checked : true,
+          order: Object.keys(config.blocks).filter(function(k) { return config.blocks[k].enabled; }),
+          pauseOnHover: false,
+          showIndicator: true,
+          transition: { type: 'fade', duration: 0.3 }
+        };
+        
+        // Layout
+        var layout = document.getElementById('tv-solonight-layout');
+        config.layout = {
+          type: layout ? layout.value : 'fullscreen'
+        };
+        
+        // Couleurs
+        var colorText = document.getElementById('tv-solonight-color-text');
+        var colorTitle = document.getElementById('tv-solonight-color-title');
+        var colorSubtitle = document.getElementById('tv-solonight-color-subtitle');
+        
+        config.colors = {
+          text: colorText ? colorText.value : '#f9fafb',
+          title: colorTitle ? colorTitle.value : '#e5e339',
+          subtitle: colorSubtitle ? colorSubtitle.value : '#9ca3af'
+        };
+        
+        saveTVConfigSoloNight(config);
+        alert('✅ Configuration TV Solo Night sauvegardée !');
+      }
+
+      /* ========================================
+         EVENT LISTENERS AU CHARGEMENT DOM
+         ======================================== */
+
+      document.addEventListener('DOMContentLoaded', function() {
+        
+        // Event listeners MODE M/D
+        var btnSaveMD = document.getElementById('btn-save-tv-md');
+        var btnResetMD = document.getElementById('btn-reset-tv-md');
+        
+        if (btnSaveMD) {
+          btnSaveMD.addEventListener('click', saveTVFormMD);
+        }
+        
+        if (btnResetMD) {
+          btnResetMD.addEventListener('click', function() {
+            if (confirm('Réinitialiser la config TV M/D ?')) {
+              localStorage.removeItem('tv_config_md');
+              syncTVFormMD();
+              alert('✅ Config TV M/D réinitialisée');
+            }
+          });
+        }
+        
+        // Event listeners MODE CLASSIC
+        var btnSaveClassic = document.getElementById('btn-save-tv-classic');
+        var btnResetClassic = document.getElementById('btn-reset-tv-classic');
+        
+        if (btnSaveClassic) {
+          btnSaveClassic.addEventListener('click', saveTVFormClassic);
+        }
+        
+        if (btnResetClassic) {
+          btnResetClassic.addEventListener('click', function() {
+            if (confirm('Réinitialiser la config TV Classic ?')) {
+              localStorage.removeItem('tv_config_classic');
+              syncTVFormClassic();
+              alert('✅ Config TV Classic réinitialisée');
+            }
+          });
+        }
+        
+        // Event listeners MODE AMÉRICANO
+        var btnSaveAmericano = document.getElementById('btn-save-tv-americano');
+        var btnResetAmericano = document.getElementById('btn-reset-tv-americano');
+        
+        if (btnSaveAmericano) {
+          btnSaveAmericano.addEventListener('click', saveTVFormAmericano);
+        }
+        
+        if (btnResetAmericano) {
+          btnResetAmericano.addEventListener('click', function() {
+            if (confirm('Réinitialiser la config TV Américano ?')) {
+              localStorage.removeItem('tv_config_americano');
+              syncTVFormAmericano();
+              alert('✅ Config TV Américano réinitialisée');
+            }
+          });
+        }
+        
+        // Event listeners MODE SOLO NIGHT
+        var btnSaveSoloNight = document.getElementById('btn-save-tv-solonight');
+        var btnResetSoloNight = document.getElementById('btn-reset-tv-solonight');
+        
+        if (btnSaveSoloNight) {
+          btnSaveSoloNight.addEventListener('click', saveTVFormSoloNight);
+        }
+        
+        if (btnResetSoloNight) {
+          btnResetSoloNight.addEventListener('click', function() {
+            if (confirm('Réinitialiser la config TV Solo Night ?')) {
+              localStorage.removeItem('tv_config_solonight');
+              syncTVFormSoloNight();
+              alert('✅ Config TV Solo Night réinitialisée');
+            }
+          });
+        }
+        
+        // Charger les configs au démarrage
+        syncTVFormMD();
+        syncTVFormClassic();
+        syncTVFormAmericano();
+        syncTVFormSoloNight();
+        
+        console.log('[TV Config] Système de configuration complet chargé pour tous les modes');
+      });
+
+    })();
+  </script>
+
 </body>
 </html>

@@ -47,6 +47,7 @@
     'md': 'admin-root',
     'tournaments': 'tournaments-root',
     'americano': 'americano-root',
+    'solonight': 'solonight-root',
     'ligue': 'ligue-root',
     'ligue-config': 'ligue-config-root'
   };

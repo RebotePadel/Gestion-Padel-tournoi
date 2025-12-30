@@ -9,6 +9,8 @@
     classic: document.getElementById('classic-root'),
     americano: document.getElementById('americano-root'),
     americanoTv: document.getElementById('americano-tv-root'),
+    solonight: document.getElementById('solonight-root'),
+    solonightTv: document.getElementById('solonight-tv-root'),
     ligue: document.getElementById('ligue-root'),
     ligueConfig: document.getElementById('ligue-config-root'),
     ligueActive: document.getElementById('ligue-active-root'),
@@ -53,7 +55,7 @@
     }
 
     // Retirer tv-mode sauf pour les vues TV
-    var tvSections = ['tv', 'americanoTv', 'liguePlayer', 'liguePlayerManage'];
+    var tvSections = ['tv', 'americanoTv', 'solonightTv', 'liguePlayer', 'liguePlayerManage'];
     if (tvSections.indexOf(key) === -1) {
       document.body.classList.remove('tv-mode');
       // Nettoyer systèmes TV si on quitte une vue TV
@@ -103,6 +105,15 @@
     showSection('americanoTv');
     document.body.classList.add('tv-mode'); // Masquer sidebar
     if (window.AMERICANO && typeof window.AMERICANO.renderTv === 'function') window.AMERICANO.renderTv();
+  }
+  function showSoloNight() {
+    showSection('solonight');
+    if (window.SOLONIGHT && typeof window.SOLONIGHT.render === 'function') window.SOLONIGHT.render();
+  }
+  function showSoloNightTv() {
+    showSection('solonightTv');
+    document.body.classList.add('tv-mode'); // Masquer sidebar
+    if (window.SOLONIGHT && typeof window.SOLONIGHT.renderTv === 'function') window.SOLONIGHT.renderTv();
   }
   function showLigue() { showSection('ligue'); }
   function showLigueConfig() { showSection('ligueConfig'); }
@@ -372,10 +383,16 @@
   bind('btn-back-home-from-classic', showHome);
   bind('btn-back-formats-from-classic', showTournaments);
   bind('btn-open-americano', showAmericano);
+  bind('btn-open-solonight', showSoloNight);
   bind('btn-americano-home', showHome);
   bind('btn-americano-formats', showTournaments);
   bind('btn-americano-open-tv', showAmericanoTv);
   bind('btn-americano-tv-back', showAmericano);
+
+  bind('btn-solonight-home', showHome);
+  bind('btn-solonight-formats', showTournaments);
+  bind('btn-solonight-open-tv', showSoloNightTv);
+  bind('btn-solonight-tv-back', showSoloNight);
 
   bind('btn-back-home-from-ligue', showHome);
   bind('btn-ligue-config', showLigueConfig);
@@ -399,6 +416,8 @@
   window.showClassic = showClassic;
   window.showAmericano = showAmericano;
   window.showAmericanoTv = showAmericanoTv;
+  window.showSoloNight = showSoloNight;
+  window.showSoloNightTv = showSoloNightTv;
   window.showLigue = showLigue;
   window.showLigueConfig = showLigueConfig;
   window.showLigueActive = showLigueActive;

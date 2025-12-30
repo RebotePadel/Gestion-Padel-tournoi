@@ -374,31 +374,32 @@ body.tv-mode .sidebar-toggle-btn {
   margin-top: auto;
 }
 
-/* Layout avec sidebar */
-body.sidebar-open .app {
-  margin-left: 280px;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
+/* Layout avec sidebar - SEUL .app doit avoir margin-left */
 .app {
   margin-left: 280px;
   transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Force margin pour toutes les sections avec .app */
-section .app {
+/* Les sections INTERNES ne doivent PAS avoir de margin-left (éviter double décalage) */
+#home-root,
+#admin-root,
+#classic-root,
+#americano-root,
+#solonight-root,
+#ligue-root,
+#ligue-manage-root,
+#ligue-config-root,
+#ligue-active-root,
+#ligue-player-root,
+#ligue-player-manage-root,
+#tournaments-root,
+#settings-root {
   margin-left: 0 !important;
   margin-right: 0 !important;
 }
 
-/* Container principal avec sidebar */
-body > .app {
-  margin-left: 280px !important;
-  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 /* Recentrer le contenu quand la sidebar est collapsed */
-body.sidebar-collapsed > .app {
+body.sidebar-collapsed .app {
   margin-left: 0 !important;
   margin-right: 0 !important;
   width: 100%;
