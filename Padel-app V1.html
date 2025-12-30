@@ -632,16 +632,22 @@
     #ligue-manage-root .ligue-match-card,
     #ligue-root .ligue-list .card,
     #ligue-active-root .ligue-list .card {
-      transition: transform 0.15s ease-out, box-shadow 0.15s ease-out, background-color 0.15s ease-out;
+      transition: box-shadow 0.15s ease-out, background-color 0.15s ease-out, border-color 0.15s ease-out;
       cursor: pointer;
     }
-    #admin-root .match-card:hover,
-    #ligue-manage-root .ligue-match-card:hover,
-    #ligue-root .ligue-list .card:hover,
-    #ligue-active-root .ligue-list .card:hover {
+    #admin-root .match-card:hover {
       transform: translateY(-2px) scale(1.02);
       box-shadow: 0 12px 30px rgba(250, 204, 21, 0.15), 0 10px 25px rgba(0,0,0,0.45);
       background-color: rgba(250, 204, 21, 0.08);
+    }
+    /* Ligues : pas de zoom, surbrillance uniquement */
+    #ligue-manage-root .ligue-match-card:hover,
+    #ligue-root .ligue-list .card:hover,
+    #ligue-active-root .ligue-list .card:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 8px 20px rgba(0, 0, 0, 0.4);
+      border-color: var(--brand-accent);
+      background-color: rgba(229, 227, 57, 0.05);
     }
 
     /* LIGUE THEMES */
@@ -739,18 +745,55 @@
       border: 1px solid #111827;
       color: var(--text);
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: box-shadow 0.2s ease, background-color 0.2s ease;
       font-weight: 600;
     }
-    .ligue-tab:hover { box-shadow: 0 0 0 1px rgba(229,231,235,0.08); transform: translateY(-1px); }
+    .ligue-tab:hover {
+      box-shadow: 0 0 0 1px rgba(229, 227, 57, 0.3);
+      background-color: rgba(255, 255, 255, 0.08);
+    }
     .ligue-tab.active { color: #0b0b0b; background: #e6e6e6; }
+    .ligue-tab.active:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
     .ligue-theme-n1 .ligue-tab.active { background: linear-gradient(135deg, #7f1d1d, #b91c1c); color: #fff; }
     .ligue-theme-n2 .ligue-tab.active { background: linear-gradient(135deg, #b45309, #f97316); color: #fff; }
     .ligue-theme-n3 .ligue-tab.active { background: linear-gradient(135deg, #ca8a04, #fbbf24); color: #0f172a; }
 
     .ligue-panel { margin-top: 12px; }
     .ligue-panel.hidden { display: none; }
-    .ligue-match-card { border: 1px solid #111827; border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); }
+    .ligue-match-card { border: 1px solid #111827; border-radius: 12px; padding: 10px; background: rgba(255,255,255,0.02); transition: box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease; }
+
+    /* Suppression zoom sur TOUS les éléments ligues (sauf boutons) */
+    #ligue-config-root .card:hover,
+    #ligue-player-root .card:hover,
+    #ligue-player-manage-root .card:hover,
+    .ligue-theme-shell:hover,
+    .ligue-theme-n1:hover,
+    .ligue-theme-n2:hover,
+    .ligue-theme-n3:hover,
+    .ligue-match-row:hover,
+    .ligue-team-row:hover,
+    .ligue-result-team:hover,
+    .ligue-history-item:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 1px rgba(229, 227, 57, 0.3), 0 6px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    /* Effet subtil pour les lignes de classement */
+    .ligue-standings tr:hover td {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* Boutons ligues peuvent garder un léger lift */
+    #ligue-root .btn:hover,
+    #ligue-config-root .btn:hover,
+    #ligue-active-root .btn:hover,
+    #ligue-manage-root .btn:hover,
+    #ligue-player-root .btn:hover,
+    #ligue-player-manage-root .btn:hover {
+      transform: translateY(-1px) !important;
+    }
     .ligue-match-validated { background: rgba(16,185,129,0.08); border-color: rgba(16,185,129,0.55); }
     .ligue-match-winner-card { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.55); }
     /* PATCH: alignement "vs" au centre (grille 3 colonnes) */
