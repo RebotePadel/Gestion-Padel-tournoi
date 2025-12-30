@@ -1481,10 +1481,97 @@
     });
   }
 
+  // Default rules content
+  var DEFAULT_RULES = {
+    title1: '📅 Programmation premium',
+    content1: 'Planifiez vos rencontres librement (heures creuses, pleines, week-end) en respectant l\'ordre officiel des matchs. Exemple : on joue la Journée 1 avant la Journée 3.\n\nRéservation rapide : contactez-nous via le WhatsApp de la ligue ou par téléphone pour bloquer votre créneau.',
+    title2: '🎾 Format de jeu',
+    content2: '• Match en 2 sets gagnants (0 à 7 jeux par set, avantage classique)\n• En cas de 3ème set, super tie-break en 10 points (2pts d\'écart)\n• Avant de jouer : récupérez vos balles neuves et fiche de score au bar\n• Après le match : remettez le score au staff pour validation',
+    title3: '🤝 Fair-play & confort',
+    content3: 'Auto-arbitrage, respect et courtoisie sont de mise. Un différend ? On échange calmement ou on contacte le staff.\n\nJouez sereinement, profitez du club, et que le meilleur duo l\'emporte !'
+  };
+
+  function ensureRulesConfig(league) {
+    if (!league || !league.config) return;
+    if (!league.config.rules) {
+      league.config.rules = {
+        title1: DEFAULT_RULES.title1,
+        content1: DEFAULT_RULES.content1,
+        title2: DEFAULT_RULES.title2,
+        content2: DEFAULT_RULES.content2,
+        title3: DEFAULT_RULES.title3,
+        content3: DEFAULT_RULES.content3
+      };
+    }
+  }
+
   function renderManageRules(league) {
     if (!refs.reglementStart || !refs.reglementEnd) return;
     refs.reglementStart.value = (league && league.config && league.config.reglementStartDate) ? league.config.reglementStartDate : '';
     refs.reglementEnd.value = (league && league.config && league.config.reglementEndDate) ? league.config.reglementEndDate : '';
+
+    // Load custom rules into inputs
+    ensureRulesConfig(league);
+    var rules = (league && league.config && league.config.rules) || DEFAULT_RULES;
+
+    var titleInput1 = document.getElementById('ligue-rule-title-1');
+    var contentInput1 = document.getElementById('ligue-rule-content-1');
+    var titleInput2 = document.getElementById('ligue-rule-title-2');
+    var contentInput2 = document.getElementById('ligue-rule-content-2');
+    var titleInput3 = document.getElementById('ligue-rule-title-3');
+    var contentInput3 = document.getElementById('ligue-rule-content-3');
+
+    if (titleInput1) titleInput1.value = rules.title1 || DEFAULT_RULES.title1;
+    if (contentInput1) contentInput1.value = rules.content1 || DEFAULT_RULES.content1;
+    if (titleInput2) titleInput2.value = rules.title2 || DEFAULT_RULES.title2;
+    if (contentInput2) contentInput2.value = rules.content2 || DEFAULT_RULES.content2;
+    if (titleInput3) titleInput3.value = rules.title3 || DEFAULT_RULES.title3;
+    if (contentInput3) contentInput3.value = rules.content3 || DEFAULT_RULES.content3;
+  }
+
+  function saveCustomRules() {
+    var league = getActiveLeague(currentActiveId);
+    if (!league) return;
+
+    var titleInput1 = document.getElementById('ligue-rule-title-1');
+    var contentInput1 = document.getElementById('ligue-rule-content-1');
+    var titleInput2 = document.getElementById('ligue-rule-title-2');
+    var contentInput2 = document.getElementById('ligue-rule-content-2');
+    var titleInput3 = document.getElementById('ligue-rule-title-3');
+    var contentInput3 = document.getElementById('ligue-rule-content-3');
+
+    if (!league.config.rules) league.config.rules = {};
+
+    league.config.rules.title1 = titleInput1 ? titleInput1.value : DEFAULT_RULES.title1;
+    league.config.rules.content1 = contentInput1 ? contentInput1.value : DEFAULT_RULES.content1;
+    league.config.rules.title2 = titleInput2 ? titleInput2.value : DEFAULT_RULES.title2;
+    league.config.rules.content2 = contentInput2 ? contentInput2.value : DEFAULT_RULES.content2;
+    league.config.rules.title3 = titleInput3 ? titleInput3.value : DEFAULT_RULES.title3;
+    league.config.rules.content3 = contentInput3 ? contentInput3.value : DEFAULT_RULES.content3;
+
+    saveState();
+    alert('✅ Règlement sauvegardé avec succès !');
+    renderPlayerManageRules(league);
+  }
+
+  function resetCustomRules() {
+    if (!confirm('Réinitialiser le règlement aux valeurs par défaut ?')) return;
+    var league = getActiveLeague(currentActiveId);
+    if (!league) return;
+
+    league.config.rules = {
+      title1: DEFAULT_RULES.title1,
+      content1: DEFAULT_RULES.content1,
+      title2: DEFAULT_RULES.title2,
+      content2: DEFAULT_RULES.content2,
+      title3: DEFAULT_RULES.title3,
+      content3: DEFAULT_RULES.content3
+    };
+
+    saveState();
+    renderManageRules(league);
+    renderPlayerManageRules(league);
+    alert('🔄 Règlement réinitialisé !');
   }
 
   function handleExportMatches() {
@@ -1721,8 +1808,58 @@
     if (!refs.playerReglementStart || !refs.playerReglementEnd) return;
     refs.playerReglementStart.textContent = (league && league.config && league.config.reglementStartDate) ? league.config.reglementStartDate : '—';
     refs.playerReglementEnd.textContent = (league && league.config && league.config.reglementEndDate) ? league.config.reglementEndDate : '—';
+
+    // Render custom rules in player view
+    ensureRulesConfig(league);
+    var rules = (league && league.config && league.config.rules) || DEFAULT_RULES;
+
+    var panel = document.getElementById('ligue-player-reglement-panel');
+    if (!panel) return;
+
+    // Find the rules section container
+    var rulesSection = panel.querySelector('.ligue-section');
+    if (!rulesSection) return;
+
+    // CLEAR ALL existing content to avoid duplicates
+    rulesSection.innerHTML = '';
+
+    // Render custom blocks
+    function createRuleBlock(title, content) {
+      var card = document.createElement('div');
+      card.className = 'card';
+      card.style.cssText = 'border:1px solid #1f2937; background: rgba(255,255,255,0.02); margin-top:8px;';
+
+      var h5 = document.createElement('h5');
+      h5.className = 'tournaments-title';
+      h5.style.marginBottom = '6px';
+      h5.textContent = title;
+
+      var p = document.createElement('p');
+      p.style.cssText = 'margin-bottom:0; white-space:pre-wrap;';
+      p.textContent = content;
+
+      card.appendChild(h5);
+      card.appendChild(p);
+      return card;
+    }
+
+    rulesSection.appendChild(createRuleBlock(rules.title1, rules.content1));
+    rulesSection.appendChild(createRuleBlock(rules.title2, rules.content2));
+    rulesSection.appendChild(createRuleBlock(rules.title3, rules.content3));
   }
 
+
+  // Bind custom rules buttons
+  var btnSaveRules = document.getElementById('btn-save-ligue-rules');
+  var btnResetRules = document.getElementById('btn-reset-ligue-rules');
+
+  if (btnSaveRules) {
+    btnSaveRules.addEventListener('click', saveCustomRules);
+  }
+
+  if (btnResetRules) {
+    btnResetRules.addEventListener('click', resetCustomRules);
+  }
 
   window.hideLigueSections = hideLigueSections;
   window.showLigueRoot = showLigueRoot;

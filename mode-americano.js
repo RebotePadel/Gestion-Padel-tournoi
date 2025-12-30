@@ -123,13 +123,7 @@
     ensureTeams(state.teamCount);
     if (!refs.teamsList) return;
     refs.teamsList.innerHTML = '';
-    var header = document.createElement('div');
-    header.className = 'americano-team-row';
-    var h1 = document.createElement('div'); h1.className = 'americano-team-cell'; h1.textContent = 'Équipe';
-    var h2 = document.createElement('div'); h2.className = 'americano-team-cell'; h2.textContent = 'Joueur 1';
-    var h3 = document.createElement('div'); h3.className = 'americano-team-cell'; h3.textContent = 'Joueur 2';
-    header.appendChild(h1); header.appendChild(h2); header.appendChild(h3);
-    refs.teamsList.appendChild(header);
+
     state.teams.forEach(function(team, idx) {
       var row = document.createElement('div');
       row.className = 'americano-team-row';
@@ -142,31 +136,11 @@
       input.type = 'text';
       input.value = team.name || '';
       input.setAttribute('data-team-name', team.id);
-      input.placeholder = 'Nom de l’équipe';
+      input.placeholder = 'Nom de l\'équipe ' + (idx + 1);
       colTeam.appendChild(label);
       colTeam.appendChild(input);
 
-      var colP1 = document.createElement('div');
-      colP1.className = 'americano-team-cell';
-      var p1 = document.createElement('input');
-      p1.type = 'text';
-      p1.value = (team.players && team.players[0]) || '';
-      p1.placeholder = 'Joueur 1';
-      p1.setAttribute('data-team-player-a', team.id);
-      colP1.appendChild(p1);
-
-      var colP2 = document.createElement('div');
-      colP2.className = 'americano-team-cell';
-      var p2 = document.createElement('input');
-      p2.type = 'text';
-      p2.value = (team.players && team.players[1]) || '';
-      p2.placeholder = 'Joueur 2';
-      p2.setAttribute('data-team-player-b', team.id);
-      colP2.appendChild(p2);
-
       row.appendChild(colTeam);
-      row.appendChild(colP1);
-      row.appendChild(colP2);
       refs.teamsList.appendChild(row);
     });
   }
@@ -179,24 +153,6 @@
       var team = state.teams.find(function(t) { return t.id === id; });
       if (team) {
         team.name = inp.value.trim() || team.name;
-      }
-    });
-    var p1Inputs = refs.teamsList.querySelectorAll('[data-team-player-a]');
-    p1Inputs.forEach(function(inp) {
-      var id = inp.getAttribute('data-team-player-a');
-      var team = state.teams.find(function(t) { return t.id === id; });
-      if (team) {
-        if (!team.players) team.players = [];
-        team.players[0] = inp.value.trim();
-      }
-    });
-    var p2Inputs = refs.teamsList.querySelectorAll('[data-team-player-b]');
-    p2Inputs.forEach(function(inp) {
-      var id = inp.getAttribute('data-team-player-b');
-      var team = state.teams.find(function(t) { return t.id === id; });
-      if (team) {
-        if (!team.players) team.players = [];
-        team.players[1] = inp.value.trim();
       }
     });
   }
@@ -750,6 +706,128 @@
     } catch (e) { tvRefs.banner.style.display = 'none'; }
   }
 
+  /* TV ROTATION & ANIMATIONS */
+  var tvRotationManager = null;
+  var tvAnimations = null;
+
+  function initTVSystems() {
+    console.log('[Americano TV] Initialisation systèmes TV...');
+
+    // Charger config TV depuis localStorage
+    var tvConfig = null;
+    try {
+      var stored = localStorage.getItem('tv_config_americano');
+      if (stored) {
+        tvConfig = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('[Americano TV] Erreur chargement config:', e);
+    }
+
+    // Appliquer layout au conteneur TV
+    var tvMain = tvRoot ? tvRoot.querySelector('.tv-main') : null;
+    if (tvMain && tvConfig && tvConfig.layout) {
+      // Retirer toutes les classes de layout existantes
+      tvMain.classList.remove('layout-fullscreen', 'layout-split-vertical', 'layout-split-horizontal', 'layout-grid-2x2', 'layout-pip');
+      // Ajouter la nouvelle classe de layout
+      var layoutClass = 'layout-' + tvConfig.layout.type;
+      tvMain.classList.add(layoutClass);
+      console.log('[Americano TV] Layout appliqué:', tvConfig.layout.type);
+    } else if (tvMain) {
+      // Par défaut: fullscreen
+      tvMain.classList.add('layout-fullscreen');
+    }
+
+    // Ne pas continuer si pas de config
+    if (!tvConfig) {
+      console.log('[Americano TV] Pas de config, layout par défaut appliqué');
+      return;
+    }
+
+    // Initialiser animations
+    if (window.TVAnimations) {
+      tvAnimations = new window.TVAnimations(tvConfig.animations || {});
+      tvAnimations.init();
+    }
+
+    // Initialiser rotation si activée
+    if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
+      tvRotationManager = new window.TVRotationManager(tvConfig, tvMain);
+      if (tvRotationManager.init()) {
+        tvRotationManager.start();
+        console.log('[Americano TV] Rotation démarrée');
+      }
+    } else {
+      // Si rotation désactivée, afficher les blocs statiques selon le layout
+      showStaticTVBlocks(tvConfig, tvMain);
+      console.log('[Americano TV] Blocs statiques affichés (rotation désactivée)');
+    }
+  }
+
+  // Afficher les blocs TV statiques quand la rotation est désactivée
+  function showStaticTVBlocks(config, container) {
+    if (!config || !container) return;
+
+    // Récupérer tous les blocs TV
+    var allBlocks = container.querySelectorAll('.tv-block');
+
+    // Cacher tous les blocs d'abord
+    for (var i = 0; i < allBlocks.length; i++) {
+      allBlocks[i].style.display = 'none';
+      allBlocks[i].classList.remove('tv-block-active');
+    }
+
+    // Filtrer les blocs activés
+    var enabledBlocks = [];
+    for (var i = 0; i < allBlocks.length; i++) {
+      var block = allBlocks[i];
+      var blockId = block.getAttribute('data-tv-block');
+      if (blockId && config.blocks && config.blocks[blockId] && config.blocks[blockId].enabled) {
+        enabledBlocks.push(block);
+      }
+    }
+
+    // Si aucun bloc n'est activé, afficher tous les blocs disponibles par défaut
+    if (enabledBlocks.length === 0) {
+      console.warn('[Americano TV] Aucun bloc activé, affichage de tous les blocs par défaut');
+      enabledBlocks = Array.from(allBlocks);
+    }
+
+    // Déterminer combien de blocs afficher selon le layout
+    var layoutType = config.layout ? config.layout.type : 'fullscreen';
+    var blocksToShow = 1; // Par défaut: fullscreen
+
+    if (layoutType === 'split-vertical' || layoutType === 'split-horizontal' || layoutType === 'pip') {
+      blocksToShow = 2;
+    } else if (layoutType === 'grid-2x2') {
+      blocksToShow = 4;
+    }
+
+    // Afficher les blocs en utilisant modulo pour remplir TOUS les slots
+    // même s'il faut répéter des blocs
+    for (var i = 0; i < blocksToShow; i++) {
+      var blockIndex = i % enabledBlocks.length;
+      enabledBlocks[blockIndex].style.display = 'block';
+      enabledBlocks[blockIndex].classList.add('tv-block-active');
+    }
+
+    console.log('[Americano TV] Affichage de ' + blocksToShow + ' slot(s) avec ' + enabledBlocks.length + ' bloc(s) disponible(s) en mode ' + layoutType);
+  }
+
+  function destroyTVSystems() {
+    console.log('[Americano TV] Nettoyage systèmes TV...');
+
+    if (tvRotationManager) {
+      tvRotationManager.destroy();
+      tvRotationManager = null;
+    }
+
+    if (tvAnimations) {
+      tvAnimations.destroy();
+      tvAnimations = null;
+    }
+  }
+
   function updateTimerFromState() {
     if (refs.timerDisplay) refs.timerDisplay.textContent = formatTimer();
     if (refs.timerStatus) refs.timerStatus.textContent = state.timer.running ? 'Timer en cours' : 'Timer en pause';
@@ -922,6 +1000,36 @@
     if (reset) reset.addEventListener('click', resetTimer);
   }
 
+  function bindAmericanoTabs() {
+    var tabButtons = document.querySelectorAll('.americano-tab-btn');
+
+    tabButtons.forEach(function(button) {
+      button.addEventListener('click', function() {
+        var targetTab = this.getAttribute('data-americano-tab');
+
+        // Désactiver tous les boutons d'onglets
+        tabButtons.forEach(function(btn) {
+          btn.classList.remove('active');
+        });
+
+        // Activer le bouton cliqué
+        this.classList.add('active');
+
+        // Cacher tous les panneaux
+        var allPanels = document.querySelectorAll('.americano-tab-panel');
+        allPanels.forEach(function(panel) {
+          panel.classList.remove('active');
+        });
+
+        // Afficher le panneau cible
+        var targetPanel = document.querySelector('[data-americano-tab-panel="' + targetTab + '"]');
+        if (targetPanel) {
+          targetPanel.classList.add('active');
+        }
+      });
+    });
+  }
+
   function init() {
     setTeamCountOptions();
     renderTeamsList();
@@ -929,17 +1037,24 @@
     bindEvents();
     bindRoundsPager();
     bindAmericanoCollapse();
+    bindAmericanoTabs(); // Initialiser la navigation par onglets
     if (window.showAmericano && typeof window.showAmericano === 'function' && root && root.style.display !== 'none') {
       window.showAmericano();
     }
     if (state.timer.running) state.timer.lastTick = Date.now();
     if (!timerInterval) timerInterval = setInterval(tickTimer, 1000);
+    // Initialiser les systèmes TV (rotation et animations)
+    if (tvRoot) {
+      initTVSystems();
+    }
   }
 
   window.AMERICANO = {
     render: renderAll,
     renderTv: renderTv,
-    init: init
+    init: init,
+    initTVSystems: initTVSystems,
+    destroyTVSystems: destroyTVSystems
   };
 
   init();
