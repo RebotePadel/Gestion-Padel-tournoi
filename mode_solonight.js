@@ -25,6 +25,7 @@
 
   // Références DOM TV
   var tvRefs = tvRoot ? {
+    logo: tvRoot.querySelector('#solonight-tv-logo'),
     name: tvRoot.querySelector('#solonight-tv-name'),
     meta: tvRoot.querySelector('#solonight-tv-meta'),
     current: tvRoot.querySelector('#solonight-tv-current'),
@@ -693,6 +694,21 @@
   // VUE TV
   // ========================================
 
+  function applyLogoToTv() {
+    if (!tvRefs.logo) return;
+    try {
+      var profile = JSON.parse(localStorage.getItem('padel_theme_profile_v1') || '{}');
+      if (profile && profile.logoDataUrl) {
+        tvRefs.logo.src = profile.logoDataUrl;
+        tvRefs.logo.style.height = '48px';
+        tvRefs.logo.style.maxHeight = '48px';
+        tvRefs.logo.style.width = 'auto';
+      }
+    } catch (err) {
+      console.error('[Solo Night TV] Erreur chargement logo:', err);
+    }
+  }
+
   function renderTv() {
     if (!tvRoot) return;
 
@@ -736,6 +752,9 @@
 
     // Classement
     renderTvStandings();
+
+    // Appliquer le logo
+    applyLogoToTv();
   }
 
   function renderTvStandings() {
