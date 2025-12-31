@@ -22,6 +22,7 @@
     tvConfigMD: 'tv_config_md',
     tvConfigClassic: 'tv_config_classic',
     tvConfigAmericano: 'tv_config_americano',
+    tvConfigSoloNight: 'tv_config_solonight',
     tvConfigsLibrary: 'tv_configs_library',
     sponsorsTVSettings: 'sponsors_tv_settings',
     pongTVWidget: 'pong_tv_widget'
@@ -1594,7 +1595,7 @@
   // ========================================
 
   var tvViewState = {
-    currentMode: 'md', // md, classic, americano
+    currentMode: 'md', // md, classic, americano, solonight
     currentConfig: null
   };
 
@@ -1909,14 +1910,19 @@
   function loadTVConfig(mode) {
     var storageKey = mode === 'md' ? STORAGE_KEYS.tvConfigMD :
                      mode === 'classic' ? STORAGE_KEYS.tvConfigClassic :
-                     STORAGE_KEYS.tvConfigAmericano;
+                     mode === 'americano' ? STORAGE_KEYS.tvConfigAmericano :
+                     mode === 'solonight' ? STORAGE_KEYS.tvConfigSoloNight :
+                     STORAGE_KEYS.tvConfigMD; // Fallback to MD
 
     var config = loadFromStorage(storageKey, null);
 
     if (!config) {
       config = JSON.parse(JSON.stringify(DEFAULT_TV_CONFIG));
       config.id = mode;
-      config.name = 'Configuration ' + mode.toUpperCase();
+      config.name = 'Configuration ' + (mode === 'md' ? 'M/D' :
+                                        mode === 'classic' ? 'Tournoi Classique' :
+                                        mode === 'americano' ? 'Américano' :
+                                        mode === 'solonight' ? 'Solo Night' : mode.toUpperCase());
     }
 
     tvViewState.currentConfig = config;
@@ -1988,7 +1994,9 @@
 
     var storageKey = mode === 'md' ? STORAGE_KEYS.tvConfigMD :
                      mode === 'classic' ? STORAGE_KEYS.tvConfigClassic :
-                     STORAGE_KEYS.tvConfigAmericano;
+                     mode === 'americano' ? STORAGE_KEYS.tvConfigAmericano :
+                     mode === 'solonight' ? STORAGE_KEYS.tvConfigSoloNight :
+                     STORAGE_KEYS.tvConfigMD; // Fallback to MD
 
     // Sauvegarder la config principale
     saveToStorage(storageKey, config);
@@ -2041,6 +2049,17 @@
       }
       // Réinitialiser avec la nouvelle config
       window.AMERICANO.initTVSystems();
+    } else if (mode === 'solonight' && window.SOLONIGHT && typeof window.SOLONIGHT.initTVSystems === 'function') {
+      // Réinitialiser les systèmes TV pour Solo Night
+      if (typeof window.SOLONIGHT.destroyTVSystems === 'function') {
+        window.SOLONIGHT.destroyTVSystems();
+      }
+      // Re-render la vue TV
+      if (typeof window.SOLONIGHT.renderTv === 'function') {
+        window.SOLONIGHT.renderTv();
+      }
+      // Réinitialiser avec la nouvelle config
+      window.SOLONIGHT.initTVSystems();
     }
 
     showNotification('Configuration TV sauvegardée avec succès !', 'success');
@@ -2380,6 +2399,15 @@
       saveToStorage(STORAGE_KEYS.tvConfigAmericano, americanoConfig);
       migrationCount++;
       console.log('[Settings] ✓ Config TV Américano créée');
+    }
+
+    if (!loadFromStorage(STORAGE_KEYS.tvConfigSoloNight, null)) {
+      var solonightConfig = JSON.parse(JSON.stringify(DEFAULT_TV_CONFIG));
+      solonightConfig.id = 'solonight';
+      solonightConfig.name = 'Configuration Solo Night';
+      saveToStorage(STORAGE_KEYS.tvConfigSoloNight, solonightConfig);
+      migrationCount++;
+      console.log('[Settings] ✓ Config TV Solo Night créée');
     }
 
     // Marquer migration comme terminée
