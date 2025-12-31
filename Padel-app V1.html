@@ -1720,6 +1720,15 @@
       flex-direction:column;
       gap:6px;
       font-size:0.85rem;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tournament-type-card:hover,
+    .tournament-type-card.app-block-interactive:hover {
+      transform: translateY(-8px) scale(1.01) !important;
+      border-color: var(--brand-accent) !important;
+      background-color: rgba(229, 227, 57, 0.05) !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 20px 48px rgba(0, 0, 0, 0.8) !important;
     }
 
     .tournament-type-title{
@@ -1821,6 +1830,66 @@
     .status-message.info { background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3); color: #60a5fa; }
     .status-message.success { background: rgba(34,197,94,0.1); border: 1px solid rgba(34,197,94,0.3); color: #4ade80; }
     .status-message.error { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+
+    /* Solo Night : Suppression zoom + ajout contours hover */
+    #solonight-root .americano-card {
+      transition: all 0.3s ease;
+    }
+    #solonight-root .americano-card:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 12px 28px rgba(0,0,0,0.4) !important;
+      border-color: var(--brand-accent) !important;
+      background-color: rgba(229, 227, 57, 0.05) !important;
+    }
+    #solonight-root .match-card {
+      transition: all 0.3s ease;
+    }
+    #solonight-root .match-card:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 12px 28px rgba(0,0,0,0.4);
+      border-color: var(--brand-accent);
+      background-color: rgba(229, 227, 57, 0.05);
+    }
+    #solonight-root .rotation-section:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 8px 20px rgba(0,0,0,0.3);
+      border-color: var(--brand-accent);
+      background-color: rgba(229, 227, 57, 0.05);
+    }
+    #solonight-root .rotation-section {
+      transition: all 0.3s ease;
+    }
+    #solonight-root .standings-table tr:hover {
+      transform: none !important;
+      background: rgba(229, 227, 57, 0.08) !important;
+      box-shadow: inset 0 0 0 1px var(--brand-accent);
+    }
+    #solonight-root .app-block-interactive:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 12px 28px rgba(0,0,0,0.4) !important;
+      border-color: var(--brand-accent) !important;
+      background-color: rgba(229, 227, 57, 0.05) !important;
+    }
+    #solonight-root .americano-round-card {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    #solonight-root .americano-round-card:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 8px 20px rgba(0,0,0,0.4);
+      border-color: var(--brand-accent);
+      background-color: rgba(229, 227, 57, 0.05);
+    }
+    #solonight-root .americano-podium-row {
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+    #solonight-root .americano-podium-row:hover {
+      transform: none !important;
+      box-shadow: 0 0 0 2px var(--brand-accent), 0 4px 12px rgba(0,0,0,0.3);
+      border-color: var(--brand-accent);
+      background-color: rgba(229, 227, 57, 0.05);
+    }
 
     .tv-match-card { border: 1px solid #1f2937; border-radius: 12px; background: rgba(15,23,42,0.6); padding: 16px; margin-bottom: 12px; }
     .tv-match-card.completed { border-color: rgba(34,197,94,0.5); }
