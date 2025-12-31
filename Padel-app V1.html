@@ -361,11 +361,12 @@
 }
 
 .home-card:hover {
-  transform: translateY(-8px) scale(1.02);
-  border-color: rgba(229, 227, 57, 0.3);
-  box-shadow: 
+  transform: translateY(-8px) scale(1.01);
+  border: 2px solid var(--brand-title, var(--brand-accent));
+  box-shadow:
     0 20px 48px rgba(0, 0, 0, 0.8),
-    0 0 0 1px rgba(229, 227, 57, 0.2);
+    0 0 0 1px rgba(229, 227, 57, 0.2),
+    0 0 20px rgba(var(--brand-accent-rgb, 229, 227, 57), 0.4);
 }
 
 .home-card:hover::before {
