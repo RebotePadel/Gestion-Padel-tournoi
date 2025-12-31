@@ -1733,85 +1733,95 @@
   }
 
   function initTVToggles() {
-    // Toggle pour activer/désactiver sections
-    var rotationToggle = document.getElementById('md-rotation-enabled');
-    if (rotationToggle) {
-      rotationToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-rotation-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+    // Initialiser les toggles pour tous les modes
+    var modes = ['md', 'classic', 'americano', 'solonight'];
 
-    var animationsToggle = document.getElementById('md-animations-enabled');
-    if (animationsToggle) {
-      animationsToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-animations-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+    modes.forEach(function(mode) {
+      // Toggle pour activer/désactiver sections
+      var rotationToggle = document.getElementById(mode + '-rotation-enabled');
+      if (rotationToggle) {
+        rotationToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-rotation-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
 
-    var headerToggle = document.getElementById('md-header-enabled');
-    if (headerToggle) {
-      headerToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-header-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+      var animationsToggle = document.getElementById(mode + '-animations-enabled');
+      if (animationsToggle) {
+        animationsToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-animations-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
 
-    var footerToggle = document.getElementById('md-footer-enabled');
-    if (footerToggle) {
-      footerToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-footer-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+      var headerToggle = document.getElementById(mode + '-header-enabled');
+      if (headerToggle) {
+        headerToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-header-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
 
-    // Toggle pour type de son custom
-    var soundType = document.getElementById('md-sound-type');
-    if (soundType) {
-      soundType.addEventListener('change', function() {
-        var uploadField = document.getElementById('md-sound-upload-field');
-        if (uploadField) {
-          uploadField.style.display = this.value === 'custom' ? 'block' : 'none';
-        }
-      });
-    }
+      var footerToggle = document.getElementById(mode + '-footer-enabled');
+      if (footerToggle) {
+        footerToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-footer-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
+
+      // Toggle pour type de son custom
+      var soundType = document.getElementById(mode + '-sound-type');
+      if (soundType) {
+        soundType.addEventListener('change', function() {
+          var uploadField = document.getElementById(mode + '-sound-upload-field');
+          if (uploadField) {
+            uploadField.style.display = this.value === 'custom' ? 'block' : 'none';
+          }
+        });
+      }
+    });
   }
 
   function initTVDragDrop() {
-    var rotationOrder = document.getElementById('md-rotation-order');
-    if (!rotationOrder) return;
+    // Initialiser le drag & drop pour tous les modes
+    var modes = ['md', 'classic', 'americano', 'solonight'];
 
-    var draggingElement = null;
+    modes.forEach(function(mode) {
+      var rotationOrder = document.getElementById(mode + '-rotation-order');
+      if (!rotationOrder) return;
 
-    rotationOrder.addEventListener('dragstart', function(e) {
-      if (!e.target.classList.contains('rotation-item')) return;
-      draggingElement = e.target;
-      e.target.classList.add('dragging');
-    });
+      var draggingElement = null;
 
-    rotationOrder.addEventListener('dragend', function(e) {
-      if (!e.target.classList.contains('rotation-item')) return;
-      e.target.classList.remove('dragging');
-      updateRotationNumbers();
-    });
+      rotationOrder.addEventListener('dragstart', function(e) {
+        if (!e.target.classList.contains('rotation-item')) return;
+        draggingElement = e.target;
+        e.target.classList.add('dragging');
+      });
 
-    rotationOrder.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      var afterElement = getDragAfterElement(rotationOrder, e.clientY);
-      if (afterElement == null) {
-        rotationOrder.appendChild(draggingElement);
-      } else {
-        rotationOrder.insertBefore(draggingElement, afterElement);
-      }
+      rotationOrder.addEventListener('dragend', function(e) {
+        if (!e.target.classList.contains('rotation-item')) return;
+        e.target.classList.remove('dragging');
+        updateRotationNumbers(mode);
+      });
+
+      rotationOrder.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        var afterElement = getDragAfterElement(rotationOrder, e.clientY);
+        if (afterElement == null) {
+          rotationOrder.appendChild(draggingElement);
+        } else {
+          rotationOrder.insertBefore(draggingElement, afterElement);
+        }
+      });
     });
   }
 
@@ -1830,8 +1840,8 @@
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
-  function updateRotationNumbers() {
-    var items = document.querySelectorAll('#md-rotation-order .rotation-item');
+  function updateRotationNumbers(mode) {
+    var items = document.querySelectorAll('#' + mode + '-rotation-order .rotation-item');
     items.forEach(function(item, index) {
       var numberSpan = item.querySelector('.rotation-number');
       if (numberSpan) {
@@ -1841,70 +1851,78 @@
   }
 
   function initTVActions() {
-    // Sauvegarder config
-    var saveBtn = document.getElementById('md-save-config');
-    if (saveBtn) {
-      saveBtn.addEventListener('click', function() {
-        saveTVConfig(tvViewState.currentMode);
-      });
-    }
+    // Initialiser les actions pour tous les modes
+    var modes = ['md', 'classic', 'americano', 'solonight'];
 
-    // Dupliquer config
-    var duplicateBtn = document.getElementById('md-duplicate-config');
-    if (duplicateBtn) {
-      duplicateBtn.addEventListener('click', function() {
-        duplicateTVConfig(tvViewState.currentMode);
-      });
-    }
+    modes.forEach(function(mode) {
+      // Sauvegarder config
+      var saveBtn = document.getElementById(mode + '-save-config');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+          saveTVConfig(mode);
+        });
+      }
 
-    // Réinitialiser config
-    var resetBtn = document.getElementById('md-reset-config');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function() {
-        if (confirm('Réinitialiser cette configuration aux valeurs par défaut ?')) {
-          resetTVConfig(tvViewState.currentMode);
-        }
-      });
-    }
+      // Dupliquer config
+      var duplicateBtn = document.getElementById(mode + '-duplicate-config');
+      if (duplicateBtn) {
+        duplicateBtn.addEventListener('click', function() {
+          duplicateTVConfig(mode);
+        });
+      }
 
-    // Export config
-    var exportBtn = document.getElementById('md-export-config');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', function() {
-        exportTVConfig(tvViewState.currentMode);
-      });
-    }
+      // Réinitialiser config
+      var resetBtn = document.getElementById(mode + '-reset-config');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          if (confirm('Réinitialiser cette configuration aux valeurs par défaut ?')) {
+            resetTVConfig(mode);
+          }
+        });
+      }
 
-    // Import config
-    var importBtn = document.getElementById('md-import-config');
-    if (importBtn) {
-      importBtn.addEventListener('click', function() {
-        document.getElementById('md-import-file').click();
-      });
-    }
+      // Export config
+      var exportBtn = document.getElementById(mode + '-export-config');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+          exportTVConfig(mode);
+        });
+      }
 
-    var importFile = document.getElementById('md-import-file');
-    if (importFile) {
-      importFile.addEventListener('change', function(e) {
-        importTVConfig(e.target.files[0], tvViewState.currentMode);
-      });
-    }
+      // Import config
+      var importBtn = document.getElementById(mode + '-import-config');
+      if (importBtn) {
+        importBtn.addEventListener('click', function() {
+          var importFile = document.getElementById(mode + '-import-file');
+          if (importFile) {
+            importFile.click();
+          }
+        });
+      }
 
-    // Tester animation
-    var testBtn = document.getElementById('md-test-animation');
-    if (testBtn) {
-      testBtn.addEventListener('click', function() {
-        testTVAnimation();
-      });
-    }
+      var importFile = document.getElementById(mode + '-import-file');
+      if (importFile) {
+        importFile.addEventListener('change', function(e) {
+          importTVConfig(e.target.files[0], mode);
+        });
+      }
 
-    // Appliquer aux modes sélectionnés
-    var applyToModesBtn = document.getElementById('md-apply-to-modes');
-    if (applyToModesBtn) {
-      applyToModesBtn.addEventListener('click', function() {
-        applyConfigToModes(tvViewState.currentMode);
-      });
-    }
+      // Tester animation (si disponible)
+      var testBtn = document.getElementById(mode + '-test-animation');
+      if (testBtn) {
+        testBtn.addEventListener('click', function() {
+          testTVAnimation();
+        });
+      }
+
+      // Appliquer aux modes sélectionnés (si disponible)
+      var applyToModesBtn = document.getElementById(mode + '-apply-to-modes');
+      if (applyToModesBtn) {
+        applyToModesBtn.addEventListener('click', function() {
+          applyConfigToModes(mode);
+        });
+      }
+    });
   }
 
   function loadTVConfig(mode) {
