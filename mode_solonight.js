@@ -409,104 +409,148 @@
 
     refs.planning.innerHTML = '';
 
-    state.rotations.forEach(function(rotation) {
-      var section = document.createElement('div');
-      section.className = 'rotation-section';
+    // S'assurer que currentRotation est valide
+    if (state.currentRotation === undefined || state.currentRotation < 0) {
+      state.currentRotation = 0;
+    }
+    if (state.currentRotation >= state.rotations.length) {
+      state.currentRotation = state.rotations.length - 1;
+    }
 
-      var header = document.createElement('h3');
-      header.textContent = 'Rotation ' + rotation.number;
-      section.appendChild(header);
+    var rotation = state.rotations[state.currentRotation];
+    if (!rotation) return;
 
-      var matchesContainer = document.createElement('div');
-      matchesContainer.className = 'matches-container';
+    // Navigation des rotations
+    var navDiv = document.createElement('div');
+    navDiv.className = 'rotation-navigation';
+    navDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px;';
 
-      rotation.matches.forEach(function(match) {
-        var card = document.createElement('div');
-        card.className = 'match-card';
+    var btnPrev = document.createElement('button');
+    btnPrev.className = 'btn btn-secondary';
+    btnPrev.innerHTML = '← Précédent';
+    btnPrev.disabled = state.currentRotation === 0;
+    btnPrev.onclick = function() {
+      if (state.currentRotation > 0) {
+        state.currentRotation--;
+        saveState();
+        renderPlanning();
+      }
+    };
 
-        var courtLabel = document.createElement('div');
-        courtLabel.className = 'court-label';
-        courtLabel.textContent = 'Terrain ' + match.court;
-        card.appendChild(courtLabel);
+    var rotationIndicator = document.createElement('div');
+    rotationIndicator.style.cssText = 'font-weight: 600; font-size: 1.1rem; color: var(--brand-accent); text-align: center;';
+    rotationIndicator.textContent = 'Rotation ' + rotation.number + ' / ' + state.rotations.length;
 
-        var teams = document.createElement('div');
-        teams.className = 'match-teams';
+    var btnNext = document.createElement('button');
+    btnNext.className = 'btn btn-secondary';
+    btnNext.innerHTML = 'Suivant →';
+    btnNext.disabled = state.currentRotation === state.rotations.length - 1;
+    btnNext.onclick = function() {
+      if (state.currentRotation < state.rotations.length - 1) {
+        state.currentRotation++;
+        saveState();
+        renderPlanning();
+      }
+    };
 
-        var teamADiv = document.createElement('div');
-        teamADiv.className = 'team';
-        teamADiv.innerHTML = '<strong>Équipe A</strong><br>' +
-                            playerName(match.teamA[0]) + ' + ' + playerName(match.teamA[1]);
+    navDiv.appendChild(btnPrev);
+    navDiv.appendChild(rotationIndicator);
+    navDiv.appendChild(btnNext);
+    refs.planning.appendChild(navDiv);
 
-        var vs = document.createElement('div');
-        vs.className = 'vs';
-        vs.textContent = 'VS';
+    // Affichage de la rotation courante
+    var section = document.createElement('div');
+    section.className = 'rotation-section';
 
-        var teamBDiv = document.createElement('div');
-        teamBDiv.className = 'team';
-        teamBDiv.innerHTML = '<strong>Équipe B</strong><br>' +
-                            playerName(match.teamB[0]) + ' + ' + playerName(match.teamB[1]);
+    var matchesContainer = document.createElement('div');
+    matchesContainer.className = 'matches-container';
 
-        teams.appendChild(teamADiv);
-        teams.appendChild(vs);
-        teams.appendChild(teamBDiv);
-        card.appendChild(teams);
+    rotation.matches.forEach(function(match) {
+      var card = document.createElement('div');
+      card.className = 'match-card';
 
-        // Résultats
-        var result = state.results[match.id];
-        var resultDiv = document.createElement('div');
-        resultDiv.className = 'match-result';
+      var courtLabel = document.createElement('div');
+      courtLabel.className = 'court-label';
+      courtLabel.textContent = 'Terrain ' + match.court;
+      card.appendChild(courtLabel);
 
-        if (result) {
-          resultDiv.innerHTML = '<strong>Gagnant :</strong> Équipe ' + result.winner;
-          var btnEdit = document.createElement('button');
-          btnEdit.className = 'btn btn-secondary btn-small';
-          btnEdit.textContent = 'Modifier';
-          btnEdit.onclick = function() {
-            delete state.results[match.id];
-            saveState();
-            render();
-          };
-          resultDiv.appendChild(btnEdit);
-        } else {
-          var btnA = document.createElement('button');
-          btnA.className = 'btn btn-primary btn-small';
-          btnA.textContent = 'Équipe A gagne';
-          btnA.onclick = function() {
-            state.results[match.id] = { winner: 'A' };
-            saveState();
-            render();
-          };
+      var teams = document.createElement('div');
+      teams.className = 'match-teams';
 
-          var btnB = document.createElement('button');
-          btnB.className = 'btn btn-primary btn-small';
-          btnB.textContent = 'Équipe B gagne';
-          btnB.onclick = function() {
-            state.results[match.id] = { winner: 'B' };
-            saveState();
-            render();
-          };
+      var teamADiv = document.createElement('div');
+      teamADiv.className = 'team';
+      teamADiv.innerHTML = '<strong>Équipe A</strong><br>' +
+                          playerName(match.teamA[0]) + ' + ' + playerName(match.teamA[1]);
 
-          resultDiv.appendChild(btnA);
-          resultDiv.appendChild(btnB);
-        }
+      var vs = document.createElement('div');
+      vs.className = 'vs';
+      vs.textContent = 'VS';
 
-        card.appendChild(resultDiv);
-        matchesContainer.appendChild(card);
-      });
+      var teamBDiv = document.createElement('div');
+      teamBDiv.className = 'team';
+      teamBDiv.innerHTML = '<strong>Équipe B</strong><br>' +
+                          playerName(match.teamB[0]) + ' + ' + playerName(match.teamB[1]);
 
-      section.appendChild(matchesContainer);
+      teams.appendChild(teamADiv);
+      teams.appendChild(vs);
+      teams.appendChild(teamBDiv);
+      card.appendChild(teams);
 
-      // Joueurs en pause
-      if (rotation.paused && rotation.paused.length > 0) {
-        var pausedDiv = document.createElement('div');
-        pausedDiv.className = 'paused-players';
-        pausedDiv.innerHTML = '<strong>En pause :</strong> ' +
-          rotation.paused.map(function(id) { return playerName(id); }).join(', ');
-        section.appendChild(pausedDiv);
+      // Résultats
+      var result = state.results[match.id];
+      var resultDiv = document.createElement('div');
+      resultDiv.className = 'match-result';
+
+      if (result) {
+        resultDiv.innerHTML = '<strong>Gagnant :</strong> Équipe ' + result.winner;
+        var btnEdit = document.createElement('button');
+        btnEdit.className = 'btn btn-secondary btn-small';
+        btnEdit.textContent = 'Modifier';
+        btnEdit.onclick = function() {
+          delete state.results[match.id];
+          saveState();
+          render();
+        };
+        resultDiv.appendChild(btnEdit);
+      } else {
+        var btnA = document.createElement('button');
+        btnA.className = 'btn btn-primary btn-small';
+        btnA.textContent = 'Équipe A gagne';
+        btnA.onclick = function() {
+          state.results[match.id] = { winner: 'A' };
+          saveState();
+          render();
+        };
+
+        var btnB = document.createElement('button');
+        btnB.className = 'btn btn-primary btn-small';
+        btnB.textContent = 'Équipe B gagne';
+        btnB.onclick = function() {
+          state.results[match.id] = { winner: 'B' };
+          saveState();
+          render();
+        };
+
+        resultDiv.appendChild(btnA);
+        resultDiv.appendChild(btnB);
       }
 
-      refs.planning.appendChild(section);
+      card.appendChild(resultDiv);
+      matchesContainer.appendChild(card);
     });
+
+    section.appendChild(matchesContainer);
+
+    // Joueurs en pause
+    if (rotation.paused && rotation.paused.length > 0) {
+      var pausedDiv = document.createElement('div');
+      pausedDiv.className = 'paused-players';
+      pausedDiv.innerHTML = '<strong>En pause :</strong> ' +
+        rotation.paused.map(function(id) { return playerName(id); }).join(', ');
+      section.appendChild(pausedDiv);
+    }
+
+    refs.planning.appendChild(section);
   }
 
   function renderStandings() {
@@ -640,6 +684,7 @@
         assignCourts(rotations);
         state.rotations = rotations;
         state.results = {};
+        state.currentRotation = 0;
         saveState();
 
         // Valider (mode debug)
@@ -681,6 +726,7 @@
         assignCourts(rotations);
         state.rotations = rotations;
         state.results = {};
+        state.currentRotation = 0;
         saveState();
 
         showStatus('✅ Planning régénéré avec succès !', 'success');
