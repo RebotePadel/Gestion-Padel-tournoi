@@ -1982,6 +1982,17 @@
       rotationEnabled.dispatchEvent(new Event('change'));
     }
 
+    // Rotation options
+    var pauseHover = document.getElementById(prefix + '-pause-hover');
+    if (pauseHover && config.rotation.pauseOnHover !== undefined) {
+      pauseHover.checked = config.rotation.pauseOnHover;
+    }
+
+    var showProgress = document.getElementById(prefix + '-show-progress');
+    if (showProgress && config.rotation.showIndicator !== undefined) {
+      showProgress.checked = config.rotation.showIndicator;
+    }
+
     // Layout
     var layoutRadio = document.querySelector('input[name="' + prefix + '-layout"][value="' + config.layout.type + '"]');
     if (layoutRadio) {
@@ -2233,6 +2244,17 @@
     config.rotation.order = Array.from(rotationItems).map(function(item) {
       return item.getAttribute('data-block');
     });
+
+    // Rotation options
+    var pauseHover = document.getElementById(prefix + '-pause-hover');
+    if (pauseHover) {
+      config.rotation.pauseOnHover = pauseHover.checked;
+    }
+
+    var showProgress = document.getElementById(prefix + '-show-progress');
+    if (showProgress) {
+      config.rotation.showIndicator = showProgress.checked;
+    }
 
     // Layout
     var layoutRadio = document.querySelector('input[name="' + prefix + '-layout"]:checked');

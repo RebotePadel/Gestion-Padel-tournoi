@@ -759,22 +759,42 @@
   }
 
   function applySponsorToTv() {
-    if (!tvRefs.sponsorBanner || !tvRefs.sponsorLogo || !tvRefs.sponsorName) return;
+    console.log('[Solo Night TV] applySponsorToTv appelée');
+
+    if (!tvRefs.sponsorBanner || !tvRefs.sponsorLogo || !tvRefs.sponsorName) {
+      console.warn('[Solo Night TV] Éléments sponsor manquants:', {
+        banner: !!tvRefs.sponsorBanner,
+        logo: !!tvRefs.sponsorLogo,
+        name: !!tvRefs.sponsorName
+      });
+      return;
+    }
 
     try {
       // Vérifier si l'affichage des sponsors est activé pour Solo Night
       var sponsorsTVSettings = JSON.parse(localStorage.getItem('sponsors_tv_settings') || 'null');
+      console.log('[Solo Night TV] Sponsors TV settings:', sponsorsTVSettings);
 
-      if (!sponsorsTVSettings || !sponsorsTVSettings.enabled ||
-          (sponsorsTVSettings.modes && sponsorsTVSettings.modes.solonight === false)) {
-        // Affichage désactivé pour Solo Night
+      if (!sponsorsTVSettings || !sponsorsTVSettings.enabled) {
         tvRefs.sponsorBanner.style.display = 'none';
-        console.log('[Solo Night TV] Affichage sponsors désactivé pour ce mode');
+        console.log('[Solo Night TV] Affichage sponsors globalement désactivé');
+        return;
+      }
+
+      // Vérifier si activé pour Solo Night (par défaut: true si non défini)
+      var solonightEnabled = sponsorsTVSettings.modes && sponsorsTVSettings.modes.solonight !== undefined
+        ? sponsorsTVSettings.modes.solonight
+        : true;
+
+      if (!solonightEnabled) {
+        tvRefs.sponsorBanner.style.display = 'none';
+        console.log('[Solo Night TV] Affichage sponsors désactivé pour Solo Night');
         return;
       }
 
       // Charger les sponsors depuis localStorage
       var sponsors = JSON.parse(localStorage.getItem('sponsors_list') || '[]');
+      console.log('[Solo Night TV] Sponsors chargés:', sponsors.length);
 
       // Filtrer les sponsors actifs
       var activeSponsors = sponsors.filter(function(s) {
@@ -784,6 +804,7 @@
       if (activeSponsors.length === 0) {
         // Pas de sponsors, cacher le bandeau
         tvRefs.sponsorBanner.style.display = 'none';
+        console.log('[Solo Night TV] Aucun sponsor actif trouvé');
         return;
       }
 
@@ -800,7 +821,9 @@
       console.log('[Solo Night TV] Sponsor appliqué:', sponsor.name);
     } catch (err) {
       console.error('[Solo Night TV] Erreur chargement sponsor:', err);
-      tvRefs.sponsorBanner.style.display = 'none';
+      if (tvRefs.sponsorBanner) {
+        tvRefs.sponsorBanner.style.display = 'none';
+      }
     }
   }
 
