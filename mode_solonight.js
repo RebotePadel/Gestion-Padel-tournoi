@@ -1005,41 +1005,80 @@
 
     // Appliquer layout au conteneur TV
     var tvMain = tvRoot ? tvRoot.querySelector('.tv-main') : null;
-    if (tvMain && tvConfig && tvConfig.layout) {
-      // Retirer toutes les classes de layout existantes
-      tvMain.classList.remove('layout-fullscreen', 'layout-split-vertical', 'layout-split-horizontal', 'layout-grid-2x2', 'layout-pip');
-      // Ajouter la nouvelle classe de layout
-      var layoutClass = 'layout-' + tvConfig.layout.type;
-      tvMain.classList.add(layoutClass);
-      console.log('[Solo Night TV] Layout appliqué:', tvConfig.layout.type);
-    } else if (tvMain) {
-      // Par défaut: fullscreen
-      tvMain.classList.add('layout-fullscreen');
-    }
-
-    // Ne pas continuer si pas de config
-    if (!tvConfig) {
-      console.log('[Solo Night TV] Pas de config, layout par défaut appliqué');
+    if (!tvMain) {
+      console.warn('[Solo Night TV] Conteneur .tv-main non trouvé');
       return;
     }
 
-    // Initialiser animations
-    if (window.TVAnimations) {
+    // Déterminer le layout à appliquer
+    var layoutType = 'fullscreen';
+    if (tvConfig && tvConfig.layout && tvConfig.layout.type) {
+      layoutType = tvConfig.layout.type;
+    }
+
+    // Retirer toutes les classes de layout existantes
+    tvMain.classList.remove('layout-fullscreen', 'layout-split-vertical', 'layout-split-horizontal', 'layout-grid-2x2', 'layout-pip');
+
+    // Ajouter la nouvelle classe de layout
+    var layoutClass = 'layout-' + layoutType;
+    tvMain.classList.add(layoutClass);
+    console.log('[Solo Night TV] Layout appliqué:', layoutType);
+
+    // Initialiser animations si config existe
+    if (tvConfig && window.TVAnimations) {
       tvAnimations = new window.TVAnimations(tvConfig.animations || {});
       tvAnimations.init();
     }
 
+    // Récupérer tous les blocs
+    var allBlocks = tvMain.querySelectorAll('.tv-block');
+
     // Initialiser rotation si activée
-    if (tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
+    if (tvConfig && tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
       tvRotationManager = new window.TVRotationManager(tvConfig, tvMain);
       if (tvRotationManager.init()) {
         tvRotationManager.start();
         console.log('[Solo Night TV] Rotation démarrée');
+        return; // La rotation gère l'affichage des blocs
+      } else {
+        console.warn('[Solo Night TV] Échec initialisation rotation, affichage statique');
       }
-    } else {
-      // Si rotation désactivée, afficher les blocs statiques selon le layout
+    }
+
+    // Affichage statique (rotation désactivée ou pas de config)
+    if (tvConfig) {
+      // Utiliser la config pour déterminer quels blocs afficher
       showStaticTVBlocks(tvConfig, tvMain);
-      console.log('[Solo Night TV] Blocs statiques affichés (rotation désactivée)');
+      console.log('[Solo Night TV] Blocs statiques affichés selon config');
+    } else {
+      // Pas de config : afficher les blocs par défaut
+      showDefaultTVBlocks(tvMain, layoutType, allBlocks);
+      console.log('[Solo Night TV] Blocs par défaut affichés (pas de config)');
+    }
+  }
+
+  // Afficher les blocs TV par défaut quand il n'y a pas de config
+  function showDefaultTVBlocks(container, layoutType, allBlocks) {
+    if (!container) return;
+
+    // Cacher tous les blocs d'abord
+    for (var i = 0; i < allBlocks.length; i++) {
+      allBlocks[i].style.display = 'none';
+      allBlocks[i].classList.remove('tv-block-active');
+    }
+
+    // Déterminer combien de blocs afficher selon le layout
+    var blocksToShow = 1; // Par défaut: fullscreen
+    if (layoutType === 'split-vertical' || layoutType === 'split-horizontal' || layoutType === 'pip') {
+      blocksToShow = 2;
+    } else if (layoutType === 'grid-2x2') {
+      blocksToShow = 4;
+    }
+
+    // Afficher les premiers blocs
+    for (var i = 0; i < Math.min(blocksToShow, allBlocks.length); i++) {
+      allBlocks[i].style.display = 'block';
+      allBlocks[i].classList.add('tv-block-active');
     }
   }
 
