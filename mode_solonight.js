@@ -29,7 +29,10 @@
     name: tvRoot.querySelector('#solonight-tv-name'),
     meta: tvRoot.querySelector('#solonight-tv-meta'),
     current: tvRoot.querySelector('#solonight-tv-current'),
-    standings: tvRoot.querySelector('#solonight-tv-standings')
+    standings: tvRoot.querySelector('#solonight-tv-standings'),
+    sponsorBanner: tvRoot.querySelector('#solonight-tv-sponsor-banner'),
+    sponsorLogo: tvRoot.querySelector('#solonight-tv-sponsor-logo'),
+    sponsorName: tvRoot.querySelector('#solonight-tv-sponsor-name')
   } : {};
 
   // État par défaut
@@ -755,6 +758,41 @@
     }
   }
 
+  function applySponsorToTv() {
+    if (!tvRefs.sponsorBanner || !tvRefs.sponsorLogo || !tvRefs.sponsorName) return;
+
+    try {
+      // Charger les sponsors depuis localStorage
+      var sponsors = JSON.parse(localStorage.getItem('sponsors_list') || '[]');
+
+      // Filtrer les sponsors actifs
+      var activeSponsors = sponsors.filter(function(s) {
+        return s && s.logoData && s.name;
+      });
+
+      if (activeSponsors.length === 0) {
+        // Pas de sponsors, cacher le bandeau
+        tvRefs.sponsorBanner.style.display = 'none';
+        return;
+      }
+
+      // Sélectionner le premier sponsor actif (TODO: rotation)
+      var sponsor = activeSponsors[0];
+
+      // Appliquer le logo et le nom
+      tvRefs.sponsorLogo.src = sponsor.logoData;
+      tvRefs.sponsorName.textContent = sponsor.name;
+
+      // Afficher le bandeau
+      tvRefs.sponsorBanner.style.display = 'flex';
+
+      console.log('[Solo Night TV] Sponsor appliqué:', sponsor.name);
+    } catch (err) {
+      console.error('[Solo Night TV] Erreur chargement sponsor:', err);
+      tvRefs.sponsorBanner.style.display = 'none';
+    }
+  }
+
   function renderTv() {
     if (!tvRoot) return;
 
@@ -801,6 +839,9 @@
 
     // Appliquer le logo
     applyLogoToTv();
+
+    // Appliquer le sponsor
+    applySponsorToTv();
   }
 
   function renderTvStandings() {
