@@ -827,6 +827,24 @@
     }
   }
 
+  // Détermine l'index de la rotation en cours basée sur les scores
+  function getCurrentRotationIndex() {
+    // Parcourir les rotations pour trouver la première avec des scores incomplets
+    for (var i = 0; i < state.rotations.length; i++) {
+      var rotation = state.rotations[i];
+      var hasIncompleteMatches = rotation.matches.some(function(match) {
+        return !state.results[match.id];
+      });
+
+      if (hasIncompleteMatches) {
+        return i; // Cette rotation a des matchs non terminés
+      }
+    }
+
+    // Toutes les rotations sont terminées, retourner la dernière
+    return Math.max(0, state.rotations.length - 1);
+  }
+
   function renderTv() {
     if (!tvRoot) return;
 
@@ -837,36 +855,10 @@
     }
 
     // Afficher les matchs de la rotation en cours
-    if (tvRefs.current) {
-      tvRefs.current.innerHTML = '<h3>Matchs en cours</h3>';
+    renderTvCurrentMatches();
 
-      var currentRotation = state.rotations[state.currentRotation];
-      if (currentRotation) {
-        currentRotation.matches.forEach(function(match) {
-          var card = document.createElement('div');
-          card.className = 'tv-match-card';
-
-          var result = state.results[match.id];
-          var resultClass = result ? 'completed' : 'pending';
-          card.classList.add(resultClass);
-
-          card.innerHTML = '<div class="tv-court">Terrain ' + match.court + '</div>' +
-                          '<div class="tv-teams">' +
-                          '<div class="tv-team ' + (result && result.winner === 'A' ? 'winner' : '') + '">' +
-                          playerName(match.teamA[0]) + '<br>' + playerName(match.teamA[1]) +
-                          '</div>' +
-                          '<div class="tv-vs">VS</div>' +
-                          '<div class="tv-team ' + (result && result.winner === 'B' ? 'winner' : '') + '">' +
-                          playerName(match.teamB[0]) + '<br>' + playerName(match.teamB[1]) +
-                          '</div>' +
-                          '</div>';
-
-          tvRefs.current.appendChild(card);
-        });
-      } else {
-        tvRefs.current.innerHTML += '<p class="small-muted">Aucun match en cours</p>';
-      }
-    }
+    // Afficher les matchs à suivre
+    renderTvNextMatches();
 
     // Classement
     renderTvStandings();
@@ -874,8 +866,89 @@
     // Appliquer le logo
     applyLogoToTv();
 
-    // Appliquer le sponsor
-    applySponsorToTv();
+    // Appliquer le sponsor (désactivé temporairement pour debug)
+    // applySponsorToTv();
+  }
+
+  function renderTvCurrentMatches() {
+    if (!tvRefs.current) return;
+
+    tvRefs.current.innerHTML = '';
+
+    if (state.rotations.length === 0) {
+      tvRefs.current.innerHTML = '<p class="small-muted">Aucun planning généré</p>';
+      return;
+    }
+
+    var currentIndex = getCurrentRotationIndex();
+    var currentRotation = state.rotations[currentIndex];
+
+    if (!currentRotation) {
+      tvRefs.current.innerHTML = '<p class="small-muted">Aucun match en cours</p>';
+      return;
+    }
+
+    currentRotation.matches.forEach(function(match) {
+      var card = document.createElement('div');
+      card.className = 'tv-match-card';
+
+      var result = state.results[match.id];
+      var resultClass = result ? 'completed' : 'pending';
+      card.classList.add(resultClass);
+
+      card.innerHTML = '<div class="tv-court">Terrain ' + match.court + '</div>' +
+                      '<div class="tv-teams">' +
+                      '<div class="tv-team ' + (result && result.winner === 'A' ? 'winner' : '') + '">' +
+                      playerName(match.teamA[0]) + '<br>' + playerName(match.teamA[1]) +
+                      '</div>' +
+                      '<div class="tv-vs">VS</div>' +
+                      '<div class="tv-team ' + (result && result.winner === 'B' ? 'winner' : '') + '">' +
+                      playerName(match.teamB[0]) + '<br>' + playerName(match.teamB[1]) +
+                      '</div>' +
+                      '</div>';
+
+      tvRefs.current.appendChild(card);
+    });
+  }
+
+  function renderTvNextMatches() {
+    var nextContainer = tvRoot ? tvRoot.querySelector('#solonight-tv-next') : null;
+    if (!nextContainer) return;
+
+    nextContainer.innerHTML = '';
+
+    if (state.rotations.length === 0) {
+      nextContainer.innerHTML = '<p class="small-muted">Aucun planning généré</p>';
+      return;
+    }
+
+    var currentIndex = getCurrentRotationIndex();
+    var nextIndex = currentIndex + 1;
+
+    if (nextIndex >= state.rotations.length) {
+      nextContainer.innerHTML = '<p class="small-muted">Pas de prochaine rotation</p>';
+      return;
+    }
+
+    var nextRotation = state.rotations[nextIndex];
+
+    nextRotation.matches.forEach(function(match) {
+      var card = document.createElement('div');
+      card.className = 'tv-match-card upcoming';
+
+      card.innerHTML = '<div class="tv-court">Terrain ' + match.court + '</div>' +
+                      '<div class="tv-teams">' +
+                      '<div class="tv-team">' +
+                      playerName(match.teamA[0]) + '<br>' + playerName(match.teamA[1]) +
+                      '</div>' +
+                      '<div class="tv-vs">VS</div>' +
+                      '<div class="tv-team">' +
+                      playerName(match.teamB[0]) + '<br>' + playerName(match.teamB[1]) +
+                      '</div>' +
+                      '</div>';
+
+      nextContainer.appendChild(card);
+    });
   }
 
   function renderTvStandings() {
