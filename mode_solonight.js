@@ -930,6 +930,12 @@
         btn.classList.add('active');
         var targetPanel = root.querySelector('[data-solonight-tab-panel="' + targetTab + '"]');
         if (targetPanel) targetPanel.classList.add('active');
+
+        // Si on active l'onglet TV, initialiser les systèmes TV
+        if (targetTab === 'tv' && tvRoot) {
+          renderTv();
+          initTVSystems();
+        }
       });
     });
   }
