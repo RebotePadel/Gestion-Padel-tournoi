@@ -521,10 +521,12 @@
       var mdToggle = document.getElementById('sponsor-tv-md-toggle');
       var classicToggle = document.getElementById('sponsor-tv-classic-toggle');
       var americanoToggle = document.getElementById('sponsor-tv-americano-toggle');
+      var solonightToggle = document.getElementById('sponsor-tv-solonight-toggle');
 
       if (mdToggle) mdToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.md;
       if (classicToggle) classicToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.classic;
       if (americanoToggle) americanoToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.americano;
+      if (solonightToggle) solonightToggle.checked = sponsorsTVSettings.enabled && (sponsorsTVSettings.modes.solonight !== undefined ? sponsorsTVSettings.modes.solonight : true);
     }
 
     // Charger les paramètres Pong TV
@@ -533,10 +535,12 @@
       var mdPongToggle = document.getElementById('pong-tv-md-toggle');
       var classicPongToggle = document.getElementById('pong-tv-classic-toggle');
       var americanoPongToggle = document.getElementById('pong-tv-americano-toggle');
+      var solonightPongToggle = document.getElementById('pong-tv-solonight-toggle');
 
       if (mdPongToggle) mdPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.md;
       if (classicPongToggle) classicPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.classic;
       if (americanoPongToggle) americanoPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.americano;
+      if (solonightPongToggle) solonightPongToggle.checked = pongTVWidget.enabled && (pongTVWidget.modes.solonight !== undefined ? pongTVWidget.modes.solonight : false);
     }
 
     // Bouton de sauvegarde
@@ -553,6 +557,7 @@
     var mdToggle = document.getElementById('sponsor-tv-md-toggle');
     var classicToggle = document.getElementById('sponsor-tv-classic-toggle');
     var americanoToggle = document.getElementById('sponsor-tv-americano-toggle');
+    var solonightToggle = document.getElementById('sponsor-tv-solonight-toggle');
 
     var sponsorsTVSettings = {
       enabled: true,
@@ -565,7 +570,8 @@
       modes: {
         md: mdToggle ? mdToggle.checked : true,
         classic: classicToggle ? classicToggle.checked : true,
-        americano: americanoToggle ? americanoToggle.checked : true
+        americano: americanoToggle ? americanoToggle.checked : true,
+        solonight: solonightToggle ? solonightToggle.checked : true
       }
     };
 
@@ -573,6 +579,7 @@
     var mdPongToggle = document.getElementById('pong-tv-md-toggle');
     var classicPongToggle = document.getElementById('pong-tv-classic-toggle');
     var americanoPongToggle = document.getElementById('pong-tv-americano-toggle');
+    var solonightPongToggle = document.getElementById('pong-tv-solonight-toggle');
 
     var pongTVWidget = {
       enabled: true,
@@ -587,7 +594,8 @@
       modes: {
         md: mdPongToggle ? mdPongToggle.checked : true,
         classic: classicPongToggle ? classicPongToggle.checked : true,
-        americano: americanoPongToggle ? americanoPongToggle.checked : false
+        americano: americanoPongToggle ? americanoPongToggle.checked : false,
+        solonight: solonightPongToggle ? solonightPongToggle.checked : false
       }
     };
 

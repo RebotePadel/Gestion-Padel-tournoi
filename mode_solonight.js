@@ -762,6 +762,17 @@
     if (!tvRefs.sponsorBanner || !tvRefs.sponsorLogo || !tvRefs.sponsorName) return;
 
     try {
+      // Vérifier si l'affichage des sponsors est activé pour Solo Night
+      var sponsorsTVSettings = JSON.parse(localStorage.getItem('sponsors_tv_settings') || 'null');
+
+      if (!sponsorsTVSettings || !sponsorsTVSettings.enabled ||
+          (sponsorsTVSettings.modes && sponsorsTVSettings.modes.solonight === false)) {
+        // Affichage désactivé pour Solo Night
+        tvRefs.sponsorBanner.style.display = 'none';
+        console.log('[Solo Night TV] Affichage sponsors désactivé pour ce mode');
+        return;
+      }
+
       // Charger les sponsors depuis localStorage
       var sponsors = JSON.parse(localStorage.getItem('sponsors_list') || '[]');
 
