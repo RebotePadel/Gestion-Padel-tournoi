@@ -25,10 +25,14 @@
 
   // Références DOM TV
   var tvRefs = tvRoot ? {
+    logo: tvRoot.querySelector('#solonight-tv-logo'),
     name: tvRoot.querySelector('#solonight-tv-name'),
     meta: tvRoot.querySelector('#solonight-tv-meta'),
     current: tvRoot.querySelector('#solonight-tv-current'),
-    standings: tvRoot.querySelector('#solonight-tv-standings')
+    standings: tvRoot.querySelector('#solonight-tv-standings'),
+    sponsorBanner: tvRoot.querySelector('#solonight-tv-sponsor-banner'),
+    sponsorLogo: tvRoot.querySelector('#solonight-tv-sponsor-logo'),
+    sponsorName: tvRoot.querySelector('#solonight-tv-sponsor-name')
   } : {};
 
   // État par défaut
@@ -408,104 +412,148 @@
 
     refs.planning.innerHTML = '';
 
-    state.rotations.forEach(function(rotation) {
-      var section = document.createElement('div');
-      section.className = 'rotation-section';
+    // S'assurer que currentRotation est valide
+    if (state.currentRotation === undefined || state.currentRotation < 0) {
+      state.currentRotation = 0;
+    }
+    if (state.currentRotation >= state.rotations.length) {
+      state.currentRotation = state.rotations.length - 1;
+    }
 
-      var header = document.createElement('h3');
-      header.textContent = 'Rotation ' + rotation.number;
-      section.appendChild(header);
+    var rotation = state.rotations[state.currentRotation];
+    if (!rotation) return;
 
-      var matchesContainer = document.createElement('div');
-      matchesContainer.className = 'matches-container';
+    // Navigation des rotations
+    var navDiv = document.createElement('div');
+    navDiv.className = 'rotation-navigation';
+    navDiv.style.cssText = 'display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px;';
 
-      rotation.matches.forEach(function(match) {
-        var card = document.createElement('div');
-        card.className = 'match-card';
+    var btnPrev = document.createElement('button');
+    btnPrev.className = 'btn btn-secondary';
+    btnPrev.innerHTML = '← Précédent';
+    btnPrev.disabled = state.currentRotation === 0;
+    btnPrev.onclick = function() {
+      if (state.currentRotation > 0) {
+        state.currentRotation--;
+        saveState();
+        renderPlanning();
+      }
+    };
 
-        var courtLabel = document.createElement('div');
-        courtLabel.className = 'court-label';
-        courtLabel.textContent = 'Terrain ' + match.court;
-        card.appendChild(courtLabel);
+    var rotationIndicator = document.createElement('div');
+    rotationIndicator.style.cssText = 'font-weight: 600; font-size: 1.1rem; color: var(--brand-accent); text-align: center;';
+    rotationIndicator.textContent = 'Rotation ' + rotation.number + ' / ' + state.rotations.length;
 
-        var teams = document.createElement('div');
-        teams.className = 'match-teams';
+    var btnNext = document.createElement('button');
+    btnNext.className = 'btn btn-secondary';
+    btnNext.innerHTML = 'Suivant →';
+    btnNext.disabled = state.currentRotation === state.rotations.length - 1;
+    btnNext.onclick = function() {
+      if (state.currentRotation < state.rotations.length - 1) {
+        state.currentRotation++;
+        saveState();
+        renderPlanning();
+      }
+    };
 
-        var teamADiv = document.createElement('div');
-        teamADiv.className = 'team';
-        teamADiv.innerHTML = '<strong>Équipe A</strong><br>' +
-                            playerName(match.teamA[0]) + ' + ' + playerName(match.teamA[1]);
+    navDiv.appendChild(btnPrev);
+    navDiv.appendChild(rotationIndicator);
+    navDiv.appendChild(btnNext);
+    refs.planning.appendChild(navDiv);
 
-        var vs = document.createElement('div');
-        vs.className = 'vs';
-        vs.textContent = 'VS';
+    // Affichage de la rotation courante
+    var section = document.createElement('div');
+    section.className = 'rotation-section';
 
-        var teamBDiv = document.createElement('div');
-        teamBDiv.className = 'team';
-        teamBDiv.innerHTML = '<strong>Équipe B</strong><br>' +
-                            playerName(match.teamB[0]) + ' + ' + playerName(match.teamB[1]);
+    var matchesContainer = document.createElement('div');
+    matchesContainer.className = 'matches-container';
 
-        teams.appendChild(teamADiv);
-        teams.appendChild(vs);
-        teams.appendChild(teamBDiv);
-        card.appendChild(teams);
+    rotation.matches.forEach(function(match) {
+      var card = document.createElement('div');
+      card.className = 'match-card';
 
-        // Résultats
-        var result = state.results[match.id];
-        var resultDiv = document.createElement('div');
-        resultDiv.className = 'match-result';
+      var courtLabel = document.createElement('div');
+      courtLabel.className = 'court-label';
+      courtLabel.textContent = 'Terrain ' + match.court;
+      card.appendChild(courtLabel);
 
-        if (result) {
-          resultDiv.innerHTML = '<strong>Gagnant :</strong> Équipe ' + result.winner;
-          var btnEdit = document.createElement('button');
-          btnEdit.className = 'btn btn-secondary btn-small';
-          btnEdit.textContent = 'Modifier';
-          btnEdit.onclick = function() {
-            delete state.results[match.id];
-            saveState();
-            render();
-          };
-          resultDiv.appendChild(btnEdit);
-        } else {
-          var btnA = document.createElement('button');
-          btnA.className = 'btn btn-primary btn-small';
-          btnA.textContent = 'Équipe A gagne';
-          btnA.onclick = function() {
-            state.results[match.id] = { winner: 'A' };
-            saveState();
-            render();
-          };
+      var teams = document.createElement('div');
+      teams.className = 'match-teams';
 
-          var btnB = document.createElement('button');
-          btnB.className = 'btn btn-primary btn-small';
-          btnB.textContent = 'Équipe B gagne';
-          btnB.onclick = function() {
-            state.results[match.id] = { winner: 'B' };
-            saveState();
-            render();
-          };
+      var teamADiv = document.createElement('div');
+      teamADiv.className = 'team';
+      teamADiv.innerHTML = '<strong>Équipe A</strong><br>' +
+                          playerName(match.teamA[0]) + ' + ' + playerName(match.teamA[1]);
 
-          resultDiv.appendChild(btnA);
-          resultDiv.appendChild(btnB);
-        }
+      var vs = document.createElement('div');
+      vs.className = 'vs';
+      vs.textContent = 'VS';
 
-        card.appendChild(resultDiv);
-        matchesContainer.appendChild(card);
-      });
+      var teamBDiv = document.createElement('div');
+      teamBDiv.className = 'team';
+      teamBDiv.innerHTML = '<strong>Équipe B</strong><br>' +
+                          playerName(match.teamB[0]) + ' + ' + playerName(match.teamB[1]);
 
-      section.appendChild(matchesContainer);
+      teams.appendChild(teamADiv);
+      teams.appendChild(vs);
+      teams.appendChild(teamBDiv);
+      card.appendChild(teams);
 
-      // Joueurs en pause
-      if (rotation.paused && rotation.paused.length > 0) {
-        var pausedDiv = document.createElement('div');
-        pausedDiv.className = 'paused-players';
-        pausedDiv.innerHTML = '<strong>En pause :</strong> ' +
-          rotation.paused.map(function(id) { return playerName(id); }).join(', ');
-        section.appendChild(pausedDiv);
+      // Résultats
+      var result = state.results[match.id];
+      var resultDiv = document.createElement('div');
+      resultDiv.className = 'match-result';
+
+      if (result) {
+        resultDiv.innerHTML = '<strong>Gagnant :</strong> Équipe ' + result.winner;
+        var btnEdit = document.createElement('button');
+        btnEdit.className = 'btn btn-secondary btn-small';
+        btnEdit.textContent = 'Modifier';
+        btnEdit.onclick = function() {
+          delete state.results[match.id];
+          saveState();
+          render();
+        };
+        resultDiv.appendChild(btnEdit);
+      } else {
+        var btnA = document.createElement('button');
+        btnA.className = 'btn btn-primary btn-small';
+        btnA.textContent = 'Équipe A gagne';
+        btnA.onclick = function() {
+          state.results[match.id] = { winner: 'A' };
+          saveState();
+          render();
+        };
+
+        var btnB = document.createElement('button');
+        btnB.className = 'btn btn-primary btn-small';
+        btnB.textContent = 'Équipe B gagne';
+        btnB.onclick = function() {
+          state.results[match.id] = { winner: 'B' };
+          saveState();
+          render();
+        };
+
+        resultDiv.appendChild(btnA);
+        resultDiv.appendChild(btnB);
       }
 
-      refs.planning.appendChild(section);
+      card.appendChild(resultDiv);
+      matchesContainer.appendChild(card);
     });
+
+    section.appendChild(matchesContainer);
+
+    // Joueurs en pause
+    if (rotation.paused && rotation.paused.length > 0) {
+      var pausedDiv = document.createElement('div');
+      pausedDiv.className = 'paused-players';
+      pausedDiv.innerHTML = '<strong>En pause :</strong> ' +
+        rotation.paused.map(function(id) { return playerName(id); }).join(', ');
+      section.appendChild(pausedDiv);
+    }
+
+    refs.planning.appendChild(section);
   }
 
   function renderStandings() {
@@ -526,12 +574,16 @@
         var losers = result.winner === 'A' ? match.teamB : match.teamA;
 
         winners.forEach(function(pid) {
-          standings[pid].wins++;
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].wins++;
+            standings[pid].matches++;
+          }
         });
 
         losers.forEach(function(pid) {
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].matches++;
+          }
         });
       });
     });
@@ -639,6 +691,7 @@
         assignCourts(rotations);
         state.rotations = rotations;
         state.results = {};
+        state.currentRotation = 0;
         saveState();
 
         // Valider (mode debug)
@@ -680,6 +733,7 @@
         assignCourts(rotations);
         state.rotations = rotations;
         state.results = {};
+        state.currentRotation = 0;
         saveState();
 
         showStatus('✅ Planning régénéré avec succès !', 'success');
@@ -693,6 +747,108 @@
   // VUE TV
   // ========================================
 
+  function applyLogoToTv() {
+    if (!tvRefs.logo) return;
+    try {
+      var profile = JSON.parse(localStorage.getItem('padel_theme_profile_v1') || '{}');
+      if (profile && profile.logoDataUrl) {
+        tvRefs.logo.src = profile.logoDataUrl;
+        tvRefs.logo.style.height = '48px';
+        tvRefs.logo.style.maxHeight = '48px';
+        tvRefs.logo.style.width = 'auto';
+      }
+    } catch (err) {
+      console.error('[Solo Night TV] Erreur chargement logo:', err);
+    }
+  }
+
+  function applySponsorToTv() {
+    console.log('[Solo Night TV] applySponsorToTv appelée');
+
+    if (!tvRefs.sponsorBanner || !tvRefs.sponsorLogo || !tvRefs.sponsorName) {
+      console.warn('[Solo Night TV] Éléments sponsor manquants:', {
+        banner: !!tvRefs.sponsorBanner,
+        logo: !!tvRefs.sponsorLogo,
+        name: !!tvRefs.sponsorName
+      });
+      return;
+    }
+
+    try {
+      // Vérifier si l'affichage des sponsors est activé pour Solo Night
+      var sponsorsTVSettings = JSON.parse(localStorage.getItem('sponsors_tv_settings') || 'null');
+      console.log('[Solo Night TV] Sponsors TV settings:', sponsorsTVSettings);
+
+      if (!sponsorsTVSettings || !sponsorsTVSettings.enabled) {
+        tvRefs.sponsorBanner.style.display = 'none';
+        console.log('[Solo Night TV] Affichage sponsors globalement désactivé');
+        return;
+      }
+
+      // Vérifier si activé pour Solo Night (par défaut: true si non défini)
+      var solonightEnabled = sponsorsTVSettings.modes && sponsorsTVSettings.modes.solonight !== undefined
+        ? sponsorsTVSettings.modes.solonight
+        : true;
+
+      if (!solonightEnabled) {
+        tvRefs.sponsorBanner.style.display = 'none';
+        console.log('[Solo Night TV] Affichage sponsors désactivé pour Solo Night');
+        return;
+      }
+
+      // Charger les sponsors depuis localStorage
+      var sponsors = JSON.parse(localStorage.getItem('sponsors_list') || '[]');
+      console.log('[Solo Night TV] Sponsors chargés:', sponsors.length);
+
+      // Filtrer les sponsors actifs
+      var activeSponsors = sponsors.filter(function(s) {
+        return s && s.logoDataUrl && s.name;
+      });
+
+      if (activeSponsors.length === 0) {
+        // Pas de sponsors, cacher le bandeau
+        tvRefs.sponsorBanner.style.display = 'none';
+        console.log('[Solo Night TV] Aucun sponsor actif trouvé');
+        return;
+      }
+
+      // Sélectionner le premier sponsor actif (TODO: rotation)
+      var sponsor = activeSponsors[0];
+
+      // Appliquer le logo et le nom
+      tvRefs.sponsorLogo.src = sponsor.logoDataUrl;
+      tvRefs.sponsorName.textContent = sponsor.name;
+
+      // Afficher le bandeau
+      tvRefs.sponsorBanner.style.display = 'flex';
+
+      console.log('[Solo Night TV] Sponsor appliqué:', sponsor.name);
+    } catch (err) {
+      console.error('[Solo Night TV] Erreur chargement sponsor:', err);
+      if (tvRefs.sponsorBanner) {
+        tvRefs.sponsorBanner.style.display = 'none';
+      }
+    }
+  }
+
+  // Détermine l'index de la rotation en cours basée sur les scores
+  function getCurrentRotationIndex() {
+    // Parcourir les rotations pour trouver la première avec des scores incomplets
+    for (var i = 0; i < state.rotations.length; i++) {
+      var rotation = state.rotations[i];
+      var hasIncompleteMatches = rotation.matches.some(function(match) {
+        return !state.results[match.id];
+      });
+
+      if (hasIncompleteMatches) {
+        return i; // Cette rotation a des matchs non terminés
+      }
+    }
+
+    // Toutes les rotations sont terminées, retourner la dernière
+    return Math.max(0, state.rotations.length - 1);
+  }
+
   function renderTv() {
     if (!tvRoot) return;
 
@@ -703,39 +859,100 @@
     }
 
     // Afficher les matchs de la rotation en cours
-    if (tvRefs.current) {
-      tvRefs.current.innerHTML = '<h3>Matchs en cours</h3>';
+    renderTvCurrentMatches();
 
-      var currentRotation = state.rotations[state.currentRotation];
-      if (currentRotation) {
-        currentRotation.matches.forEach(function(match) {
-          var card = document.createElement('div');
-          card.className = 'tv-match-card';
-
-          var result = state.results[match.id];
-          var resultClass = result ? 'completed' : 'pending';
-          card.classList.add(resultClass);
-
-          card.innerHTML = '<div class="tv-court">Terrain ' + match.court + '</div>' +
-                          '<div class="tv-teams">' +
-                          '<div class="tv-team ' + (result && result.winner === 'A' ? 'winner' : '') + '">' +
-                          playerName(match.teamA[0]) + '<br>' + playerName(match.teamA[1]) +
-                          '</div>' +
-                          '<div class="tv-vs">VS</div>' +
-                          '<div class="tv-team ' + (result && result.winner === 'B' ? 'winner' : '') + '">' +
-                          playerName(match.teamB[0]) + '<br>' + playerName(match.teamB[1]) +
-                          '</div>' +
-                          '</div>';
-
-          tvRefs.current.appendChild(card);
-        });
-      } else {
-        tvRefs.current.innerHTML += '<p class="small-muted">Aucun match en cours</p>';
-      }
-    }
+    // Afficher les matchs à suivre
+    renderTvNextMatches();
 
     // Classement
     renderTvStandings();
+
+    // Appliquer le logo
+    applyLogoToTv();
+
+    // Appliquer le sponsor (désactivé - cause des erreurs)
+    // applySponsorToTv();
+  }
+
+  function renderTvCurrentMatches() {
+    if (!tvRefs.current) return;
+
+    tvRefs.current.innerHTML = '';
+
+    if (state.rotations.length === 0) {
+      tvRefs.current.innerHTML = '<p class="small-muted">Aucun planning généré</p>';
+      return;
+    }
+
+    var currentIndex = getCurrentRotationIndex();
+    var currentRotation = state.rotations[currentIndex];
+
+    if (!currentRotation) {
+      tvRefs.current.innerHTML = '<p class="small-muted">Aucun match en cours</p>';
+      return;
+    }
+
+    currentRotation.matches.forEach(function(match) {
+      var card = document.createElement('div');
+      card.className = 'tv-match-card';
+
+      var result = state.results[match.id];
+      var resultClass = result ? 'completed' : 'pending';
+      card.classList.add(resultClass);
+
+      card.innerHTML = '<div class="tv-court">Terrain ' + match.court + '</div>' +
+                      '<div class="tv-teams">' +
+                      '<div class="tv-team ' + (result && result.winner === 'A' ? 'winner' : '') + '">' +
+                      playerName(match.teamA[0]) + '<br>' + playerName(match.teamA[1]) +
+                      '</div>' +
+                      '<div class="tv-vs">VS</div>' +
+                      '<div class="tv-team ' + (result && result.winner === 'B' ? 'winner' : '') + '">' +
+                      playerName(match.teamB[0]) + '<br>' + playerName(match.teamB[1]) +
+                      '</div>' +
+                      '</div>';
+
+      tvRefs.current.appendChild(card);
+    });
+  }
+
+  function renderTvNextMatches() {
+    var nextContainer = tvRoot ? tvRoot.querySelector('#solonight-tv-next') : null;
+    if (!nextContainer) return;
+
+    nextContainer.innerHTML = '';
+
+    if (state.rotations.length === 0) {
+      nextContainer.innerHTML = '<p class="small-muted">Aucun planning généré</p>';
+      return;
+    }
+
+    var currentIndex = getCurrentRotationIndex();
+    var nextIndex = currentIndex + 1;
+
+    if (nextIndex >= state.rotations.length) {
+      nextContainer.innerHTML = '<p class="small-muted">Pas de prochaine rotation</p>';
+      return;
+    }
+
+    var nextRotation = state.rotations[nextIndex];
+
+    nextRotation.matches.forEach(function(match) {
+      var card = document.createElement('div');
+      card.className = 'tv-match-card upcoming';
+
+      card.innerHTML = '<div class="tv-court">Terrain ' + match.court + '</div>' +
+                      '<div class="tv-teams">' +
+                      '<div class="tv-team">' +
+                      playerName(match.teamA[0]) + '<br>' + playerName(match.teamA[1]) +
+                      '</div>' +
+                      '<div class="tv-vs">VS</div>' +
+                      '<div class="tv-team">' +
+                      playerName(match.teamB[0]) + '<br>' + playerName(match.teamB[1]) +
+                      '</div>' +
+                      '</div>';
+
+      nextContainer.appendChild(card);
+    });
   }
 
   function renderTvStandings() {
@@ -756,12 +973,16 @@
         var losers = result.winner === 'A' ? match.teamB : match.teamA;
 
         winners.forEach(function(pid) {
-          standings[pid].wins++;
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].wins++;
+            standings[pid].matches++;
+          }
         });
 
         losers.forEach(function(pid) {
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].matches++;
+          }
         });
       });
     });
@@ -774,23 +995,47 @@
       return a.data.name.localeCompare(b.data.name);
     });
 
-    tvRefs.standings.innerHTML = '<h3>Classement</h3>';
+    // Vider et configurer le conteneur comme grille 2 colonnes
+    tvRefs.standings.innerHTML = '';
+    tvRefs.standings.className = 'tv-standings-grid';
 
-    var list = document.createElement('div');
-    list.className = 'tv-standings-list';
+    // Diviser en 2 colonnes
+    var halfPoint = Math.ceil(sorted.length / 2);
+    var leftColumn = sorted.slice(0, halfPoint);
+    var rightColumn = sorted.slice(halfPoint);
 
-    sorted.slice(0, 10).forEach(function(item, idx) {
-      var row = document.createElement('div');
-      row.className = 'tv-standing-row';
-      if (idx < 3) row.classList.add('podium');
+    // Fonction pour créer une colonne
+    function createColumn(items, startIndex) {
+      var column = document.createElement('div');
+      column.className = 'tv-standings-column';
 
-      row.innerHTML = '<span class="pos">' + (idx + 1) + '</span>' +
-                     '<span class="name">' + item.data.name + '</span>' +
-                     '<span class="wins">' + item.data.wins + ' V</span>';
-      list.appendChild(row);
-    });
+      items.forEach(function(item, idx) {
+        var globalIndex = startIndex + idx;
+        var row = document.createElement('div');
+        row.className = 'tv-standing-row';
 
-    tvRefs.standings.appendChild(list);
+        // Couleurs podium pour top 3
+        var podiumClass = '';
+        if (globalIndex === 0) podiumClass = 'podium-gold';
+        else if (globalIndex === 1) podiumClass = 'podium-silver';
+        else if (globalIndex === 2) podiumClass = 'podium-bronze';
+
+        if (podiumClass) row.classList.add(podiumClass);
+
+        row.innerHTML =
+          '<span class="tv-rank">' + (globalIndex + 1) + '</span>' +
+          '<span class="tv-player-name">' + item.data.name + '</span>' +
+          '<span class="tv-wins">' + item.data.wins + ' V</span>';
+
+        column.appendChild(row);
+      });
+
+      return column;
+    }
+
+    // Ajouter les colonnes directement au conteneur
+    tvRefs.standings.appendChild(createColumn(leftColumn, 0));
+    tvRefs.standings.appendChild(createColumn(rightColumn, halfPoint));
   }
 
   // ========================================
@@ -813,6 +1058,12 @@
         btn.classList.add('active');
         var targetPanel = root.querySelector('[data-solonight-tab-panel="' + targetTab + '"]');
         if (targetPanel) targetPanel.classList.add('active');
+
+        // Si on active l'onglet TV, initialiser les systèmes TV
+        if (targetTab === 'tv' && tvRoot) {
+          renderTv();
+          initTVSystems();
+        }
       });
     });
   }
@@ -860,6 +1111,189 @@
   }
 
   // ========================================
+  // TV ROTATION & ANIMATIONS
+  // ========================================
+
+  var tvRotationManager = null;
+  var tvAnimations = null;
+
+  function initTVSystems() {
+    console.log('[Solo Night TV] Initialisation systèmes TV...');
+
+    // Charger config TV depuis localStorage
+    var tvConfig = null;
+    try {
+      var stored = localStorage.getItem('tv_config_solonight');
+      if (stored) {
+        tvConfig = JSON.parse(stored);
+      }
+    } catch (e) {
+      console.warn('[Solo Night TV] Erreur chargement config:', e);
+    }
+
+    // Appliquer layout au conteneur TV
+    var tvMain = tvRoot ? tvRoot.querySelector('.tv-main') : null;
+    if (!tvMain) {
+      console.warn('[Solo Night TV] Conteneur .tv-main non trouvé');
+      return;
+    }
+
+    // Déterminer le layout à appliquer
+    var layoutType = 'fullscreen';
+    if (tvConfig && tvConfig.layout && tvConfig.layout.type) {
+      layoutType = tvConfig.layout.type;
+    }
+
+    // Retirer toutes les classes de layout existantes
+    tvMain.classList.remove('layout-fullscreen', 'layout-split-vertical', 'layout-split-horizontal', 'layout-grid-2x2', 'layout-pip');
+
+    // Ajouter la nouvelle classe de layout
+    var layoutClass = 'layout-' + layoutType;
+    tvMain.classList.add(layoutClass);
+    console.log('[Solo Night TV] Layout appliqué:', layoutType);
+
+    // Initialiser animations si config existe
+    if (tvConfig && window.TVAnimations) {
+      tvAnimations = new window.TVAnimations(tvConfig.animations || {});
+      tvAnimations.init();
+    }
+
+    // Récupérer tous les blocs
+    var allBlocks = tvMain.querySelectorAll('.tv-block');
+
+    // Initialiser rotation si activée
+    if (tvConfig && tvConfig.rotation && tvConfig.rotation.enabled && window.TVRotationManager) {
+      tvRotationManager = new window.TVRotationManager(tvConfig, tvMain);
+      if (tvRotationManager.init()) {
+        tvRotationManager.start();
+        console.log('[Solo Night TV] Rotation démarrée');
+
+        // Appliquer le sponsor après un délai
+        setTimeout(function() {
+          try {
+            applySponsorToTv();
+          } catch (err) {
+            console.error('[Solo Night TV] Erreur sponsor (rotation):', err);
+          }
+        }, 800);
+
+        return; // La rotation gère l'affichage des blocs
+      } else {
+        console.warn('[Solo Night TV] Échec initialisation rotation, affichage statique');
+      }
+    }
+
+    // Affichage statique (rotation désactivée ou pas de config)
+    if (tvConfig) {
+      // Utiliser la config pour déterminer quels blocs afficher
+      showStaticTVBlocks(tvConfig, tvMain);
+      console.log('[Solo Night TV] Blocs statiques affichés selon config');
+    } else {
+      // Pas de config : afficher les blocs par défaut
+      showDefaultTVBlocks(tvMain, layoutType, allBlocks);
+      console.log('[Solo Night TV] Blocs par défaut affichés (pas de config)');
+    }
+
+    // Appliquer le sponsor pour mode statique
+    setTimeout(function() {
+      try {
+        applySponsorToTv();
+      } catch (err) {
+        console.error('[Solo Night TV] Erreur sponsor (statique):', err);
+      }
+    }, 800);
+  }
+
+  // Afficher les blocs TV par défaut quand il n'y a pas de config
+  function showDefaultTVBlocks(container, layoutType, allBlocks) {
+    if (!container) return;
+
+    // Cacher tous les blocs d'abord
+    for (var i = 0; i < allBlocks.length; i++) {
+      allBlocks[i].style.display = 'none';
+      allBlocks[i].classList.remove('tv-block-active');
+    }
+
+    // Déterminer combien de blocs afficher selon le layout
+    var blocksToShow = 1; // Par défaut: fullscreen
+    if (layoutType === 'split-vertical' || layoutType === 'split-horizontal' || layoutType === 'pip') {
+      blocksToShow = 2;
+    } else if (layoutType === 'grid-2x2') {
+      blocksToShow = 4;
+    }
+
+    // Afficher les premiers blocs
+    for (var i = 0; i < Math.min(blocksToShow, allBlocks.length); i++) {
+      allBlocks[i].style.display = 'block';
+      allBlocks[i].classList.add('tv-block-active');
+    }
+  }
+
+  // Afficher les blocs TV statiques quand la rotation est désactivée
+  function showStaticTVBlocks(config, container) {
+    if (!config || !container) return;
+
+    // Récupérer tous les blocs TV
+    var allBlocks = container.querySelectorAll('.tv-block');
+
+    // Cacher tous les blocs d'abord
+    for (var i = 0; i < allBlocks.length; i++) {
+      allBlocks[i].style.display = 'none';
+      allBlocks[i].classList.remove('tv-block-active');
+    }
+
+    // Filtrer les blocs activés
+    var enabledBlocks = [];
+    for (var i = 0; i < allBlocks.length; i++) {
+      var block = allBlocks[i];
+      var blockId = block.getAttribute('data-tv-block');
+      if (blockId && config.blocks && config.blocks[blockId] && config.blocks[blockId].enabled) {
+        enabledBlocks.push(block);
+      }
+    }
+
+    // Si aucun bloc n'est activé, afficher tous les blocs disponibles par défaut
+    if (enabledBlocks.length === 0) {
+      console.warn('[Solo Night TV] Aucun bloc activé, affichage de tous les blocs par défaut');
+      enabledBlocks = Array.from(allBlocks);
+    }
+
+    // Déterminer combien de blocs afficher selon le layout
+    var layoutType = config.layout ? config.layout.type : 'fullscreen';
+    var blocksToShow = 1; // Par défaut: fullscreen
+
+    if (layoutType === 'split-vertical' || layoutType === 'split-horizontal' || layoutType === 'pip') {
+      blocksToShow = 2;
+    } else if (layoutType === 'grid-2x2') {
+      blocksToShow = 4;
+    }
+
+    // Afficher les blocs en utilisant modulo pour remplir TOUS les slots
+    for (var i = 0; i < blocksToShow; i++) {
+      var blockIndex = i % enabledBlocks.length;
+      var block = enabledBlocks[blockIndex];
+      if (block) {
+        block.style.display = 'block';
+        block.classList.add('tv-block-active');
+      }
+    }
+  }
+
+  function destroyTVSystems() {
+    console.log('[Solo Night TV] Destruction systèmes TV...');
+
+    if (tvRotationManager) {
+      tvRotationManager.destroy();
+      tvRotationManager = null;
+    }
+
+    if (tvAnimations) {
+      tvAnimations.destroy();
+      tvAnimations = null;
+    }
+  }
+
+  // ========================================
   // EXPOSITION GLOBALE
   // ========================================
 
@@ -869,6 +1303,8 @@
       updateMeta();
     },
     renderTv: renderTv,
+    initTVSystems: initTVSystems,
+    destroyTVSystems: destroyTVSystems,
     state: state,
     saveState: saveState
   };
@@ -882,6 +1318,13 @@
     bindCollapse();
     render();
     updateMeta();
+
+    // Initialiser les systèmes TV (layout, rotation, animations)
+    if (tvRoot) {
+      setTimeout(function() {
+        initTVSystems();
+      }, 100);
+    }
   }
 
   // Rendu initial

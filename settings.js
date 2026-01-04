@@ -22,6 +22,7 @@
     tvConfigMD: 'tv_config_md',
     tvConfigClassic: 'tv_config_classic',
     tvConfigAmericano: 'tv_config_americano',
+    tvConfigSoloNight: 'tv_config_solonight',
     tvConfigsLibrary: 'tv_configs_library',
     sponsorsTVSettings: 'sponsors_tv_settings',
     pongTVWidget: 'pong_tv_widget'
@@ -520,10 +521,12 @@
       var mdToggle = document.getElementById('sponsor-tv-md-toggle');
       var classicToggle = document.getElementById('sponsor-tv-classic-toggle');
       var americanoToggle = document.getElementById('sponsor-tv-americano-toggle');
+      var solonightToggle = document.getElementById('sponsor-tv-solonight-toggle');
 
       if (mdToggle) mdToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.md;
       if (classicToggle) classicToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.classic;
       if (americanoToggle) americanoToggle.checked = sponsorsTVSettings.enabled && sponsorsTVSettings.modes.americano;
+      if (solonightToggle) solonightToggle.checked = sponsorsTVSettings.enabled && (sponsorsTVSettings.modes.solonight !== undefined ? sponsorsTVSettings.modes.solonight : true);
     }
 
     // Charger les paramètres Pong TV
@@ -532,10 +535,12 @@
       var mdPongToggle = document.getElementById('pong-tv-md-toggle');
       var classicPongToggle = document.getElementById('pong-tv-classic-toggle');
       var americanoPongToggle = document.getElementById('pong-tv-americano-toggle');
+      var solonightPongToggle = document.getElementById('pong-tv-solonight-toggle');
 
       if (mdPongToggle) mdPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.md;
       if (classicPongToggle) classicPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.classic;
       if (americanoPongToggle) americanoPongToggle.checked = pongTVWidget.enabled && pongTVWidget.modes.americano;
+      if (solonightPongToggle) solonightPongToggle.checked = pongTVWidget.enabled && (pongTVWidget.modes.solonight !== undefined ? pongTVWidget.modes.solonight : false);
     }
 
     // Bouton de sauvegarde
@@ -552,6 +557,7 @@
     var mdToggle = document.getElementById('sponsor-tv-md-toggle');
     var classicToggle = document.getElementById('sponsor-tv-classic-toggle');
     var americanoToggle = document.getElementById('sponsor-tv-americano-toggle');
+    var solonightToggle = document.getElementById('sponsor-tv-solonight-toggle');
 
     var sponsorsTVSettings = {
       enabled: true,
@@ -564,7 +570,8 @@
       modes: {
         md: mdToggle ? mdToggle.checked : true,
         classic: classicToggle ? classicToggle.checked : true,
-        americano: americanoToggle ? americanoToggle.checked : true
+        americano: americanoToggle ? americanoToggle.checked : true,
+        solonight: solonightToggle ? solonightToggle.checked : true
       }
     };
 
@@ -572,6 +579,7 @@
     var mdPongToggle = document.getElementById('pong-tv-md-toggle');
     var classicPongToggle = document.getElementById('pong-tv-classic-toggle');
     var americanoPongToggle = document.getElementById('pong-tv-americano-toggle');
+    var solonightPongToggle = document.getElementById('pong-tv-solonight-toggle');
 
     var pongTVWidget = {
       enabled: true,
@@ -586,7 +594,8 @@
       modes: {
         md: mdPongToggle ? mdPongToggle.checked : true,
         classic: classicPongToggle ? classicPongToggle.checked : true,
-        americano: americanoPongToggle ? americanoPongToggle.checked : false
+        americano: americanoPongToggle ? americanoPongToggle.checked : false,
+        solonight: solonightPongToggle ? solonightPongToggle.checked : false
       }
     };
 
@@ -1594,7 +1603,7 @@
   // ========================================
 
   var tvViewState = {
-    currentMode: 'md', // md, classic, americano
+    currentMode: 'md', // md, classic, americano, solonight
     currentConfig: null
   };
 
@@ -1732,85 +1741,95 @@
   }
 
   function initTVToggles() {
-    // Toggle pour activer/désactiver sections
-    var rotationToggle = document.getElementById('md-rotation-enabled');
-    if (rotationToggle) {
-      rotationToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-rotation-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+    // Initialiser les toggles pour tous les modes
+    var modes = ['md', 'classic', 'americano', 'solonight'];
 
-    var animationsToggle = document.getElementById('md-animations-enabled');
-    if (animationsToggle) {
-      animationsToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-animations-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+    modes.forEach(function(mode) {
+      // Toggle pour activer/désactiver sections
+      var rotationToggle = document.getElementById(mode + '-rotation-enabled');
+      if (rotationToggle) {
+        rotationToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-rotation-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
 
-    var headerToggle = document.getElementById('md-header-enabled');
-    if (headerToggle) {
-      headerToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-header-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+      var animationsToggle = document.getElementById(mode + '-animations-enabled');
+      if (animationsToggle) {
+        animationsToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-animations-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
 
-    var footerToggle = document.getElementById('md-footer-enabled');
-    if (footerToggle) {
-      footerToggle.addEventListener('change', function() {
-        var settings = document.getElementById('md-footer-settings');
-        if (settings) {
-          settings.style.display = this.checked ? 'block' : 'none';
-        }
-      });
-    }
+      var headerToggle = document.getElementById(mode + '-header-enabled');
+      if (headerToggle) {
+        headerToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-header-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
 
-    // Toggle pour type de son custom
-    var soundType = document.getElementById('md-sound-type');
-    if (soundType) {
-      soundType.addEventListener('change', function() {
-        var uploadField = document.getElementById('md-sound-upload-field');
-        if (uploadField) {
-          uploadField.style.display = this.value === 'custom' ? 'block' : 'none';
-        }
-      });
-    }
+      var footerToggle = document.getElementById(mode + '-footer-enabled');
+      if (footerToggle) {
+        footerToggle.addEventListener('change', function() {
+          var settings = document.getElementById(mode + '-footer-settings');
+          if (settings) {
+            settings.style.display = this.checked ? 'block' : 'none';
+          }
+        });
+      }
+
+      // Toggle pour type de son custom
+      var soundType = document.getElementById(mode + '-sound-type');
+      if (soundType) {
+        soundType.addEventListener('change', function() {
+          var uploadField = document.getElementById(mode + '-sound-upload-field');
+          if (uploadField) {
+            uploadField.style.display = this.value === 'custom' ? 'block' : 'none';
+          }
+        });
+      }
+    });
   }
 
   function initTVDragDrop() {
-    var rotationOrder = document.getElementById('md-rotation-order');
-    if (!rotationOrder) return;
+    // Initialiser le drag & drop pour tous les modes
+    var modes = ['md', 'classic', 'americano', 'solonight'];
 
-    var draggingElement = null;
+    modes.forEach(function(mode) {
+      var rotationOrder = document.getElementById(mode + '-rotation-order');
+      if (!rotationOrder) return;
 
-    rotationOrder.addEventListener('dragstart', function(e) {
-      if (!e.target.classList.contains('rotation-item')) return;
-      draggingElement = e.target;
-      e.target.classList.add('dragging');
-    });
+      var draggingElement = null;
 
-    rotationOrder.addEventListener('dragend', function(e) {
-      if (!e.target.classList.contains('rotation-item')) return;
-      e.target.classList.remove('dragging');
-      updateRotationNumbers();
-    });
+      rotationOrder.addEventListener('dragstart', function(e) {
+        if (!e.target.classList.contains('rotation-item')) return;
+        draggingElement = e.target;
+        e.target.classList.add('dragging');
+      });
 
-    rotationOrder.addEventListener('dragover', function(e) {
-      e.preventDefault();
-      var afterElement = getDragAfterElement(rotationOrder, e.clientY);
-      if (afterElement == null) {
-        rotationOrder.appendChild(draggingElement);
-      } else {
-        rotationOrder.insertBefore(draggingElement, afterElement);
-      }
+      rotationOrder.addEventListener('dragend', function(e) {
+        if (!e.target.classList.contains('rotation-item')) return;
+        e.target.classList.remove('dragging');
+        updateRotationNumbers(mode);
+      });
+
+      rotationOrder.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        var afterElement = getDragAfterElement(rotationOrder, e.clientY);
+        if (afterElement == null) {
+          rotationOrder.appendChild(draggingElement);
+        } else {
+          rotationOrder.insertBefore(draggingElement, afterElement);
+        }
+      });
     });
   }
 
@@ -1829,8 +1848,8 @@
     }, { offset: Number.NEGATIVE_INFINITY }).element;
   }
 
-  function updateRotationNumbers() {
-    var items = document.querySelectorAll('#md-rotation-order .rotation-item');
+  function updateRotationNumbers(mode) {
+    var items = document.querySelectorAll('#' + mode + '-rotation-order .rotation-item');
     items.forEach(function(item, index) {
       var numberSpan = item.querySelector('.rotation-number');
       if (numberSpan) {
@@ -1840,83 +1859,96 @@
   }
 
   function initTVActions() {
-    // Sauvegarder config
-    var saveBtn = document.getElementById('md-save-config');
-    if (saveBtn) {
-      saveBtn.addEventListener('click', function() {
-        saveTVConfig(tvViewState.currentMode);
-      });
-    }
+    // Initialiser les actions pour tous les modes
+    var modes = ['md', 'classic', 'americano', 'solonight'];
 
-    // Dupliquer config
-    var duplicateBtn = document.getElementById('md-duplicate-config');
-    if (duplicateBtn) {
-      duplicateBtn.addEventListener('click', function() {
-        duplicateTVConfig(tvViewState.currentMode);
-      });
-    }
+    modes.forEach(function(mode) {
+      // Sauvegarder config
+      var saveBtn = document.getElementById(mode + '-save-config');
+      if (saveBtn) {
+        saveBtn.addEventListener('click', function() {
+          saveTVConfig(mode);
+        });
+      }
 
-    // Réinitialiser config
-    var resetBtn = document.getElementById('md-reset-config');
-    if (resetBtn) {
-      resetBtn.addEventListener('click', function() {
-        if (confirm('Réinitialiser cette configuration aux valeurs par défaut ?')) {
-          resetTVConfig(tvViewState.currentMode);
-        }
-      });
-    }
+      // Dupliquer config
+      var duplicateBtn = document.getElementById(mode + '-duplicate-config');
+      if (duplicateBtn) {
+        duplicateBtn.addEventListener('click', function() {
+          duplicateTVConfig(mode);
+        });
+      }
 
-    // Export config
-    var exportBtn = document.getElementById('md-export-config');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', function() {
-        exportTVConfig(tvViewState.currentMode);
-      });
-    }
+      // Réinitialiser config
+      var resetBtn = document.getElementById(mode + '-reset-config');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+          if (confirm('Réinitialiser cette configuration aux valeurs par défaut ?')) {
+            resetTVConfig(mode);
+          }
+        });
+      }
 
-    // Import config
-    var importBtn = document.getElementById('md-import-config');
-    if (importBtn) {
-      importBtn.addEventListener('click', function() {
-        document.getElementById('md-import-file').click();
-      });
-    }
+      // Export config
+      var exportBtn = document.getElementById(mode + '-export-config');
+      if (exportBtn) {
+        exportBtn.addEventListener('click', function() {
+          exportTVConfig(mode);
+        });
+      }
 
-    var importFile = document.getElementById('md-import-file');
-    if (importFile) {
-      importFile.addEventListener('change', function(e) {
-        importTVConfig(e.target.files[0], tvViewState.currentMode);
-      });
-    }
+      // Import config
+      var importBtn = document.getElementById(mode + '-import-config');
+      if (importBtn) {
+        importBtn.addEventListener('click', function() {
+          var importFile = document.getElementById(mode + '-import-file');
+          if (importFile) {
+            importFile.click();
+          }
+        });
+      }
 
-    // Tester animation
-    var testBtn = document.getElementById('md-test-animation');
-    if (testBtn) {
-      testBtn.addEventListener('click', function() {
-        testTVAnimation();
-      });
-    }
+      var importFile = document.getElementById(mode + '-import-file');
+      if (importFile) {
+        importFile.addEventListener('change', function(e) {
+          importTVConfig(e.target.files[0], mode);
+        });
+      }
 
-    // Appliquer aux modes sélectionnés
-    var applyToModesBtn = document.getElementById('md-apply-to-modes');
-    if (applyToModesBtn) {
-      applyToModesBtn.addEventListener('click', function() {
-        applyConfigToModes(tvViewState.currentMode);
-      });
-    }
+      // Tester animation (si disponible)
+      var testBtn = document.getElementById(mode + '-test-animation');
+      if (testBtn) {
+        testBtn.addEventListener('click', function() {
+          testTVAnimation();
+        });
+      }
+
+      // Appliquer aux modes sélectionnés (si disponible)
+      var applyToModesBtn = document.getElementById(mode + '-apply-to-modes');
+      if (applyToModesBtn) {
+        applyToModesBtn.addEventListener('click', function() {
+          applyConfigToModes(mode);
+        });
+      }
+    });
   }
 
   function loadTVConfig(mode) {
     var storageKey = mode === 'md' ? STORAGE_KEYS.tvConfigMD :
                      mode === 'classic' ? STORAGE_KEYS.tvConfigClassic :
-                     STORAGE_KEYS.tvConfigAmericano;
+                     mode === 'americano' ? STORAGE_KEYS.tvConfigAmericano :
+                     mode === 'solonight' ? STORAGE_KEYS.tvConfigSoloNight :
+                     STORAGE_KEYS.tvConfigMD; // Fallback to MD
 
     var config = loadFromStorage(storageKey, null);
 
     if (!config) {
       config = JSON.parse(JSON.stringify(DEFAULT_TV_CONFIG));
       config.id = mode;
-      config.name = 'Configuration ' + mode.toUpperCase();
+      config.name = 'Configuration ' + (mode === 'md' ? 'M/D' :
+                                        mode === 'classic' ? 'Tournoi Classique' :
+                                        mode === 'americano' ? 'Américano' :
+                                        mode === 'solonight' ? 'Solo Night' : mode.toUpperCase());
     }
 
     tvViewState.currentConfig = config;
@@ -1948,6 +1980,17 @@
     if (rotationEnabled) {
       rotationEnabled.checked = config.rotation.enabled;
       rotationEnabled.dispatchEvent(new Event('change'));
+    }
+
+    // Rotation options
+    var pauseHover = document.getElementById(prefix + '-pause-hover');
+    if (pauseHover && config.rotation.pauseOnHover !== undefined) {
+      pauseHover.checked = config.rotation.pauseOnHover;
+    }
+
+    var showProgress = document.getElementById(prefix + '-show-progress');
+    if (showProgress && config.rotation.showIndicator !== undefined) {
+      showProgress.checked = config.rotation.showIndicator;
     }
 
     // Layout
@@ -1988,7 +2031,9 @@
 
     var storageKey = mode === 'md' ? STORAGE_KEYS.tvConfigMD :
                      mode === 'classic' ? STORAGE_KEYS.tvConfigClassic :
-                     STORAGE_KEYS.tvConfigAmericano;
+                     mode === 'americano' ? STORAGE_KEYS.tvConfigAmericano :
+                     mode === 'solonight' ? STORAGE_KEYS.tvConfigSoloNight :
+                     STORAGE_KEYS.tvConfigMD; // Fallback to MD
 
     // Sauvegarder la config principale
     saveToStorage(storageKey, config);
@@ -2041,6 +2086,17 @@
       }
       // Réinitialiser avec la nouvelle config
       window.AMERICANO.initTVSystems();
+    } else if (mode === 'solonight' && window.SOLONIGHT && typeof window.SOLONIGHT.initTVSystems === 'function') {
+      // Réinitialiser les systèmes TV pour Solo Night
+      if (typeof window.SOLONIGHT.destroyTVSystems === 'function') {
+        window.SOLONIGHT.destroyTVSystems();
+      }
+      // Re-render la vue TV
+      if (typeof window.SOLONIGHT.renderTv === 'function') {
+        window.SOLONIGHT.renderTv();
+      }
+      // Réinitialiser avec la nouvelle config
+      window.SOLONIGHT.initTVSystems();
     }
 
     showNotification('Configuration TV sauvegardée avec succès !', 'success');
@@ -2188,6 +2244,17 @@
     config.rotation.order = Array.from(rotationItems).map(function(item) {
       return item.getAttribute('data-block');
     });
+
+    // Rotation options
+    var pauseHover = document.getElementById(prefix + '-pause-hover');
+    if (pauseHover) {
+      config.rotation.pauseOnHover = pauseHover.checked;
+    }
+
+    var showProgress = document.getElementById(prefix + '-show-progress');
+    if (showProgress) {
+      config.rotation.showIndicator = showProgress.checked;
+    }
 
     // Layout
     var layoutRadio = document.querySelector('input[name="' + prefix + '-layout"]:checked');
@@ -2380,6 +2447,15 @@
       saveToStorage(STORAGE_KEYS.tvConfigAmericano, americanoConfig);
       migrationCount++;
       console.log('[Settings] ✓ Config TV Américano créée');
+    }
+
+    if (!loadFromStorage(STORAGE_KEYS.tvConfigSoloNight, null)) {
+      var solonightConfig = JSON.parse(JSON.stringify(DEFAULT_TV_CONFIG));
+      solonightConfig.id = 'solonight';
+      solonightConfig.name = 'Configuration Solo Night';
+      saveToStorage(STORAGE_KEYS.tvConfigSoloNight, solonightConfig);
+      migrationCount++;
+      console.log('[Settings] ✓ Config TV Solo Night créée');
     }
 
     // Marquer migration comme terminée
