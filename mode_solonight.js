@@ -1063,6 +1063,15 @@
         if (targetTab === 'tv' && tvRoot) {
           renderTv();
           initTVSystems();
+
+          // Appliquer le sponsor après un délai pour garantir la stabilité
+          setTimeout(function() {
+            try {
+              applySponsorToTv();
+            } catch (err) {
+              console.error('[Solo Night TV] Erreur lors de l\'application du sponsor:', err);
+            }
+          }, 500);
         }
       });
     });
