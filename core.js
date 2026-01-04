@@ -123,6 +123,7 @@
     showSection('liguePlayer');
     document.body.classList.add('tv-mode'); // Masquer sidebar
   }
+  function showHomologue() { showSection('homologue'); }
   function showSettings() { showSection('settings'); }
 
   function goBack() {
@@ -366,6 +367,7 @@
   bind('btn-home-tournaments', showTournaments);
   bind('btn-home-md', showAdmin);
   bind('btn-home-ligue', showLigue);
+  bind('btn-home-homologue', showHomologue);
   bind('btn-settings-home', showHome);
 
   // Binding pour les boutons avec classe (plusieurs boutons "Vue joueur")
@@ -379,6 +381,7 @@
   bind('btn-back-admin', showAdmin);
 
   bind('btn-back-home-from-tournaments', showHome);
+  bind('btn-back-home-from-homologue', showHome);
 
   bind('btn-back-home-from-classic', showHome);
   bind('btn-back-formats-from-classic', showTournaments);
