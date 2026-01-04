@@ -1926,6 +1926,123 @@
     .tv-standing-row .name { flex: 1; font-size: 1rem; }
     .tv-standing-row .wins { font-weight: 700; color: var(--brand-accent); font-size: 1rem; }
 
+    /* Classement Solo Night TV - 2 colonnes avec podium */
+    .tv-standings-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      padding: 8px;
+    }
+
+    .tv-standings-column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .tv-standing-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 12px;
+      border-radius: 8px;
+      background: rgba(15, 23, 42, 0.6);
+      border: 1px solid rgba(51, 65, 85, 0.5);
+      transition: all 0.2s ease;
+    }
+
+    .tv-standing-row:hover {
+      background: rgba(15, 23, 42, 0.8);
+      border-color: rgba(148, 163, 184, 0.3);
+    }
+
+    .tv-rank {
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: #94a3b8;
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .tv-player-name {
+      flex: 1;
+      color: #ffffff;
+      font-weight: 500;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tv-wins {
+      font-weight: 700;
+      font-size: 0.9rem;
+      color: #fbbf24;
+      min-width: 45px;
+      text-align: right;
+    }
+
+    /* Podium Or - 1er */
+    .tv-standing-row.podium-gold {
+      background: linear-gradient(135deg, rgba(255, 215, 0, 0.25), rgba(218, 165, 32, 0.15));
+      border: 2px solid rgba(255, 215, 0, 0.6);
+      box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+    }
+
+    .tv-standing-row.podium-gold .tv-rank {
+      color: #ffd700;
+      font-size: 1.1rem;
+      text-shadow: 0 0 8px rgba(255, 215, 0, 0.5);
+    }
+
+    .tv-standing-row.podium-gold .tv-player-name {
+      font-weight: 700;
+      font-size: 1rem;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+    }
+
+    /* Podium Argent - 2ème */
+    .tv-standing-row.podium-silver {
+      background: linear-gradient(135deg, rgba(192, 192, 192, 0.25), rgba(169, 169, 169, 0.15));
+      border: 2px solid rgba(192, 192, 192, 0.6);
+      box-shadow: 0 0 12px rgba(192, 192, 192, 0.3);
+    }
+
+    .tv-standing-row.podium-silver .tv-rank {
+      color: #c0c0c0;
+      font-size: 1.05rem;
+      text-shadow: 0 0 6px rgba(192, 192, 192, 0.5);
+    }
+
+    .tv-standing-row.podium-silver .tv-player-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    /* Podium Bronze - 3ème */
+    .tv-standing-row.podium-bronze {
+      background: linear-gradient(135deg, rgba(205, 127, 50, 0.25), rgba(184, 115, 51, 0.15));
+      border: 2px solid rgba(205, 127, 50, 0.6);
+      box-shadow: 0 0 12px rgba(205, 127, 50, 0.3);
+    }
+
+    .tv-standing-row.podium-bronze .tv-rank {
+      color: #cd7f32;
+      font-size: 1.05rem;
+      text-shadow: 0 0 6px rgba(205, 127, 50, 0.5);
+    }
+
+    .tv-standing-row.podium-bronze .tv-player-name {
+      font-weight: 700;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 900px) {
+      .tv-standings-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
     /* ======================================
        STYLES PARAMÈTRES - NOUVELLE INTERFACE
        ====================================== */

@@ -987,23 +987,51 @@
       return a.data.name.localeCompare(b.data.name);
     });
 
-    tvRefs.standings.innerHTML = '<h3>Classement</h3>';
+    tvRefs.standings.innerHTML = '';
 
-    var list = document.createElement('div');
-    list.className = 'tv-standings-list';
+    // Créer conteneur 2 colonnes
+    var container = document.createElement('div');
+    container.className = 'tv-standings-grid';
 
-    sorted.slice(0, 10).forEach(function(item, idx) {
-      var row = document.createElement('div');
-      row.className = 'tv-standing-row';
-      if (idx < 3) row.classList.add('podium');
+    // Diviser en 2 colonnes
+    var halfPoint = Math.ceil(sorted.length / 2);
+    var leftColumn = sorted.slice(0, halfPoint);
+    var rightColumn = sorted.slice(halfPoint);
 
-      row.innerHTML = '<span class="pos">' + (idx + 1) + '</span>' +
-                     '<span class="name">' + item.data.name + '</span>' +
-                     '<span class="wins">' + item.data.wins + ' V</span>';
-      list.appendChild(row);
-    });
+    // Fonction pour créer une colonne
+    function createColumn(items, startIndex) {
+      var column = document.createElement('div');
+      column.className = 'tv-standings-column';
 
-    tvRefs.standings.appendChild(list);
+      items.forEach(function(item, idx) {
+        var globalIndex = startIndex + idx;
+        var row = document.createElement('div');
+        row.className = 'tv-standing-row';
+
+        // Couleurs podium pour top 3
+        var podiumClass = '';
+        if (globalIndex === 0) podiumClass = 'podium-gold';
+        else if (globalIndex === 1) podiumClass = 'podium-silver';
+        else if (globalIndex === 2) podiumClass = 'podium-bronze';
+
+        if (podiumClass) row.classList.add(podiumClass);
+
+        row.innerHTML =
+          '<span class="tv-rank">' + (globalIndex + 1) + '</span>' +
+          '<span class="tv-player-name">' + item.data.name + '</span>' +
+          '<span class="tv-wins">' + item.data.wins + ' V</span>';
+
+        column.appendChild(row);
+      });
+
+      return column;
+    }
+
+    // Ajouter les colonnes
+    container.appendChild(createColumn(leftColumn, 0));
+    container.appendChild(createColumn(rightColumn, halfPoint));
+
+    tvRefs.standings.appendChild(container);
   }
 
   // ========================================
