@@ -987,11 +987,9 @@
       return a.data.name.localeCompare(b.data.name);
     });
 
+    // Vider et configurer le conteneur comme grille 2 colonnes
     tvRefs.standings.innerHTML = '';
-
-    // Créer conteneur 2 colonnes
-    var container = document.createElement('div');
-    container.className = 'tv-standings-grid';
+    tvRefs.standings.className = 'tv-standings-grid';
 
     // Diviser en 2 colonnes
     var halfPoint = Math.ceil(sorted.length / 2);
@@ -1027,11 +1025,9 @@
       return column;
     }
 
-    // Ajouter les colonnes
-    container.appendChild(createColumn(leftColumn, 0));
-    container.appendChild(createColumn(rightColumn, halfPoint));
-
-    tvRefs.standings.appendChild(container);
+    // Ajouter les colonnes directement au conteneur
+    tvRefs.standings.appendChild(createColumn(leftColumn, 0));
+    tvRefs.standings.appendChild(createColumn(rightColumn, halfPoint));
   }
 
   // ========================================
