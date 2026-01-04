@@ -1090,6 +1090,7 @@
       var fontFamily = theme.font === 'system' ?
         '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' :
         theme.font + ', sans-serif';
+      root.style.setProperty('--app-font-family', fontFamily);
       root.style.setProperty('--font-family', fontFamily);
       document.body.style.fontFamily = fontFamily;
     }
