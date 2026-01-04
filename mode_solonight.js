@@ -574,12 +574,16 @@
         var losers = result.winner === 'A' ? match.teamB : match.teamA;
 
         winners.forEach(function(pid) {
-          standings[pid].wins++;
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].wins++;
+            standings[pid].matches++;
+          }
         });
 
         losers.forEach(function(pid) {
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].matches++;
+          }
         });
       });
     });
@@ -866,8 +870,8 @@
     // Appliquer le logo
     applyLogoToTv();
 
-    // Appliquer le sponsor
-    applySponsorToTv();
+    // Appliquer le sponsor (désactivé - cause des erreurs)
+    // applySponsorToTv();
   }
 
   function renderTvCurrentMatches() {
@@ -969,12 +973,16 @@
         var losers = result.winner === 'A' ? match.teamB : match.teamA;
 
         winners.forEach(function(pid) {
-          standings[pid].wins++;
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].wins++;
+            standings[pid].matches++;
+          }
         });
 
         losers.forEach(function(pid) {
-          standings[pid].matches++;
+          if (standings[pid]) {
+            standings[pid].matches++;
+          }
         });
       });
     });
