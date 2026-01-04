@@ -866,8 +866,8 @@
     // Appliquer le logo
     applyLogoToTv();
 
-    // Appliquer le sponsor (désactivé temporairement pour debug)
-    // applySponsorToTv();
+    // Appliquer le sponsor
+    applySponsorToTv();
   }
 
   function renderTvCurrentMatches() {
