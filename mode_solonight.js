@@ -1063,15 +1063,6 @@
         if (targetTab === 'tv' && tvRoot) {
           renderTv();
           initTVSystems();
-
-          // Appliquer le sponsor après un délai pour garantir la stabilité
-          setTimeout(function() {
-            try {
-              applySponsorToTv();
-            } catch (err) {
-              console.error('[Solo Night TV] Erreur lors de l\'application du sponsor:', err);
-            }
-          }, 500);
         }
       });
     });
@@ -1176,6 +1167,16 @@
       if (tvRotationManager.init()) {
         tvRotationManager.start();
         console.log('[Solo Night TV] Rotation démarrée');
+
+        // Appliquer le sponsor après un délai
+        setTimeout(function() {
+          try {
+            applySponsorToTv();
+          } catch (err) {
+            console.error('[Solo Night TV] Erreur sponsor (rotation):', err);
+          }
+        }, 800);
+
         return; // La rotation gère l'affichage des blocs
       } else {
         console.warn('[Solo Night TV] Échec initialisation rotation, affichage statique');
@@ -1192,6 +1193,15 @@
       showDefaultTVBlocks(tvMain, layoutType, allBlocks);
       console.log('[Solo Night TV] Blocs par défaut affichés (pas de config)');
     }
+
+    // Appliquer le sponsor pour mode statique
+    setTimeout(function() {
+      try {
+        applySponsorToTv();
+      } catch (err) {
+        console.error('[Solo Night TV] Erreur sponsor (statique):', err);
+      }
+    }, 800);
   }
 
   // Afficher les blocs TV par défaut quand il n'y a pas de config
