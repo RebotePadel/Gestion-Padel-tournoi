@@ -850,6 +850,43 @@
   // ONGLET THÈME
   // ========================================
 
+  // Configuration des polices disponibles
+  var AVAILABLE_FONTS = [
+    { key: 'system', google: null, family: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+    { key: 'Inter', google: 'Inter:wght@400;600;700', family: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Poppins', google: 'Poppins:wght@400;600;700', family: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Montserrat', google: 'Montserrat:wght@400;600;700', family: "'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Roboto', google: 'Roboto:wght@400;500;700', family: "'Roboto', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Nunito', google: 'Nunito:wght@400;600;800', family: "'Nunito', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" }
+  ];
+
+  // Charger une Google Font dynamiquement
+  function loadGoogleFont(fontKey) {
+    var fontConfig = AVAILABLE_FONTS.find(function(f) { return f.key === fontKey; });
+    if (!fontConfig) fontConfig = AVAILABLE_FONTS[0];
+
+    var linkId = 'theme-font-link';
+    var existingLink = document.getElementById(linkId);
+
+    if (fontConfig.google) {
+      var fontUrl = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(fontConfig.google) + '&display=swap';
+
+      if (existingLink) {
+        existingLink.href = fontUrl;
+      } else {
+        var link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        link.href = fontUrl;
+        document.head.appendChild(link);
+      }
+    } else if (existingLink) {
+      existingLink.href = '';
+    }
+
+    return fontConfig.family;
+  }
+
   function initThemeTab() {
     var panel = refs.panels.theme;
     if (!panel) return;
@@ -1087,12 +1124,9 @@
 
     // Police
     if (theme.font) {
-      var fontFamily = theme.font === 'system' ?
-        '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif' :
-        theme.font + ', sans-serif';
+      var fontFamily = loadGoogleFont(theme.font);
       root.style.setProperty('--app-font-family', fontFamily);
       root.style.setProperty('--font-family', fontFamily);
-      document.body.style.fontFamily = fontFamily;
     }
 
     // Arrondis (border-radius)
