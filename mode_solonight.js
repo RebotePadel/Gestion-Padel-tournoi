@@ -798,7 +798,7 @@
 
       // Filtrer les sponsors actifs
       var activeSponsors = sponsors.filter(function(s) {
-        return s && s.logoData && s.name;
+        return s && s.logoDataUrl && s.name;
       });
 
       if (activeSponsors.length === 0) {
@@ -812,7 +812,7 @@
       var sponsor = activeSponsors[0];
 
       // Appliquer le logo et le nom
-      tvRefs.sponsorLogo.src = sponsor.logoData;
+      tvRefs.sponsorLogo.src = sponsor.logoDataUrl;
       tvRefs.sponsorName.textContent = sponsor.name;
 
       // Afficher le bandeau
