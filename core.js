@@ -17,6 +17,7 @@
     ligueManage: document.getElementById('ligue-manage-root'),
     liguePlayer: document.getElementById('ligue-player-root'),
     liguePlayerManage: document.getElementById('ligue-player-manage-root'),
+    homologue: document.getElementById('homologue-root'),
     settings: document.getElementById('settings-root')
   };
 
