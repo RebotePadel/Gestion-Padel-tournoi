@@ -1911,14 +1911,14 @@
       cursor: not-allowed;
     }
 
-    .tv-match-card { border: 1px solid #1f2937; border-radius: 12px; background: rgba(15,23,42,0.6); padding: 16px; margin-bottom: 12px; }
+    .tv-match-card { border: 1px solid #1f2937; border-radius: 12px; background: rgba(15,23,42,0.6); padding: 10px; margin-bottom: 8px; }
     .tv-match-card.completed { border-color: rgba(34,197,94,0.5); }
     .tv-match-card.pending { border-color: rgba(59,130,246,0.5); }
-    .tv-match-card .tv-court { font-weight: 700; color: var(--brand-accent); margin-bottom: 12px; font-size: 1rem; }
-    .tv-match-card .tv-teams { display: flex; align-items: center; gap: 12px; }
-    .tv-match-card .tv-team { flex: 1; padding: 12px; border-radius: 8px; background: rgba(30,41,59,0.5); text-align: center; font-size: 1rem; }
+    .tv-match-card .tv-court { font-weight: 700; color: var(--brand-accent); margin-bottom: 8px; font-size: 0.9rem; }
+    .tv-match-card .tv-teams { display: flex; align-items: center; gap: 8px; }
+    .tv-match-card .tv-team { flex: 1; padding: 8px; border-radius: 8px; background: rgba(30,41,59,0.5); text-align: center; font-size: 0.9rem; }
     .tv-match-card .tv-team.winner { background: rgba(34,197,94,0.2); border: 2px solid rgba(34,197,94,0.6); }
-    .tv-match-card .tv-vs { font-weight: 700; font-size: 1.2rem; color: var(--muted); }
+    .tv-match-card .tv-vs { font-weight: 700; font-size: 1rem; color: var(--muted); }
 
     .tv-standing-row { display: flex; align-items: center; gap: 12px; padding: 10px; border-bottom: 1px solid #1f2937; }
     .tv-standing-row.podium { background: rgba(255,215,0,0.1); }
@@ -9605,6 +9605,7 @@
         makeSponsorDraggable('tv-sponsor-banner', 'tvSponsorMdPos', 'tv-root');
         makeSponsorDraggable('classic-tv-sponsor-banner', 'tvSponsorClassicPos', 'tv-overlay');
         makeSponsorDraggable('americano-tv-sponsor-banner', 'tvSponsorAmericanoPos', 'americano-tv-root');
+        makeSponsorDraggable('solonight-tv-sponsor-banner', 'tvSponsorSolonightPos', 'solonight-tv-root');
       }
 
       function syncThemeForm() {
