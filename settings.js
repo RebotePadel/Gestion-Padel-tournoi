@@ -850,6 +850,43 @@
   // ONGLET THÈME
   // ========================================
 
+  // Configuration des polices disponibles
+  var AVAILABLE_FONTS = [
+    { key: 'system', google: null, family: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif' },
+    { key: 'Inter', google: 'Inter:wght@400;600;700', family: "'Inter', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Poppins', google: 'Poppins:wght@400;600;700', family: "'Poppins', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Montserrat', google: 'Montserrat:wght@400;600;700', family: "'Montserrat', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Roboto', google: 'Roboto:wght@400;500;700', family: "'Roboto', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" },
+    { key: 'Nunito', google: 'Nunito:wght@400;600;800', family: "'Nunito', system-ui, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif" }
+  ];
+
+  // Charger une Google Font dynamiquement
+  function loadGoogleFont(fontKey) {
+    var fontConfig = AVAILABLE_FONTS.find(function(f) { return f.key === fontKey; });
+    if (!fontConfig) fontConfig = AVAILABLE_FONTS[0];
+
+    var linkId = 'theme-font-link';
+    var existingLink = document.getElementById(linkId);
+
+    if (fontConfig.google) {
+      var fontUrl = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(fontConfig.google) + '&display=swap';
+
+      if (existingLink) {
+        existingLink.href = fontUrl;
+      } else {
+        var link = document.createElement('link');
+        link.id = linkId;
+        link.rel = 'stylesheet';
+        link.href = fontUrl;
+        document.head.appendChild(link);
+      }
+    } else if (existingLink) {
+      existingLink.href = '';
+    }
+
+    return fontConfig.family;
+  }
+
   function initThemeTab() {
     var panel = refs.panels.theme;
     if (!panel) return;
@@ -933,6 +970,16 @@
       }
     });
 
+    // Gestionnaire spécifique pour afficher/cacher le champ d'upload d'image
+    if (themeEditorRefs.bgStyle) {
+      themeEditorRefs.bgStyle.addEventListener('change', function() {
+        var imageField = document.getElementById('theme-bg-image-field');
+        if (imageField) {
+          imageField.style.display = (this.value === 'image') ? 'block' : 'none';
+        }
+      });
+    }
+
     // Charger et afficher les thèmes personnalisés
     renderCustomThemesList();
   }
@@ -942,6 +989,7 @@
     var savedTheme = loadFromStorage(STORAGE_KEYS.activeTheme, null);
 
     if (savedTheme && savedTheme.colors) {
+      // Couleurs
       if (themeEditorRefs.primary) themeEditorRefs.primary.value = savedTheme.colors.primary || '#004b9b';
       if (themeEditorRefs.secondary) themeEditorRefs.secondary.value = savedTheme.colors.secondary || '#4d81b9';
       if (themeEditorRefs.accent) themeEditorRefs.accent.value = savedTheme.colors.accent || '#e5e339';
@@ -949,6 +997,19 @@
       if (themeEditorRefs.card) themeEditorRefs.card.value = savedTheme.colors.card || '#0b1220';
       if (themeEditorRefs.text) themeEditorRefs.text.value = savedTheme.colors.text || '#ffffff';
       if (themeEditorRefs.title) themeEditorRefs.title.value = savedTheme.colors.title || '#e5e339';
+
+      // Autres propriétés
+      if (themeEditorRefs.font) themeEditorRefs.font.value = savedTheme.font || 'system';
+      if (themeEditorRefs.borderRadius) themeEditorRefs.borderRadius.value = savedTheme.borderRadius || 'rounded';
+      if (themeEditorRefs.buttonStyle) themeEditorRefs.buttonStyle.value = savedTheme.buttonStyle || 'solid';
+      if (themeEditorRefs.bgStyle) {
+        themeEditorRefs.bgStyle.value = savedTheme.bgStyle || 'gradient';
+        // Afficher le champ d'image si nécessaire
+        var imageField = document.getElementById('theme-bg-image-field');
+        if (imageField) {
+          imageField.style.display = (savedTheme.bgStyle === 'image') ? 'block' : 'none';
+        }
+      }
     } else {
       // Valeurs par défaut
       if (themeEditorRefs.primary) themeEditorRefs.primary.value = '#004b9b';
@@ -958,12 +1019,38 @@
       if (themeEditorRefs.card) themeEditorRefs.card.value = '#0b1220';
       if (themeEditorRefs.text) themeEditorRefs.text.value = '#ffffff';
       if (themeEditorRefs.title) themeEditorRefs.title.value = '#e5e339';
+
+      if (themeEditorRefs.font) themeEditorRefs.font.value = 'system';
+      if (themeEditorRefs.borderRadius) themeEditorRefs.borderRadius.value = 'rounded';
+      if (themeEditorRefs.buttonStyle) themeEditorRefs.buttonStyle.value = 'solid';
+      if (themeEditorRefs.bgStyle) themeEditorRefs.bgStyle.value = 'gradient';
     }
   }
 
   function applyEditorTheme() {
     if (!confirm('Appliquer ce thème personnalisé à l\'application ?')) return;
 
+    // Récupérer l'image de fond si elle existe
+    var bgImageUrl = '';
+    if (themeEditorRefs.bgStyle.value === 'image' && themeEditorRefs.bgImage.files && themeEditorRefs.bgImage.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        bgImageUrl = e.target.result;
+        applyThemeWithImageUrl(bgImageUrl);
+      };
+      reader.readAsDataURL(themeEditorRefs.bgImage.files[0]);
+      return; // Attendre que l'image soit chargée
+    } else {
+      // Récupérer l'image stockée si elle existe
+      var currentTheme = loadFromStorage(STORAGE_KEYS.activeTheme, null);
+      if (currentTheme && currentTheme.bgImageUrl) {
+        bgImageUrl = currentTheme.bgImageUrl;
+      }
+      applyThemeWithImageUrl(bgImageUrl);
+    }
+  }
+
+  function applyThemeWithImageUrl(bgImageUrl) {
     var theme = {
       id: 'custom-' + Date.now(),
       name: 'Thème personnalisé',
@@ -978,11 +1065,18 @@
         title: themeEditorRefs.title.value,
         border: '#1e293b',
         muted: '#9ca3af'
-      }
+      },
+      font: themeEditorRefs.font.value,
+      borderRadius: themeEditorRefs.borderRadius.value,
+      buttonStyle: themeEditorRefs.buttonStyle.value,
+      bgStyle: themeEditorRefs.bgStyle.value,
+      bgImageUrl: bgImageUrl
     };
 
     // Appliquer le thème
     var root = document.documentElement;
+
+    // Couleurs
     if (theme.colors.primary) {
       root.style.setProperty('--brand-primary', theme.colors.primary);
       root.style.setProperty('--brand-primary-rgb', hexToRgb(theme.colors.primary));
@@ -1028,6 +1122,48 @@
     root.style.setProperty('--success', '#22c55e');
     root.style.setProperty('--danger', '#ef4444');
 
+    // Police
+    if (theme.font) {
+      var fontFamily = loadGoogleFont(theme.font);
+      root.style.setProperty('--app-font-family', fontFamily);
+      root.style.setProperty('--font-family', fontFamily);
+    }
+
+    // Arrondis (border-radius)
+    if (theme.borderRadius) {
+      var radiusValue = '12px'; // Valeur par défaut
+      if (theme.borderRadius === 'square') radiusValue = '0px';
+      else if (theme.borderRadius === 'rounded') radiusValue = '12px';
+      else if (theme.borderRadius === 'pill') radiusValue = '24px';
+
+      root.style.setProperty('--border-radius', radiusValue);
+      root.style.setProperty('--card-radius', radiusValue);
+    }
+
+    // Style de boutons
+    if (theme.buttonStyle) {
+      document.body.setAttribute('data-button-style', theme.buttonStyle);
+    }
+
+    // Fond de page
+    if (theme.bgStyle) {
+      document.body.setAttribute('data-bg-style', theme.bgStyle);
+
+      if (theme.bgStyle === 'solid') {
+        document.body.style.background = theme.colors.background || '#020617';
+        document.body.style.backgroundImage = 'none';
+      } else if (theme.bgStyle === 'gradient') {
+        document.body.style.backgroundImage = 'linear-gradient(135deg, ' + theme.colors.background + ', ' + theme.colors.card + ')';
+      } else if (theme.bgStyle === 'pattern') {
+        document.body.style.backgroundImage = 'repeating-linear-gradient(45deg, ' + theme.colors.background + ', ' + theme.colors.background + ' 10px, ' + theme.colors.card + ' 10px, ' + theme.colors.card + ' 20px)';
+      } else if (theme.bgStyle === 'image' && theme.bgImageUrl) {
+        document.body.style.backgroundImage = 'url(' + theme.bgImageUrl + ')';
+        document.body.style.backgroundSize = 'cover';
+        document.body.style.backgroundPosition = 'center';
+        document.body.style.backgroundAttachment = 'fixed';
+      }
+    }
+
     // Sauvegarder comme thème actif
     saveToStorage(STORAGE_KEYS.activeTheme, theme);
 
@@ -1039,6 +1175,27 @@
     var themeName = prompt('Nom de ce thème personnalisé:', 'Mon thème');
     if (!themeName) return;
 
+    // Récupérer l'image de fond si elle existe
+    var bgImageUrl = '';
+    if (themeEditorRefs.bgStyle.value === 'image' && themeEditorRefs.bgImage.files && themeEditorRefs.bgImage.files[0]) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        bgImageUrl = e.target.result;
+        saveCustomThemeWithImage(themeName, bgImageUrl);
+      };
+      reader.readAsDataURL(themeEditorRefs.bgImage.files[0]);
+      return; // Attendre que l'image soit chargée
+    } else {
+      // Récupérer l'image stockée si elle existe
+      var currentTheme = loadFromStorage(STORAGE_KEYS.activeTheme, null);
+      if (currentTheme && currentTheme.bgImageUrl) {
+        bgImageUrl = currentTheme.bgImageUrl;
+      }
+      saveCustomThemeWithImage(themeName, bgImageUrl);
+    }
+  }
+
+  function saveCustomThemeWithImage(themeName, bgImageUrl) {
     var newTheme = {
       id: 'custom-' + Date.now(),
       name: themeName,
@@ -1054,6 +1211,11 @@
         border: '#1e293b',
         muted: '#9ca3af'
       },
+      font: themeEditorRefs.font.value,
+      borderRadius: themeEditorRefs.borderRadius.value,
+      buttonStyle: themeEditorRefs.buttonStyle.value,
+      bgStyle: themeEditorRefs.bgStyle.value,
+      bgImageUrl: bgImageUrl,
       createdAt: new Date().toISOString()
     };
 

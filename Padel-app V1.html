@@ -46,6 +46,11 @@
       --success: var(--brand-success);
       --danger: var(--brand-danger);
       --app-font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+      /* Formes et espacements */
+      --border-radius: 12px;
+      --card-radius: 12px;
 
       /* Typographie */
       --font-size-xs: clamp(0.7rem, 1.5vw, 0.75rem);
@@ -209,6 +214,34 @@
       opacity: 0.5;
       cursor: default;
       box-shadow: none;
+    }
+
+    /* Styles de boutons personnalisés via data-button-style */
+    body[data-button-style="outline"] .btn {
+      background: transparent;
+      border: 2px solid var(--accent);
+      color: var(--accent);
+    }
+
+    body[data-button-style="outline"] .btn:hover {
+      background: rgba(var(--brand-accent-rgb), 0.1);
+    }
+
+    body[data-button-style="ghost"] .btn {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      box-shadow: none;
+    }
+
+    body[data-button-style="ghost"] .btn:hover {
+      background: rgba(var(--brand-accent-rgb), 0.1);
+    }
+
+    /* Utiliser les variables de border-radius sur les cartes et boutons */
+    .card, .pool-card, .bracket-card, .tournament-type-card,
+    .ligue-block-config, .ligue-block-active, .settings-section {
+      border-radius: var(--card-radius) !important;
     }
 
     .chip {
@@ -9655,7 +9688,7 @@
         nameTargets.forEach(function(el) { el.textContent = currentClubProfile.name || DEFAULT_PROFILE.name; });
         var shortTargets = document.querySelectorAll('[data-club-shortname]');
         shortTargets.forEach(function(el) { el.textContent = currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName; });
-        document.title = 'Moteur Tournois & M/D – ' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
+        document.title = '' + (currentClubProfile.shortName || currentClubProfile.name || DEFAULT_PROFILE.shortName);
 
         if (currentClubProfile.logoDataUrl) applyLogoVisual(currentClubProfile.logoDataUrl);
 
