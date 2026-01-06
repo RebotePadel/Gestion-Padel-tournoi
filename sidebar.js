@@ -49,7 +49,8 @@
     'americano': 'americano-root',
     'solonight': 'solonight-root',
     'ligue': 'ligue-root',
-    'ligue-config': 'ligue-config-root'
+    'ligue-config': 'ligue-config-root',
+    'homologue': 'homologue-root'
   };
 
   // Navigation handler
@@ -115,10 +116,12 @@
     'btn-home-md': 'md',
     'btn-home-tournaments': 'tournaments',
     'btn-home-ligue': 'ligue',
+    'btn-home-homologue': 'homologue',
     'btn-back-home-from-md': 'home',
     'btn-back-home-from-tournaments': 'home',
     'btn-back-home-from-classic': 'home',
     'btn-back-home-from-ligue': 'home',
+    'btn-back-home-from-homologue': 'home',
     'btn-ligue-config': 'ligue-config',
     'btn-home-americano': 'americano',
     'btn-americano-home': 'home'
